@@ -165,7 +165,7 @@ class AudioEngine {
       .then((m) => {
         this.manifest = m?.clips ?? {};
         // warm the clips needed with zero latency while counting
-        for (let n = 1; n <= 10; n++) void this.clip(`number.${n}`);
+        for (let n = 1; n <= 20; n++) void this.clip(`number.${n}`);
       })
       .catch(() => {
         this.manifest = {};

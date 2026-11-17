@@ -24,6 +24,13 @@ Content: 20 exercises (8 at level 1 so a struggling child can complete a full ro
 - Distractors are ±1 of the target (plausible counting errors).
 - Language: ≤12 words, concrete nouns, one instruction per line.
 
+## Milestone 2 games
+| Game | Skill id | Objective | Levels |
+|---|---|---|---|
+| Glow Cave Hops (5–7) | `math.add.number-line` | Addition as moving forward on an evenly spaced number line; counting on | L1 0–5, 1–2 hops · L2 0–10, 2–4 · L3 0–10, 3–6 · L4 0–20, 4–9 |
+| Sky Balloon Race (6–8) | `math.add.within-20` | Add within 20 by counting on from the larger number and making ten | L1 ≤5 · L2 ≤10 · L3 bridging ten · L4 ≤20 |
+| Cookie Kitchen (7–9) | `math.div.share-equally` | Share a quantity equally into groups (early division) by dealing one at a time | L1 2 groups ≤8 · L2 2–3 ≤12 · L3 3–4 ≤16 · L4 4–5 ≤20 |
+
 ## Next skills (Phase 6 candidates)
 `math.count.compare` (more/fewer), `math.number.numeral-match`, `math.add.within-5` (Puff/Rumble games), `literacy.letters.recognise` (Zuzu), `shapes.2d.identify` (Gloop).
 

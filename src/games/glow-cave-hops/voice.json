@@ -1,0 +1,31 @@
+{
+  "objects": {
+    "crystal": { "one": "crystal", "many": "crystals" }
+  },
+  "lines": {
+    "gc.story.1": { "text": "Deep under Monster Island, Gloop's crystal cave went dark." },
+    "gc.story.2": { "text": "The crystals only glow when someone hops the right number of spaces." },
+    "gc.story.3": { "text": "Then Zuzu bounced in with her little lantern. Hello, Gloop!" },
+    "gc.story.4": { "text": "Let's help Gloop hop along the track, one space at a time!" },
+    "gc.story.mid1": { "text": "Look! The crystals are waking up. The cave is getting brighter!" },
+    "gc.story.mid2": { "text": "Halfway there! Gloop can see the sparkly walls again." },
+    "gc.story.mid3": { "text": "Just a few more hops, and the whole cave will shine!" },
+    "gc.story.end1": { "text": "Wow! The whole crystal cave is sparkling again!" },
+    "gc.story.end2": { "text": "Gloop is doing a wiggly jelly dance! You counted every hop." },
+    "gc.story.end3": { "text": "You found a Brain Spark! Next time, the tunnels go even deeper." },
+    "gc.help.explain": { "text": "Each hop is plus one! Start on the first number, then count every hop." },
+    "gc.help.hint": { "text": "Let's go back to the start. Say the next number on every hop!" },
+    "gc.prompt": {
+      "text": "Hop {hops} spaces from {start}!",
+      "vary": { "hops": [2, 3, 4, 5, 6, 7, 8, 9], "start": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13] }
+    },
+    "gc.prompt1": { "text": "Hop 1 space from {start}!", "vary": { "start": [0, 1, 2, 3, 4] } },
+    "gc.praise.1": { "text": "You hopped all the way to {n}!", "vary": { "n": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 15, 16, 17, 20] } },
+    "gc.praise.2": { "text": "Hop by hop, you counted on to {n}!", "vary": { "n": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 15, 16, 17, 20] } },
+    "gc.praise.3": { "text": "The crystals glow! You landed right on {n}!", "vary": { "n": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 15, 16, 17, 20] } },
+    "gc.hint.countAlong": { "text": "Let's count the hops together. Plus one, plus one!" },
+    "gc.hint.model": { "text": "Watch the hops. Each hop lands on the next number." },
+    "gc.hint.modelTap": { "text": "We land on {n}! Move the cart to {n}, then press Go.", "vary": { "n": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 15, 16, 17, 20] } },
+    "gc.idle": { "text": "Slide the cart, or tap Hop. Each hop moves one space!" }
+  }
+}

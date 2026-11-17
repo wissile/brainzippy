@@ -1,0 +1,208 @@
+{
+  "lines": {
+    "sb.story.1": {
+      "text": "Today is the Great Sky Balloon Race over Monster Island!"
+    },
+    "sb.story.2": {
+      "text": "But oh no! Bobbo's balloon is too heavy. It won't lift off!"
+    },
+    "sb.story.3": {
+      "text": "Whoosh! Puff floats in with a bunch of magic number balloons."
+    },
+    "sb.story.4": {
+      "text": "Hi, I'm Puff! Solve each sum, and the balloons will lift Bobbo up!"
+    },
+    "sb.mid.1": {
+      "text": "Look! Bobbo's balloon is rising higher and higher!"
+    },
+    "sb.mid.2": {
+      "text": "Bobbo just floated past Zuzu! Keep adding!"
+    },
+    "sb.mid.3": {
+      "text": "Now he's passing Gloop! The rainbow finish is almost here!"
+    },
+    "sb.story.end1": {
+      "text": "Up, up and away! Bobbo zooms through the rainbow finish line!"
+    },
+    "sb.story.end2": {
+      "text": "Bobbo wins the Great Sky Balloon Race! Your careful adding lifted him."
+    },
+    "sb.story.end3": {
+      "text": "You found a Brain Spark! Next race, the sums get a little bigger."
+    },
+    "sb.help.explain": {
+      "text": "Here's a trick! Start with the bigger number, then count up the rest."
+    },
+    "sb.help.hint": {
+      "text": "Let's count on. Hold the bigger number in your head, then count up!"
+    },
+    "sb.hint.countOn": {
+      "text": "Start at the bigger number, and count on the rest."
+    },
+    "sb.hint.model": {
+      "text": "Watch Puff count on. Start big, then count up!"
+    },
+    "sb.retry": {
+      "text": "So close! Let's try another balloon."
+    },
+    "sb.idle": {
+      "text": "Which balloon shows the answer? Drag it to Bobbo, or tap it!"
+    },
+    "sb.hint.modelTap": {
+      "text": "It makes {n}! Bring the glowing balloon to Bobbo.",
+      "vary": {
+        "n": [
+          3,
+          4,
+          5,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          17,
+          18,
+          19,
+          20
+        ]
+      }
+    },
+    "sb.praise.1": {
+      "text": "{n}! You counted on from the bigger number!",
+      "vary": {
+        "n": [
+          3,
+          4,
+          5,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          17,
+          18,
+          19,
+          20
+        ]
+      }
+    },
+    "sb.praise.2": {
+      "text": "Yes, {n}! Up goes Bobbo's balloon!",
+      "vary": {
+        "n": [
+          3,
+          4,
+          5,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          17,
+          18,
+          19,
+          20
+        ]
+      }
+    },
+    "sb.praise.3": {
+      "text": "You started big and counted up. Great adding!"
+    },
+    "sb.praise.4": {
+      "text": "That's it! You put the two numbers together."
+    },
+    "sb.q.2p1": {
+      "text": "What is 2 plus 1?"
+    },
+    "sb.q.3p1": {
+      "text": "What is 3 plus 1?"
+    },
+    "sb.q.2p2": {
+      "text": "What is 2 plus 2?"
+    },
+    "sb.q.4p1": {
+      "text": "What is 4 plus 1?"
+    },
+    "sb.q.1p3": {
+      "text": "What is 1 plus 3?"
+    },
+    "sb.q.3p2": {
+      "text": "What is 3 plus 2?"
+    },
+    "sb.q.1p2": {
+      "text": "What is 1 plus 2?"
+    },
+    "sb.q.2p3": {
+      "text": "What is 2 plus 3?"
+    },
+    "sb.q.1p4": {
+      "text": "What is 1 plus 4?"
+    },
+    "sb.q.5p2": {
+      "text": "What is 5 plus 2?"
+    },
+    "sb.q.6p3": {
+      "text": "What is 6 plus 3?"
+    },
+    "sb.q.4p4": {
+      "text": "What is 4 plus 4?"
+    },
+    "sb.q.2p6": {
+      "text": "What is 2 plus 6?"
+    },
+    "sb.q.7p3": {
+      "text": "What is 7 plus 3?"
+    },
+    "sb.q.5p4": {
+      "text": "What is 5 plus 4?"
+    },
+    "sb.q.8p5": {
+      "text": "What is 8 plus 5?"
+    },
+    "sb.q.9p4": {
+      "text": "What is 9 plus 4?"
+    },
+    "sb.q.7p6": {
+      "text": "What is 7 plus 6?"
+    },
+    "sb.q.8p6": {
+      "text": "What is 8 plus 6?"
+    },
+    "sb.q.9p3": {
+      "text": "What is 9 plus 3?"
+    },
+    "sb.q.3p8": {
+      "text": "What is 3 plus 8?"
+    },
+    "sb.q.12p5": {
+      "text": "What is 12 plus 5?"
+    },
+    "sb.q.14p6": {
+      "text": "What is 14 plus 6?"
+    },
+    "sb.q.11p7": {
+      "text": "What is 11 plus 7?"
+    },
+    "sb.q.13p4": {
+      "text": "What is 13 plus 4?"
+    },
+    "sb.q.16p3": {
+      "text": "What is 16 plus 3?"
+    },
+    "sb.q.8p7": {
+      "text": "What is 8 plus 7?"
+    }
+  }
+}

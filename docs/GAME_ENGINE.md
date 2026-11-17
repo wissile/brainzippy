@@ -38,7 +38,7 @@ Events: `TAP_OBJECT, CHOOSE, ADD_TO_BASKET, REMOVE_FROM_BASKET, SUBMIT_SET, FEED
 | correct | celebrate; praise names the number and the process | same | same |
 
 ## Progression (deterministic)
-R1 start at difficulty 1 with the tutorial · R2 2 consecutive first-try → +1 level (max 4) · R3 ≥3 attempts → −1 level (min 1) · R4 2nd-try success resets streak · R5 next = first unplayed at current level with a different interaction than last; else nearest level (lower first) · R6 round = 8 exercises. All covered in `tests/unit/progression.test.ts` (including simulated fast, average and struggling learners).
+R0 level-up: each completed round raises the game's level by one (stored per game); the next round starts at `minDifficulty + level` (capped) and skips the tutorial item · R1 start at difficulty 1 with the tutorial · R2 2 consecutive first-try → +1 level (max 4) · R3 ≥3 attempts → −1 level (min 1) · R4 2nd-try success resets streak · R5 next = first unplayed at current level with a different interaction than last; else nearest level (lower first) · R6 round = 8 exercises. All covered in `tests/unit/progression.test.ts` (including simulated fast, average and struggling learners).
 
 ## Runtime sequence (correct answer)
 ```mermaid
@@ -61,6 +61,9 @@ Async presentation sequences carry a token; any newer sequence or unmount invali
 
 ## Layout guarantee
 `src/game/layout.ts` places objects in jittered grid cells sized from the play field's measured aspect ratio; objects are ≤78 % of a cell with ≤15 % jitter, so they cannot overlap (property-tested over counts 1–10 × 7 aspects × 39 seeds).
+
+## Stories, helpers, music (milestone 2)
+`GameSkin` optionally provides `story { intro, outro, between }` (cinematic `StoryBeat`s played by `StoryPlayer`: scene + camera move + sfx + voiced subtitle; tap to advance, skip anytime, time-capped), `helper` (a second character that slides in to explain the concept at the start of a round and on a first miss), `music` (looping world track, ducked under speech), custom `Board`/`Tray`, game-specific `praise`/`hintVoice`, and worked-example steps (`alongSteps`/`alongSay`). Contract: `docs/GAME_AUTHORING.md`.
 
 ## Adding things
 - **New game, same interactions:** new folder with `definition.ts`, `art.tsx`, skin file; register a route. No engine changes.

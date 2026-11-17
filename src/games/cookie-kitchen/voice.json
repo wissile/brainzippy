@@ -1,0 +1,27 @@
+{
+  "lines": {
+    "ck.prompt": { "text": "Share {total} cookies on {groups} plates!", "vary": { "total": [2, 4, 5, 6, 8, 9, 10, 12, 15, 16, 20], "groups": [2, 3, 4, 5] } },
+    "ck.story.1": { "text": "In Rumble's cozy kitchen, a big batch of cookies is baking for a party!" },
+    "ck.story.2": { "text": "Knock, knock! Here come the friends. Hello, Bobbo, Gloop and Zuzu!" },
+    "ck.story.3": { "text": "Uh-oh! Everyone wants cookies. Each friend must get the same, so it's fair." },
+    "ck.story.4": { "text": "Hoo-hoo! I'm Hoot. Let's share the cookies fairly, plate by plate!" },
+    "ck.story.mid1": { "text": "Mmm! The kitchen smells so sweet. More friends are hungry!" },
+    "ck.story.mid2": { "text": "Halfway there! The party table is filling up." },
+    "ck.story.mid3": { "text": "Just a few more plates to share!" },
+    "ck.story.end1": { "text": "The party is ready! Every friend has a fair share of cookies." },
+    "ck.story.end2": { "text": "Hoo-hoo! You gave one to each plate, again and again. That's fair sharing!" },
+    "ck.story.end3": { "text": "You earned a Brain Spark! Next time, even more friends are coming!" },
+    "ck.help.explain": { "text": "Fair sharing means every plate gets the same. Give one to each plate, then go around again!" },
+    "ck.help.hint": { "text": "Hoo! Let's check. Deal one cookie to each plate, round and round. Then count one plate." },
+    "ck.praise.1": { "text": "{n} each! Perfectly fair!", "vary": { "n": [1, 2, 3, 4, 5, 6] } },
+    "ck.praise.2": { "text": "Every plate got {n}. That's fair sharing!", "vary": { "n": [1, 2, 3, 4, 5, 6] } },
+    "ck.praise.3": { "text": "You worked out the fair share. {n} each!", "vary": { "n": [1, 2, 3, 4, 5, 6] } },
+    "ck.praise.4": { "text": "Fair and square! {n} on every plate!", "vary": { "n": [1, 2, 3, 4, 5, 6] } },
+    "ck.hint.deal": { "text": "Hmm, that's not fair yet. Let's deal them out, one each, round and round." },
+    "ck.hint.model": { "text": "Let's share them together. One for each plate, then around again." },
+    "ck.hint.modelTap": { "text": "Every plate has {n}. Tap {n} each!", "vary": { "n": [1, 2, 3, 4, 5, 6] } },
+    "ck.idle": { "text": "Drag a cookie onto a plate. Give one to each friend!" },
+    "ck.fair": { "text": "Every plate has the same. That's fair! How many each?" },
+    "ck.unfair": { "text": "Hmm, some plates have more. Is that fair? Move a cookie!" }
+  }
+}

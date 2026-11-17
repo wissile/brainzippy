@@ -31,7 +31,15 @@
   "nine",
   "ten",
   "eleven",
-  "twelve"
+  "twelve",
+  "thirteen",
+  "fourteen",
+  "fifteen",
+  "sixteen",
+  "seventeen",
+  "eighteen",
+  "nineteen",
+  "twenty"
  ],
  "lines": {
   "home.welcome": {
@@ -447,6 +455,39 @@
   },
   "onb.story.7": {
    "text": "Ready? Let's warm up first!"
+  },
+  "number.13": {
+   "text": "Thirteen."
+  },
+  "number.14": {
+   "text": "Fourteen."
+  },
+  "number.15": {
+   "text": "Fifteen."
+  },
+  "number.16": {
+   "text": "Sixteen."
+  },
+  "number.17": {
+   "text": "Seventeen."
+  },
+  "number.18": {
+   "text": "Eighteen."
+  },
+  "number.19": {
+   "text": "Nineteen."
+  },
+  "number.20": {
+   "text": "Twenty."
+  },
+  "number.0": {
+   "text": "Zero."
+  },
+  "game.ready": {
+   "text": "Ready? Let's play!"
+  },
+  "game.back": {
+   "text": "Welcome back! Let's keep going!"
   }
  }
 }

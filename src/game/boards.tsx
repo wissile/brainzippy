@@ -15,6 +15,10 @@ export interface BoardProps {
   alongIndex: number;
   ObjectArt: (p: { kind: string }) => React.JSX.Element;
   Basket: () => React.JSX.Element;
+  /** Round progress (exercises completed / round length), e.g. to move a race forward. */
+  progress?: { done: number; total: number };
+  /** Tell the runner the child is busy (dragging, sharing) so idle help doesn't interrupt. */
+  busy?: () => void;
 }
 
 const nameOf = (kind: string, n = 1) => (n === 1 ? OBJECT_NAMES[kind]?.one : OBJECT_NAMES[kind]?.many) ?? "snack";

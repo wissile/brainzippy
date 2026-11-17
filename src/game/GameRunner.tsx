@@ -36,6 +36,12 @@ export interface GameSkin {
   /** Worked-example steps for the count-along / model hints and what number to say at each step. */
   alongSteps?: (ex: Exercise) => number;
   alongSay?: (ex: Exercise, i: number) => number | null;
+  /** Number keys 1–9 answer directly (default true). Turn off when answering needs a manipulation first. */
+  numberKeys?: boolean;
+  /** Element the tutorial hand points at on the first exercise (default: first uncounted object). */
+  tutorialTarget?: string;
+  /** Intro/resume card line + caption (default: Bobbo's counting greeting). */
+  intro?: { line: string; text: string; backLine?: string; backText?: string };
   /** Idle help: line to replay and element to point at while answering. */
   idle?: { line: string; target: string };
 }
@@ -148,7 +154,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
   useEffect(() => {
     if (stage !== "intro") return;
     setMascot("greeting");
-    const t = window.setTimeout(() => void audio.speak(resume ? "intro.back" : "intro.hello"), 400);
+    const t = window.setTimeout(() => void audio.speak(resume ? (skin.intro?.backLine ?? "intro.back") : (skin.intro?.line ?? "intro.hello")), 400);
     const nudge = window.setTimeout(() => {
       void audio.speak("intro.go");
       setPointer({ target: '[data-testid="start-game"]' });
@@ -178,7 +184,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
       }
       setMascot("idle");
       lastInteraction.current = Date.now();
-      if (ex.tutorial && stRef.current?.tapped.length === 0) setPointer({ target: '[data-testid="count-object"][data-counted="false"]' });
+      if (ex.tutorial && stRef.current?.tapped.length === 0) setPointer({ target: skin.tutorialTarget ?? '[data-testid="count-object"][data-counted="false"]' });
     })();
   }, [exId, stage]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -369,7 +375,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const s = stRef.current;
-      if (stage !== "play" || !s || !/^[1-9]$/.test(e.key)) return;
+      if (stage !== "play" || !s || skin.numberKeys === false || !/^[1-9]$/.test(e.key)) return;
       const v = Number(e.key);
       if (s.exercise.choices?.includes(v)) act({ type: "CHOOSE", value: v });
     };
@@ -419,7 +425,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
         <div className="game-top"><NavButton to={backTo} kind="back" label="Back to the map" /><span className="level-chip" data-testid="level">Level {level + 1}</span><AudioButtons /></div>
         <div className="intro-card">
           <div className="intro-mascot"><Mascot state={mascot} talking={speaking} size="100%" /></div>
-          <SpeechBubble text={bubble || (resume ? "Welcome back! Let's keep counting!" : "Hi! I'm Bobbo! Will you help me count my snacks?")} tail="left" className="intro-bubble" />
+          <SpeechBubble text={bubble || (resume ? (skin.intro?.backText ?? "Welcome back! Let's keep counting!") : (skin.intro?.text ?? "Hi! I'm Bobbo! Will you help me count my snacks?"))} tail="left" className="intro-bubble" />
         </div>
         <button type="button" className="big-play intro-go" data-testid="start-game" aria-label={resume ? "Keep playing" : "Start"} onClick={startRound}>
           <IconPlay />
@@ -487,7 +493,14 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
   }
 
   if (!st || !ex) return <main className="game" />;
-  const boardProps: BoardProps = { st, act, alongIndex, ObjectArt, Basket };
+  const boardProps: BoardProps = {
+    st, act, alongIndex, ObjectArt, Basket,
+    progress: { done: doneCount, total: game.progression.roundLength },
+    busy: () => {
+      lastInteraction.current = Date.now();
+      setPointer(null);
+    },
+  };
   const showTray = skin.Tray ? <skin.Tray {...boardProps} /> : ex.interaction === "make-set" ? <DoneButton st={st} act={act} /> : <ChoiceTray st={st} act={act} />;
   const promptText =
     ex.prompt?.text ?? (ex.interaction === "make-set" ? `Put ${ex.target} in the basket!` : st.phase === "counting" ? "Tap each one to count!" : "How many?");

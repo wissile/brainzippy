@@ -180,7 +180,7 @@ svg { display: block; }
 @keyframes drift { to { transform: translateX(120px); } }
 .game > :where(:not(.scene-bg, .hand-pointer, .sr-only)) { position: relative; z-index: 1; }
 .game-top { grid-area: top; justify-self: stretch; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.game-top > span { width: var(--tap-min); }
+.game-top > span:not(.top-mid):not(.audio-btns):not(.level-chip) { width: var(--tap-min); }
 
 .stars { display: flex; gap: clamp(2px, 0.6vw, 8px); background: rgba(43, 33, 64, 0.78); padding: 8px 14px; border-radius: var(--r-pill); }
 .star-slot svg { width: clamp(22px, 3.2vw, 34px); height: auto; }

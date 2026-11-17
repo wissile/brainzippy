@@ -18,6 +18,10 @@
 | D-014 | 2026-11-17 | Voice = pre-rendered Kokoro neural clips (voice: af_bella, owner choice) now; human takes via /studio override them | Owner wants a smooth human-sounding voice; no voice actor or TTS account available in-session; Kokoro is Apache-2.0, offline, consistent | Browser TTS (robotic, device-dependent); paid TTS API (account + cost) |
 | D-015 | 2026-11-17 | First-run flow: story → bubble-pop → monster builder → names → age → grown-up → map | Owner request; AdaptedMind observed to gate play behind payment — hook with play and creation first | Straight to age picker (previous) |
 | D-016 | 2026-11-17 | Ask for the **parent's** email (parent gate, consent, skippable), not the child's; child's name stays on device | COPPA restricts collecting a child's contact info without verifiable parental consent; master instructions require parent-controlled collection | Child email field (rejected) |
+| D-018 | 2026-11-17 | Every game is wrapped in a story (intro, between-exercise beats, outro) played by a shared cinematic `StoryPlayer`; always skippable | Owner request; gives each exercise a reason ("help Bobbo find 5 apples") | Static intro cards |
+| D-019 | 2026-11-17 | Level-up per completed round (R0) on top of in-round adaptivity | Owner: "difficulty increases every time the kid succeeds"; in-round step-down kept so strugglers are never stuck | Only in-round adaptation |
+| D-020 | 2026-11-17 | Describe the method as "built on research" with citations, never "proven" | BrainZippy hasn't been studied; unproven efficacy claims to parents risk deceptive-advertising rules; master instructions forbid it | "Proven method" claim |
+| D-021 | 2026-11-17 | New games built in parallel by agents with strict file ownership (one folder each) against `docs/GAME_AUTHORING.md` | Parallel speed without merge conflicts; framework changes stay with the lead | Sequential build |
 | D-017 | 2026-11-17 | Parent-signup endpoint returns 503 outside development until an email provider is chosen | Don't store addresses that can't be verified | Store and send later |
 
 ## Review findings (milestone 1)

@@ -1,0 +1,214 @@
+/* Sky Balloon Race — game-scoped styles. Everything is prefixed .sb- or scoped with :has(.sb-stage). */
+
+/* ---------- screen layout (only when this game's board is mounted) ---------- */
+.game.play-screen:has(.sb-stage) .tray { display: none; }
+.game.play-screen:has(.sb-stage) .mascot-slot { padding-bottom: 3vh; }
+.game.play-screen:has(.sb-stage) .board { padding: 4px 4px 8px; }
+.game:has(.helper) .sb-puff { opacity: 0; transform: scale(0.6); }
+.game.play-screen:has(.sb-stage) .prompt-text { letter-spacing: 1px; }
+/* shared .game-top > span rule squeezes the level+stars group to 64px (it then overflows off-centre) */
+.game.play-screen:has(.sb-stage) .game-top > .top-mid { width: auto; min-width: 0; }
+
+/* ---------- background parallax: the world drifts down/left as Bobbo climbs ---------- */
+.sb-bg .sb-par { transition: transform 1.8s var(--ease-out); }
+.sb-bg .sb-par-far { transform: translate(calc(var(--p, 0) * -14px), calc(var(--p, 0) * 10px)); }
+.sb-bg .sb-par-mid { transform: translate(calc(var(--p, 0) * -48px), calc(var(--p, 0) * 26px)); }
+.sb-bg .sb-par-near { transform: translateY(calc(var(--p, 0) * 14px)); }
+
+/* ---------- hot-air balloon ride (mascot) ---------- */
+.sb-ride { position: relative; width: min(100%, calc(46vh * 300 / 440)); margin: 0 auto; aspect-ratio: 300 / 440; }
+.sb-ride-lift { width: 100%; height: 100%; transform: translateY(calc(var(--p, 0) * -2.4%)); transition: transform 1.6s var(--ease-bounce); }
+.sb-ride.state-celebrating .sb-ride-lift { transform: translateY(calc(var(--p, 0) * -2.4% - 7%)); }
+.sb-ride.state-retry .sb-ride-lift { transform: translateY(calc(var(--p, 0) * -2.4% + 2%)); }
+.sb-ride-float { width: 100%; height: 100%; animation: sb-float 3.6s ease-in-out infinite; transform-origin: 50% 30%; }
+.sb-ride-art { position: relative; width: 100%; aspect-ratio: 300 / 440; transition: transform var(--t-med) var(--ease-bounce), filter var(--t-med); }
+.sb-ride-back, .sb-ride-front { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.sb-passenger { position: absolute; left: 50%; top: 55.5%; width: 42%; transform: translateX(-50%); }
+.sb-passenger .critter { width: 100%; height: auto; max-height: none !important; }
+.sb-passenger .critter-shadow, .sb-passenger .critter > ellipse:first-child { display: none; }
+.sb-ride-art.is-sag .sb-envelope { transform-box: fill-box; transform-origin: 50% 100%; transform: scale(1.06, 0.84); }
+.sb-flame { transform-box: fill-box; transform-origin: 50% 100%; animation: sb-flicker 0.45s ease-in-out infinite alternate; }
+.sb-ride.state-celebrating .sb-flame { animation-name: sb-flicker-big; }
+.sb-tie { animation: sb-tie-in 450ms var(--ease-out) both, sb-sway 3s ease-in-out 450ms infinite alternate; transform-box: view-box; }
+.sb-ride.is-hot .sb-ride-art { transform: scale(1.05); filter: drop-shadow(0 0 14px #fff) drop-shadow(0 0 30px #ffe27a); }
+.mascot-slot .sb-ride { max-height: 50vh; }
+.intro-mascot .sb-ride, .complete-mascot .sb-ride { width: 100%; max-width: calc(52vh * 300 / 440); }
+@keyframes sb-float { 0%, 100% { transform: translateY(0) rotate(-1.2deg); } 50% { transform: translateY(-2.5%) rotate(1.2deg); } }
+@keyframes sb-flicker { from { transform: scale(0.85, 0.8); } to { transform: scale(1.05, 1.15); } }
+@keyframes sb-flicker-big { from { transform: scale(1.3, 1.5); } to { transform: scale(1.6, 2.1); } }
+@keyframes sb-tie-in { from { transform: scale(0.55); } 60% { transform: scale(1.15); } }
+@keyframes sb-sway { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+
+/* ---------- board ---------- */
+.sb-stage { position: relative; flex: 1; min-width: 0; min-height: 0; container-type: size; }
+.sb-stage > * { position: absolute; }
+
+/* race track */
+.sb-track {
+  left: 2%; right: 2%; top: 0; height: clamp(34px, 7cqh, 50px);
+  border-radius: var(--r-pill); background: rgba(43, 33, 64, 0.62);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.12), 0 4px 0 rgba(0, 0, 0, 0.15);
+}
+.sb-track > * { position: absolute; }
+.sb-track-line { left: 4%; right: 8%; top: 50%; height: 0; border-top: 4px dashed rgba(255, 255, 255, 0.45); }
+.sb-check { top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); transition: background var(--t-med), transform var(--t-med) var(--ease-bounce); }
+.sb-check.is-passed { background: var(--sparkle); box-shadow: 0 0 0 3px var(--ink); transform: scale(1.15); }
+.sb-finish { right: 1.5%; bottom: 4px; width: clamp(48px, 8cqw, 76px); }
+.sb-finish svg { width: 100%; height: auto; }
+.sb-racer { top: 50%; width: clamp(26px, 5.4cqh, 40px); transform: translate(-50%, -62%); transition: left 1.4s var(--ease-bounce); }
+.sb-racer svg { width: 100%; height: auto; overflow: visible; }
+.sb-racer.rival { opacity: 0.95; animation: sb-racer-bob 2.6s ease-in-out infinite; }
+.sb-racer.rival.is-behind { opacity: 0.6; }
+.sb-racer.bobbo { z-index: 2; width: clamp(32px, 6.6cqh, 48px); filter: drop-shadow(0 0 6px #ffe27a); }
+@keyframes sb-racer-bob { 50% { transform: translate(-50%, -72%); } }
+
+/* Puff, floating helper on the board */
+.sb-puff { left: 13%; top: 40%; width: min(17cqw, 32cqh); transition: opacity var(--t-med), transform var(--t-slow) var(--ease-out), top var(--t-slow) var(--ease-out), left var(--t-slow) var(--ease-out); animation: sb-hover 3.2s ease-in-out infinite; }
+.sb-puff .critter { width: 100%; height: auto; }
+.sb-puff .critter > ellipse:first-child, .sb-puff-carry .critter > ellipse:first-child { display: none; }
+.sb-stage.is-teaching .sb-puff { top: 62%; left: 6%; }
+@keyframes sb-hover { 50% { translate: 0 -10px; } }
+
+/* answer balloons */
+.sb-balloons { left: 52%; right: 0; top: 12%; bottom: 0; }
+.sb-balloon {
+  --bw: max(64px, min(15cqw, 26cqh, 170px));
+  position: absolute; width: var(--bw); aspect-ratio: 120 / 200;
+  transform: translate(-50%, -32%);
+  touch-action: none; cursor: grab; border-radius: 50% 50% 46% 46% / 34% 34% 30% 30%;
+  -webkit-user-select: none; user-select: none;
+  transition: opacity var(--t-med), filter var(--t-med);
+}
+.sb-balloon:active { cursor: grabbing; }
+.sb-b0 { left: 18%; top: 54%; }
+.sb-b1 { left: 50%; top: 30%; }
+.sb-b2 { left: 82%; top: 58%; }
+.sb-bob { display: block; width: 100%; animation: sb-bob 3.3s ease-in-out infinite, sb-arrive 700ms var(--ease-bounce) both; transform-origin: 50% 100%; }
+.sb-b1 .sb-bob { animation-duration: 2.9s, 700ms; animation-delay: -1s, 120ms; }
+.sb-b2 .sb-bob { animation-duration: 3.6s, 700ms; animation-delay: -2s, 240ms; }
+.sb-nballoon { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 10px 8px rgba(43, 33, 64, 0.28)); }
+.sb-balloon:active .sb-nballoon { transform: scale(0.95); }
+.sb-balloon.is-flown { opacity: 0; }
+.sb-balloon.is-wrong .sb-bob { animation: sb-wobble-away 900ms ease-in-out; }
+.sb-balloon.is-out { filter: grayscale(0.85) brightness(0.9); opacity: 0.45; }
+.sb-balloon.is-out .sb-bob { animation: none; transform: scale(0.82) translateY(12%); }
+.sb-balloon.is-model .sb-bob { animation: sb-model 1s ease-in-out infinite; }
+.sb-balloon.is-model .sb-nballoon { filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 24px #ffe27a); }
+.sb-balloon.is-released .sb-bob { animation: sb-release 1.6s ease-in forwards; }
+.sb-balloon:focus-visible { outline-offset: 6px; }
+@keyframes sb-bob { 0%, 100% { transform: translateY(0) rotate(-2.5deg); } 50% { transform: translateY(-5%) rotate(2.5deg); } }
+@keyframes sb-arrive { from { transform: translateY(60%) scale(0.5); opacity: 0; } }
+@keyframes sb-wobble-away {
+  0% { transform: rotate(0); }
+  20% { transform: translate(10%, -6%) rotate(10deg); }
+  45% { transform: translate(16%, -10%) rotate(-8deg); }
+  70% { transform: translate(6%, -4%) rotate(5deg); }
+  100% { transform: translate(0, 0) rotate(0); }
+}
+@keyframes sb-model { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1) translateY(-3%); } }
+@keyframes sb-release { to { transform: translateY(-140%) rotate(8deg); opacity: 0; } }
+
+/* drag ghost / flight to the basket (portalled to <body>) */
+.sb-ghost { position: fixed; z-index: 55; pointer-events: none; transform-origin: 50% 32%; will-change: transform; }
+.sb-ghost .sb-nballoon { filter: drop-shadow(0 16px 10px rgba(43, 33, 64, 0.35)); }
+.sb-ghost.mode-home { transition: transform 380ms var(--ease-out); }
+.sb-ghost.mode-basket { transition: transform 800ms cubic-bezier(0.45, 0, 0.25, 1); }
+.sb-ghost.still { transition: none; }
+
+/* tutorial flight path */
+.sb-trail { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 30; pointer-events: none; overflow: visible; animation: pop-in 400ms var(--ease-out) both; }
+.sb-trail-path { fill: none; stroke: #fff; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 2 16; opacity: 0.9; animation: sb-march 0.9s linear infinite; filter: drop-shadow(0 2px 0 rgba(43, 33, 64, 0.4)); }
+@keyframes sb-march { to { stroke-dashoffset: -36; } }
+
+/* worked example: count on in ten frames */
+.sb-panel {
+  left: 8%; top: 13%; width: 46%;
+  padding: 10px 14px 14px; border-radius: 28px;
+  background: #fffdf6; border: 5px solid var(--ink);
+  box-shadow: 0 8px 0 rgba(43, 33, 64, 0.25);
+  animation: pop-in var(--t-slow) var(--ease-bounce) both;
+  z-index: 3;
+}
+.sb-panel-head { display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.4rem, 5cqh, 2.4rem); line-height: 1; margin-bottom: 8px; }
+.sb-chip { min-width: 1.7em; padding: 4px 10px; border-radius: 14px; border: 4px solid var(--ink); text-align: center; color: #fff; -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; }
+.sb-chip.is-big { background: var(--bobbo); }
+.sb-chip.is-small { background: var(--puff); }
+.sb-chip.is-now { animation: sb-model 0.7s ease-in-out infinite; }
+.sb-plus, .sb-eq { color: var(--ink); }
+.sb-total { min-width: 1.7em; padding: 4px 10px; border-radius: 14px; background: var(--sparkle); border: 4px solid var(--ink); text-align: center; animation: pop-in 260ms var(--ease-bounce); }
+.sb-frames { display: flex; gap: 10px; justify-content: center; }
+.sb-frame { position: relative; flex: 1; max-width: 50%; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 5px; border: 4px solid var(--ink); border-radius: 12px; background: #e9f3ff; transition: box-shadow var(--t-med); }
+.sb-frames.n-1 .sb-frame { max-width: 70%; }
+.sb-frame.is-full { box-shadow: 0 0 0 5px var(--sparkle); }
+.sb-ten { position: absolute; top: -16px; right: -12px; padding: 0 8px; border-radius: var(--r-pill); background: var(--sparkle); border: 3px solid var(--ink); font-family: var(--font-display); font-weight: 800; font-style: normal; font-size: 1rem; animation: pop-in 300ms var(--ease-bounce); }
+.sb-cell { position: relative; aspect-ratio: 1; container-type: inline-size; border-radius: 50%; background: rgba(43, 33, 64, 0.08); display: grid; place-items: center; }
+.sb-cell.k-big { background: var(--bobbo); border: 3px solid var(--ink); }
+.sb-cell.k-big.is-now { animation: sb-model 0.7s ease-in-out infinite; }
+.sb-cell.k-small { border: 3px dashed rgba(43, 33, 64, 0.45); background: rgba(255, 143, 177, 0.18); }
+.sb-cell.k-small.is-lit { background: var(--puff); border: 3px solid var(--ink); animation: sb-light 320ms var(--ease-bounce); }
+.sb-cell.is-now.k-small { box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--sparkle); }
+.sb-cell b { font-family: var(--font-display); font-weight: 800; font-size: max(13px, 66cqw); letter-spacing: -0.04em; color: #fff; -webkit-text-stroke: 1.5px var(--ink); paint-order: stroke fill; line-height: 1; }
+@keyframes sb-light { from { transform: scale(0.3); } }
+
+/* ---------- story bits ---------- */
+.sb-story-ride { width: 100%; }
+.sb-scene .actor .sb-ride { width: 100%; }
+.sb-puff-carry { position: relative; width: 100%; }
+.sb-puff-carry .critter { position: relative; width: 100%; height: auto; z-index: 1; }
+.sb-bunch { position: absolute; left: 50%; bottom: 55%; width: 120%; height: 120%; transform: translateX(-50%); }
+.sb-bunch-b { position: absolute; bottom: 0; width: 34%; left: calc(var(--i) * 16% - 4%); transform: rotate(calc((var(--i) - 2) * 9deg)); transform-origin: 50% 100%; animation: sb-bob 3s ease-in-out infinite; animation-delay: calc(var(--i) * -0.6s); }
+.sb-bunch-b:nth-child(2), .sb-bunch-b:nth-child(4) { bottom: 18%; }
+
+/* ---------- portrait: Bobbo's balloon floats in the board's lower-left corner ---------- */
+@media (orientation: portrait) {
+  .game.play-screen:has(.sb-stage) {
+    grid-template-areas: "top" "prompt" "board";
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+  .game.play-screen:has(.sb-stage) .prompt-text { font-size: clamp(1.8rem, 3vw + 1rem, 2.8rem); }
+  .game.play-screen:has(.sb-stage) .mascot-slot {
+    grid-area: board; justify-self: start; align-self: end;
+    width: min(40vw, calc(30vh * 300 / 440)); padding-bottom: 1vh; z-index: 2; pointer-events: none;
+  }
+}
+@container (orientation: portrait) {
+  .sb-balloons { left: 0; right: 0; top: 16%; bottom: 40%; }
+  .sb-balloon { --bw: max(64px, min(30cqw, 20cqh, 180px)); }
+  .sb-b0 { left: 20%; top: 42%; }
+  .sb-b1 { left: 50%; top: 20%; }
+  .sb-b2 { left: 80%; top: 46%; }
+  .sb-puff { left: auto; right: 4%; top: auto; bottom: 6%; width: min(30cqw, 20cqh); }
+  .sb-stage.is-teaching .sb-puff { left: auto; top: auto; right: 4%; opacity: 0; }
+  /* worked example sits bottom-right (beside Bobbo), never over the balloons */
+  .sb-panel { left: auto; right: 2%; top: auto; bottom: 1%; width: min(58%, 440px); padding: 8px 10px 10px; border-radius: 22px; }
+  .sb-frames { flex-direction: column; align-items: center; gap: 8px; }
+  .sb-frame { max-width: none; width: 100%; }
+  .sb-frames.n-1 .sb-frame { max-width: none; }
+  .sb-panel-head { font-size: clamp(1.3rem, 3.6cqh, 2.2rem); }
+}
+
+/* narrow phones: keep the shared top bar (back · level · 8 stars · sound) from overlapping */
+@media (max-width: 440px) {
+  .game.play-screen:has(.sb-stage) .stars { gap: 1px; padding: 6px 8px; }
+  .game.play-screen:has(.sb-stage) .star-slot svg { width: 17px; }
+}
+
+/* ---------- short landscape phones ---------- */
+@media (max-height: 520px) and (orientation: landscape) {
+  .game.play-screen:has(.sb-stage) .mascot-slot { padding-bottom: 1vh; }
+  .sb-balloons { top: 14%; }
+  .sb-balloon { --bw: max(64px, min(14cqw, 31cqh)); }
+  .sb-panel { padding: 6px 10px 8px; border-width: 4px; border-radius: 20px; top: 15%; }
+  .sb-panel-head { margin-bottom: 4px; }
+  .sb-cell { border-width: 2px !important; }
+}
+
+/* ---------- reduced motion: hold still, keep state readable ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .sb-ride-float, .sb-flame, .sb-tie, .sb-bob, .sb-puff, .sb-racer.rival, .sb-trail-path, .sb-bunch-b { animation: none !important; }
+  .sb-ride-lift, .sb-bg .sb-par, .sb-racer, .sb-ghost { transition: none !important; }
+  .sb-balloon.is-model .sb-nballoon { outline: 5px solid #fff; outline-offset: 4px; border-radius: 50%; }
+  .sb-balloon.is-released { opacity: 0; }
+  .sb-cell.is-now { outline: 4px solid var(--ink); }
+}
