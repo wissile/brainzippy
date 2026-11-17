@@ -458,3 +458,10 @@ button.snack:active { transform: rotate(var(--r, 0deg)) scale(0.9); }
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; scroll-behavior: auto !important; }
   .badge.pulse, .slot, .choice.is-model { outline: 5px solid var(--ink); outline-offset: 2px; }
 }
+.prose .lead { font-size: 1.25rem; font-weight: 700; }
+.prose ol, .prose ul { padding-left: 22px; }
+.prose li { margin-bottom: 8px; }
+.learn-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 1rem; }
+.learn-table th, .learn-table td { border-bottom: 1px solid #e6e0f0; padding: 8px; text-align: left; vertical-align: top; }
+.learn-table th { background: #f1ecff; }
+.prose .honest { background: #fff6da; border-radius: 12px; padding: 10px 14px; }

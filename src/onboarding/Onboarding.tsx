@@ -8,8 +8,10 @@ import {
   ARMS, BODIES, COLORS, COLOR_HEX, DEFAULT_MONSTER, EYES, MOUTHS, Monster, type MonsterConfig, TOPS, randomMonster,
 } from "../characters/Monster";
 import { MeadowBackground } from "../games/counting-adventure/art";
+import { Actor, Sky, Spark, SparkTree, StormClouds, Zzz } from "../game/scenes";
+import { type StoryBeat, StoryPlayer } from "../game/story";
 import { type OnboardingStep, type Profile, cleanName, loadState, saveState } from "../services/storage";
-import { SoundButton, SpeechBubble } from "../ui/controls";
+import { AudioButtons, SpeechBubble } from "../ui/controls";
 import { IconCheck, IconPlay } from "../ui/icons";
 
 /**
@@ -64,7 +66,7 @@ export function Onboarding() {
         <span className="onb-dots" aria-label={`Step ${ORDER.indexOf(step) + 1} of ${ORDER.length - 1}`}>
           {ORDER.slice(0, -1).map((s, i) => <i key={s} className={i <= ORDER.indexOf(step) ? "on" : ""} />)}
         </span>
-        <SoundButton />
+        <AudioButtons />
       </div>
       {step === "intro" && <IntroStory onDone={next} />}
       {step === "pop" && <BubblePop onDone={next} />}
@@ -77,46 +79,58 @@ export function Onboarding() {
   );
 }
 
-/* ---------------- 1. Intro story ---------------- */
+/* ---------------- 1. Opening story: the Brain Spark Tree ---------------- */
+const crewLine = (speaking: boolean, state: "sleeping" | "idle" | "greeting" | "thinking" | "celebrating" = "idle") => (
+  <>
+    <Actor x={22} y={86} w={11}><Zuzu state={state} size="100%" /></Actor>
+    <Actor x={34} y={88} w={10}><Gloop state={state} size="100%" /></Actor>
+    <Actor x={50} y={90} w={15}><Bobbo state={state} talking={speaking && state !== "sleeping"} /></Actor>
+    <Actor x={66} y={88} w={10}><Hoot state={state} size="100%" /></Actor>
+    <Actor x={78} y={88} w={11}><Rumble state={state} size="100%" /></Actor>
+    <Actor x={88} y={80} w={9} float><Puff state={state} size="100%" /></Actor>
+  </>
+);
+
+const OPENING: StoryBeat[] = [
+  { line: "onb.story.1", camera: "rise", scene: () => (
+    <div className="scene"><Sky time="night" />
+      <Actor x={50} y={78} w={46}><SparkTree lit={1} /></Actor>
+      {crewLine(false, "sleeping")}<Zzz x={52} y={66} />
+    </div>) },
+  { line: "onb.story.2", camera: "zoom-in", sfx: "star", scene: () => (
+    <div className="scene"><Sky time="night" />
+      <Actor x={50} y={84} w={62}><SparkTree lit={1} /></Actor>
+      <Spark x={30} y={30} size={7} /><Spark x={70} y={24} size={6} /><Spark x={60} y={44} size={5} />
+    </div>) },
+  { line: "onb.story.3", camera: "shake", sfx: "whoosh", scene: () => (
+    <div className="scene"><Sky time="night" /><StormClouds />
+      <Actor x={50} y={80} w={46}><SparkTree lit={0.15} storm /></Actor>
+      {[[40, 40], [55, 30], [65, 45], [30, 55], [75, 35]].map(([x, y]) => <span key={`${x}${y}`} className="spark-wrap"><Spark x={x!} y={y!} size={5} /></span>)}
+    </div>) },
+  { line: "onb.story.4", camera: "wide", scene: ({ speaking }) => (
+    <div className="scene gray"><Sky time="dawn" />
+      <Actor x={50} y={78} w={44}><SparkTree lit={0} /></Actor>
+      {crewLine(speaking, "thinking")}
+    </div>) },
+  { line: "onb.story.5", camera: "zoom-in", sfx: "star", scene: ({ speaking }) => (
+    <div className="scene"><Sky time="day" />
+      {crewLine(speaking, "greeting")}
+    </div>) },
+  { line: "onb.story.6", camera: "pan-right", scene: ({ speaking }) => (
+    <div className="scene"><Sky time="day" />
+      <Actor x={30} y={80} w={34}><SparkTree lit={0.35} /></Actor>
+      <Actor x={62} y={88} w={16}><Bobbo state="celebrating" talking={speaking} /></Actor>
+      <div className="level-steps" aria-hidden="true"><b>Lv 1</b><b>Lv 2</b><b>Lv 3</b><b>Lv 4</b></div>
+    </div>) },
+  { line: "onb.story.7", camera: "close", sfx: "complete", scene: ({ speaking }) => (
+    <div className="scene"><Sky time="day" />{crewLine(speaking, "celebrating")}</div>) },
+];
+
 function IntroStory({ onDone }: { onDone: () => void }) {
-  const { caption, speaking, reducedMotion } = useApp();
-  const [beat, setBeat] = useState(0);
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    let alive = true;
-    void (async () => {
-      audio.play("whoosh");
-      await audio.speak("onb.crew1");
-      if (!alive) return;
-      setBeat(1);
-      audio.play("star");
-      await audio.speak("onb.crew2");
-      if (!alive) return;
-      setBeat(2);
-      await audio.speak("onb.crew3");
-      if (alive) setReady(true);
-    })();
-    const t = window.setTimeout(() => alive && setReady(true), 2500); // button is never held hostage by audio
-    return () => {
-      alive = false;
-      window.clearTimeout(t);
-      audio.stopVoice();
-    };
-  }, []);
+  useEffect(() => void audio.playMusic("island"), []);
   return (
-    <section className="onb-stage intro-story">
-      <div className={`crew-parade beat-${beat} ${reducedMotion ? "still" : ""}`} aria-hidden="true">
-        <span className="pc p1"><Zuzu size={110} /></span>
-        <span className="pc p2"><Gloop size={104} /></span>
-        <span className="pc hero"><Bobbo state={speaking ? "greeting" : "idle"} talking={speaking} size={190} /></span>
-        <span className="pc p3"><Hoot size={104} /></span>
-        <span className="pc p4"><Rumble size={110} /></span>
-        <span className="pc p5"><Puff size={104} /></span>
-      </div>
-      <SpeechBubble text={caption || "Hello, hello! Welcome to BrainZippy!"} tail="down" className="onb-bubble" />
-      <button type="button" className={`big-play onb-next ${ready ? "" : "dim"}`} data-testid="onb-next" aria-label="Let's play" onClick={() => { audio.play("tap"); onDone(); }}>
-        <IconPlay /><span>Play!</span>
-      </button>
+    <section className="onb-stage intro-story fullbleed">
+      <StoryPlayer beats={OPENING} onDone={onDone} label="The Brain Spark story" testId="opening" />
     </section>
   );
 }
@@ -475,6 +489,16 @@ function GrownUp({ onDone }: { onDone: (s: "pending" | "skipped") => void }) {
       {phase === "form" && (
         <form className="grownup-card parent-form" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
           <h2>Hello, grown-up!</h2>
+          <details className="how-it-works" open>
+            <summary>How BrainZippy works</summary>
+            <ul>
+              <li><strong>Story first.</strong> Your child is the hero bringing back the island's Brain Sparks. Each world is a short story with one clear learning goal.</li>
+              <li><strong>Learning by doing.</strong> Kids drag, slide, count and share real objects on screen; a helper character explains the idea behind each game.</li>
+              <li><strong>Difficulty that grows with them.</strong> Two right answers in a row make the next puzzle harder; struggling makes it easier. Every finished game starts the next one a level up.</li>
+              <li><strong>Mistakes are safe.</strong> A wrong answer brings a hint, then a worked example, never a penalty.</li>
+              <li><strong>Built on research.</strong> Hands-on counting, number-line games, worked examples and praising effort are well-studied ways children learn early maths. <a href="/grown-ups" target="_blank" rel="noreferrer">Read more</a></li>
+            </ul>
+          </details>
           <p>Add <strong>your</strong> email to save your child's progress and get a short note when they earn a new sticker. We never ask for your child's email.</p>
           <label htmlFor="parent-email">Your email</label>
           <input id="parent-email" type="email" data-testid="parent-email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={254} />

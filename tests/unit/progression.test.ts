@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyResult, initialProgression, isRoundComplete, markPlayed, selectNextExercise } from "../../src/engine/progression";
+import { applyResult, initialProgression, isRoundComplete, markPlayed, selectNextExercise, startDifficultyFor } from "../../src/engine/progression";
 import type { ExerciseResult, ProgressionState } from "../../src/engine/types";
 import { countingAdventure as game } from "../../src/games/counting-adventure/definition";
 
@@ -87,5 +87,20 @@ describe("progression rules", () => {
     expect(selectNextExercise(easyOnly, st)?.difficulty).toBe(2);
     const mid: ProgressionState = { ...st, difficulty: 3, played: game.exercises.filter((e) => e.difficulty === 3).map((e) => e.id) };
     expect(selectNextExercise(game, mid)?.difficulty).toBe(2);
+  });
+});
+
+describe("level-ups (R0)", () => {
+  it("each completed round starts one level higher, capped at max", () => {
+    expect(startDifficultyFor(0, cfg)).toBe(1);
+    expect(startDifficultyFor(1, cfg)).toBe(2);
+    expect(startDifficultyFor(3, cfg)).toBe(4);
+    expect(startDifficultyFor(9, cfg)).toBe(4);
+    expect(initialProgression(cfg, startDifficultyFor(2, cfg)).difficulty).toBe(3);
+  });
+  it("a struggling child still steps back down within a levelled-up round", () => {
+    let st = initialProgression(cfg, 3);
+    st = applyResult(st, { ...result(3), difficulty: 3 }, cfg);
+    expect(st.difficulty).toBe(2);
   });
 });

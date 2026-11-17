@@ -35,9 +35,10 @@ test("first-time child: story → bubbles → build monster → names → age �
   await page.goto("/");
   await press(page, '[data-testid="home-play"]');
   await expect(step(page)).toHaveAttribute("data-step", "intro");
-  await expect(page.getByTestId("speech-bubble")).toContainText("Welcome to BrainZippy");
-  await shot("1-intro");
-  await press(page, '[data-testid="onb-next"]');
+  await expect(page.getByTestId("opening")).toBeVisible();
+  await page.waitForTimeout(1300);
+  await shot("1-story");
+  await press(page, '[data-testid="opening-skip"]');
 
   await expect(step(page)).toHaveAttribute("data-step", "pop");
   await popBubbles(page);
@@ -102,13 +103,14 @@ test("first-time child: story → bubbles → build monster → names → age �
   await expect(page.getByTestId("map")).toBeVisible();
   await expect(page.getByText("Hi, Sam!")).toBeVisible();
   await expect(page.getByText("Nova")).toBeVisible();
+  await expect(page.getByTestId("stop-glow-cave-hops")).toBeVisible();
+  await expect(page.getByTestId("stop-sky-balloon-race")).toBeVisible();
+  await expect(page.getByTestId("stop-cookie-kitchen")).toBeVisible();
   await shot("4-map");
 
   // locked stops say so; the open stop starts the game
-  await press(page, '[data-testid="stop-letters"]');
-  await expect(page.getByTestId("map")).toBeVisible();
   await press(page, '[data-testid="stop-counting-adventure"]');
-  await expect(page.getByTestId("start-game")).toBeVisible();
+  await expect(page.getByTestId("story")).toBeVisible();
 
   // privacy: the child's name and monster never leave the device; only the parent's email was sent
   const sent = bodies.join("\n");
@@ -122,7 +124,7 @@ test("grown-up step can be skipped, and onboarding resumes after refresh", async
   await seed(page, { muted: true }, { fresh: true });
   await page.goto("/");
   await press(page, '[data-testid="home-play"]');
-  await press(page, '[data-testid="onb-next"]');
+  await press(page, '[data-testid="opening-skip"]');
   await popBubbles(page);
   await expect(step(page)).toHaveAttribute("data-step", "build", { timeout: 15_000 });
   await press(page, '[data-testid="build-random"]');
@@ -155,8 +157,8 @@ test("voice clips: the game plays recorded audio files, not only speech synthesi
   await press(page, '[data-testid="home-play"]');
   await expect.poll(() => clips.includes("map.back.mp3") || clips.includes("map.start.mp3"), { timeout: 10_000 }).toBe(true);
   await press(page, '[data-testid="stop-counting-adventure"]');
-  await expect.poll(() => clips.includes("intro.hello.mp3"), { timeout: 10_000 }).toBe(true);
-  await press(page, '[data-testid="start-game"]');
+  await expect.poll(() => clips.includes("ca.story.1.mp3"), { timeout: 10_000 }).toBe(true);
+  await press(page, '[data-testid="story-skip"]');
   await expect.poll(() => clips.includes("prompt.tap-count__kind-apple.mp3"), { timeout: 10_000 }).toBe(true);
   expect(clips).toContain("number.3.mp3");
 });

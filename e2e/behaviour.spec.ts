@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { advanceTo, collectErrors, currentExercise, openGame, press, screen, seed, solve, waitForNext } from "./helpers";
+import { advanceTo, collectErrors, currentExercise, enterGame, openGame, press, screen, seed, solve, waitForNext } from "./helpers";
 
 test.describe("gameplay behaviour", () => {
   test.beforeEach(({}, info) => {
@@ -12,7 +12,7 @@ test.describe("gameplay behaviour", () => {
     for (let i = 0; i < 3; i++) await press(page, '[data-testid="count-object"][data-counted="false"]');
     await expect(screen(page)).toHaveAttribute("data-phase", "answering");
     await press(page, '[data-testid="choice"][data-value="2"]');
-    await expect(page.getByTestId("speech-bubble")).toContainText("last number");
+    await expect(page.getByTestId("helper")).toBeVisible(); // a helper character pops in to explain
     await expect(page.locator(".badge.pulse")).toHaveText("3");
     await expect(screen(page)).toHaveAttribute("data-phase", "answering", { timeout: 20_000 });
     await expect(page.locator('[data-testid="choice"][data-value="2"]')).toHaveAttribute("aria-disabled", "true");
@@ -73,7 +73,8 @@ test.describe("gameplay behaviour", () => {
     };
     await focusAndEnter("home-play");
     await focusAndEnter("stop-counting-adventure");
-    await focusAndEnter("start-game");
+    await page.getByTestId("story-skip").waitFor();
+    await focusAndEnter("story-skip");
     await expect(screen(page)).toHaveAttribute("data-phase", "counting");
     for (let i = 0; i < 3; i++) {
       await page.locator('[data-testid="count-object"][data-counted="false"]').first().focus();
@@ -101,8 +102,8 @@ test.describe("gameplay behaviour", () => {
     await expect(page.getByTestId("sound-toggle")).toHaveAttribute("aria-pressed", "false");
     await press(page, '[data-testid="home-play"]');
     await press(page, '[data-testid="stop-counting-adventure"]');
-    await press(page, '[data-testid="start-game"]');
-    await expect(page.getByTestId("speech-bubble")).toContainText("count the apples");
+    await enterGame(page);
+    await expect(page.getByTestId("speech-bubble").first()).toContainText("count the apples");
     await expect(page.getByTestId("live-caption")).toContainText("count the apples");
     await page.reload();
     await expect(page.getByTestId("sound-toggle")).toHaveAttribute("aria-pressed", "false");
@@ -156,8 +157,7 @@ test.describe("gameplay behaviour", () => {
     const homeMs = Date.now() - start;
     await press(page, '[data-testid="home-play"]');
     await press(page, '[data-testid="stop-counting-adventure"]');
-    await expect(page.getByTestId("start-game")).toBeVisible({ timeout: 30_000 });
-    await press(page, '[data-testid="start-game"]');
+    await enterGame(page);
     const id = await solve(page);
     await waitForNext(page, id);
     test.info().annotations.push({ type: "home-visible-ms (400kbps, 400ms RTT)", description: String(homeMs) });
@@ -200,5 +200,5 @@ test("corrupted saved round never blanks the game", async ({ page }, info) => {
   test.skip(info.project.name !== "desktop");
   await page.addInitScript(() => localStorage.setItem("bz.v1", JSON.stringify({ muted: true, round: { gameId: "counting-adventure", progression: { oops: 1 } } })));
   await page.goto("/play/counting-adventure");
-  await expect(page.getByTestId("start-game")).toHaveAttribute("aria-label", "Start");
+  await expect(page.getByTestId("story")).toBeVisible(); // fresh start with the story, no crash
 });

@@ -29,11 +29,18 @@ export async function press(page: Page, selector: string) {
   else await loc.click({ force: true });
 }
 
-export async function openGame(page: Page) {
+/** From the map/route into play: skip the game's story intro (or tap Start when resuming). */
+export async function enterGame(page: Page) {
+  const story = page.locator('[data-testid="story-skip"], [data-testid="start-game"]').first();
+  await story.waitFor({ state: "visible", timeout: 20_000 });
+  await story.click({ force: true });
+}
+
+export async function openGame(page: Page, id = "counting-adventure") {
   await page.goto("/");
   await press(page, '[data-testid="home-play"]');
-  await press(page, '[data-testid="stop-counting-adventure"]');
-  await press(page, '[data-testid="start-game"]');
+  await press(page, `[data-testid="stop-${id}"]`);
+  await enterGame(page);
 }
 
 export const screen = (page: Page) => page.locator('[data-testid="game-screen"]');

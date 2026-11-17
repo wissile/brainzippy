@@ -70,3 +70,38 @@ export function Spark({ x, y, size = 6, dim = false }: { x: number; y: number; s
     </svg>
   );
 }
+
+/** The Brain Spark Tree at the heart of Monster Island. `lit` 0..1 controls how many sparks glow. */
+export function SparkTree({ lit = 1, storm = false }: { lit?: number; storm?: boolean }) {
+  const spots = [[-90, -150], [-40, -200], [30, -210], [90, -160], [-120, -90], [120, -100], [-60, -110], [60, -120], [0, -160], [-20, -60], [40, -70], [100, -40]];
+  const on = Math.round(lit * spots.length);
+  return (
+    <svg viewBox="-200 -300 400 340" aria-hidden="true" className={`spark-tree ${storm ? "storm" : ""}`}>
+      <path d="M-22 30 Q-18 -40 -40 -90 L-14 -96 Q0 -60 6 -100 L30 -96 Q14 -40 22 30 Z" fill="#8A5A3B" stroke="#2B2140" strokeWidth="6" strokeLinejoin="round" />
+      <g className="canopy">
+        <circle cx="-80" cy="-130" r="78" fill="#5E4AB8" stroke="#2B2140" strokeWidth="6" />
+        <circle cx="80" cy="-130" r="78" fill="#6A55C8" stroke="#2B2140" strokeWidth="6" />
+        <circle cx="0" cy="-185" r="92" fill="#7B66D9" stroke="#2B2140" strokeWidth="6" />
+        <circle cx="0" cy="-110" r="70" fill="#6A55C8" />
+      </g>
+      {spots.map(([x, y], i) => (
+        <g key={i} transform={`translate(${x} ${y})`} className={i < on ? "leaf-spark on" : "leaf-spark"}>
+          <circle r="14" fill={i < on ? "#FFE27A" : "#3D2F7A"} opacity={i < on ? 0.5 : 0.8} />
+          <path d="M0 -10 L3 -3 L10 0 L3 3 L0 10 L-3 3 L-10 0 L-3 -3 Z" fill={i < on ? "#FFD43B" : "#5A4A9A"} />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+export function StormClouds() {
+  return (
+    <svg className="bg storm-clouds" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+      <g fill="#3A3366" opacity="0.95">
+        <ellipse cx="300" cy="120" rx="260" ry="90" /><ellipse cx="560" cy="90" rx="220" ry="80" /><ellipse cx="900" cy="130" rx="300" ry="100" /><ellipse cx="1300" cy="100" rx="280" ry="90" />
+      </g>
+      <path className="bolt" d="M980 160 L930 290 L990 290 L950 420 L1060 250 L1000 250 L1040 160 Z" fill="#FFE27A" />
+      <g stroke="#9FB6FF" strokeWidth="4" opacity="0.6">{Array.from({ length: 30 }, (_, i) => <line key={i} x1={(i * 53) % 1600} y1={200 + (i * 37) % 300} x2={(i * 53) % 1600 - 30} y2={260 + (i * 37) % 300} />)}</g>
+    </svg>
+  );
+}

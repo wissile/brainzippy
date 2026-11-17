@@ -11,6 +11,10 @@ describe("guest progress schema", () => {
     expect(parseGuestProgress({ ...valid, name: "Ada" })).toBeNull();
     expect(parseGuestProgress({ ...valid, skills: { s: { attempts: 1, firstTry: 1, completed: 1, email: "x" } } })).toBeNull();
   });
+  it("accepts per-game levels and rejects bad ones", () => {
+    expect(parseGuestProgress({ ...valid, levels: { "counting-adventure": 2 } })?.levels).toEqual({ "counting-adventure": 2 });
+    expect(parseGuestProgress({ ...valid, levels: { "counting-adventure": -1 } })).toBeNull();
+  });
   it("rejects bad types and sizes", () => {
     expect(parseGuestProgress(null)).toBeNull();
     expect(parseGuestProgress({ ...valid, v: 2 })).toBeNull();

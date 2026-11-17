@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { collectErrors, openGame, press, screen, seed, solve, waitForNext } from "./helpers";
+import { collectErrors, enterGame, openGame, press, screen, seed, solve, waitForNext } from "./helpers";
 
 test("child plays a complete round from home to sticker, then plays again", async ({ page }, info) => {
   const errors = collectErrors(page);
@@ -14,10 +14,10 @@ test("child plays a complete round from home to sticker, then plays again", asyn
   await expect(page.getByTestId("map")).toBeVisible();
   await shot("02-map");
   await press(page, '[data-testid="stop-counting-adventure"]');
-  await expect(page.getByTestId("start-game")).toBeVisible();
-  await expect(page.getByTestId("speech-bubble")).toContainText("Bobbo");
-  await shot("04-intro");
-  await press(page, '[data-testid="start-game"]');
+  await expect(page.getByTestId("story")).toBeVisible();
+  await page.waitForTimeout(1500);
+  await shot("04-story");
+  await enterGame(page);
 
   const seen = new Set<string>();
   for (let i = 0; i < 8; i++) {
@@ -31,7 +31,12 @@ test("child plays a complete round from home to sticker, then plays again", asyn
     await waitForNext(page, id);
     if (i < 7) await expect(page.getByTestId("stars")).toHaveAttribute("data-done", String(i + 1));
   }
+  // story ending plays, then the sticker
+  await expect(page.getByTestId("outro")).toBeVisible({ timeout: 30_000 });
+  await shot("05b-outro");
+  await press(page, '[data-testid="outro-skip"]');
   await expect(page.getByTestId("achievement")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("level-up")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Counting Champ" })).toBeVisible();
   await expect(page.getByTestId("reward-monster")).toBeVisible();
   await expect(page.getByText("Ziggy is so proud of you!")).toBeVisible();
@@ -51,8 +56,11 @@ test("child plays a complete round from home to sticker, then plays again", asyn
   expect(stored.progress.roundsCompleted).toBe(1);
   expect(JSON.stringify(stored)).not.toMatch(/email|birth/i); // child name is device-only by design; network test asserts it never leaves
 
+  // level-up: the next round starts a level higher and skips the tutorial item
+  expect(stored.progress.levels["counting-adventure"]).toBe(1);
   await press(page, '[data-testid="play-again"]');
-  await expect(screen(page)).toHaveAttribute("data-exercise", "ca-tap-3-apple");
+  await expect(screen(page)).not.toHaveAttribute("data-exercise", "ca-tap-3-apple");
+  await expect(page.getByTestId("level").first()).toContainText("2");
   await press(page, '[data-testid="nav-back"]');
   await expect(page.getByTestId("map")).toBeVisible();
   expect(errors).toEqual([]);

@@ -200,10 +200,46 @@ export function GrownUpsScreen() {
     <main className="screen grownups">
       <div className="screen-top"><NavButton to="/" label="Home" /><h1 className="screen-title">For grown-ups</h1><span /></div>
       <article className="prose">
-        <h2>What is BrainZippy?</h2>
-        <p>BrainZippy is a collection of short learning games for children aged 3 to 14. Each game has one clear learning goal, spoken instructions, and gentle hints, so young children can play without reading.</p>
-        <h2>Counting Adventure (ages 4–6)</h2>
-        <p>Children help Bobbo count his snacks. They practise touching each object once while counting, learn that the last number said tells how many, recognise small amounts at a glance, and count out an amount from a larger group. Difficulty rises from 1–3 objects up to 10 based on simple, published rules: two first-try answers in a row move up a level; needing three tries moves down a level. Wrong answers are never punished: Bobbo gives a hint, then shows the answer.</p>
+        <p className="lead">BrainZippy turns early maths and reading into short story adventures. Your child is the hero who brings back the lost Brain Sparks of Monster Island, with the Critter Crew as guides.</p>
+
+        <h2>The goal</h2>
+        <p>To help children aged 3–14 build real understanding and confidence through play they choose to come back to: one clear learning goal per game, no ads, no reading needed for the youngest players, and nothing that punishes mistakes.</p>
+
+        <h2>How it works</h2>
+        <ol>
+          <li><strong>A story sets up a problem worth solving.</strong> Bobbo needs his breakfast, Gloop's cave has gone dark, the cookies must be shared fairly. Short animated scenes give each game a reason.</li>
+          <li><strong>Children learn by doing.</strong> They touch, drag, slide and share objects on screen, so the idea is something they do with their hands, not only words on a page.</li>
+          <li><strong>A helper character explains the idea.</strong> Hoot, Zuzu or Puff pops in to show the trick (for example, "the last number you say tells how many", or "each hop is plus one").</li>
+          <li><strong>Every answer gets useful feedback.</strong> Right answers are celebrated and the idea is named. A wrong answer brings a gentle hint; a second one brings a step-by-step worked example, and the child still makes the final tap.</li>
+        </ol>
+
+        <h2>How the difficulty grows</h2>
+        <p>Each game has four levels. Within a round: two first-try answers in a row move to harder puzzles; needing three tries moves back to easier ones, so no child gets stuck. Every completed round starts the next round one level higher. The rules are the same for every child and are published here, so you always know why a puzzle got harder or easier.</p>
+
+        <h2>What children learn</h2>
+        <table className="learn-table">
+          <thead><tr><th>Game</th><th>Ages</th><th>Learns</th></tr></thead>
+          <tbody>
+            <tr><td>Bobbo's Breakfast</td><td>4–6</td><td>Counting objects one by one, knowing the last number tells how many, recognising small amounts, counting out a set</td></tr>
+            <tr><td>Glow Cave Hops</td><td>5–7</td><td>Adding as moving forward on a number line; counting on</td></tr>
+            <tr><td>Sky Balloon Race</td><td>6–8</td><td>Adding within 20 by counting on and making ten</td></tr>
+            <tr><td>Cookie Kitchen</td><td>7–9</td><td>Sharing equally into groups: the start of division</td></tr>
+          </tbody>
+        </table>
+
+        <h2>The research behind it</h2>
+        <p>BrainZippy's design follows learning principles with good research support:</p>
+        <ul className="refs">
+          <li><strong>Counting with a "how many?" question</strong> builds the idea that the last number counted is the total (Le Corre &amp; Carey, 2007).</li>
+          <li><strong>Number-line games:</strong> playing a numbered, straight-line board game for four short sessions improved young children's number knowledge (Siegler &amp; Ramani, 2008).</li>
+          <li><strong>Active, engaged, meaningful, social:</strong> the "four pillars" of learning with apps (Hirsh-Pasek et al., 2015), which is why our characters respond to what your child does and animations stay purposeful.</li>
+          <li><strong>Worked examples</strong> reduce overload for beginners (Sweller et al., 2019); we show them after mistakes, then step back.</li>
+          <li><strong>Praising effort and strategy</strong> ("you counted carefully") rather than ability supports persistence after setbacks (Cimpian et al., 2007).</li>
+          <li><strong>No reward shop:</strong> expected prizes can reduce children's own interest (Deci et al., 1999), so stars and stickers mark progress only.</li>
+          <li><strong>Practice spread over days</strong> helps learning stick (Vlach &amp; Sandhofer, 2012); our mastery tracking across sessions is next on the roadmap.</li>
+        </ul>
+        <p className="honest"><strong>An honest note:</strong> these principles are well researched, but BrainZippy itself has not yet been tested in a formal study, so we don't claim it is "proven". We plan to measure learning with families who opt in, and we'll publish what we find.</p>
+
         <h2>Privacy</h2>
         <p>Guest play needs no account. We don't ask for names, emails, photos, or location, and there are no ads, chat, or third-party trackers. Progress (stickers and practice counts) and settings are stored only in this browser; guest play sends no progress to our servers.</p>
         {status === "idle" && (

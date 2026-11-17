@@ -56,16 +56,16 @@
    "text": "Want to play? Let's warm up first!"
   },
   "pop.start": {
-   "text": "Pop the bubbles! Tap, tap, tap!"
+   "text": "The sparks are stuck in bubbles! Pop them, tap, tap, tap!"
   },
   "pop.more": {
    "text": "Keep going! More bubbles!"
   },
   "pop.done": {
-   "text": "Wow! Great popping!"
+   "text": "Hooray! You freed the sparks!"
   },
   "build.start": {
-   "text": "Now let's make your very own monster!"
+   "text": "Every hero needs a buddy. Let's make your very own monster!"
   },
   "build.body": {
    "text": "Pick a body shape!"
@@ -146,13 +146,13 @@
    "text": "Thank you, grown-up! Let's go!"
   },
   "map.start": {
-   "text": "Your adventure starts here! Tap the meadow to help Bobbo count!"
+   "text": "This is Monster Island! Each place hides a lost spark. Let's start with Bobbo's breakfast!"
   },
   "map.locked": {
-   "text": "That place opens soon!"
+   "text": "That place is for bigger kids. Try another one!"
   },
   "map.back": {
-   "text": "Welcome back! Where shall we go?"
+   "text": "Welcome back! Which spark shall we find today?"
   },
   "monster.cheer": {
    "text": "Your monster is so proud of you!"
@@ -426,6 +426,27 @@
   },
   "round.completeShort": {
    "text": "You did it!"
+  },
+  "onb.story.1": {
+   "text": "Far, far away, on Monster Island, grew the magical Brain Spark Tree."
+  },
+  "onb.story.2": {
+   "text": "Every spark was a game, full of fun, puzzles, and new things to learn."
+  },
+  "onb.story.3": {
+   "text": "But one stormy night, whoosh! The wind blew the sparks all over the island!"
+  },
+  "onb.story.4": {
+   "text": "The Critter Crew woke up. Without the sparks, the island felt sleepy and gray."
+  },
+  "onb.story.5": {
+   "text": "They need a brave new friend to bring the sparks back. And that's you!"
+  },
+  "onb.story.6": {
+   "text": "Play our games to win sparks. Each time you win, the games get a little trickier, and your brain grows stronger!"
+  },
+  "onb.story.7": {
+   "text": "Ready? Let's warm up first!"
   }
  }
 }
