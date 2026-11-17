@@ -161,13 +161,15 @@ interface Drag {
   active: boolean;
 }
 
-export function MakeSetBoard({ st, act, ObjectArt, Basket }: BoardProps) {
+export function MakeSetBoard({ st, act, alongIndex, ObjectArt, Basket }: BoardProps) {
+  // alongIndex highlights the basket item being counted during a modelled answer
   const ex = st.exercise;
   const pool = ex.poolSize ?? ex.target;
   const [pileRef, aspect] = useAspect<HTMLDivElement>();
   const { positions, cols, rows } = useMemo(() => layoutObjects(pool, "scatter", ex.seed, aspect), [pool, ex.seed, aspect]);
   const basketRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
+  const dragRef = useRef<Drag | null>(null);
   const suppressClick = useRef(false);
   const [hot, setHot] = useState(false);
   const showSlots = st.activeHints.includes("show-slots");
@@ -181,22 +183,23 @@ export function MakeSetBoard({ st, act, ObjectArt, Basket }: BoardProps) {
   useEffect(() => {
     if (!drag) return;
     const move = (e: PointerEvent) => {
-      setDrag((d) => {
-        if (!d) return d;
-        const active = d.active || Math.hypot(e.clientX - d.startX, e.clientY - d.startY) > 10;
-        return { ...d, x: e.clientX, y: e.clientY, active };
-      });
+      const d = dragRef.current;
+      if (!d) return;
+      const active = d.active || Math.hypot(e.clientX - d.startX, e.clientY - d.startY) > 10;
+      const next = { ...d, x: e.clientX, y: e.clientY, active };
+      dragRef.current = next;
+      setDrag(next);
       setHot(overBasket(e.clientX, e.clientY));
     };
     const up = (e: PointerEvent) => {
-      setDrag((d) => {
-        if (d?.active) {
-          suppressClick.current = true;
-          window.setTimeout(() => (suppressClick.current = false), 50);
-          if (overBasket(e.clientX, e.clientY)) act({ type: "ADD_TO_BASKET", index: d.index });
-        }
-        return null;
-      });
+      const d = dragRef.current;
+      if (d?.active) {
+        suppressClick.current = true;
+        window.setTimeout(() => (suppressClick.current = false), 50);
+        if (overBasket(e.clientX, e.clientY)) act({ type: "ADD_TO_BASKET", index: d.index });
+      }
+      dragRef.current = null;
+      setDrag(null);
       setHot(false);
     };
     window.addEventListener("pointermove", move);
@@ -227,7 +230,9 @@ export function MakeSetBoard({ st, act, ObjectArt, Basket }: BoardProps) {
                   aria-disabled={!canAct}
                   onPointerDown={(e) => {
                     if (!canAct || e.button !== 0) return;
-                    setDrag({ index: i, x: e.clientX, y: e.clientY, startX: e.clientX, startY: e.clientY, active: false });
+                    const d0 = { index: i, x: e.clientX, y: e.clientY, startX: e.clientX, startY: e.clientY, active: false };
+                    dragRef.current = d0;
+                    setDrag(d0);
                   }}
                   onClick={() => {
                     if (suppressClick.current || !canAct) return;
@@ -256,6 +261,8 @@ export function MakeSetBoard({ st, act, ObjectArt, Basket }: BoardProps) {
                 onClick={() => canAct && act({ type: "REMOVE_FROM_BASKET", index: idx })}
               >
                 <ObjectArt kind={ex.objectKind} />
+                {/* running count as items go in (and during the modelled answer) */}
+                <Badge n={order + 1} pulse={alongIndex === order} />
               </button>
             </span>
           ))}
@@ -276,7 +283,7 @@ export function DoneButton({ st, act }: Pick<BoardProps, "st" | "act">) {
     <div className="choice-tray">
       <button
         type="button"
-        className={`done-btn ${st.phase === "solved" || (st.phase === "feedback" && st.feedback?.correct) ? "is-right" : ""}`}
+        className={`done-btn ${st.activeHints.includes("model-answer") && st.phase === "answering" ? "is-model" : ""} ${st.phase === "solved" || (st.phase === "feedback" && st.feedback?.correct) ? "is-right" : ""}`}
         data-testid="done"
         aria-label="Check my basket"
         aria-disabled={!enabled}

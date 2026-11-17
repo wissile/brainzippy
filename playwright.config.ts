@@ -12,7 +12,7 @@ export default defineConfig({
   workers: 2,
   reporter: [["list"], ["html", { open: "never" }]],
   use: { baseURL: "http://localhost:4173", trace: "retain-on-failure", screenshot: "only-on-failure" },
-  webServer: { command: "npm run build && npx vite preview --port 4173 --strictPort", url: "http://localhost:4173/api/health", reuseExistingServer: true, timeout: 180_000 },
+  webServer: { command: "npm run build && npx vite preview --port 4173 --strictPort", url: "http://localhost:4173/api/health", reuseExistingServer: false, timeout: 180_000 },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } } },
     { name: "phone", use: { ...devices["Pixel 7"] } },

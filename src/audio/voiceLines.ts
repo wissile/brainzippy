@@ -24,9 +24,10 @@ export const VOICE_LINES: Record<string, VoiceLine> = {
   "games.pick": { text: "Tap a game to play!" },
   "games.later": { text: "New games for big kids are on the way! Let's go back." },
 
-  "intro.hello": { text: "Hi! I'm Bobbo! I count everything... twice! Will you help me count my snacks?" },
+  "intro.hello": { text: "Hi! I'm Bobbo! Will you help me count my snacks, one by one?" },
   "intro.back": { text: "Welcome back! Let's keep counting!" },
   "intro.go": { text: "Tap the green button to start!" },
+  "nudge.howMany": { text: "Look at the {many}. How many are there?" },
 
   "prompt.tap-count": { text: "Let's count the {many}! Tap each one." },
   "prompt.howMany": { text: "How many {many}?" },
@@ -43,6 +44,7 @@ export const VOICE_LINES: Record<string, VoiceLine> = {
   "hint.countAlong": { text: "Let's count them together!" },
   "hint.model": { text: "Let's count together!" },
   "hint.modelTap": { text: "It's {nWord}! Tap {nWord}." },
+  "hint.modelSetTap": { text: "That's {nWord}! Now tap the check!" },
   "hint.tooMany": { text: "Oops, too many! Tap one in the basket to take it out." },
   "hint.tooFew": { text: "We need more! Let's add some." },
   "hint.empty": { text: "My basket is empty! Tap a snack to put it in." },

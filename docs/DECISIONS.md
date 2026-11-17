@@ -12,6 +12,32 @@
 | D-008 | 2026-11-17 | Deterministic progression R1–R6; 8 exercises/round; ≥8 items at level 1 | Testable, explainable to parents; test exposed that 4 easy items forced strugglers upward | Probabilistic/BKT models (premature) |
 | D-009 | 2026-11-17 | Anonymous guest: localStorage first, D1 backup keyed by server-minted UUID; no cookies; 180-day purge | Data minimisation; works offline; nothing identifies a child | Accounts now (needs consent flow + legal review) |
 | D-010 | 2026-11-17 | Independent reviews for milestone 1 | See "Review findings" below | — |
+| D-011 | 2026-11-17 | Turn **off** client→D1 progress sync until a parent-controlled restore path exists | Review H1: the backup was write-only (no restore), so it retained pseudonymous data with no benefit to the child | Keep syncing (rejected: data minimisation) |
+| D-012 | 2026-11-17 | Captions overlay the prompt row on portrait/short-landscape screens | Review: bubble covered objects on phones; prompt row is free while speech plays | Shrink bubble into mascot column (unreadable at 86 px) |
+| D-013 | 2026-11-17 | Bobbo's in-game lines never say "count twice" | Review: contradicts the one-to-one lesson; the trait stays in his bio only | — |
 
 ## Review findings (milestone 1)
-_To be filled from the independent QA/accessibility and security/code reviews._
+Two independent agents reviewed the code they did not write. All findings below were triaged; fixes were re-verified by the full test suite (36 unit, 41 Playwright passing) and screenshots.
+
+| Sev | Finding (reviewer) | Resolution |
+|---|---|---|
+| Critical | Tutorial/idle **hand pointer never visible**; becomes a grid row and squashes the board (CSS specificity) (QA) | Fixed: zero-specificity `:where()` selector; e2e "hand appears inside viewport and does not shift layout" on all 4 devices |
+| High | Server backup write-only; grown-ups text promised it survives reset (Security H1) | Sync disabled (D-011); text corrected |
+| High | Corrupt/old resume snapshot could blank the game permanently (Security H2) | `parseRoundSnapshot` + version field + ErrorBoundary; unit + e2e tests |
+| High | Idle help pointed at a (wrong) number choice (QA) | Now replays "How many?" and points at the objects |
+| High | Age tiles exposed as `listitem`, not buttons (QA, WCAG 4.1.2) | Roles removed; e2e asserts role=button |
+| High | Speech bubble covered objects on phones (QA) | D-012; e2e "captions never cover objects" on all devices |
+| Medium | Body size cap bypassable without Content-Length (Security M2) | Streaming byte-counted reader; unit test with chunked body |
+| Medium | Parent delete failed silently; no parent gate (Security M3) | Checks `res.ok`, keeps id + retry message; arithmetic parent gate; e2e |
+| Medium | Invocation logs would retain URLs incl. guest ids (Security M4) | `invocation_logs: false` |
+| Medium | Make-set never reached a modelled answer (Security M5, QA 7) | 3rd miss sets basket to target, counts it aloud, child taps check; running count badges on basket items; unit test |
+| Medium | Focus lost after Start/each exercise (QA 5) | Focus moves to first actionable element; to first choice after counting |
+| Medium | Live captions only during play (QA 6) | Single live region in AppProvider for all screens |
+| Medium | Low-contrast labels on Play/Again/Games; weak focus ring (QA 8–9) | Text stroke on labels; white + ink double focus ring |
+| Medium | Age picker relied on reading "3–5" (QA 11) | Each age shown as its own numeral chip |
+| Medium | No API rate limiting (Security M1) | **Open** — mitigated by sync being off; required before enabling sync/launch |
+| Low | API lacked CSP/HSTS; double speech fallback; side effect in state updater; `resume` recomputed each render; unguarded star timer; `workers_dev`, `nodejs_compat`, compat date; robots→missing sitemap (Security) | All fixed |
+| Low | Intro had no idle help; greeting contradicted lesson; objective text mismatch (QA 12–14) | Fixed (intro nudge + pointer after 8 s; D-013; text corrected) |
+| Low | Short-landscape targets 44–48 px (QA 10) | Raised to 52–54 px (≥44 everywhere; 64 px aim not yet met on short landscape) |
+| Open | Missing `/audio/voice/*` paths return index.html (SPA fallback) | Harmless (decode fails soft); revisit when voice files land |
+Not verified by either reviewer: real screen readers (NVDA/VoiceOver), real devices, speech quality.

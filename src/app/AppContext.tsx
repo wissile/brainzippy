@@ -87,7 +87,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     () => ({ path, navigate, muted, toggleMute, audioReady, unlockAudio, caption, speaking, reducedMotion }),
     [path, navigate, muted, toggleMute, audioReady, unlockAudio, caption, speaking, reducedMotion],
   );
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={value}>
+      {children}
+      {/* one live region for every screen: screen-reader users hear each spoken line */}
+      <div className="sr-only" aria-live="polite" data-testid="live-caption">{caption}</div>
+    </Ctx.Provider>
+  );
 }
 
 export function useApp(): AppCtx {

@@ -11,7 +11,7 @@ Source: the owner's character sketch sheet and cards (project files: Bobbo, Zuzu
 ## Cast
 | # | Name | Type | Subject buddy | Colour | Signature | Personality / voice direction |
 |---|---|---|---|---|---|---|
-| 01 | **Bobbo** | monster | Counting | #FF9F43 | wings too tiny to fly, 3 horns, freckles, fang grin | pear-shaped worrier who counts everything twice; warm, eager, slightly breathless; flaps wings hard when excited |
+| 01 | **Bobbo** | monster | Counting | #FF9F43 | wings too tiny to fly, 3 horns, freckles, fang grin | pear-shaped worrier who double-checks everything (bio only — gameplay lines never say "count twice", D-013); warm, eager, slightly breathless; flaps wings hard when excited |
 | 02 | Zuzu | monster | Spelling | #8E6CEF | three eyes ("typo eye") + pencil | tall, floppy, a little dramatic; ears droop at a misspelling |
 | 03 | Gloop | monster | Shapes | #2EC4B6 | one giant curious eye; idea bubbles | wobbly jelly that squishes into shapes; curious, playful |
 | 04 | Hoot | animal | Reading | #6BCB77 | big reading specs, leaf tufts | mossy owl storyteller; funny voices |

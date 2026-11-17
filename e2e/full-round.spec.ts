@@ -74,3 +74,42 @@ test("tap targets are at least 44px and nothing overflows during play", async ({
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(overflow).toBe(false);
 });
+
+test("tutorial hand appears inside the viewport and does not shift the layout", async ({ page }) => {
+  await seed(page, { muted: true });
+  await openGame(page);
+  await expect(screen(page)).toHaveAttribute("data-phase", "counting");
+  await page.waitForTimeout(1200);
+  const before = (await page.locator(".board").boundingBox())!;
+  const hand = page.getByTestId("hand-pointer");
+  await expect(hand).toBeVisible({ timeout: 10_000 });
+  const vp = page.viewportSize()!;
+  const hb = (await hand.boundingBox())!;
+  expect(hb.y).toBeGreaterThanOrEqual(0);
+  expect(hb.y + hb.height).toBeLessThanOrEqual(vp.height + 40);
+  expect(hb.x + hb.width).toBeLessThanOrEqual(vp.width + 40);
+  const after = (await page.locator(".board").boundingBox())!;
+  expect(Math.abs(after.height - before.height)).toBeLessThan(2);
+});
+
+test("speech captions never cover objects the child must count", async ({ page }) => {
+  await seed(page, { muted: true });
+  await openGame(page);
+  for (let i = 0; i < 3; i++) await press(page, '[data-testid="count-object"][data-counted="false"]');
+  await expect(screen(page)).toHaveAttribute("data-phase", "answering");
+  await press(page, '[data-testid="choice"][data-value="2"]');
+  const bubble = page.getByTestId("speech-bubble").last();
+  await expect(bubble).toBeVisible();
+  await page.waitForTimeout(400);
+  const b = (await bubble.boundingBox())!;
+  const objs = await page.locator('[data-testid="count-object"], [data-testid="choice"]').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()));
+  for (const o of objs) {
+    const overlap = Math.max(0, Math.min(b.x + b.width, o.right) - Math.max(b.x, o.left)) * Math.max(0, Math.min(b.y + b.height, o.bottom) - Math.max(b.y, o.top));
+    expect(overlap / (o.width * o.height)).toBeLessThan(0.05);
+  }
+});
+
+test("age tiles are announced as buttons", async ({ page }) => {
+  await page.goto("/play");
+  await expect(page.getByRole("button", { name: "Ages 3 to 5" })).toBeVisible();
+});

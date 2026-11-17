@@ -182,3 +182,26 @@ test.describe("gameplay behaviour", () => {
     expect((await request.get(`/api/guest/${id}/progress`)).status()).toBe(404);
   });
 });
+
+test("grown-ups: delete progress is behind a parent gate and clears local data", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop");
+  await page.addInitScript(() => localStorage.setItem("bz.v1", JSON.stringify({ muted: true, progress: { v: 1, stickers: ["counting-champ"], roundsCompleted: 1, skills: {} } })));
+  await page.goto("/grown-ups");
+  await page.getByTestId("reset-progress").click();
+  const q = await page.locator('label[for="gate-answer"]').innerText();
+  const [a, b] = q.match(/(\d+) \+ (\d+)/)!.slice(1).map(Number);
+  await page.getByTestId("gate-answer").fill("1");
+  await page.getByTestId("gate-confirm").click();
+  expect(await page.evaluate(() => localStorage.getItem("bz.v1"))).toContain("counting-champ");
+  await page.getByTestId("gate-answer").fill(String(a! + b!));
+  await page.getByTestId("gate-confirm").click();
+  await expect(page.getByTestId("reset-done")).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem("bz.v1"))).toBeNull();
+});
+
+test("corrupted saved round never blanks the game", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop");
+  await page.addInitScript(() => localStorage.setItem("bz.v1", JSON.stringify({ muted: true, round: { gameId: "counting-adventure", progression: { oops: 1 } } })));
+  await page.goto("/play/counting-adventure");
+  await expect(page.getByTestId("start-game")).toHaveAttribute("aria-label", "Start");
+});

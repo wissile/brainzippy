@@ -65,5 +65,9 @@ describe("API worker", () => {
     expect(cross.status).toBe(403);
     const huge = await handleApi(req(`/api/guest/${id}/progress`, { method: "PUT", body: "x".repeat(9000), headers: { "content-type": "application/json" } }), env);
     expect(huge.status).toBe(400);
+    // no Content-Length (streamed): still capped by real bytes
+    const stream = new ReadableStream({ start(c) { for (let i = 0; i < 20; i++) c.enqueue(new TextEncoder().encode("x".repeat(1000))); c.close(); } });
+    const chunked = await handleApi(new Request(`https://brainzippy.test/api/guest/${id}/progress`, { method: "PUT", body: stream, headers: { "content-type": "application/json" }, duplex: "half" } as RequestInit), env);
+    expect(chunked.status).toBe(400);
   });
 });

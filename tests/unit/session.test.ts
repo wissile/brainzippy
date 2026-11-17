@@ -72,6 +72,19 @@ describe("exercise state machine", () => {
     expect(s.feedback?.correct).toBe(true);
   });
 
+  it("make-set: third miss models the answer — basket set to target, child still submits", () => {
+    let s = initExercise(ex("ca-make-4-cookie"));
+    s = run(s, { type: "ADD_TO_BASKET", index: 0 }, { type: "SUBMIT_SET" }, { type: "FEEDBACK_DONE" }, { type: "SUBMIT_SET" }, { type: "FEEDBACK_DONE" });
+    s = run(s, ...[1, 2, 3, 4, 5].map((i) => ({ type: "ADD_TO_BASKET" as const, index: i })), { type: "SUBMIT_SET" });
+    expect(s.attempts).toBe(3);
+    expect(s.feedback?.hints).toEqual(expect.arrayContaining(["model-answer", "count-along"]));
+    expect(s.basket).toHaveLength(4);
+    s = run(s, { type: "FEEDBACK_DONE" });
+    expect(s.phase).toBe("answering");
+    s = run(s, { type: "SUBMIT_SET" });
+    expect(s.feedback?.correct).toBe(true);
+  });
+
   it("retry is unlimited and never ends the exercise without success", () => {
     let s = initExercise(ex("ca-choose-2-cookie"));
     s = run(s, { type: "CHOOSE", value: 1 }, { type: "FEEDBACK_DONE" }, { type: "CHOOSE", value: 3 }, { type: "FEEDBACK_DONE" });

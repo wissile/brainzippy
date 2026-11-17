@@ -15,7 +15,7 @@ flowchart LR
   SA -. "unknown path → index.html (SPA)" .-> B
 ```
 - `assets.run_worker_first: ["/api/*"]` — only API calls invoke (and bill) the Worker. Navigations use `not_found_handling: "single-page-application"`.
-- Client works fully offline from the API: progress lives in `localStorage`; D1 sync is fire-and-forget after each round.
+- Client works fully offline from the API: progress lives in `localStorage`. D1 sync (`services/sync.ts`) is implemented and tested but **switched off** until a restore path exists (D-011).
 - R2 is **not used yet**: all media is small and built into static assets (11 SFX = 168 KB). Use R2 when a media catalogue changes without deploys or files exceed 25 MiB.
 
 ## Client architecture
@@ -66,6 +66,8 @@ Controls: same-origin check on writes (Origin header), UUID-format ids (122-bit 
 | Preview | `wrangler versions upload --preview-alias <name>`; `preview_urls: false` keeps workers.dev previews off until Access protects them | staging DB |
 | Staging | `CLOUDFLARE_ENV=staging vite build && wrangler deploy` (env chosen at build time with the Vite plugin) | `brainzippy-db-staging` |
 | Production | Same with default env — **requires owner approval** | `brainzippy-db` |
+
+Config hardening: `workers_dev: false`, `preview_urls: false`, invocation logs off, no `nodejs_compat` (unused), compatibility date 2026-11-01.
 
 Placeholders: both `database_id` values in `wrangler.jsonc` are zero UUIDs; replace after `wrangler d1 create`. Secrets: none required yet; future ones via `wrangler secret put` / `.dev.vars` (gitignored, `.dev.vars.example` committed).
 

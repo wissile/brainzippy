@@ -5,6 +5,7 @@ import type { Exercise, Feedback, HintAction, ValidationResult } from "./types";
  * Ladder for wrong answers:
  *   attempt 1 → gentle retry + strategy hint (count along / cardinality / too many-too few)
  *   attempt 2+ → model the answer (errorless: the child still taps it themselves)
+ *   make-set: attempt 2 → show target slots; attempt 3+ → basket set to the target and counted aloud
  * Correct answers always praise the process ("you counted carefully"), never ability.
  */
 const PRAISE = ["correct.1", "correct.2", "correct.3", "correct.4"] as const;
@@ -19,8 +20,14 @@ export function feedbackFor(exercise: Exercise, result: ValidationResult, attemp
   let voiceId = "retry.1";
 
   if (exercise.interaction === "make-set") {
-    if (attempt >= 2) hints.push("show-slots");
-    voiceId = result.reason === "too-many" ? "hint.tooMany" : result.reason === "incomplete" ? "hint.empty" : "hint.tooFew";
+    if (attempt >= 3) {
+      // modelled answer: the basket is set to the target and counted aloud; the child still taps the check
+      hints.push("show-slots", "model-answer", "count-along");
+      voiceId = "hint.model";
+    } else {
+      if (attempt >= 2) hints.push("show-slots");
+      voiceId = result.reason === "too-many" ? "hint.tooMany" : result.reason === "incomplete" ? "hint.empty" : "hint.tooFew";
+    }
   } else if (attempt >= 2) {
     hints.push("model-answer", "count-along");
     voiceId = "hint.model";

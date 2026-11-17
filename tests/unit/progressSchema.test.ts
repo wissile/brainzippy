@@ -19,3 +19,15 @@ describe("guest progress schema", () => {
     expect(parseGuestProgress({ ...valid, stickers: Array.from({ length: 201 }, (_, i) => `s${i}`) })).toBeNull();
   });
 });
+
+import { parseRoundSnapshot } from "../../src/services/storage";
+describe("round snapshot validation", () => {
+  const good = { v: 1, gameId: "counting-adventure", currentId: "ca-tap-3-apple", savedAt: 1, progression: { difficulty: 1, streak: 0, played: ["ca-tap-3-apple"], results: [] } };
+  it("accepts a valid snapshot", () => expect(parseRoundSnapshot(good)).not.toBeNull());
+  it("drops old-shape or corrupted snapshots instead of crashing", () => {
+    expect(parseRoundSnapshot({ ...good, v: undefined })).toBeNull();
+    expect(parseRoundSnapshot({ ...good, progression: { difficulty: 1 } })).toBeNull();
+    expect(parseRoundSnapshot({ ...good, progression: { ...good.progression, results: [{ exerciseId: 1 }] } })).toBeNull();
+    expect(parseRoundSnapshot("garbage")).toBeNull();
+  });
+});

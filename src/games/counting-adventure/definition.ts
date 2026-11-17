@@ -25,7 +25,7 @@ export const countingExercises: readonly Exercise[] = [
 
   // Difficulty 2: quantities 4–5
   ex({ id: "ca-tap-4-carrot", skillId: "math.count.cardinality", objective: "Count 4 and say how many", difficulty: 2, interaction: "tap-count", target: 4, objectKind: "carrot", choices: [3, 4, 5], seed: 21, layout: "scatter", a11yDescription: "Four carrots scattered on the blanket." }),
-  ex({ id: "ca-choose-5-apple", skillId: "math.count.subitize", objective: "Recognise 5 in a dice pattern", difficulty: 2, interaction: "choose-count", target: 5, objectKind: "apple", choices: [4, 5, 6], seed: 22, layout: "scatter", a11yDescription: "Five apples on the blanket." }),
+  ex({ id: "ca-choose-5-apple", skillId: "math.count.subitize", objective: "Recognise 5 at a glance", difficulty: 2, interaction: "choose-count", target: 5, objectKind: "apple", choices: [4, 5, 6], seed: 22, layout: "scatter", a11yDescription: "Five apples on the blanket." }),
   ex({ id: "ca-make-4-cookie", skillId: "math.count.make-set", objective: "Count out 4 from a group of 7", difficulty: 2, interaction: "make-set", target: 4, poolSize: 7, objectKind: "cookie", seed: 23, a11yDescription: "Seven cookies next to Bobbo's basket." }),
   ex({ id: "ca-tap-5-berry", skillId: "math.count.cardinality", objective: "Count 5 and say how many", difficulty: 2, interaction: "tap-count", target: 5, objectKind: "berry", choices: [4, 5, 6], seed: 24, layout: "scatter", a11yDescription: "Five strawberries on the blanket." }),
 

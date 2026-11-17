@@ -6,16 +6,16 @@ Phases follow the master instructions. A phase is complete only when its accepta
 | Gate | Evidence |
 |---|---|
 | Working implementation | Full 12-step flow playable at `npm run dev`; PRODUCT_REQUIREMENTS F1–F12, A1–A3, P1, R1–R2 |
-| Code review | Independent security/code reviewer agent — see DECISIONS.md D-010 |
-| Functional tests | `npm test`: 33 unit tests pass · `npx playwright test`: 27 pass, 21 skipped by design (behaviour suite runs on 2 of 4 projects) |
+| Code review | Independent security/code reviewer agent — findings fixed except API rate limiting (DECISIONS.md) |
+| Functional tests | `npm test`: 36 unit tests pass · `npx playwright test`: 41 pass, 27 skipped by design (behaviour suite runs on desktop + phone; a few desktop-only) |
 | Visual inspection | Screenshots at 390×844, 915×412, 1024×1366, 1280×800 inspected; defects found and fixed (portrait intro overlap, reward offset, phone-landscape collapse/overlap) |
-| Accessibility review | Independent QA/a11y reviewer agent — see DECISIONS.md D-010 |
-| Security/privacy review | Independent reviewer — see DECISIONS.md D-010 |
+| Accessibility review | Independent QA/a11y reviewer: 1 critical + 4 high found and fixed (DECISIONS.md) |
+| Security/privacy review | Independent reviewer: 2 high + 5 medium; all fixed except rate limiting (mitigated: sync off) |
 | Performance | Budgets met (TESTING_STRATEGY.md) |
 | Docs | 13 docs + concepts board |
 | Production deploy | **Not done** — requires Cloudflare credentials and your explicit approval |
 
-Known limitations: voice is browser speech synthesis (device-dependent quality) until a voice actor is recorded; characters are hand-built SVG/CSS (Rive needs an artist-authored file); AdaptedMind gameplay could not be inspected (behind enrollment); remote D1/preview/CI deploy unverified (no account access); no rate limiting yet.
+Known limitations: voice is browser speech synthesis (device-dependent quality) until a voice actor is recorded; characters are hand-built SVG/CSS (Rive needs an artist-authored file); AdaptedMind gameplay could not be inspected (behind enrollment); remote D1/preview/CI deploy unverified (no account access); no rate limiting yet (server sync is switched off until it and a restore path exist); not yet tested with a real screen reader or on physical devices.
 
 ## Next milestone (proposed) — M2: Production-quality voice & polish + staging deploy
 1. Voice: cast/record Bobbo (≈60 lines); wire `file` entries; loudness-normalise. *Decision needed: budget and casting route.*

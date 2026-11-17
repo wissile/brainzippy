@@ -6,7 +6,6 @@ import { type GuestProgress } from "../engine/progressSchema";
 import { type ExerciseEvent, type ExerciseState, exerciseReducer, initExercise, toResult } from "../engine/session";
 import type { Exercise, GameDefinition, MascotState, ProgressionState } from "../engine/types";
 import { loadState, saveState } from "../services/storage";
-import { syncProgress } from "../services/sync";
 import { NavButton, SoundButton, SpeechBubble } from "../ui/controls";
 import { IconAgain, IconGrid, IconHand, IconPlay, IconReplay, IconStar } from "../ui/icons";
 import { soundForTransition } from "./audioEvents";
@@ -36,11 +35,13 @@ const IDLE_MS = 9000;
 export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSkin }) {
   const { navigate, caption, speaking, reducedMotion, unlockAudio } = useApp();
 
-  const resume = useRef(() => {
+  const [resume] = useState(() => {
     const r = loadState().round;
     if (!r || r.gameId !== game.id || isRoundComplete(r.progression, game.progression)) return null;
+    const known = new Set(game.exercises.map((e) => e.id));
+    if (!r.progression.played.every((id) => known.has(id)) || (r.currentId && !known.has(r.currentId))) return null;
     return r;
-  }).current();
+  });
 
   const [stage, setStage] = useState<Stage>("intro");
   const [prog, setProg] = useState<ProgressionState>(() => resume?.progression ?? initialProgression(game.progression));
@@ -65,9 +66,14 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
       setSt(next);
       setAlongIndex(-1);
       setPointer(null);
+      // keep keyboard users in place: focus the first thing to act on (no visible ring for touch/mouse users)
+      window.setTimeout(() => {
+        const sel = ex.interaction === "make-set" ? '[data-testid="pile-object"]' : ex.interaction === "tap-count" ? '[data-testid="count-object"]' : '[data-testid="choice"]';
+        (document.querySelector(sel) as HTMLElement | null)?.focus({ preventScroll: true });
+      }, 60);
       const marked = markPlayed(p, ex.id);
       setProg(marked);
-      saveState({ round: { gameId: game.id, progression: p, currentId: ex.id, savedAt: Date.now() } });
+      saveState({ round: { v: 1, gameId: game.id, progression: p, currentId: ex.id, savedAt: Date.now() } });
     },
     [game.id],
   );
@@ -101,7 +107,14 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     if (stage !== "intro") return;
     setMascot("greeting");
     const t = window.setTimeout(() => void audio.speak(resume ? "intro.back" : "intro.hello"), 400);
-    return () => window.clearTimeout(t);
+    const nudge = window.setTimeout(() => {
+      void audio.speak("intro.go");
+      setPointer({ target: '[data-testid="start-game"]' });
+    }, 8000);
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(nudge);
+    };
   }, [stage, resume]);
 
   // Prompt on each new exercise (+ tutorial pointer)
@@ -134,6 +147,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
       void (async () => {
         if (!(await sleep(700, t))) return;
         setMascot("thinking");
+        if (document.activeElement?.getAttribute("data-testid") === "count-object") (document.querySelector('[data-testid="choice"]') as HTMLElement | null)?.focus({ preventScroll: true });
         await audio.speak("prompt.howMany", { kind: st.exercise.objectKind });
         if (t === token.current) setMascot("idle");
       })();
@@ -153,7 +167,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     setMascot(fb.mascot);
 
     const countAlong = async () => {
-      const n = ex.interaction === "make-set" ? 0 : ex.target;
+      const n = ex.target;
       for (let i = 0; i < n; i++) {
         setAlongIndex(i);
         audio.playCount(i + 1);
@@ -166,7 +180,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     void (async () => {
       if (fb.correct) {
         setBurst((b) => b + 1);
-        window.setTimeout(() => audio.play("star"), 350);
+        window.setTimeout(() => t === token.current && audio.play("star"), 350);
         await Promise.all([audio.speak(fb.voice.id, { ...fb.voice.vars, kind: ex.objectKind }), sleep(1700, t)]);
         if (t !== token.current) return;
         act({ type: "FEEDBACK_DONE" });
@@ -196,11 +210,11 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
         audio.play("hint");
         setMascot("encouraging");
         if (!(await countAlong())) return;
-        if (fb.hints.includes("model-answer")) await audio.speak("hint.modelTap", { n: ex.target });
+        if (fb.hints.includes("model-answer")) await audio.speak(ex.interaction === "make-set" ? "hint.modelSetTap" : "hint.modelTap", { n: ex.target });
         else await sleep(400, t);
         if (t !== token.current) return;
       }
-      if (fb.hints.includes("show-slots")) {
+      if (fb.hints.includes("show-slots") && !fb.hints.includes("model-answer")) {
         audio.play("hint");
         await audio.speak("hint.slots");
         if (t !== token.current) return;
@@ -233,7 +247,8 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     }
     saveState({ progress, round: null });
     setNewSticker(!had);
-    void syncProgress(progress);
+    // Server backup (services/sync.ts) is intentionally OFF until a parent-controlled restore path exists:
+    // storing data that can never be restored to the child would breach data minimisation (DECISIONS D-011).
     void (async () => {
       await Promise.all([audio.speak("round.complete"), sleep(2600, t)]);
       if (t !== token.current) return;
@@ -273,8 +288,9 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
           setPointer({ target: '[data-testid="pile-object"]', dragTo: '[data-testid="basket"]' });
         }
       } else {
-        void audio.speak("nudge.choose");
-        setPointer({ target: '[data-testid="choice"]:not(.is-out)' });
+        // never point at a number (that would give away or bias the answer) — point at the objects to count
+        void audio.speak("nudge.howMany", { kind: ex.objectKind });
+        setPointer({ target: ".blanket" });
       }
     }, 1000);
     return () => window.clearInterval(id);
@@ -323,6 +339,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
         <button type="button" className="big-play intro-go" data-testid="start-game" aria-label={resume ? "Keep playing" : "Start"} onClick={startRound}>
           <IconPlay />
         </button>
+        {pointer && <HandPointer pointer={pointer} reducedMotion={reducedMotion} />}
       </main>
     );
   }
@@ -409,7 +426,6 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
         <Mascot state={mascot} talking={speaking} size="100%" />
       </div>
       <div className="tray">{showTray}</div>
-      <div className="sr-only" aria-live="polite" data-testid="live-caption">{bubble}</div>
       {pointer && <HandPointer pointer={pointer} reducedMotion={reducedMotion} />}
     </main>
   );

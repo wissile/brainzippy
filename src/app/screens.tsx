@@ -82,14 +82,13 @@ export function AgeScreen() {
         <h1 className="screen-title">How old are you?</h1>
         <SoundButton />
       </div>
-      <div className="age-grid" role="list">
+      <div className="age-grid">
         {AGE_BANDS.map((b, i) => {
           const C = b.critter === "bobbo" ? null : CRITTER[b.critter];
           return (
             <button
               key={b.id}
               type="button"
-              role="listitem"
               className={`age-tile tile-${b.critter}`}
               style={{ animationDelay: `${i * 70}ms` }}
               data-testid={`age-${b.id}`}
@@ -103,7 +102,7 @@ export function AgeScreen() {
               <span className="age-critter" aria-hidden="true">
                 {C ? <C size={100} /> : <Bobbo state="idle" size={110} />}
               </span>
-              <span className="age-label">{b.label}</span>
+              <span className="age-label" aria-hidden="true">{Array.from({ length: b.max - b.min + 1 }, (_, k) => <b key={k}>{b.min + k}</b>)}</span>
             </button>
           );
         })}
@@ -155,12 +154,12 @@ export function GamesScreen({ bandId }: { bandId: string }) {
             <span className="game-meta">Ages 4–6 · Counting to 10</span>
             <span className="game-go" aria-hidden="true"><IconPlay /></span>
           </button>
-          <div className="game-tile soon" aria-label="Spelling with Zuzu, coming soon">
+          <div className="game-tile soon">
             <span className="game-art" aria-hidden="true"><Zuzu size={110} /></span>
             <span className="game-name">Letter Hunt</span>
             <span className="soon-badge"><IconLock /> Soon</span>
           </div>
-          <div className="game-tile soon" aria-label="Shapes with Gloop, coming soon">
+          <div className="game-tile soon">
             <span className="game-art" aria-hidden="true"><Gloop size={105} /></span>
             <span className="game-name">Shape Squish</span>
             <span className="soon-badge"><IconLock /> Soon</span>
@@ -179,7 +178,24 @@ export function GamesScreen({ bandId }: { bandId: string }) {
 }
 
 export function GrownUpsScreen() {
-  const [deleted, setDeleted] = useState(false);
+  const [status, setStatus] = useState<"idle" | "gate" | "deleted" | "failed">("idle");
+  const [answer, setAnswer] = useState("");
+  // Simple parent gate: arithmetic a 4–6-year-old is unlikely to solve. Not a security boundary.
+  const [gate] = useState(() => ({ a: 6 + Math.floor(Math.random() * 4), b: 5 + Math.floor(Math.random() * 4) }));
+
+  const doDelete = async () => {
+    const id = loadState().serverId;
+    if (id) {
+      const ok = await fetch(`/api/guest/${encodeURIComponent(id)}`, { method: "DELETE" }).then((r) => r.ok).catch(() => false);
+      if (!ok) {
+        setStatus("failed"); // keep the id so deletion can be retried
+        return;
+      }
+    }
+    clearState();
+    setStatus("deleted");
+  };
+
   return (
     <main className="screen grownups">
       <div className="screen-top"><NavButton to="/" label="Home" /><h1 className="screen-title">For grown-ups</h1><span /></div>
@@ -187,20 +203,31 @@ export function GrownUpsScreen() {
         <h2>What is BrainZippy?</h2>
         <p>BrainZippy is a collection of short learning games for children aged 3 to 14. Each game has one clear learning goal, spoken instructions, and gentle hints, so young children can play without reading.</p>
         <h2>Counting Adventure (ages 4–6)</h2>
-        <p>Children help Bobbo count his snacks. They practise touching each object once while counting, learn that the last number said tells how many, recognise small amounts at a glance, and count out an amount from a larger group. Difficulty rises from 1–3 objects up to 10 based on simple, published rules: two first-try answers in a row move up a level; needing three tries moves down a level.</p>
+        <p>Children help Bobbo count his snacks. They practise touching each object once while counting, learn that the last number said tells how many, recognise small amounts at a glance, and count out an amount from a larger group. Difficulty rises from 1–3 objects up to 10 based on simple, published rules: two first-try answers in a row move up a level; needing three tries moves down a level. Wrong answers are never punished: Bobbo gives a hint, then shows the answer.</p>
         <h2>Privacy</h2>
-        <p>Guest play needs no account and collects no names, emails, photos, or location. Progress is stored on this device; an anonymous random ID may back it up to our servers so it survives a browser reset. There are no ads, no chat, and no third-party trackers.</p>
-        <p>
-          <button type="button" className="pill-btn danger" data-testid="reset-progress" onClick={() => {
-            void (async () => {
-              const id = loadState().serverId;
-              if (id) await fetch(`/api/guest/${encodeURIComponent(id)}`, { method: "DELETE" }).catch(() => undefined);
-              clearState();
-              setDeleted(true);
-            })();
-          }}>Delete all progress on this device</button>
-        </p>
-        {deleted && <p role="status">Progress on this device has been deleted.</p>}
+        <p>Guest play needs no account. We don't ask for names, emails, photos, or location, and there are no ads, chat, or third-party trackers. Progress (stickers and practice counts) and settings are stored only in this browser; guest play sends no progress to our servers.</p>
+        {status === "idle" && (
+          <p><button type="button" className="pill-btn danger" data-testid="reset-progress" onClick={() => setStatus("gate")}>Delete all progress on this device</button></p>
+        )}
+        {status === "gate" && (
+          <form
+            className="gate"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (Number(answer) === gate.a + gate.b) void doDelete();
+              else setAnswer("");
+            }}
+          >
+            <label htmlFor="gate-answer">Grown-ups only: what is {gate.a} + {gate.b}?</label>
+            <input id="gate-answer" data-testid="gate-answer" inputMode="numeric" autoComplete="off" value={answer} onChange={(e) => setAnswer(e.target.value.replace(/\D/g, "").slice(0, 3))} />
+            <button type="submit" className="pill-btn danger" data-testid="gate-confirm">Delete</button>
+            <button type="button" className="pill-btn" onClick={() => setStatus("idle")}>Cancel</button>
+          </form>
+        )}
+        {status === "deleted" && <p role="status" data-testid="reset-done">Progress on this device has been deleted.</p>}
+        {status === "failed" && (
+          <p role="alert">We couldn't reach our server to finish deleting. Nothing was removed yet — please try again when you're online. <button type="button" className="pill-btn" onClick={() => void doDelete()}>Try again</button></p>
+        )}
       </article>
     </main>
   );

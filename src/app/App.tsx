@@ -1,5 +1,6 @@
 import { Suspense, lazy, useEffect } from "react";
 import { AppProvider, useApp } from "./AppContext";
+import { ErrorBoundary } from "./ErrorBoundary";
 import { AgeScreen, GamesScreen, GrownUpsScreen, HomeScreen } from "./screens";
 
 // Game code + art is lazy-loaded so the home screen stays light.
@@ -42,8 +43,10 @@ function Loading() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <Router />
-    </AppProvider>
+    <ErrorBoundary>
+      <AppProvider>
+        <Router />
+      </AppProvider>
+    </ErrorBoundary>
   );
 }

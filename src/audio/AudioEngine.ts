@@ -155,9 +155,15 @@ class AudioEngine {
         try {
           const clip = new Audio(`/audio/voice/${file}`);
           this.currentClip = clip;
+          let fellBack = false;
+          const fallback = () => {
+            if (fellBack) return;
+            fellBack = true;
+            this.synth(text, token, done);
+          };
           clip.onended = done;
-          clip.onerror = () => this.synth(text, token, done);
-          void clip.play().catch(() => this.synth(text, token, done));
+          clip.onerror = fallback;
+          void clip.play().catch(fallback);
           return;
         } catch {
           /* fall through to synthesis */

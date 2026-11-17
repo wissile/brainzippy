@@ -13,6 +13,8 @@ const SECURITY_HEADERS: Record<string, string> = {
   "x-content-type-options": "nosniff",
   "referrer-policy": "no-referrer",
   "cross-origin-resource-policy": "same-origin",
+  "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+  "strict-transport-security": "max-age=31536000",
 };
 
 function json(body: unknown, status = 200): Response {
@@ -26,14 +28,32 @@ function sameOrigin(req: Request): boolean {
   return origin === new URL(req.url).origin;
 }
 
+/** Read a JSON body, counting real bytes and aborting as soon as the cap is exceeded (works without Content-Length). */
 async function readJson(req: Request): Promise<unknown | undefined> {
   if (!(req.headers.get("content-type") ?? "").includes("application/json")) return undefined;
-  const len = Number(req.headers.get("content-length") ?? "0");
-  if (len > MAX_PROGRESS_BYTES) return undefined;
-  const text = await req.text();
-  if (text.length > MAX_PROGRESS_BYTES) return undefined;
+  if (Number(req.headers.get("content-length") ?? "0") > MAX_PROGRESS_BYTES) return undefined;
+  if (!req.body) return undefined;
+  const reader = req.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > MAX_PROGRESS_BYTES) {
+      await reader.cancel();
+      return undefined;
+    }
+    chunks.push(value);
+  }
+  const buf = new Uint8Array(total);
+  let off = 0;
+  for (const c of chunks) {
+    buf.set(c, off);
+    off += c.byteLength;
+  }
   try {
-    return JSON.parse(text);
+    return JSON.parse(new TextDecoder().decode(buf));
   } catch {
     return undefined;
   }

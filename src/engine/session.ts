@@ -67,9 +67,15 @@ function submit(state: ExerciseState, correct: boolean, fb: Feedback, choice: nu
   if (!correct && choice !== null && fb.hints.includes("eliminate-choice") && !disabledChoices.includes(choice)) {
     disabledChoices = [...disabledChoices, choice];
   }
+  let basket = state.basket;
   if (!correct && fb.hints.includes("model-answer")) {
     modelChoice = state.exercise.target;
     disabledChoices = (state.exercise.choices ?? []).filter((c) => c !== state.exercise.target);
+    if (state.exercise.interaction === "make-set") {
+      const target = state.exercise.target;
+      basket = basket.slice(0, target);
+      for (let i = 0; basket.length < target && i < objectCount(state.exercise); i++) if (!basket.includes(i)) basket = [...basket, i];
+    }
   }
   return {
     ...state,
@@ -77,6 +83,7 @@ function submit(state: ExerciseState, correct: boolean, fb: Feedback, choice: nu
     attempts,
     disabledChoices,
     modelChoice,
+    basket,
     activeHints: [...state.activeHints, ...newHints],
     hintsShown: state.hintsShown + (correct ? 0 : 1),
     feedback: { ...fb, seq: attempts, correct },
