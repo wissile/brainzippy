@@ -36,3 +36,25 @@ describe("voice lines", () => {
     }
   });
 });
+
+import { existsSync, readFileSync as read } from "node:fs";
+import { voiceKey } from "../../src/audio/voiceLines";
+describe("voice clip coverage", () => {
+  const manifest = JSON.parse(read("public/audio/voice/manifest.json", "utf8")) as { clips: Record<string, string> };
+  it("every line and every pre-rendered variant has an audio file on disk", () => {
+    const missing: string[] = [];
+    for (const [id, line] of Object.entries(VOICE_LINES)) {
+      const vary = line.vary;
+      const combos = vary ? Object.keys(vary).reduce<Record<string, string | number>[]>((acc, k) => acc.flatMap((c) => vary[k]!.map((v) => ({ ...c, [k]: v }))), [{}]) : [{}];
+      for (const vars of combos) {
+        const f = manifest.clips[voiceKey(id, vars)];
+        if (!f || !existsSync(`public/audio/voice/${f}`)) missing.push(voiceKey(id, vars));
+      }
+    }
+    expect(missing).toEqual([]);
+  });
+  it("keys include only the variables that change wording", () => {
+    expect(voiceKey("prompt.make-set", { kind: "berry", n: 4, extra: 1 })).toBe("prompt.make-set__kind-berry__n-4");
+    expect(voiceKey("retry.1", { n: 3 })).toBe("retry.1");
+  });
+});

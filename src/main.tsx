@@ -7,6 +7,7 @@ import "@fontsource/nunito/latin-700.css";
 import "./styles/tokens.css";
 import "./styles/app.css";
 import "./styles/characters.css";
+import "./styles/onboarding.css";
 import App from "./app/App";
 
 createRoot(document.getElementById("root")!).render(

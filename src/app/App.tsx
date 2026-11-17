@@ -1,16 +1,22 @@
 import { Suspense, lazy, useEffect } from "react";
 import { AppProvider, useApp } from "./AppContext";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { MapScreen } from "./MapScreen";
 import { AgeScreen, GamesScreen, GrownUpsScreen, HomeScreen } from "./screens";
+import { Onboarding } from "../onboarding/Onboarding";
 
 // Game code + art is lazy-loaded so the home screen stays light.
 const CountingAdventure = lazy(() => import("../games/counting-adventure/CountingAdventure"));
+// Voice studio: development-only tool for recording human voice takes (never shipped in production builds).
+const Studio = import.meta.env.DEV ? lazy(() => import("../studio/Studio")) : null;
 
 const TITLES: Record<string, string> = {
   "/": "BrainZippy — Learning games for kids",
   "/play": "Choose your age — BrainZippy",
   "/play/counting-adventure": "Counting Adventure (ages 4–6) — BrainZippy",
   "/grown-ups": "For grown-ups — BrainZippy",
+  "/hello": "Welcome — BrainZippy",
+  "/map": "Monster Island — BrainZippy",
 };
 
 function Router() {
@@ -22,6 +28,14 @@ function Router() {
   if (path === "/") return <HomeScreen />;
   if (path === "/play") return <AgeScreen />;
   if (path === "/grown-ups") return <GrownUpsScreen />;
+  if (path === "/hello") return <Onboarding />;
+  if (path === "/map") return <MapScreen />;
+  if (path === "/studio" && Studio)
+    return (
+      <Suspense fallback={<Loading />}>
+        <Studio />
+      </Suspense>
+    );
   if (path === "/play/counting-adventure")
     return (
       <Suspense fallback={<Loading />}>

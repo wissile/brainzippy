@@ -17,6 +17,12 @@ Phases follow the master instructions. A phase is complete only when its accepta
 
 Known limitations: voice is browser speech synthesis (device-dependent quality) until a voice actor is recorded; characters are hand-built SVG/CSS (Rive needs an artist-authored file); AdaptedMind gameplay could not be inspected (behind enrollment); remote D1/preview/CI deploy unverified (no account access); no rate limiting yet (server sync is switched off until it and a restore path exist); not yet tested with a real screen reader or on physical devices.
 
+## Milestone 1.1 — Onboarding, monster builder, natural voice  ✅ complete locally
+- Intro story with the Critter Crew, bubble-pop warm-up, monster builder (5 bodies × 8 colours × 5 eyes × 5 mouths × 5 arms × 5 tops), naming, child's name (device-only), age, parent-gated parent email with consent (skippable), Monster Island map, child's monster cheers on the reward screen.
+- Natural voice: 190 pre-rendered clips; /studio for recording human takes.
+- Tests: 46 unit, 48 Playwright passing (32 skipped by design); new onboarding e2e asserts the child's name never leaves the device.
+- Open: email provider for parent confirmations; voice choice (samples provided) or human recording session.
+
 ## Next milestone (proposed) — M2: Production-quality voice & polish + staging deploy
 1. Voice: cast/record Bobbo (≈60 lines); wire `file` entries; loudness-normalise. *Decision needed: budget and casting route.*
 2. Staging on Cloudflare: create D1 DBs, API token in CI, staging deploy + smoke e2e on the deployed URL. *Needs: Cloudflare account access.*

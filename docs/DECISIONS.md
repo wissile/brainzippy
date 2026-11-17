@@ -15,6 +15,10 @@
 | D-011 | 2026-11-17 | Turn **off** client→D1 progress sync until a parent-controlled restore path exists | Review H1: the backup was write-only (no restore), so it retained pseudonymous data with no benefit to the child | Keep syncing (rejected: data minimisation) |
 | D-012 | 2026-11-17 | Captions overlay the prompt row on portrait/short-landscape screens | Review: bubble covered objects on phones; prompt row is free while speech plays | Shrink bubble into mascot column (unreadable at 86 px) |
 | D-013 | 2026-11-17 | Bobbo's in-game lines never say "count twice" | Review: contradicts the one-to-one lesson; the trait stays in his bio only | — |
+| D-014 | 2026-11-17 | Voice = pre-rendered Kokoro neural clips now; human takes via /studio override them | Owner wants a smooth human-sounding voice; no voice actor or TTS account available in-session; Kokoro is Apache-2.0, offline, consistent | Browser TTS (robotic, device-dependent); paid TTS API (account + cost) |
+| D-015 | 2026-11-17 | First-run flow: story → bubble-pop → monster builder → names → age → grown-up → map | Owner request; AdaptedMind observed to gate play behind payment — hook with play and creation first | Straight to age picker (previous) |
+| D-016 | 2026-11-17 | Ask for the **parent's** email (parent gate, consent, skippable), not the child's; child's name stays on device | COPPA restricts collecting a child's contact info without verifiable parental consent; master instructions require parent-controlled collection | Child email field (rejected) |
+| D-017 | 2026-11-17 | Parent-signup endpoint returns 503 outside development until an email provider is chosen | Don't store addresses that can't be verified | Store and send later |
 
 ## Review findings (milestone 1)
 Two independent agents reviewed the code they did not write. All findings below were triaged; fixes were re-verified by the full test suite (36 unit, 41 Playwright passing) and screenshots.

@@ -14,6 +14,7 @@
     "db:migrate:local": "wrangler d1 migrations apply brainzippy-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply brainzippy-db --remote",
     "gen:sfx": "python3 scripts/gen_sfx.py",
+    "gen:voice": "python3 scripts/gen_voice.py",
     "deploy:preview": "npm run build && wrangler versions upload",
     "cf-typegen": "wrangler types"
   },

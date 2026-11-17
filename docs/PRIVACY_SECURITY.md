@@ -2,6 +2,16 @@
 
 > Not legal advice. A qualified lawyer must review COPPA (US), GDPR/UK GDPR + Age Appropriate Design Code, and other applicable law **before** enabling accounts or collecting any personal information.
 
+## Onboarding data (milestone 1.1)
+| Data | Where | Sent to server? | Notes |
+|---|---|---|---|
+| Child's first name / nickname (optional, "Skip" offered) | localStorage `profile.kidName` | **Never** (e2e asserts no request contains it) | sanitised to letters, ≤16 chars |
+| Monster design + monster name | localStorage | Never | |
+| Age band | localStorage | Never | |
+| **Parent's** email + explicit consent | D1 `parent_signups` | Yes, behind a parent gate, optional ("Skip for now") | token stored only as SHA-256; link single-use; unverified rows purged after 7 days; resend cooldown 10 min |
+**Why the email belongs to the parent, not the child:** collecting a child's (under 13) email or other online contact information requires verifiable parental consent under COPPA, and BrainZippy's master instructions require a parent-controlled process. Asking the parent directly, with consent, and keeping the child's name on the device is the data-minimising design. The API rejects any field other than `email` and `consent`.
+**Email delivery is not configured yet:** in development the confirmation link is shown on screen; in any other environment the endpoint returns 503 instead of storing addresses it can't verify. Choosing an email provider (e.g. Cloudflare Email Service, Postmark, Resend) is an open decision. A parent-facing unsubscribe/delete-email path must ship with it.
+
 ## Milestone 1 data inventory
 | Data | Where | Personal? | Purpose | Retention |
 |---|---|---|---|---|

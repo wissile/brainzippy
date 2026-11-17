@@ -49,7 +49,7 @@ export function HomeScreen() {
         onClick={() => {
           unlockAudio();
           audio.play("tap");
-          navigate("/play");
+          navigate(loadState().profile.step === "done" ? "/map" : "/hello");
         }}
       >
         <IconPlay />

@@ -1,9 +1,9 @@
 import type { SfxId } from "../engine/types";
-import { VOICE_LINES, renderLine } from "./voiceLines";
+import { renderLine, voiceKey } from "./voiceLines";
 
 /**
- * Audio engine: Web Audio for SFX (decoded buffers, pitch via playbackRate), recorded clips or
- * speech synthesis for voice. Every method fails soft — missing files, blocked autoplay, or absent
+ * Audio engine: Web Audio for SFX (decoded buffers, pitch via playbackRate) and for voice clips
+ * (human recordings > generated neural voice > browser speech synthesis as a last resort). Every method fails soft — missing files, blocked autoplay, or absent
  * speech voices never throw or block gameplay; callers always get a resolved promise within a cap.
  */
 const SFX: SfxId[] = ["tap", "count", "pickup", "drop", "correct", "retry", "hint", "whoosh", "complete", "achievement", "star"];
@@ -22,7 +22,10 @@ class AudioEngine {
   private muted = false;
   private voice: SpeechSynthesisVoice | null = null;
   private listeners = new Set<Listener>();
-  private currentClip: HTMLAudioElement | null = null;
+  private currentClip: AudioBufferSourceNode | null = null;
+  private manifest: Record<string, string> | null = null;
+  private manifestLoading: Promise<void> | null = null;
+  private clips = new Map<string, Promise<AudioBuffer | null>>();
   private speakToken = 0;
   readonly failed: string[] = [];
 
@@ -51,6 +54,7 @@ class AudioEngine {
       this.ctx = null;
     }
     void this.preload();
+    void this.loadManifest();
     this.pickVoice();
     if ("speechSynthesis" in window) {
       window.speechSynthesis.onvoiceschanged = () => this.pickVoice();
@@ -74,6 +78,60 @@ class AudioEngine {
       }),
     ).then(() => undefined);
     return this.loading;
+  }
+
+  private loadManifest(): Promise<void> {
+    if (this.manifestLoading) return this.manifestLoading;
+    this.manifestLoading = fetch("/audio/voice/manifest.json")
+      .then((r) => (r.ok ? (r.json() as Promise<{ clips?: Record<string, string> }>) : null))
+      .then((m) => {
+        this.manifest = m?.clips ?? {};
+        // warm the clips needed with zero latency while counting
+        for (let n = 1; n <= 10; n++) void this.clip(`number.${n}`);
+      })
+      .catch(() => {
+        this.manifest = {};
+      });
+    return this.manifestLoading;
+  }
+
+  private clip(key: string): Promise<AudioBuffer | null> {
+    const file = this.manifest?.[key];
+    const ctx = this.ctx;
+    if (!file || !ctx) return Promise.resolve(null);
+    let p = this.clips.get(key);
+    if (!p) {
+      p = fetch(`/audio/voice/${file}`)
+        .then((r) => {
+          if (!r.ok || !(r.headers.get("content-type") ?? "").startsWith("audio")) throw new Error("missing");
+          return r.arrayBuffer();
+        })
+        .then((b) => ctx.decodeAudioData(b))
+        .catch(() => null);
+      this.clips.set(key, p);
+    }
+    return p;
+  }
+
+  /** Is a recorded/generated clip available for this line? (Used by the studio + tests.) */
+  hasClip(id: string, vars: Record<string, string | number> = {}): boolean {
+    return Boolean(this.manifest?.[voiceKey(id, vars)]);
+  }
+
+  private playBuffer(buf: AudioBuffer, onEnd: () => void, gain = 1): AudioBufferSourceNode | null {
+    if (!this.ctx) return null;
+    try {
+      const src = this.ctx.createBufferSource();
+      src.buffer = buf;
+      const g = this.ctx.createGain();
+      g.gain.value = gain;
+      src.connect(g).connect(this.ctx.destination);
+      src.onended = onEnd;
+      src.start();
+      return src;
+    } catch {
+      return null;
+    }
   }
 
   play(id: SfxId, opts: { rate?: number; gain?: number } = {}): void {
@@ -122,7 +180,12 @@ class AudioEngine {
       /* ignore */
     }
     if (this.currentClip) {
-      this.currentClip.pause();
+      try {
+        this.currentClip.onended = null;
+        this.currentClip.stop();
+      } catch {
+        /* already stopped */
+      }
       this.currentClip = null;
     }
   }
@@ -150,26 +213,20 @@ class AudioEngine {
       window.setTimeout(done, this.muted ? Math.min(capMs, 1400) : capMs);
       if (this.muted) return;
 
-      const file = VOICE_LINES[id]?.file;
-      if (file) {
-        try {
-          const clip = new Audio(`/audio/voice/${file}`);
-          this.currentClip = clip;
-          let fellBack = false;
-          const fallback = () => {
-            if (fellBack) return;
-            fellBack = true;
-            this.synth(text, token, done);
-          };
-          clip.onended = done;
-          clip.onerror = fallback;
-          void clip.play().catch(fallback);
-          return;
-        } catch {
-          /* fall through to synthesis */
+      void (async () => {
+        if (this.ctx && !this.manifest) await Promise.race([this.loadManifest(), new Promise((r) => window.setTimeout(r, 800))]);
+        const buf = await this.clip(voiceKey(id, vars));
+        if (token !== this.speakToken || settled) return;
+        if (buf) {
+          const src = this.playBuffer(buf, done);
+          if (src) {
+            this.currentClip = src;
+            return;
+          }
         }
-      }
-      this.synth(text, token, done);
+        this.synth(text, token, done);
+      })();
+      return;
     });
   }
 
@@ -191,7 +248,20 @@ class AudioEngine {
 
   /** Quick number word during counting; doesn't emit caption changes. */
   sayNumber(n: number) {
-    if (this.muted || !("speechSynthesis" in window)) return;
+    if (this.muted) return;
+    const cached = this.clips.get(`number.${n}`);
+    if (cached) {
+      void cached.then((buf) => {
+        if (!buf || this.muted) return this.synthNumber(n);
+        this.playBuffer(buf, () => undefined, 0.95);
+      });
+      return;
+    }
+    this.synthNumber(n);
+  }
+
+  private synthNumber(n: number) {
+    if (!("speechSynthesis" in window)) return;
     try {
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(renderLine(`number.${n}`));

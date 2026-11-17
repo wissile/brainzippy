@@ -43,5 +43,17 @@ Each criterion is covered by an automated test (file in brackets) unless marked 
 - Accessibility: WCAG 2.2 AA where applicable + child rules in CLAUDE.md.
 - Privacy: PRIVACY_SECURITY.md. Original assets only.
 
+## Milestone 1.1 — first-run onboarding (acceptance criteria, automated in e2e/onboarding.spec.ts)
+| # | Criterion |
+|---|---|
+| O1 | First tap on Play for a new child starts an animated, voiced Critter Crew intro (no forms before play) |
+| O2 | A warm-up mini-game (pop 8 bubbles) precedes any question; works by tap and keyboard |
+| O3 | Monster builder: 6 part categories, every choice updates the live monster instantly with sound + squash-pop; "Surprise me" randomises |
+| O4 | Child names the monster by tapping a spoken name chip or typing (sanitised) |
+| O5 | Child's own name is optional, stored only on the device, never sent over the network |
+| O6 | Grown-up step behind a parent gate: parent email + explicit consent; can be skipped; confirmation link single-use |
+| O7 | Adventure map greets the child by name, shows their monster; open stop starts Counting Adventure; locked stops explain |
+| O8 | Refresh mid-onboarding resumes at the same step; returning children go straight to the map |
+
 ## Out of scope for milestone 1
 Accounts, parent dashboard, payments, other subjects, multi-session mastery, recorded voice actor, Rive animation, SEO landing pages (see ROADMAP.md).

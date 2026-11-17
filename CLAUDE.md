@@ -8,7 +8,9 @@ src/engine/        pure game logic (no React/DOM): types, validation, session re
 src/game/          generic runtime: GameRunner (orchestration), boards (interaction rendering), audioEvents, layout
 src/games/<id>/    one folder per game: definition.ts (DATA only), art.tsx (original SVG art), <Game>.tsx (skin wiring)
 src/characters/    Critter Crew SVG components + palette
-src/audio/         AudioEngine (Web Audio SFX, voice clips → speech-synthesis fallback), voiceLines catalogue
+src/audio/         AudioEngine (Web Audio SFX + voice clips: human > generated > speech synthesis), voiceLines.json catalogue
+src/onboarding/    first-run flow (story, bubble pop, monster builder, names, age, grown-up step)
+src/studio/        DEV-ONLY voice recording studio (/studio) + scripts/studio-plugin.ts
 src/app/           AppContext (routing, mute, captions), screens
 src/services/      local storage (no PII) + optional D1 sync
 worker/index.ts    /api/* only (health, guest progress); static assets bypass the Worker
@@ -24,18 +26,19 @@ npm run dev                  # http://localhost:5173 (Worker + D1 run locally in
 npm run typecheck && npm test
 npx playwright test          # builds, serves via vite preview on :4173, 4 device projects
 npm run gen:sfx              # regenerate sound effects (python3 + numpy + ffmpeg)
+python3 scripts/gen_voice.py --model-dir <kokoro dir>   # render missing voice clips (see script header)
 ```
 
 ## Conventions
 - Exercise content is data in `definition.ts`; it must pass `lintExercise`. Logic changes go in `src/engine` with unit tests.
-- Every spoken line lives in `src/audio/voiceLines.ts` and is always captioned.
+- Every spoken line lives in `src/audio/voiceLines.json` (with `vary` for pre-rendered variants) and is always captioned; add a line → run gen_voice.py (a unit test fails if any clip is missing).
 - Interactive elements: `<button>` with an action-describing `aria-label` and a `data-testid` used by e2e.
 - CSS tokens in `src/styles/tokens.css`; character motion in `characters.css`; always add a reduced-motion path.
 - Small commits with meaningful messages. Record decisions in `docs/DECISIONS.md`.
 
 ## Non-negotiable quality rules
 - Original work only: never copy code, art, characters, audio or text from reference products.
-- No personal data in guest mode; no ads, trackers, chat, external CDNs/fonts on child pages.
+- Child's name stays on the device; only a parent's email (parent gate + consent) may be sent. No personal data in guest mode; no ads, trackers, chat, external CDNs/fonts on child pages.
 - Audio and network never block gameplay. Game must be fully playable muted, by keyboard, and without drag.
 - Wrong answers are never punished; hints escalate to a modelled answer. Praise process, not ability.
 - Tap targets ≥44px (aim 64px for under-7s); no layout overflow at 390×844, 915×412, 1024×1366, 1280×800.

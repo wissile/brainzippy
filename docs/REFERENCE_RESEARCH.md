@@ -4,6 +4,21 @@ Status: DRAFT. Compiled 2026-11-17 using text-only WebFetch/WebSearch. No logins
 
 > **Scope and limits (read first).** This research used text fetches of public pages, official store listings, independent reviews and peer-reviewed sources. AdaptedMind's games sit behind enrollment, so **we did not observe its gameplay, voices, animation or sound directly**, and we did not try to get past any login or paywall. Any statement about those qualities is tagged *Reported* or *Assumed*. Recommended follow-up: one permitted manual session (free trial or public demo) logged as "Observed (manual)".
 
+## Observed (manual browser session, 2026-11-17): AdaptedMind first-run flow
+
+Walked through in a real browser (built-in browser pane), declining non-essential cookies, without entering any personal or payment details. Audio could not be heard in this session; observations are visual.
+
+| # | Screen | Observed |
+|---|---|---|
+| 1 | Homepage | Monster-pattern hero, "Learn K-6 Math and Reading", one orange **Get Started Now** button |
+| 2 | Grade picker | Large rounded list "Pick your math grade", grades 1–5+ with lesson counts and a one-line skill summary |
+| 3 | Skill list preview | "Loading 205 skills" grid of skill groups with star counters (0/n) |
+| 4 | Tapping any skill | Goes straight to enrollment: a "Get 30 days free of AdaptedMind" splash with monsters and a green **Next** button |
+| 5 | Animated story (~60 s, auto-plays) | Full-screen animated monster scenes: a pet reward ("Great work! You got the pet!"), a curriculum/teaching scene, a monster parade with "First 30 Days Free! / No Commitment!" banners |
+| 6 | Payment form | "Start Your FREE Trial": parent email, first/last name, card number; recurring price stated; "Includes up to 5 children" — **stopped here** |
+
+**Finding:** a child never gets to play before an adult pays; the animated story sells rewards to the child, then hands off to a payment form. **BrainZippy's response (implemented):** play first (story → bubble-pop → build your own monster → adventure), no payment wall, and the only adult step is an optional, parent-gated email with consent.
+
 ## How this research shaped Counting Adventure (implemented in milestone 1)
 
 | Research finding | Implemented as | Where |

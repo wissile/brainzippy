@@ -1,0 +1,428 @@
+{
+ "_comment": "Voice-line catalogue (single source of truth for captions + generated/recorded audio). 'vary' lists the variable values pre-rendered as audio files.",
+ "objects": {
+  "apple": {
+   "one": "apple",
+   "many": "apples"
+  },
+  "carrot": {
+   "one": "carrot",
+   "many": "carrots"
+  },
+  "cookie": {
+   "one": "cookie",
+   "many": "cookies"
+  },
+  "berry": {
+   "one": "strawberry",
+   "many": "strawberries"
+  }
+ },
+ "numberWords": [
+  "zero",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+  "eleven",
+  "twelve"
+ ],
+ "lines": {
+  "home.welcome": {
+   "text": "Welcome to BrainZippy! Tap the big button to play!"
+  },
+  "age.pick": {
+   "text": "How old are you? Tap your age!"
+  },
+  "games.pick": {
+   "text": "Tap a game to play!"
+  },
+  "games.later": {
+   "text": "New games for big kids are on the way! Let's go back."
+  },
+  "onb.crew1": {
+   "text": "Hello, hello! Welcome to BrainZippy!"
+  },
+  "onb.crew2": {
+   "text": "We're the Critter Crew! We love games, puzzles, and silly surprises!"
+  },
+  "onb.crew3": {
+   "text": "Want to play? Let's warm up first!"
+  },
+  "pop.start": {
+   "text": "Pop the bubbles! Tap, tap, tap!"
+  },
+  "pop.more": {
+   "text": "Keep going! More bubbles!"
+  },
+  "pop.done": {
+   "text": "Wow! Great popping!"
+  },
+  "build.start": {
+   "text": "Now let's make your very own monster!"
+  },
+  "build.body": {
+   "text": "Pick a body shape!"
+  },
+  "build.color": {
+   "text": "Choose a color!"
+  },
+  "build.eyes": {
+   "text": "Pick some eyes!"
+  },
+  "build.mouth": {
+   "text": "Now pick a mouth!"
+  },
+  "build.arms": {
+   "text": "Arms, claws, or wings?"
+  },
+  "build.top": {
+   "text": "What goes on top?"
+  },
+  "build.react.1": {
+   "text": "Ooh, nice!"
+  },
+  "build.react.2": {
+   "text": "So cool!"
+  },
+  "build.react.3": {
+   "text": "I love it!"
+  },
+  "build.react.4": {
+   "text": "Ha ha, silly!"
+  },
+  "build.react.5": {
+   "text": "Looking good!"
+  },
+  "build.random": {
+   "text": "Surprise!"
+  },
+  "build.done": {
+   "text": "Your monster is amazing!"
+  },
+  "name.monster": {
+   "text": "What's your monster's name? Tap a name, or type your own."
+  },
+  "name.chip.Ziggy": {
+   "text": "Ziggy!"
+  },
+  "name.chip.Pip": {
+   "text": "Pip!"
+  },
+  "name.chip.Mo": {
+   "text": "Mo!"
+  },
+  "name.chip.Bloop": {
+   "text": "Bloop!"
+  },
+  "name.chip.Nova": {
+   "text": "Nova!"
+  },
+  "name.chip.Fizz": {
+   "text": "Fizz!"
+  },
+  "name.chip.Taco": {
+   "text": "Taco!"
+  },
+  "name.chip.Luna": {
+   "text": "Luna!"
+  },
+  "name.kid": {
+   "text": "And what's your name? A grown-up can help you type it."
+  },
+  "name.nice": {
+   "text": "What a great name!"
+  },
+  "grownup.ask": {
+   "text": "Ask a grown-up to help with the next step!"
+  },
+  "grownup.thanks": {
+   "text": "Thank you, grown-up! Let's go!"
+  },
+  "map.start": {
+   "text": "Your adventure starts here! Tap the meadow to help Bobbo count!"
+  },
+  "map.locked": {
+   "text": "That place opens soon!"
+  },
+  "map.back": {
+   "text": "Welcome back! Where shall we go?"
+  },
+  "monster.cheer": {
+   "text": "Your monster is so proud of you!"
+  },
+  "intro.hello": {
+   "text": "Hi! I'm Bobbo! Will you help me count my snacks, one by one?"
+  },
+  "intro.back": {
+   "text": "Welcome back! Let's keep counting!"
+  },
+  "intro.go": {
+   "text": "Tap the green button to start!"
+  },
+  "nudge.howMany": {
+   "text": "Look at the {many}. How many are there?",
+   "vary": {
+    "kind": [
+     "apple",
+     "carrot",
+     "cookie",
+     "berry"
+    ]
+   }
+  },
+  "prompt.tap-count": {
+   "text": "Let's count the {many}! Tap each one.",
+   "vary": {
+    "kind": [
+     "apple",
+     "carrot",
+     "cookie",
+     "berry"
+    ]
+   }
+  },
+  "prompt.howMany": {
+   "text": "How many {many}?",
+   "vary": {
+    "kind": [
+     "apple",
+     "carrot",
+     "cookie",
+     "berry"
+    ]
+   }
+  },
+  "prompt.choose-count": {
+   "text": "How many {many} do you see?",
+   "vary": {
+    "kind": [
+     "apple",
+     "carrot",
+     "cookie",
+     "berry"
+    ]
+   }
+  },
+  "prompt.make-set": {
+   "text": "Put {nWord} {manyN} in my basket!",
+   "vary": {
+    "kind": [
+     "apple",
+     "carrot",
+     "cookie",
+     "berry"
+    ],
+    "n": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   }
+  },
+  "correct.1": {
+   "text": "Yes! {nWord}! You counted carefully!",
+   "vary": {
+    "n": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   }
+  },
+  "correct.2": {
+   "text": "That's right, {nWord}! Great counting!",
+   "vary": {
+    "n": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   }
+  },
+  "correct.3": {
+   "text": "{nWord}! You did it!",
+   "vary": {
+    "n": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   }
+  },
+  "correct.4": {
+   "text": "Wow, {nWord}! You checked every one!",
+   "vary": {
+    "n": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   }
+  },
+  "retry.1": {
+   "text": "Hmm, let's try again!"
+  },
+  "hint.lastNumber": {
+   "text": "Almost! The last number we said tells how many."
+  },
+  "hint.countAlong": {
+   "text": "Let's count them together!"
+  },
+  "hint.model": {
+   "text": "Let's count together!"
+  },
+  "hint.modelTap": {
+   "text": "It's {nWord}! Tap {nWord}.",
+   "vary": {
+    "n": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   }
+  },
+  "hint.modelSetTap": {
+   "text": "That's {nWord}! Now tap the check!",
+   "vary": {
+    "n": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   }
+  },
+  "hint.tooMany": {
+   "text": "Oops, too many! Tap one in the basket to take it out."
+  },
+  "hint.tooFew": {
+   "text": "We need more! Let's add some."
+  },
+  "hint.empty": {
+   "text": "My basket is empty! Tap a snack to put it in."
+  },
+  "hint.slots": {
+   "text": "Fill every circle in my basket!"
+  },
+  "nudge.tap": {
+   "text": "Tap a {one}!",
+   "vary": {
+    "kind": [
+     "apple",
+     "carrot",
+     "cookie",
+     "berry"
+    ]
+   }
+  },
+  "nudge.choose": {
+   "text": "Tap a number!"
+  },
+  "nudge.basket": {
+   "text": "Drag or tap a snack to put it in my basket!"
+  },
+  "nudge.done": {
+   "text": "Tap the check button when you're ready!"
+  },
+  "round.complete": {
+   "text": "You did it! You helped me count all my snacks!"
+  },
+  "achievement.earned": {
+   "text": "You earned the Counting Champ sticker!"
+  },
+  "end.choose": {
+   "text": "Play again, or try another game?"
+  },
+  "number.1": {
+   "text": "One."
+  },
+  "number.2": {
+   "text": "Two."
+  },
+  "number.3": {
+   "text": "Three."
+  },
+  "number.4": {
+   "text": "Four."
+  },
+  "number.5": {
+   "text": "Five."
+  },
+  "number.6": {
+   "text": "Six."
+  },
+  "number.7": {
+   "text": "Seven."
+  },
+  "number.8": {
+   "text": "Eight."
+  },
+  "number.9": {
+   "text": "Nine."
+  },
+  "number.10": {
+   "text": "Ten."
+  },
+  "number.11": {
+   "text": "Eleven."
+  },
+  "number.12": {
+   "text": "Twelve."
+  }
+ }
+}

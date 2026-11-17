@@ -6,6 +6,7 @@ import { type GuestProgress } from "../engine/progressSchema";
 import { type ExerciseEvent, type ExerciseState, exerciseReducer, initExercise, toResult } from "../engine/session";
 import type { Exercise, GameDefinition, MascotState, ProgressionState } from "../engine/types";
 import { loadState, saveState } from "../services/storage";
+import { Monster } from "../characters/Monster";
 import { NavButton, SoundButton, SpeechBubble } from "../ui/controls";
 import { IconAgain, IconGrid, IconHand, IconPlay, IconReplay, IconStar } from "../ui/icons";
 import { soundForTransition } from "./audioEvents";
@@ -262,7 +263,9 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     audio.play("achievement");
     void (async () => {
       await audio.speak("achievement.earned");
-      if (!(await sleep(400, t))) return;
+      if (!(await sleep(300, t))) return;
+      if (loadState().profile.monster) await audio.speak("monster.cheer");
+      if (!(await sleep(300, t))) return;
       await audio.speak("end.choose");
     })();
   }, [stage]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -322,6 +325,8 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
   };
 
   const { Mascot, Background, ObjectArt, Basket, Sticker } = skin;
+  const profile = loadState().profile;
+  const backTo = profile.step === "done" ? "/map" : `/play/${loadState().ageBand ?? "ages-3-5"}`;
   const ex = st?.exercise;
   const doneCount = prog.results.length;
   const bubble = caption;
@@ -331,7 +336,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     return (
       <main className="game intro-screen">
         <Background />
-        <div className="game-top"><NavButton to="/play" kind="back" label="Back to games" /><span /><SoundButton /></div>
+        <div className="game-top"><NavButton to={backTo} kind="back" label="Back to the map" /><span /><SoundButton /></div>
         <div className="intro-card">
           <div className="intro-mascot"><Mascot state={mascot} talking={speaking} size="100%" /></div>
           <SpeechBubble text={bubble || (resume ? "Welcome back! Let's keep counting!" : "Hi! I'm Bobbo! Will you help me count my snacks?")} tail="left" className="intro-bubble" />
@@ -348,7 +353,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     return (
       <main className={`game reward-screen stage-${stage}`}>
         <Background />
-        <div className="game-top"><NavButton to="/play" kind="back" label="Back to games" /><Stars total={game.progression.roundLength} done={doneCount} /><SoundButton /></div>
+        <div className="game-top"><NavButton to={backTo} kind="back" label="Back to the map" /><Stars total={game.progression.roundLength} done={doneCount} /><SoundButton /></div>
         {stage === "complete" ? (
           <div className="complete-wrap">
             <div className="complete-mascot"><Mascot state="celebrating" talking={speaking} size="100%" /></div>
@@ -361,8 +366,13 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
               <div className="rays" aria-hidden="true" />
               <Sticker />
             </div>
+            {profile.monster && (
+              <div className="reward-monster" data-testid="reward-monster">
+                <Monster config={profile.monster} state="celebrating" size="100%" label={`${profile.monsterName || "Your monster"} is cheering`} />
+              </div>
+            )}
             <h2 className="reward-title">{game.achievement.title}</h2>
-            <p className="reward-sub">{newSticker ? "New sticker!" : "Another great round!"}</p>
+            <p className="reward-sub">{profile.monsterName ? `${profile.monsterName} is so proud of you!` : newSticker ? "New sticker!" : "Another great round!"}</p>
             <div className="reward-actions">
               <button
                 type="button"
@@ -382,7 +392,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
               >
                 <IconAgain /><span>Again</span>
               </button>
-              <button type="button" className="big-btn more" data-testid="more-games" aria-label="More games" onClick={() => { audio.play("tap"); navigate(`/play/${loadState().ageBand ?? "ages-3-5"}`); }}>
+              <button type="button" className="big-btn more" data-testid="more-games" aria-label="More games" onClick={() => { audio.play("tap"); navigate(backTo); }}>
                 <IconGrid /><span>Games</span>
               </button>
             </div>
@@ -402,7 +412,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     <main className={`game play-screen kind-${ex.interaction}`} data-testid="game-screen" data-exercise={ex.id} data-phase={st.phase}>
       <Background />
       <div className="game-top">
-        <NavButton to="/play" kind="back" label="Back to games" />
+        <NavButton to={backTo} kind="back" label="Back to the map" />
         <Stars total={game.progression.roundLength} done={doneCount} />
         <SoundButton />
       </div>

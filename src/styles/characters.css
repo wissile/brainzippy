@@ -17,33 +17,33 @@
 
 /* idle: slow breathe + occasional wing flick */
 .critter.state-idle .critter-body { animation: idle-breathe 2.8s ease-in-out infinite; }
-.bobbo.state-idle .wing { animation: wing-flick 6s ease-in-out infinite; }
+.critter.state-idle .wing { animation: wing-flick 6s ease-in-out infinite; }
 
 /* greeting: bounce + wave */
-.bobbo.state-greeting .critter-body { animation: hop-small 0.9s var(--ease-bounce) infinite; }
-.bobbo.state-greeting .arm-r { animation: wave 0.5s ease-in-out infinite alternate; }
-.bobbo.state-greeting .wing { animation: flap 0.25s ease-in-out infinite alternate; }
+.critter.state-greeting .critter-body { animation: hop-small 0.9s var(--ease-bounce) infinite; }
+.critter.state-greeting .arm-r { animation: wave 0.5s ease-in-out infinite alternate; }
+.critter.state-greeting .wing { animation: flap 0.25s ease-in-out infinite alternate; }
 
 /* encouraging: gentle nod */
-.bobbo.state-encouraging .critter-body { animation: nod 1.4s ease-in-out infinite; }
-.bobbo.state-encouraging .arm-r { transform: rotate(-30deg); }
+.critter.state-encouraging .critter-body { animation: nod 1.4s ease-in-out infinite; }
+.critter.state-encouraging .arm-r { transform: rotate(-30deg); }
 
 /* thinking: look up & aside, slight tilt */
-.bobbo.state-thinking .critter-body { transform: rotate(-4deg); }
-.bobbo.state-thinking .pupil { transform: translate(-4px, -5px); }
-.bobbo.state-thinking .arm-r { transform: rotate(-70deg); }
+.critter.state-thinking .critter-body { transform: rotate(-4deg); }
+.critter.state-thinking .pupil { transform: translate(-4px, -5px); }
+.critter.state-thinking .arm-r { transform: rotate(-70deg); }
 
 /* celebrating: big squash-and-stretch jump, wings flapping very hard (he still never flies) */
-.bobbo.state-celebrating .critter-body { animation: jump 0.75s cubic-bezier(0.3, 0, 0.3, 1) infinite; }
-.bobbo.state-celebrating .wing { animation: flap 0.09s linear infinite alternate; }
-.bobbo.state-celebrating .arm-l { transform: rotate(120deg); }
-.bobbo.state-celebrating .arm-r { transform: rotate(-120deg); }
-.bobbo.state-celebrating .critter-shadow { animation: shadow-squash 0.75s cubic-bezier(0.3, 0, 0.3, 1) infinite; }
+.critter.state-celebrating .critter-body { animation: jump 0.75s cubic-bezier(0.3, 0, 0.3, 1) infinite; }
+.critter.state-celebrating .wing { animation: flap 0.09s linear infinite alternate; }
+.critter.state-celebrating .arm-l { transform: rotate(120deg); }
+.critter.state-celebrating .arm-r { transform: rotate(-120deg); }
+.critter.state-celebrating .critter-shadow { animation: shadow-squash 0.75s cubic-bezier(0.3, 0, 0.3, 1) infinite; }
 
 /* retry: soft head tilt + look down, no shaking (never punitive) */
-.bobbo.state-retry .critter-body { animation: sway 1.6s ease-in-out infinite; }
-.bobbo.state-retry .pupil { transform: translate(0, 3px); }
-.bobbo.state-retry .wing { transform: rotate(10deg); }
+.critter.state-retry .critter-body { animation: sway 1.6s ease-in-out infinite; }
+.critter.state-retry .pupil { transform: translate(0, 3px); }
+.critter.state-retry .wing { transform: rotate(10deg); }
 
 /* talking adds a little bob on top of the state */
 .puff .puff-arm { transform-box: fill-box; transform-origin: 50% 0; animation: wiggle-arm 1.4s ease-in-out infinite alternate; }
@@ -69,3 +69,10 @@
 @media (prefers-reduced-motion: reduce) {
   .critter .critter-body, .critter .wing, .critter .critter-shadow, .puff .puff-arm { animation: none !important; }
 }
+
+/* builder feedback: squash-pop when a part changes */
+.critter.is-popping .critter-body { animation: part-pop 420ms var(--ease-bounce) !important; }
+@keyframes part-pop { 0% { transform: scale(1); } 35% { transform: scale(1.12, 0.88); } 70% { transform: scale(0.95, 1.06); } 100% { transform: scale(1); } }
+.monster .antenna-ball { transform-box: fill-box; transform-origin: 50% 100%; animation: antenna 2.4s ease-in-out infinite; }
+@keyframes antenna { 50% { transform: rotate(14deg) translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .critter.is-popping .critter-body, .monster .antenna-ball { animation: none !important; } }

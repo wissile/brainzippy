@@ -11,11 +11,9 @@ test("child plays a complete round from home to sticker, then plays again", asyn
   await expect(page.getByRole("heading", { name: "BrainZippy" })).toBeVisible();
   await shot("01-home");
   await press(page, '[data-testid="home-play"]');
-  await expect(page.getByTestId("age-ages-3-5")).toBeVisible();
-  await shot("02-ages");
-  await press(page, '[data-testid="age-ages-3-5"]');
-  await shot("03-games");
-  await press(page, '[data-testid="game-counting-adventure"]');
+  await expect(page.getByTestId("map")).toBeVisible();
+  await shot("02-map");
+  await press(page, '[data-testid="stop-counting-adventure"]');
   await expect(page.getByTestId("start-game")).toBeVisible();
   await expect(page.getByTestId("speech-bubble")).toContainText("Bobbo");
   await shot("04-intro");
@@ -35,6 +33,8 @@ test("child plays a complete round from home to sticker, then plays again", asyn
   }
   await expect(page.getByTestId("achievement")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("heading", { name: "Counting Champ" })).toBeVisible();
+  await expect(page.getByTestId("reward-monster")).toBeVisible();
+  await expect(page.getByText("Ziggy is so proud of you!")).toBeVisible();
   await shot("06-achievement");
 
   // layout sanity on the reward screen: action buttons are fully on-screen
@@ -49,12 +49,12 @@ test("child plays a complete round from home to sticker, then plays again", asyn
   const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("bz.v1")!));
   expect(stored.progress.stickers).toContain("counting-champ");
   expect(stored.progress.roundsCompleted).toBe(1);
-  expect(JSON.stringify(stored)).not.toMatch(/name|email|birth/i);
+  expect(JSON.stringify(stored)).not.toMatch(/email|birth/i); // child name is device-only by design; network test asserts it never leaves
 
   await press(page, '[data-testid="play-again"]');
   await expect(screen(page)).toHaveAttribute("data-exercise", "ca-tap-3-apple");
   await press(page, '[data-testid="nav-back"]');
-  await expect(page.getByTestId("age-ages-3-5")).toBeVisible();
+  await expect(page.getByTestId("map")).toBeVisible();
   expect(errors).toEqual([]);
 });
 

@@ -1,7 +1,17 @@
 import { type Page, expect } from "@playwright/test";
 
 /** Seed local state before the app boots (e.g. muted for faster, quieter runs). Contains no personal data. */
-export async function seed(page: Page, state: Record<string, unknown> = {}) {
+/** A finished-onboarding profile (synthetic test data only). */
+export const ONBOARDED = {
+  monster: { body: "round", color: "purple", eyes: "three", mouth: "smile", arms: "wings", top: "horns" },
+  monsterName: "Ziggy",
+  kidName: "Testkid",
+  step: "done",
+  parentSignup: "skipped",
+};
+
+export async function seed(page: Page, state: Record<string, unknown> = {}, opts: { fresh?: boolean } = {}) {
+  if (!opts.fresh && !("profile" in state)) state = { profile: ONBOARDED, ageBand: "ages-3-5", ...state };
   await page.addInitScript((s) => {
     if (!sessionStorage.getItem("seeded")) {
       localStorage.setItem("bz.v1", JSON.stringify(s));
@@ -22,8 +32,7 @@ export async function press(page: Page, selector: string) {
 export async function openGame(page: Page) {
   await page.goto("/");
   await press(page, '[data-testid="home-play"]');
-  await press(page, '[data-testid="age-ages-3-5"]');
-  await press(page, '[data-testid="game-counting-adventure"]');
+  await press(page, '[data-testid="stop-counting-adventure"]');
   await press(page, '[data-testid="start-game"]');
 }
 

@@ -1,5 +1,6 @@
 import { type GuestProgress, emptyProgress, parseGuestProgress } from "../engine/progressSchema";
 import type { ProgressionState } from "../engine/types";
+import { type MonsterConfig, isMonsterConfig } from "../characters/Monster";
 
 /**
  * Local guest storage. Holds no personal data: a random device-local id, coarse settings, progress.
@@ -15,7 +16,37 @@ export interface RoundSnapshot {
   savedAt: number;
 }
 
+/**
+ * The child's profile lives ONLY on this device. The child's name is never sent to the server
+ * (see docs/PRIVACY_SECURITY.md). Only a parent's email may be sent, with consent, behind a parent gate.
+ */
+export type OnboardingStep = "intro" | "pop" | "build" | "name" | "kid" | "age" | "grownup" | "done";
+export interface Profile {
+  monster: MonsterConfig | null;
+  monsterName: string;
+  kidName: string;
+  step: OnboardingStep;
+  parentSignup: "none" | "pending" | "skipped";
+}
+export const emptyProfile = (): Profile => ({ monster: null, monsterName: "", kidName: "", step: "intro", parentSignup: "none" });
+const STEPS: OnboardingStep[] = ["intro", "pop", "build", "name", "kid", "age", "grownup", "done"];
+const cleanName = (x: unknown) => (typeof x === "string" ? x.replace(/[^\p{L}\p{M} '\-]/gu, "").slice(0, 16) : "");
+
+export function parseProfile(x: unknown): Profile {
+  if (!x || typeof x !== "object") return emptyProfile();
+  const o = x as Record<string, unknown>;
+  return {
+    monster: isMonsterConfig(o.monster) ? o.monster : null,
+    monsterName: cleanName(o.monsterName),
+    kidName: cleanName(o.kidName),
+    step: STEPS.includes(o.step as OnboardingStep) ? (o.step as OnboardingStep) : "intro",
+    parentSignup: o.parentSignup === "pending" || o.parentSignup === "skipped" ? o.parentSignup : "none",
+  };
+}
+export { cleanName };
+
 export interface LocalState {
+  profile: Profile;
   muted: boolean;
   ageBand: string | null;
   serverId: string | null;
@@ -23,7 +54,7 @@ export interface LocalState {
   round: RoundSnapshot | null;
 }
 
-const defaults = (): LocalState => ({ muted: false, ageBand: null, serverId: null, progress: emptyProgress(), round: null });
+const defaults = (): LocalState => ({ profile: emptyProfile(), muted: false, ageBand: null, serverId: null, progress: emptyProgress(), round: null });
 let memory: LocalState | null = null;
 
 export function loadState(): LocalState {
@@ -34,6 +65,7 @@ export function loadState(): LocalState {
       const o = JSON.parse(raw) as Partial<LocalState>;
       memory = {
         ...defaults(),
+        profile: parseProfile(o.profile),
         muted: o.muted === true,
         ageBand: typeof o.ageBand === "string" ? o.ageBand : null,
         serverId: typeof o.serverId === "string" ? o.serverId : null,

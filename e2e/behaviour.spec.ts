@@ -72,8 +72,7 @@ test.describe("gameplay behaviour", () => {
       await page.waitForTimeout(400);
     };
     await focusAndEnter("home-play");
-    await focusAndEnter("age-ages-3-5");
-    await focusAndEnter("game-counting-adventure");
+    await focusAndEnter("stop-counting-adventure");
     await focusAndEnter("start-game");
     await expect(screen(page)).toHaveAttribute("data-phase", "counting");
     for (let i = 0; i < 3; i++) {
@@ -101,8 +100,7 @@ test.describe("gameplay behaviour", () => {
     await press(page, '[data-testid="sound-toggle"]');
     await expect(page.getByTestId("sound-toggle")).toHaveAttribute("aria-pressed", "false");
     await press(page, '[data-testid="home-play"]');
-    await press(page, '[data-testid="age-ages-3-5"]');
-    await press(page, '[data-testid="game-counting-adventure"]');
+    await press(page, '[data-testid="stop-counting-adventure"]');
     await press(page, '[data-testid="start-game"]');
     await expect(page.getByTestId("speech-bubble")).toContainText("count the apples");
     await expect(page.getByTestId("live-caption")).toContainText("count the apples");
@@ -157,8 +155,7 @@ test.describe("gameplay behaviour", () => {
     await expect(page.getByTestId("home-play")).toBeVisible({ timeout: 30_000 });
     const homeMs = Date.now() - start;
     await press(page, '[data-testid="home-play"]');
-    await press(page, '[data-testid="age-ages-3-5"]');
-    await press(page, '[data-testid="game-counting-adventure"]');
+    await press(page, '[data-testid="stop-counting-adventure"]');
     await expect(page.getByTestId("start-game")).toBeVisible({ timeout: 30_000 });
     await press(page, '[data-testid="start-game"]');
     const id = await solve(page);
