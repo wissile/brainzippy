@@ -1,0 +1,71 @@
+/* Character animation states. Timing rules: docs/ANIMATION_AUDIO.md */
+.critter { overflow: visible; }
+.critter .critter-body,
+.critter .wing,
+.critter .arm,
+.critter .face,
+.critter .pupil,
+.critter .eye { transform-box: fill-box; transition: transform 220ms var(--ease-out); }
+.critter .critter-body { transform-origin: 50% 100%; }
+.critter .eye { transform-origin: 50% 50%; }
+.critter.is-blinking .eye { transform: scaleY(0.12); transition-duration: 70ms; }
+.critter .wing-l { transform-origin: 100% 60%; }
+.critter .wing-r { transform-origin: 0% 60%; }
+.critter .arm-l { transform-origin: 100% 0%; }
+.critter .arm-r { transform-origin: 0% 0%; }
+.critter-shadow { transform-box: fill-box; transform-origin: 50% 50%; }
+
+/* idle: slow breathe + occasional wing flick */
+.critter.state-idle .critter-body { animation: idle-breathe 2.8s ease-in-out infinite; }
+.bobbo.state-idle .wing { animation: wing-flick 6s ease-in-out infinite; }
+
+/* greeting: bounce + wave */
+.bobbo.state-greeting .critter-body { animation: hop-small 0.9s var(--ease-bounce) infinite; }
+.bobbo.state-greeting .arm-r { animation: wave 0.5s ease-in-out infinite alternate; }
+.bobbo.state-greeting .wing { animation: flap 0.25s ease-in-out infinite alternate; }
+
+/* encouraging: gentle nod */
+.bobbo.state-encouraging .critter-body { animation: nod 1.4s ease-in-out infinite; }
+.bobbo.state-encouraging .arm-r { transform: rotate(-30deg); }
+
+/* thinking: look up & aside, slight tilt */
+.bobbo.state-thinking .critter-body { transform: rotate(-4deg); }
+.bobbo.state-thinking .pupil { transform: translate(-4px, -5px); }
+.bobbo.state-thinking .arm-r { transform: rotate(-70deg); }
+
+/* celebrating: big squash-and-stretch jump, wings flapping very hard (he still never flies) */
+.bobbo.state-celebrating .critter-body { animation: jump 0.75s cubic-bezier(0.3, 0, 0.3, 1) infinite; }
+.bobbo.state-celebrating .wing { animation: flap 0.09s linear infinite alternate; }
+.bobbo.state-celebrating .arm-l { transform: rotate(120deg); }
+.bobbo.state-celebrating .arm-r { transform: rotate(-120deg); }
+.bobbo.state-celebrating .critter-shadow { animation: shadow-squash 0.75s cubic-bezier(0.3, 0, 0.3, 1) infinite; }
+
+/* retry: soft head tilt + look down, no shaking (never punitive) */
+.bobbo.state-retry .critter-body { animation: sway 1.6s ease-in-out infinite; }
+.bobbo.state-retry .pupil { transform: translate(0, 3px); }
+.bobbo.state-retry .wing { transform: rotate(10deg); }
+
+/* talking adds a little bob on top of the state */
+.puff .puff-arm { transform-box: fill-box; transform-origin: 50% 0; animation: wiggle-arm 1.4s ease-in-out infinite alternate; }
+
+@keyframes idle-breathe { 50% { transform: scale(1.025, 0.975); } }
+@keyframes wing-flick { 0%, 88%, 100% { transform: rotate(0); } 92% { transform: rotate(-18deg); } 96% { transform: rotate(8deg); } }
+@keyframes hop-small { 0%, 100% { transform: translateY(0) scale(1, 1); } 40% { transform: translateY(-14px) scale(0.97, 1.04); } 80% { transform: translateY(0) scale(1.04, 0.96); } }
+@keyframes wave { from { transform: rotate(-150deg); } to { transform: rotate(-100deg); } }
+@keyframes flap { from { transform: rotate(-22deg); } to { transform: rotate(14deg); } }
+@keyframes nod { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(3deg) translateY(2px); } 60% { transform: rotate(-2deg); } }
+@keyframes jump {
+  0% { transform: translateY(0) scale(1.12, 0.86); }
+  30% { transform: translateY(-34px) scale(0.92, 1.1); }
+  55% { transform: translateY(-40px) scale(1, 1); }
+  85% { transform: translateY(0) scale(1.1, 0.9); }
+  100% { transform: translateY(0) scale(1.12, 0.86); }
+}
+@keyframes shadow-squash { 30%, 55% { transform: scale(0.6); opacity: 0.06; } }
+@keyframes sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(-2deg) translateY(2px); } }
+@keyframes wiggle-arm { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+
+/* Reduced motion: hold expressive poses, no looping movement. State is still readable from face + arms. */
+@media (prefers-reduced-motion: reduce) {
+  .critter .critter-body, .critter .wing, .critter .critter-shadow, .puff .puff-arm { animation: none !important; }
+}
