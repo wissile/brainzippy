@@ -1,0 +1,76 @@
+import { expect, test } from "@playwright/test";
+import { collectErrors, openGame, press, screen, seed, solve, waitForNext } from "./helpers";
+
+test("child plays a complete round from home to sticker, then plays again", async ({ page }, info) => {
+  const errors = collectErrors(page);
+  // desktop runs with sound on (real timing); other devices muted for speed — captions are identical
+  await seed(page, { muted: info.project.name !== "desktop" });
+  const shot = (name: string) => page.screenshot({ path: `test-results/screens/${info.project.name}-${name}.png` });
+
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "BrainZippy" })).toBeVisible();
+  await shot("01-home");
+  await press(page, '[data-testid="home-play"]');
+  await expect(page.getByTestId("age-ages-3-5")).toBeVisible();
+  await shot("02-ages");
+  await press(page, '[data-testid="age-ages-3-5"]');
+  await shot("03-games");
+  await press(page, '[data-testid="game-counting-adventure"]');
+  await expect(page.getByTestId("start-game")).toBeVisible();
+  await expect(page.getByTestId("speech-bubble")).toContainText("Bobbo");
+  await shot("04-intro");
+  await press(page, '[data-testid="start-game"]');
+
+  const seen = new Set<string>();
+  for (let i = 0; i < 8; i++) {
+    const id = await solve(page);
+    expect(seen.has(id)).toBe(false);
+    seen.add(id);
+    if (i === 0) {
+      await expect(screen(page)).toHaveAttribute("data-phase", "feedback");
+      await shot("05-first-correct");
+    }
+    await waitForNext(page, id);
+    if (i < 7) await expect(page.getByTestId("stars")).toHaveAttribute("data-done", String(i + 1));
+  }
+  await expect(page.getByTestId("achievement")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "Counting Champ" })).toBeVisible();
+  await shot("06-achievement");
+
+  // layout sanity on the reward screen: action buttons are fully on-screen
+  const vp = page.viewportSize()!;
+  for (const id of ["play-again", "more-games"]) {
+    const box = (await page.getByTestId(id).boundingBox())!;
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(vp.width + 1);
+    expect(box.y + box.height).toBeLessThanOrEqual(vp.height + 1);
+  }
+
+  const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("bz.v1")!));
+  expect(stored.progress.stickers).toContain("counting-champ");
+  expect(stored.progress.roundsCompleted).toBe(1);
+  expect(JSON.stringify(stored)).not.toMatch(/name|email|birth/i);
+
+  await press(page, '[data-testid="play-again"]');
+  await expect(screen(page)).toHaveAttribute("data-exercise", "ca-tap-3-apple");
+  await press(page, '[data-testid="nav-back"]');
+  await expect(page.getByTestId("age-ages-3-5")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("tap targets are at least 44px and nothing overflows during play", async ({ page }) => {
+  await seed(page, { muted: true });
+  await openGame(page);
+  await expect(screen(page)).toHaveAttribute("data-phase", "counting");
+  await page.waitForTimeout(1500); // let drop-in animations finish before measuring
+  const vp = page.viewportSize()!;
+  const targets = page.locator('[data-testid="count-object"], [data-testid="nav-back"], [data-testid="sound-toggle"], [data-testid="replay"]');
+  for (const box of await targets.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()))) {
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    expect(box.right).toBeLessThanOrEqual(vp.width + 1);
+    expect(box.bottom).toBeLessThanOrEqual(vp.height + 1);
+  }
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  expect(overflow).toBe(false);
+});
