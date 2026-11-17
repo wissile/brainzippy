@@ -26,12 +26,89 @@ class AudioEngine {
   private manifest: Record<string, string> | null = null;
   private manifestLoading: Promise<void> | null = null;
   private clips = new Map<string, Promise<AudioBuffer | null>>();
+  // background music: one looping track per world, crossfaded, ducked under speech
+  private musicOn = true;
+  private wantedTrack: string | null = null;
+  private track: { id: string; src: AudioBufferSourceNode; gain: GainNode } | null = null;
+  private tracks = new Map<string, Promise<AudioBuffer | null>>();
+  private static MUSIC_LEVEL = 0.22;
+  private static MUSIC_DUCKED = 0.07;
   private speakToken = 0;
   readonly failed: string[] = [];
 
   setMuted(m: boolean) {
     this.muted = m;
-    if (m) this.stopVoice();
+    if (m) {
+      this.stopVoice();
+      this.fadeOutMusic();
+    } else if (this.wantedTrack) void this.playMusic(this.wantedTrack);
+  }
+
+  setMusicOn(on: boolean) {
+    this.musicOn = on;
+    if (!on) this.fadeOutMusic();
+    else if (this.wantedTrack) void this.playMusic(this.wantedTrack);
+  }
+
+  /** Request a world's music. Safe to call before unlock: it starts once audio is allowed. */
+  async playMusic(id: string): Promise<void> {
+    this.wantedTrack = id;
+    if (!this.ctx || this.muted || !this.musicOn) return;
+    if (this.track?.id === id) return;
+    let p = this.tracks.get(id);
+    if (!p) {
+      const ctx = this.ctx;
+      p = fetch(`/audio/music/${id}.mp3`)
+        .then((r) => {
+          if (!r.ok || !(r.headers.get("content-type") ?? "").startsWith("audio")) throw new Error("missing");
+          return r.arrayBuffer();
+        })
+        .then((b) => ctx.decodeAudioData(b))
+        .catch(() => null);
+      this.tracks.set(id, p);
+    }
+    const buf = await p;
+    if (!buf || !this.ctx || this.wantedTrack !== id || this.muted || !this.musicOn || this.track?.id === id) return;
+    this.fadeOutMusic();
+    try {
+      const src = this.ctx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+      const gain = this.ctx.createGain();
+      gain.gain.value = 0;
+      gain.gain.linearRampToValueAtTime(this.speakingNow ? AudioEngine.MUSIC_DUCKED : AudioEngine.MUSIC_LEVEL, this.ctx.currentTime + 1.2);
+      src.connect(gain).connect(this.ctx.destination);
+      src.start();
+      this.track = { id, src, gain };
+    } catch {
+      /* music is optional */
+    }
+  }
+
+  private fadeOutMusic() {
+    const t = this.track;
+    if (!t || !this.ctx) return;
+    this.track = null;
+    try {
+      const now = this.ctx.currentTime;
+      t.gain.gain.cancelScheduledValues(now);
+      t.gain.gain.setValueAtTime(t.gain.gain.value, now);
+      t.gain.gain.linearRampToValueAtTime(0, now + 0.8);
+      t.src.stop(now + 0.85);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  private speakingNow = false;
+  private duck(on: boolean) {
+    this.speakingNow = on;
+    const t = this.track;
+    if (!t || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    t.gain.gain.cancelScheduledValues(now);
+    t.gain.gain.setValueAtTime(t.gain.gain.value, now);
+    t.gain.gain.linearRampToValueAtTime(on ? AudioEngine.MUSIC_DUCKED : AudioEngine.MUSIC_LEVEL, now + (on ? 0.15 : 0.6));
   }
   isMuted() {
     return this.muted;
@@ -56,6 +133,7 @@ class AudioEngine {
     void this.preload();
     void this.loadManifest();
     this.pickVoice();
+    if (this.wantedTrack) void this.playMusic(this.wantedTrack);
     if ("speechSynthesis" in window) {
       window.speechSynthesis.onvoiceschanged = () => this.pickVoice();
     }
@@ -169,6 +247,7 @@ class AudioEngine {
   }
 
   private emit(speaking: boolean, caption: string) {
+    this.duck(speaking);
     for (const l of this.listeners) l(speaking, caption);
   }
 

@@ -9,9 +9,16 @@ export interface VoiceLine {
   text: string;
   vary?: Record<string, (string | number)[]>;
 }
+interface Catalogue {
+  objects?: Record<string, { one: string; many: string }>;
+  lines: Record<string, VoiceLine>;
+}
 
-export const VOICE_LINES: Record<string, VoiceLine> = data.lines as Record<string, VoiceLine>;
-export const OBJECT_NAMES: Record<string, { one: string; many: string }> = data.objects;
+// Each game ships its own src/games/<id>/voice.json (no shared-file edits needed to add a game).
+const gameCatalogues = Object.values(import.meta.glob<Catalogue>("../games/*/voice.json", { eager: true, import: "default" }));
+
+export const VOICE_LINES: Record<string, VoiceLine> = Object.assign({}, data.lines as Record<string, VoiceLine>, ...gameCatalogues.map((c) => c.lines));
+export const OBJECT_NAMES: Record<string, { one: string; many: string }> = Object.assign({}, data.objects, ...gameCatalogues.map((c) => c.objects ?? {}));
 export const numberWord = (n: number) => data.numberWords[n] ?? String(n);
 
 /** Stable audio key for a line + the variables that change its wording (mirrors gen_voice.py). */

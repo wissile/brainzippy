@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import data from "../audio/voiceLines.json";
-import { renderLine, voiceKey } from "../audio/voiceLines";
+import { VOICE_LINES, renderLine, voiceKey } from "../audio/voiceLines";
 
 /**
  * Voice studio (development only — `npm run dev`, open /studio).
@@ -15,7 +14,7 @@ interface Row {
 
 function allRows(): Row[] {
   const rows: Row[] = [];
-  for (const [id, line] of Object.entries(data.lines as Record<string, { text: string; vary?: Record<string, (string | number)[]> }>)) {
+  for (const [id, line] of Object.entries(VOICE_LINES)) {
     const vary = line.vary;
     if (!vary) {
       rows.push({ key: id, id, text: renderLine(id) });

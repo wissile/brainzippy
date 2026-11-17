@@ -18,6 +18,7 @@ export function lintExercise(ex: Exercise): string[] {
   const problems: string[] = [];
   if (!Number.isInteger(ex.target) || ex.target < 1 || ex.target > 20) problems.push(`${ex.id}: target out of range`);
   if (ex.ages[0] > ex.ages[1]) problems.push(`${ex.id}: ages reversed`);
+  if (ex.prompt && (!ex.prompt.line || !ex.prompt.text)) problems.push(`${ex.id}: prompt needs line and text`);
   if (ex.interaction === "make-set") {
     if (!ex.poolSize || ex.poolSize <= ex.target) problems.push(`${ex.id}: poolSize must exceed target`);
   } else {

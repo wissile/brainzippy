@@ -7,6 +7,8 @@ interface AppCtx {
   navigate: (to: string, opts?: { replace?: boolean }) => void;
   muted: boolean;
   toggleMute: () => void;
+  musicOn: boolean;
+  toggleMusic: () => void;
   audioReady: boolean;
   unlockAudio: () => void;
   caption: string;
@@ -19,6 +21,14 @@ const Ctx = createContext<AppCtx | null>(null);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [path, setPath] = useState(() => window.location.pathname);
   const [muted, setMuted] = useState(() => loadState().muted);
+  const [musicOn, setMusicOn] = useState(() => loadState().music);
+  useEffect(() => audio.setMusicOn(musicOn), [musicOn]);
+  const toggleMusic = useCallback(() => {
+    setMusicOn((m) => {
+      saveState({ music: !m });
+      return !m;
+    });
+  }, []);
   const [audioReady, setAudioReady] = useState(false);
   const [caption, setCaption] = useState("");
   const [speaking, setSpeaking] = useState(false);
@@ -84,8 +94,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ path, navigate, muted, toggleMute, audioReady, unlockAudio, caption, speaking, reducedMotion }),
-    [path, navigate, muted, toggleMute, audioReady, unlockAudio, caption, speaking, reducedMotion],
+    () => ({ path, navigate, muted, toggleMute, musicOn, toggleMusic, audioReady, unlockAudio, caption, speaking, reducedMotion }),
+    [path, navigate, muted, toggleMute, musicOn, toggleMusic, audioReady, unlockAudio, caption, speaking, reducedMotion],
   );
   return (
     <Ctx.Provider value={value}>

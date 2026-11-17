@@ -1,7 +1,9 @@
 import { Bobbo } from "../../characters/Bobbo";
+import { Hoot } from "../../characters/Crew";
 import { GameRunner, type GameSkin } from "../../game/GameRunner";
 import { BasketArt, ChampSticker, MeadowBackground, SnackArt } from "./art";
 import { countingAdventure } from "./definition";
+import { breakfastBetween, breakfastIntro, breakfastOutro } from "./story";
 
 const skin: GameSkin = {
   Background: MeadowBackground,
@@ -9,6 +11,9 @@ const skin: GameSkin = {
   Basket: BasketArt,
   Sticker: ChampSticker,
   Mascot: Bobbo,
+  music: "meadow",
+  story: { intro: breakfastIntro, outro: breakfastOutro, between: breakfastBetween },
+  helper: { Character: Hoot, name: "Hoot", explainLine: "ca.help.explain", hintLine: "ca.help.hint" },
 };
 
 export default function CountingAdventure() {

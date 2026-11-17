@@ -3,9 +3,10 @@
  * The engine is renderer-agnostic: nothing in src/engine imports React or touches the DOM.
  */
 
-export type InteractionType = "tap-count" | "choose-count" | "make-set";
+/** "choose" = generic pick-the-answer exercise rendered by a game-specific board (balloons, number line, plates...). */
+export type InteractionType = "tap-count" | "choose-count" | "make-set" | "choose";
 export type Difficulty = 1 | 2 | 3 | 4;
-export type MascotState = "idle" | "greeting" | "talking" | "thinking" | "encouraging" | "celebrating" | "retry";
+export type MascotState = "idle" | "greeting" | "talking" | "thinking" | "encouraging" | "celebrating" | "retry" | "sleeping";
 export type SfxId =
   | "tap" | "count" | "pickup" | "drop" | "correct" | "retry" | "hint"
   | "whoosh" | "complete" | "achievement" | "star";
@@ -39,6 +40,10 @@ export interface Exercise {
   tutorial?: boolean;
   /** Plain-language description for screen readers. */
   a11yDescription: string;
+  /** Game-specific numbers the board needs (e.g. { a: 7, b: 6 } or { start: 3, hops: 4 }). */
+  params?: Readonly<Record<string, number>>;
+  /** Spoken prompt (voice-line id + vars) and on-screen prompt text, overriding the interaction default. */
+  prompt?: { line: string; vars?: Readonly<Record<string, string | number>>; text: string };
 }
 
 export type ValidationReason = "correct" | "wrong-number" | "too-many" | "too-few" | "incomplete";

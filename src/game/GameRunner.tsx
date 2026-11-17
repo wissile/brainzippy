@@ -1,16 +1,17 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { audio } from "../audio/AudioEngine";
 import { useApp } from "../app/AppContext";
-import { applyResult, initialProgression, isRoundComplete, markPlayed, selectNextExercise } from "../engine/progression";
+import { applyResult, initialProgression, isRoundComplete, markPlayed, selectNextExercise, startDifficultyFor } from "../engine/progression";
 import { type GuestProgress } from "../engine/progressSchema";
 import { type ExerciseEvent, type ExerciseState, exerciseReducer, initExercise, toResult } from "../engine/session";
 import type { Exercise, GameDefinition, MascotState, ProgressionState } from "../engine/types";
 import { loadState, saveState } from "../services/storage";
 import { Monster } from "../characters/Monster";
-import { NavButton, SoundButton, SpeechBubble } from "../ui/controls";
+import { AudioButtons, NavButton, SpeechBubble } from "../ui/controls";
 import { IconAgain, IconGrid, IconHand, IconPlay, IconReplay, IconStar } from "../ui/icons";
 import { soundForTransition } from "./audioEvents";
-import { ChoiceTray, CountField, DoneButton, MakeSetBoard } from "./boards";
+import { type BoardProps, ChoiceTray, CountField, DoneButton, MakeSetBoard } from "./boards";
+import { HelperOverlay, type StoryBeat, StoryPlayer } from "./story";
 
 export interface GameSkin {
   Background: () => React.JSX.Element;
@@ -18,9 +19,28 @@ export interface GameSkin {
   Basket: () => React.JSX.Element;
   Sticker: () => React.JSX.Element;
   Mascot: (p: { state: MascotState; talking?: boolean; size?: number | string }) => React.JSX.Element;
+  /** Custom play board for this game (renders objects, emits engine events). Default: built-in by interaction. */
+  Board?: (p: BoardProps) => React.JSX.Element;
+  /** Custom answer tray. Answer buttons must use data-testid="choice" data-value={n}. */
+  Tray?: (p: BoardProps) => React.JSX.Element;
+  /** Background music track id (public/audio/music/<id>.mp3). */
+  music?: string;
+  /** Cinematic story: intro before the first exercise, outro after the round, and short lines between exercises. */
+  story?: { intro?: StoryBeat[]; outro?: StoryBeat[]; between?: Record<number, { line: string; vars?: Record<string, string | number> }> };
+  /** A second character who pops in to explain the concept (first exercise) and on a first wrong answer. */
+  helper?: { Character: GameSkin["Mascot"]; name: string; explainLine: string; hintLine?: string };
+  /** Game-specific praise lines (vars: n = answer). Default: counting praise. */
+  praise?: string[];
+  /** Map engine hint voice ids (e.g. "hint.countAlong", "hint.modelTap") to game-specific lines. */
+  hintVoice?: Partial<Record<string, string>>;
+  /** Worked-example steps for the count-along / model hints and what number to say at each step. */
+  alongSteps?: (ex: Exercise) => number;
+  alongSay?: (ex: Exercise, i: number) => number | null;
+  /** Idle help: line to replay and element to point at while answering. */
+  idle?: { line: string; target: string };
 }
 
-type Stage = "intro" | "play" | "complete" | "reward";
+type Stage = "story" | "intro" | "play" | "complete" | "outro" | "reward";
 interface Pointer {
   target: string;
   dragTo?: string;
@@ -30,6 +50,7 @@ const PROMPT_LINE: Record<Exercise["interaction"], string> = {
   "tap-count": "prompt.tap-count",
   "choose-count": "prompt.choose-count",
   "make-set": "prompt.make-set",
+  choose: "prompt.choose-count",
 };
 const IDLE_MS = 9000;
 
@@ -44,8 +65,28 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     return r;
   });
 
-  const [stage, setStage] = useState<Stage>("intro");
-  const [prog, setProg] = useState<ProgressionState>(() => resume?.progression ?? initialProgression(game.progression));
+  // Level-ups: every completed round starts the next round one difficulty level higher.
+  const [level, setLevel] = useState(() => loadState().progress.levels?.[game.id] ?? 0);
+  const freshProgression = useCallback(
+    (lvl: number) => {
+      let p = initialProgression(game.progression, startDifficultyFor(lvl, game.progression));
+      const tut = game.exercises.find((e) => e.tutorial);
+      if (lvl > 0 && tut) p = markPlayed(p, tut.id); // returning players skip the tutorial item
+      return p;
+    },
+    [game],
+  );
+  const [stage, setStage] = useState<Stage>(() => (resume || !skin.story?.intro?.length ? "intro" : "story"));
+  const [prog, setProg] = useState<ProgressionState>(() => resume?.progression ?? freshProgression(level));
+  const [helper, setHelper] = useState<{ line: string; vars?: Record<string, string | number>; done: () => void } | null>(null);
+  const showHelper = (line: string, vars?: Record<string, string | number>) =>
+    new Promise<void>((resolve) => {
+      if (!skin.helper) return resolve();
+      setHelper({ line, vars, done: resolve });
+    });
+  useEffect(() => {
+    void audio.playMusic(skin.music ?? "meadow");
+  }, [skin.music]);
   const [st, setSt] = useState<ExerciseState | null>(null);
   const stRef = useRef<ExerciseState | null>(null);
   const [mascot, setMascot] = useState<MascotState>("greeting");
@@ -82,13 +123,13 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
   const startRound = useCallback(() => {
     unlockAudio();
     audio.play("whoosh");
-    const p = resume?.progression ?? initialProgression(game.progression);
+    const p = resume?.progression ?? freshProgression(level);
     const current = resume?.currentId ? game.exercises.find((e) => e.id === resume.currentId) : undefined;
     const ex = current ?? selectNextExercise(game, p);
     if (!ex) return;
     setStage("play");
     loadExercise(ex, p);
-  }, [game, loadExercise, resume, unlockAudio]);
+  }, [game, loadExercise, resume, unlockAudio, freshProgression, level]);
 
   const act = useCallback((ev: ExerciseEvent) => {
     const prev = stRef.current;
@@ -128,8 +169,13 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     setMascot("encouraging");
     void (async () => {
       if (!(await sleep(450, t))) return;
-      await audio.speak(PROMPT_LINE[ex.interaction], { kind: ex.objectKind, n: ex.target });
+      await audio.speak(ex.prompt?.line ?? PROMPT_LINE[ex.interaction], { ...ex.prompt?.vars, kind: ex.objectKind, n: ex.target });
       if (t !== token.current) return;
+      // a helper character explains the concept at the start of each round
+      if (skin.helper && (stRef.current === s || stRef.current?.exercise.id === ex.id) && prog.results.length === 0 && stRef.current?.attempts === 0) {
+        await showHelper(skin.helper.explainLine, { ...ex.params, n: ex.target });
+        if (t !== token.current) return;
+      }
       setMascot("idle");
       lastInteraction.current = Date.now();
       if (ex.tutorial && stRef.current?.tapped.length === 0) setPointer({ target: '[data-testid="count-object"][data-counted="false"]' });
@@ -168,21 +214,24 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     setMascot(fb.mascot);
 
     const countAlong = async () => {
-      const n = ex.target;
+      const n = skin.alongSteps?.(ex) ?? ex.target;
       for (let i = 0; i < n; i++) {
         setAlongIndex(i);
         audio.playCount(i + 1);
-        audio.sayNumber(i + 1);
+        const say = skin.alongSay ? skin.alongSay(ex, i) : i + 1;
+        if (say !== null) audio.sayNumber(say);
         if (!(await sleep(700, t))) return false;
       }
       return true;
     };
 
     void (async () => {
+      const vars = { ...ex.params, ...fb.voice.vars, kind: ex.objectKind };
       if (fb.correct) {
         setBurst((b) => b + 1);
         window.setTimeout(() => t === token.current && audio.play("star"), 350);
-        await Promise.all([audio.speak(fb.voice.id, { ...fb.voice.vars, kind: ex.objectKind }), sleep(1700, t)]);
+        const praise = skin.praise?.length ? skin.praise[(ex.seed + s.attempts) % skin.praise.length]! : fb.voice.id;
+        await Promise.all([audio.speak(praise, vars), sleep(1700, t)]);
         if (t !== token.current) return;
         act({ type: "FEEDBACK_DONE" });
         const result = toResult(stRef.current ?? s);
@@ -192,6 +241,11 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
           saveState({ round: null });
           setStage("complete");
           return;
+        }
+        const beat = skin.story?.between?.[p2.results.length];
+        if (beat) {
+          await audio.speak(beat.line, beat.vars ?? {});
+          if (t !== token.current) return;
         }
         const next = selectNextExercise(game, p2);
         if (!next) {
@@ -204,14 +258,21 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
         return;
       }
 
-      // Wrong answer: gentle retry → hint(s)
-      await Promise.all([audio.speak(fb.voice.id, { ...fb.voice.vars, kind: ex.objectKind }), sleep(900, t)]);
+      // Wrong answer: gentle retry → hint(s). On the first miss a helper character may pop in to explain.
+      if (skin.helper?.hintLine && s.attempts === 1 && ex.interaction !== "make-set") {
+        await showHelper(skin.helper.hintLine, vars);
+      } else {
+        await Promise.all([audio.speak(skin.hintVoice?.[fb.voice.id] ?? fb.voice.id, vars), sleep(900, t)]);
+      }
       if (t !== token.current) return;
       if (fb.hints.includes("count-along")) {
         audio.play("hint");
         setMascot("encouraging");
         if (!(await countAlong())) return;
-        if (fb.hints.includes("model-answer")) await audio.speak(ex.interaction === "make-set" ? "hint.modelSetTap" : "hint.modelTap", { n: ex.target });
+        if (fb.hints.includes("model-answer")) {
+          const id = ex.interaction === "make-set" ? "hint.modelSetTap" : "hint.modelTap";
+          await audio.speak(skin.hintVoice?.[id] ?? id, vars);
+        }
         else await sleep(400, t);
         if (t !== token.current) return;
       }
@@ -240,6 +301,8 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     const had = progress.stickers.includes(game.achievement.id);
     if (!had) progress.stickers.push(game.achievement.id);
     progress.roundsCompleted += 1;
+    const maxLevel = game.progression.maxDifficulty - game.progression.minDifficulty;
+    progress.levels = { ...progress.levels, [game.id]: Math.min(maxLevel, level + 1) };
     for (const r of prog.results) {
       const tally = (progress.skills[r.skillId] ??= { attempts: 0, firstTry: 0, completed: 0 });
       tally.attempts += r.attempts;
@@ -251,9 +314,9 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     // Server backup (services/sync.ts) is intentionally OFF until a parent-controlled restore path exists:
     // storing data that can never be restored to the child would breach data minimisation (DECISIONS D-011).
     void (async () => {
-      await Promise.all([audio.speak("round.complete"), sleep(2600, t)]);
+      await Promise.all([audio.speak(skin.story?.outro?.length ? "round.completeShort" : "round.complete"), sleep(skin.story?.outro?.length ? 1400 : 2600, t)]);
       if (t !== token.current) return;
-      setStage("reward");
+      setStage(skin.story?.outro?.length ? "outro" : "reward");
     })();
   }, [stage]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -290,6 +353,9 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
           void audio.speak("nudge.basket");
           setPointer({ target: '[data-testid="pile-object"]', dragTo: '[data-testid="basket"]' });
         }
+      } else if (skin.idle) {
+        void audio.speak(skin.idle.line, { ...ex.params, kind: ex.objectKind });
+        setPointer({ target: skin.idle.target });
       } else {
         // never point at a number (that would give away or bias the answer) — point at the objects to count
         void audio.speak("nudge.howMany", { kind: ex.objectKind });
@@ -321,7 +387,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     if (!s) return;
     lastInteraction.current = Date.now();
     if (s.phase === "answering" && s.exercise.interaction === "tap-count") void audio.speak("prompt.howMany", { kind: s.exercise.objectKind });
-    else void audio.speak(PROMPT_LINE[s.exercise.interaction], { kind: s.exercise.objectKind, n: s.exercise.target });
+    else void audio.speak(s.exercise.prompt?.line ?? PROMPT_LINE[s.exercise.interaction], { ...s.exercise.prompt?.vars, kind: s.exercise.objectKind, n: s.exercise.target });
   };
 
   const { Mascot, Background, ObjectArt, Basket, Sticker } = skin;
@@ -329,14 +395,28 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
   const backTo = profile.step === "done" ? "/map" : `/play/${loadState().ageBand ?? "ages-3-5"}`;
   const ex = st?.exercise;
   const doneCount = prog.results.length;
-  const bubble = caption;
+  const bubble = helper ? "" : caption; // while a helper talks, only the helper's bubble shows
 
   // ---------- render ----------
+  if (stage === "story" && skin.story?.intro) {
+    return (
+      <main className="game story-screen">
+        <StoryPlayer beats={skin.story.intro} onDone={startRound} label={`${game.title} story`} />
+      </main>
+    );
+  }
+  if (stage === "outro" && skin.story?.outro) {
+    return (
+      <main className="game story-screen">
+        <StoryPlayer beats={skin.story.outro} onDone={() => setStage("reward")} label={`${game.title} ending`} testId="outro" />
+      </main>
+    );
+  }
   if (stage === "intro") {
     return (
       <main className="game intro-screen">
         <Background />
-        <div className="game-top"><NavButton to={backTo} kind="back" label="Back to the map" /><span /><SoundButton /></div>
+        <div className="game-top"><NavButton to={backTo} kind="back" label="Back to the map" /><span className="level-chip" data-testid="level">Level {level + 1}</span><AudioButtons /></div>
         <div className="intro-card">
           <div className="intro-mascot"><Mascot state={mascot} talking={speaking} size="100%" /></div>
           <SpeechBubble text={bubble || (resume ? "Welcome back! Let's keep counting!" : "Hi! I'm Bobbo! Will you help me count my snacks?")} tail="left" className="intro-bubble" />
@@ -353,7 +433,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     return (
       <main className={`game reward-screen stage-${stage}`}>
         <Background />
-        <div className="game-top"><NavButton to={backTo} kind="back" label="Back to the map" /><Stars total={game.progression.roundLength} done={doneCount} /><SoundButton /></div>
+        <div className="game-top"><NavButton to={backTo} kind="back" label="Back to the map" /><Stars total={game.progression.roundLength} done={doneCount} /><AudioButtons /></div>
         {stage === "complete" ? (
           <div className="complete-wrap">
             <div className="complete-mascot"><Mascot state="celebrating" talking={speaking} size="100%" /></div>
@@ -372,6 +452,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
               </div>
             )}
             <h2 className="reward-title">{game.achievement.title}</h2>
+            <p className="level-up" data-testid="level-up">Level up! Next time: Level {Math.min(level + 2, game.progression.maxDifficulty - game.progression.minDifficulty + 1)}</p>
             <p className="reward-sub">{profile.monsterName ? `${profile.monsterName} is so proud of you!` : newSticker ? "New sticker!" : "Another great round!"}</p>
             <div className="reward-actions">
               <button
@@ -381,7 +462,9 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
                 aria-label="Play again"
                 onClick={() => {
                   audio.play("tap");
-                  const p = initialProgression(game.progression);
+                  const nextLevel = loadState().progress.levels?.[game.id] ?? level;
+                  setLevel(nextLevel);
+                  const p = freshProgression(nextLevel);
                   const first = selectNextExercise(game, p);
                   if (!first) return;
                   setProg(p);
@@ -404,17 +487,18 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
   }
 
   if (!st || !ex) return <main className="game" />;
-  const showTray = ex.interaction === "make-set" ? <DoneButton st={st} act={act} /> : <ChoiceTray st={st} act={act} />;
+  const boardProps: BoardProps = { st, act, alongIndex, ObjectArt, Basket };
+  const showTray = skin.Tray ? <skin.Tray {...boardProps} /> : ex.interaction === "make-set" ? <DoneButton st={st} act={act} /> : <ChoiceTray st={st} act={act} />;
   const promptText =
-    ex.interaction === "make-set" ? `Put ${ex.target} in the basket!` : st.phase === "counting" ? "Tap each one to count!" : "How many?";
+    ex.prompt?.text ?? (ex.interaction === "make-set" ? `Put ${ex.target} in the basket!` : st.phase === "counting" ? "Tap each one to count!" : "How many?");
 
   return (
     <main className={`game play-screen kind-${ex.interaction}`} data-testid="game-screen" data-exercise={ex.id} data-phase={st.phase}>
       <Background />
       <div className="game-top">
         <NavButton to={backTo} kind="back" label="Back to the map" />
-        <Stars total={game.progression.roundLength} done={doneCount} />
-        <SoundButton />
+        <span className="top-mid"><span className="level-chip" data-testid="level">Lv {level + 1}</span><Stars total={game.progression.roundLength} done={doneCount} /></span>
+        <AudioButtons />
       </div>
       <div className="prompt-row">
         <div className="prompt-pill" data-testid="prompt">
@@ -424,7 +508,9 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
         </div>
       </div>
       <section className="board" aria-label="Play area" key={ex.id}>
-        {ex.interaction === "make-set" ? (
+        {skin.Board ? (
+          <skin.Board {...boardProps} />
+        ) : ex.interaction === "make-set" ? (
           <MakeSetBoard st={st} act={act} alongIndex={alongIndex} ObjectArt={ObjectArt} Basket={Basket} />
         ) : (
           <CountField st={st} act={act} alongIndex={alongIndex} ObjectArt={ObjectArt} Basket={Basket} />
@@ -433,10 +519,23 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
       </section>
       <div className="mascot-slot">
         <SpeechBubble text={bubble} tail="down" className="mascot-bubble" />
-        <Mascot state={mascot} talking={speaking} size="100%" />
+        <Mascot state={helper ? "thinking" : mascot} talking={speaking && !helper} size="100%" />
       </div>
       <div className="tray">{showTray}</div>
       {pointer && <HandPointer pointer={pointer} reducedMotion={reducedMotion} />}
+      {helper && skin.helper && (
+        <HelperOverlay
+          Character={skin.helper.Character}
+          name={skin.helper.name}
+          line={helper.line}
+          vars={helper.vars}
+          onDone={() => {
+            const d = helper.done;
+            setHelper(null);
+            d();
+          }}
+        />
+      )}
     </main>
   );
 }

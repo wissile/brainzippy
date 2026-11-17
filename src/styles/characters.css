@@ -76,3 +76,11 @@
 .monster .antenna-ball { transform-box: fill-box; transform-origin: 50% 100%; animation: antenna 2.4s ease-in-out infinite; }
 @keyframes antenna { 50% { transform: rotate(14deg) translateY(-2px); } }
 @media (prefers-reduced-motion: reduce) { .critter.is-popping .critter-body, .monster .antenna-ball { animation: none !important; } }
+
+/* talking: a little bob so non-Bobbo crew visibly speak */
+.critter.is-talking .critter-body { animation: talk-bob 0.32s ease-in-out infinite alternate !important; }
+@keyframes talk-bob { from { transform: translateY(0) scale(1, 1); } to { transform: translateY(-3px) scale(1.02, 0.98); } }
+.critter.state-sleeping .critter-body { animation: sleep-breathe 3.2s ease-in-out infinite; }
+.critter.state-sleeping .eye { transform: scaleY(0.1); }
+@keyframes sleep-breathe { 50% { transform: scale(1.04, 0.96); } }
+@media (prefers-reduced-motion: reduce) { .critter.is-talking .critter-body, .critter.state-sleeping .critter-body { animation: none !important; } }

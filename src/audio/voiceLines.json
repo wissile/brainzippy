@@ -423,6 +423,9 @@
   },
   "number.12": {
    "text": "Twelve."
+  },
+  "round.completeShort": {
+   "text": "You did it!"
   }
  }
 }

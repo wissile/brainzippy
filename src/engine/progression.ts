@@ -11,8 +11,15 @@ import type { Difficulty, Exercise, ExerciseResult, GameDefinition, ProgressionC
  *  R6  The round ends after `roundLength` exercises.
  */
 
-export function initialProgression(config: ProgressionConfig): ProgressionState {
-  return { difficulty: config.minDifficulty, streak: 0, played: [], results: [] };
+/** `startDifficulty` implements level-ups: each completed round starts the next one a level higher (R0). */
+export function initialProgression(config: ProgressionConfig, startDifficulty?: number): ProgressionState {
+  const d = Math.max(config.minDifficulty, Math.min(config.maxDifficulty, startDifficulty ?? config.minDifficulty)) as Difficulty;
+  return { difficulty: d, streak: 0, played: [], results: [] };
+}
+
+/** R0 Level-up: a round starts at minDifficulty + completed rounds (capped). Struggling still steps down within the round (R3). */
+export function startDifficultyFor(level: number, config: ProgressionConfig): Difficulty {
+  return Math.max(config.minDifficulty, Math.min(config.maxDifficulty, config.minDifficulty + Math.max(0, Math.floor(level)))) as Difficulty;
 }
 
 function clampDifficulty(d: number, config: ProgressionConfig): Difficulty {

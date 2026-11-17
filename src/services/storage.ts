@@ -47,6 +47,7 @@ export { cleanName };
 
 export interface LocalState {
   profile: Profile;
+  music: boolean;
   muted: boolean;
   ageBand: string | null;
   serverId: string | null;
@@ -54,7 +55,7 @@ export interface LocalState {
   round: RoundSnapshot | null;
 }
 
-const defaults = (): LocalState => ({ profile: emptyProfile(), muted: false, ageBand: null, serverId: null, progress: emptyProgress(), round: null });
+const defaults = (): LocalState => ({ profile: emptyProfile(), music: true, muted: false, ageBand: null, serverId: null, progress: emptyProgress(), round: null });
 let memory: LocalState | null = null;
 
 export function loadState(): LocalState {
@@ -66,6 +67,7 @@ export function loadState(): LocalState {
       memory = {
         ...defaults(),
         profile: parseProfile(o.profile),
+        music: o.music !== false,
         muted: o.muted === true,
         ageBand: typeof o.ageBand === "string" ? o.ageBand : null,
         serverId: typeof o.serverId === "string" ? o.serverId : null,

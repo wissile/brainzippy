@@ -44,7 +44,7 @@ export const countingExercises: readonly Exercise[] = [
 
 export const countingAdventure: GameDefinition = {
   id: "counting-adventure",
-  title: "Counting Adventure",
+  title: "Bobbo's Breakfast",
   mascot: "bobbo",
   ages: AGES,
   skillIds: ["math.count.one-to-one", "math.count.cardinality", "math.count.subitize", "math.count.make-set"],

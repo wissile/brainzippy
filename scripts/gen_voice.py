@@ -18,6 +18,7 @@ Requires ffmpeg.
 from __future__ import annotations
 
 import argparse
+import glob
 import itertools
 import json
 import os
@@ -75,6 +76,11 @@ def main() -> None:
     from kokoro_onnx import Kokoro  # noqa: PLC0415
 
     data = json.load(open(CATALOGUE))
+    # merge per-game catalogues (src/games/<id>/voice.json)
+    for path in sorted(glob.glob(os.path.join(ROOT, "src", "games", "*", "voice.json"))):
+        game = json.load(open(path))
+        data["objects"].update(game.get("objects", {}))
+        data["lines"].update(game["lines"])
     kokoro = Kokoro(os.path.join(args.model_dir, "kokoro-v1.0.onnx"), os.path.join(args.model_dir, "voices-v1.0.bin"))
     lang = "en-us" if args.voice.startswith("a") else "en-gb"
     os.makedirs(OUT, exist_ok=True)

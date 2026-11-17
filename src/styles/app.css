@@ -28,6 +28,8 @@ svg { display: block; }
   flex: none;
 }
 .icon-btn svg { width: 32px; height: 32px; }
+.audio-btns { display: inline-flex; gap: 8px; }
+.audio-btns .music-btn { width: 52px; height: 52px; align-self: center; }
 .icon-btn:active { transform: translateY(3px) scale(0.96); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
 
 .pill-btn {
@@ -74,6 +76,7 @@ svg { display: block; }
   border: 4px solid var(--ink); border-top: 0; border-left: 0;
 }
 .speech-bubble.tail-down::after { bottom: -14px; left: 34px; transform: rotate(45deg); }
+.speech-bubble.tail-right::after { right: -14px; top: 50%; margin-top: -11px; transform: rotate(-45deg); }
 .speech-bubble.tail-left::after { left: -14px; top: 50%; margin-top: -11px; transform: rotate(135deg); }
 @keyframes pop-in { from { transform: scale(0.6); opacity: 0; } }
 

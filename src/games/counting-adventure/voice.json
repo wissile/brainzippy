@@ -1,0 +1,16 @@
+{
+  "lines": {
+    "ca.story.1": { "text": "In a cozy little house on Monster Island, Bobbo was fast asleep." },
+    "ca.story.2": { "text": "When the sun peeked out, Bobbo woke up. Rumble, rumble, went his tummy!" },
+    "ca.story.3": { "text": "Breakfast time! But oh no, the wind blew his snacks all over the meadow!" },
+    "ca.story.4": { "text": "Hoo-hoo! Let's help Bobbo find his snacks, and count them carefully, one by one!" },
+    "ca.story.mid1": { "text": "Bobbo's basket is getting fuller! His tummy is still rumbling." },
+    "ca.story.mid2": { "text": "Halfway there! Bobbo can smell the cookies!" },
+    "ca.story.mid3": { "text": "Just a few more, and it's breakfast time!" },
+    "ca.story.end1": { "text": "Yum! Thanks to you, Bobbo has all his breakfast snacks!" },
+    "ca.story.end2": { "text": "Hoo-hoo! Counting carefully helped us find every single one." },
+    "ca.story.end3": { "text": "You brought back a Brain Spark! Next time, Bobbo will need even more snacks!" },
+    "ca.help.explain": { "text": "Hoo-hoo! Here's a trick. Touch each snack once, and say one number for each. The last number tells how many!" },
+    "ca.help.hint": { "text": "Hoo! Let's slow down. Touch each one, one at a time, and listen for the last number." }
+  }
+}

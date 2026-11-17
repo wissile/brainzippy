@@ -17,7 +17,7 @@ describe("voice lines", () => {
       const text = readFileSync(file, "utf8");
       for (const m of text.matchAll(/(?:speak|voiceId\s*=|id:)\s*\(?\s*"([a-z]+\.[A-Za-z0-9.-]+)"/g)) ids.add(m[1]!);
     }
-    for (const m of readFileSync("src/game/GameRunner.tsx", "utf8").matchAll(/"(prompt\.[a-z-]+)"/g)) ids.add(m[1]!);
+    for (const m of readFileSync("src/game/GameRunner.tsx", "utf8").matchAll(/"(prompt\.[a-z-]+)"/g)) if (m[1] !== "prompt.") ids.add(m[1]!);
     expect(ids.size).toBeGreaterThan(10);
     const missing = [...ids].filter((id) => !VOICE_LINES[id]);
     expect(missing).toEqual([]);

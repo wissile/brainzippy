@@ -50,3 +50,11 @@ export const IconHand = () => (
     <path d="M24 30 V12 a5 5 0 0 1 10 0 V28 l2-1 a5 5 0 0 1 9 2 l1 0 a5 5 0 0 1 8 4 V44 c0 10-8 16-16 16 h-4 c-6 0-10-3-13-8 L13 41 a5 5 0 0 1 8-6 Z" fill="#fff" stroke="#2B2140" strokeWidth="3.5" strokeLinejoin="round" />
   </svg>
 );
+export const IconMusic = ({ on }: { on: boolean }) => (
+  <svg viewBox="0 0 32 32" aria-hidden="true">
+    <path d="M12 23 V8 L25 5 V20" fill="none" stroke="currentColor" strokeWidth="3" strokeLinejoin="round" />
+    <ellipse cx="9" cy="23.5" rx="4" ry="3.2" fill="currentColor" />
+    <ellipse cx="22" cy="20.5" rx="4" ry="3.2" fill="currentColor" />
+    {!on && <path d="M5 5 L27 27" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" />}
+  </svg>
+);
