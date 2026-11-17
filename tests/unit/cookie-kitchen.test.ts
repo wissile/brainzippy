@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { choicesOf, targetOf } from "../../src/engine/validation";
 import { lintExercise } from "../../src/engine/validation";
 import { cookieExercises, cookieKitchen } from "../../src/games/cookie-kitchen/definition";
 import {
@@ -33,7 +34,7 @@ describe("cookie-kitchen exercises", () => {
     for (const e of cookieExercises) {
       const { total, groups } = e.params as { total: number; groups: number };
       expect(total % groups, e.id).toBe(0);
-      expect(total / groups, e.id).toBe(e.target);
+      expect(total / groups, e.id).toBe(targetOf(e));
       expect(e.prompt?.text).toBe(`Share ${total} cookies on ${groups} plates!`);
       expect(e.prompt?.vars).toEqual({ total, groups });
       expect(e.skillId).toBe("math.div.share-equally");
@@ -55,17 +56,17 @@ describe("cookie-kitchen exercises", () => {
   it("choices are 3 unique, positive, sorted, and distractors come from plausible errors", () => {
     for (const e of cookieExercises) {
       const { total, groups } = e.params as { total: number; groups: number };
-      const choices = [...(e.choices ?? [])];
+      const choices = [...(choicesOf(e) ?? [])];
       expect(choices, e.id).toHaveLength(3);
       expect(choices, e.id).toEqual([...choices].sort((a, b) => a - b));
       expect(choices.every((c) => c > 0 && c <= 9), e.id).toBe(true);
       const ok = plausibleDistractors(total, groups);
-      for (const c of choices.filter((c) => c !== e.target)) expect(ok, `${e.id} distractor ${c}`).toContain(c);
+      for (const c of choices.filter((c) => c !== targetOf(e))) expect(ok, `${e.id} distractor ${c}`).toContain(c);
     }
   });
 
   it("progression config and achievement", () => {
-    expect(cookieKitchen.progression).toEqual({ roundLength: 8, minDifficulty: 1, maxDifficulty: 4, stepUpAfter: 2, stepDownAtAttempts: 3 });
+    expect(cookieKitchen.progression).toEqual({ roundLength: 8, maxLevel: 3, stepUpAfter: 2, stepDownAtAttempts: 3 });
     expect(cookieKitchen.achievement).toEqual({ id: "fair-sharer", title: "Fair Sharer" });
   });
 });
@@ -83,7 +84,7 @@ describe("cookie-kitchen voice lines", () => {
     expect(vary.total!.length * vary.groups!.length).toBeLessThanOrEqual(150);
   });
   it("praise and model lines pre-render every possible answer, and praise process not ability", () => {
-    const targets = [...new Set(cookieExercises.map((e) => e.target))];
+    const targets = [...new Set(cookieExercises.map((e) => targetOf(e)))];
     for (const id of ["ck.praise.1", "ck.praise.2", "ck.praise.3", "ck.praise.4", "ck.hint.modelTap"]) {
       for (const t of targets) expect(lines[id]!.vary!.n, id).toContain(t);
       expect(lines[id]!.text.toLowerCase()).not.toMatch(/smart|genius|clever|brilliant/);
@@ -105,7 +106,7 @@ describe("cookie-kitchen sharing logic", () => {
   it("a complete deal of every exercise is fair with target cookies each", () => {
     for (const e of cookieExercises) {
       const { total, groups } = e.params as { total: number; groups: number };
-      expect(shareStatus(total, dealRoundRobin(total, groups, total)), e.id).toEqual({ allShared: true, equal: true, each: e.target });
+      expect(shareStatus(total, dealRoundRobin(total, groups, total)), e.id).toEqual({ allShared: true, equal: true, each: targetOf(e) });
     }
   });
 

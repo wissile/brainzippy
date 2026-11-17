@@ -9,6 +9,7 @@ import { cartStore, useCart } from "./cart";
 import { glowCaveHops } from "./definition";
 import { cameraLeft, clampPos, fitTrack, hopLandings, hopsTaken, snapToStop, stopX as stopAt } from "./logic";
 import "./glow-cave.css";
+import { asNumber, targetOf } from "../../engine/validation";
 
 /**
  * Glow Cave Hops board + tray.
@@ -18,7 +19,7 @@ import "./glow-cave.css";
  *     nearest stop with a rail click), (b) the big "Hop +1" button, (c) arrow keys, or (d) tapping a number
  *     stop (the cart hops there one stop at a time, counting on aloud).
  *   - The single "Go!" button is the answer control: data-testid="choice", data-value = the cart's stop.
- *     It submits CHOOSE(position). exercise.choices lists every stop so validation works.
+ *     It submits SUBMIT(position). exercise.answer.choices lists every stop so validation works.
  *   - Number stops are data-testid="stop" (move the cart; they never submit), so a child can't answer by
  *     accident and every route to an answer goes through the hops.
  */
@@ -73,12 +74,12 @@ function check(st: ExerciseState, act: (e: ExerciseEvent) => void) {
   if (st.phase !== "answering") return;
   cancelSequence();
   const pos = posOf(st.exercise);
-  if (pos === paramsOf(st.exercise).start || st.disabledChoices.includes(pos)) {
+  if (pos === paramsOf(st.exercise).start || st.eliminated.includes(pos)) {
     audio.play("tap", { rate: 0.7, gain: 0.4 });
     keepAlive(act);
     return;
   }
-  act({ type: "CHOOSE", value: pos });
+  act({ type: "SUBMIT", value: pos });
 }
 
 function useSize<T extends HTMLElement>(): [React.RefObject<T | null>, { w: number; h: number }] {
@@ -121,7 +122,7 @@ function CountChip({ taken, hops }: { taken: number; hops: number }) {
 export function HopBoard({ st, act, alongIndex }: BoardProps) {
   const ex = st.exercise;
   const { start, hops, max } = paramsOf(ex);
-  const target = ex.target;
+  const target = targetOf(ex);
   const cart = useCart();
   const mine = cart.exId === ex.id;
   const pos = mine ? cart.pos : start;
@@ -200,7 +201,7 @@ export function HopBoard({ st, act, alongIndex }: BoardProps) {
 
   const solvedView = st.phase === "solved" || (st.phase === "feedback" && correct);
   const modelling = alongIndex >= 0;
-  const focus = modelling ? Math.min(max, start + alongIndex + 1) : st.modelChoice !== null && st.phase === "answering" ? Math.max(pos, st.modelChoice) : pos;
+  const focus = modelling ? Math.min(max, start + alongIndex + 1) : asNumber(st.model) !== null && st.phase === "answering" ? Math.max(pos, asNumber(st.model)!) : pos;
   const cam = frozenCam ?? cameraLeft({ start, focus, spacing, stripWidth, viewportWidth: w || stripWidth, pad });
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -310,9 +311,9 @@ export function HopBoard({ st, act, alongIndex }: BoardProps) {
                     i === pos ? "is-here" : "",
                     i > start && i <= pos && !solvedView ? "is-visited" : "",
                     solvedView && i === target ? "is-right" : "",
-                    st.phase === "feedback" && !correct && st.lastChoice === i ? "is-wrong" : "",
-                    st.modelChoice === i && st.phase === "answering" ? "is-model" : "",
-                    st.disabledChoices.includes(i) && i !== start && st.modelChoice === null ? "is-out" : "",
+                    st.phase === "feedback" && !correct && st.lastAnswer === i ? "is-wrong" : "",
+                    st.model === i && st.phase === "answering" ? "is-model" : "",
+                    st.eliminated.includes(i) && i !== start && st.model === null ? "is-out" : "",
                     hintArcs.length > 0 && i === start + alongIndex + 1 ? "is-along" : "",
                     behind ? "is-behind" : "",
                   ].filter(Boolean).join(" ");
@@ -396,15 +397,15 @@ export function HopTray({ st, act }: BoardProps) {
   const taken = hopsTaken(pos, start);
   const answering = st.phase === "answering";
   const fb = st.feedback;
-  const goDisabled = !answering || taken === 0 || st.disabledChoices.includes(pos);
+  const goDisabled = !answering || taken === 0 || st.eliminated.includes(pos);
   const goState = st.phase === "solved" || (st.phase === "feedback" && fb?.correct) ? "is-right" : st.phase === "feedback" && fb && !fb.correct ? "is-wrong" : "";
   const coachHop = !!ex.tutorial && answering && taken < hops;
-  const coachGo = answering && (st.modelChoice === pos || (!!ex.tutorial && taken === hops));
+  const coachGo = answering && (st.model === pos || (!!ex.tutorial && taken === hops));
 
   return (
     <div className="gc-tray" role="group" aria-label="Move the cart, then press Go">
       {/* short landscape screens: the sum + hop counter move down here to give the track the full height */}
-      <span className="gc-hud in-tray"><SumChip start={start} hops={hops} target={ex.target} solved={st.phase === "solved" || (st.phase === "feedback" && !!fb?.correct)} /></span>
+      <span className="gc-hud in-tray"><SumChip start={start} hops={hops} target={targetOf(ex)} solved={st.phase === "solved" || (st.phase === "feedback" && !!fb?.correct)} /></span>
       <button
         type="button"
         className="gc-btn gc-back"
@@ -436,7 +437,7 @@ export function HopTray({ st, act }: BoardProps) {
       </button>
       <button
         type="button"
-        className={`choice gc-btn gc-go ${goState} ${st.disabledChoices.includes(pos) && taken > 0 ? "is-out" : ""} ${coachGo ? "is-model" : ""}`}
+        className={`choice gc-btn gc-go ${goState} ${st.eliminated.includes(pos) && taken > 0 ? "is-out" : ""} ${coachGo ? "is-model" : ""}`}
         data-testid="choice"
         data-value={pos}
         aria-label={taken === 0 ? "Go! Hop first, then check" : `Go! Check ${numberWord(pos)}`}

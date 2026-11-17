@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applyResult, initialProgression, isRoundComplete, markPlayed, selectNextExercise, startDifficultyFor } from "../../src/engine/progression";
 import type { ExerciseResult, ProgressionState } from "../../src/engine/types";
-import { countingAdventure as game } from "../../src/games/counting-adventure/definition";
+import { fixtureGame as game } from "./fixtures";
 
 const cfg = game.progression;
 const result = (attempts: number, id = "x"): ExerciseResult => ({ exerciseId: id, skillId: "s", difficulty: 1, attempts, firstTry: attempts === 1, hintsShown: attempts - 1 });

@@ -4,7 +4,7 @@ import type { Difficulty, Exercise, GameDefinition } from "../../engine/types";
  * Cookie Kitchen — exercise DATA only. Skill (see docs/CURRICULUM.md):
  *   math.div.share-equally — share a quantity equally into groups by dealing one at a time,
  *   then check that every group has the same (early division as fair sharing).
- * params { total, groups }; target = total / groups (always whole).
+ * params { total, groups }; answer = total / groups (always whole).
  * Distractors come from common errors: ±1, subtracting (total − groups), or answering the number of plates.
  */
 const AGES = [7, 9] as const;
@@ -25,9 +25,8 @@ const share = (
   ages: AGES,
   difficulty,
   interaction: "choose",
-  target: total / groups,
+  answer: { kind: "number", value: total / groups, choices },
   objectKind: "cookie",
-  choices,
   seed,
   ...(tutorial ? { tutorial: true } : {}),
   params: { total, groups },
@@ -76,7 +75,7 @@ export const cookieKitchen: GameDefinition = {
   skillIds: [SKILL],
   learningObjective:
     "Share a quantity equally into groups (early division): deal one at a time to each group, check every group has the same, and say how many each group gets.",
-  progression: { roundLength: 8, minDifficulty: 1, maxDifficulty: 4, stepUpAfter: 2, stepDownAtAttempts: 3 },
+  progression: { roundLength: 8, maxLevel: 3, stepUpAfter: 2, stepDownAtAttempts: 3 },
   exercises: cookieExercises,
   achievement: { id: "fair-sharer", title: "Fair Sharer" },
 };

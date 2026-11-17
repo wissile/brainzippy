@@ -1,0 +1,23 @@
+/* Default answer boards (choice / set / sequence). Game skins usually replace these with themed boards. */
+.ab-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(12px, 3vh, 28px); width: 100%; height: 100%; padding: 8px; }
+.ab-options { display: flex; flex-wrap: wrap; gap: clamp(10px, 2vw, 20px); justify-content: center; max-width: 100%; }
+.choice.ab-option, .choice.ab-piece { width: auto; min-width: 88px; min-height: 88px; height: auto; padding: 10px 18px; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.ab-art { display: block; width: clamp(48px, 9vw, 84px); aspect-ratio: 1; }
+.ab-art > * { width: 100%; height: 100%; }
+.ab-text { font-family: var(--font-display, inherit); font-size: clamp(22px, 4vw, 36px); font-weight: 800; line-height: 1.1; color: #fff; -webkit-text-stroke: 1px rgba(0, 0, 0, 0.25); }
+.choice.is-on { outline: 5px solid var(--ink, #1d2440); outline-offset: 3px; }
+.choice.is-ok { box-shadow: 0 8px 0 var(--go-shadow, #2a7a3a), 0 0 0 6px rgba(107, 203, 119, 0.85); }
+.ab-slots { display: flex; gap: clamp(8px, 1.5vw, 16px); list-style: none; margin: 0; padding: 0; flex-wrap: wrap; justify-content: center; }
+.ab-slot { min-width: 92px; min-height: 92px; border-radius: 24px; border: 4px dashed rgba(255, 255, 255, 0.85); display: grid; place-items: center; background: rgba(255, 255, 255, 0.18); }
+.ab-slot.is-ok { border-style: solid; border-color: #6bcb77; }
+.ab-slot.is-wrong { border-color: #ff8f8f; }
+.ab-empty { font-size: 28px; font-weight: 800; color: rgba(255, 255, 255, 0.85); }
+.ab-ghost { opacity: 0.55; display: inline-flex; flex-direction: column; align-items: center; animation: model 1s ease-in-out infinite; }
+.ab-check { margin-top: 4px; }
+@media (max-width: 520px) {
+  .choice.ab-option, .choice.ab-piece { min-width: 72px; min-height: 72px; padding: 8px 12px; }
+  .ab-slot { min-width: 76px; min-height: 76px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab-ghost { animation: none; }
+}

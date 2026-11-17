@@ -4,7 +4,7 @@ import type { Difficulty, Exercise, GameDefinition } from "../../engine/types";
  * Glow Cave Hops — exercise DATA only (no rendering or logic).
  * Skill math.add.number-line: addition as moving forward on an evenly spaced, numbered line.
  * Each hop is +1; the child counts on from `start`, so `target = start + hops`.
- * `choices` = every stop on the line (0..max) — the child answers by moving the cart to a stop and pressing Go.
+ * `answer.choices` = every stop on the line (0..max) — the child answers by moving the cart to a stop and pressing Go.
  * Linear number-line board games are among the best-evidenced early number activities (Siegler & Ramani 2008),
  * which is why the line is always evenly spaced and every stop is labelled.
  */
@@ -22,9 +22,8 @@ function hop(start: number, hops: number, max: number, difficulty: Difficulty, s
     ages: AGES,
     difficulty,
     interaction: "choose",
-    target,
+    answer: { kind: "number", value: target, choices: line(max) },
     objectKind: "crystal",
-    choices: line(max),
     seed,
     ...(tutorial ? { tutorial: true } : {}),
     params: { start, hops, max },
@@ -80,7 +79,7 @@ export const glowCaveHops: GameDefinition = {
   ages: AGES,
   skillIds: [SKILL],
   learningObjective: "Understand addition as moving forward on a number line: each hop is plus one, counting on from the start number.",
-  progression: { roundLength: 8, minDifficulty: 1, maxDifficulty: 4, stepUpAfter: 2, stepDownAtAttempts: 3 },
+  progression: { roundLength: 8, maxLevel: 3, stepUpAfter: 2, stepDownAtAttempts: 3 },
   exercises: caveExercises,
   achievement: { id: "cave-explorer", title: "Cave Explorer" },
 };

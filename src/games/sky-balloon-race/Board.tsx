@@ -10,6 +10,7 @@ import { skyBalloonRace } from "./definition";
 import { RIVALS, addends, tenFrameCells, trackPos } from "./logic";
 import { useRaceProgress } from "./progress";
 import "./sky-balloon-race.css";
+import { asNumber, choicesOf, targetOf } from "../../engine/validation";
 
 const TOTAL = skyBalloonRace.progression.roundLength;
 /** Little balloons tied to Bobbo's basket, in the same 300×440 box as RideArt's TIE_SLOTS. */
@@ -49,7 +50,7 @@ export function SkyBoard({ st, act, alongIndex }: BoardProps) {
   const { reducedMotion, speaking } = useApp();
   const done = useRaceProgress();
   const doneAtMount = useRef(done);
-  const choices = ex.choices ?? [];
+  const choices = choicesOf(ex);
   const canAct = st.phase === "answering";
   const fb = st.feedback;
   const solvedNow = (st.phase === "feedback" && !!fb?.correct) || st.phase === "solved";
@@ -98,7 +99,7 @@ export function SkyBoard({ st, act, alongIndex }: BoardProps) {
       suppressClick.current = e.timeStamp;
       if (overDrop(e.clientX, e.clientY) && e.type === "pointerup") {
         setGhost((g) => (g ? { ...g, mode: "held" } : g));
-        act({ type: "CHOOSE", value: d.value });
+        act({ type: "SUBMIT", value: d.value });
       } else {
         setGhost((g) => (g ? { ...g, dx: 0, dy: 0, scale: 1, mode: "home" } : g));
         window.setTimeout(() => setGhost((g) => (g?.mode === "home" ? null : g)), 400);
@@ -117,8 +118,8 @@ export function SkyBoard({ st, act, alongIndex }: BoardProps) {
   // ---------- answer presentation: correct balloon flies to the basket and is tied on; wrong floats home ----------
   const seq = fb?.seq;
   useEffect(() => {
-    if (!fb || st.phase !== "feedback" || st.lastChoice === null) return;
-    const value = st.lastChoice;
+    const value = asNumber(st.lastAnswer);
+    if (!fb || st.phase !== "feedback" || value === null) return;
     if (!fb.correct) {
       setGhost((g) => (g ? { ...g, dx: 0, dy: 0, scale: 1, mode: "home" } : g));
       const t = window.setTimeout(() => setGhost((g) => (g?.mode === "home" ? null : g)), 420);
@@ -186,12 +187,12 @@ export function SkyBoard({ st, act, alongIndex }: BoardProps) {
       {alongIndex >= 0 && <CountOnPanel ex={ex} step={alongIndex} />}
       <div className="sb-balloons" role="group" aria-label={`Answer balloons for ${a} plus ${b}`} ref={groupRef}>
         {choices.map((c, i) => {
-          const out = st.disabledChoices.includes(c);
+          const out = st.eliminated.includes(c);
           const disabled = out || !canAct;
-          const wrong = st.phase === "feedback" && !fb?.correct && st.lastChoice === c;
-          const model = st.modelChoice === c && canAct;
-          const flown = ghost?.value === c || (solvedNow && c === ex.target);
-          const cls = ["sb-balloon", `sb-b${i}`, out ? "is-out" : "", wrong ? "is-wrong" : "", model ? "is-model" : "", flown ? "is-flown" : "", solvedNow && c !== ex.target ? "is-released" : ""].join(" ");
+          const wrong = st.phase === "feedback" && !fb?.correct && st.lastAnswer === c;
+          const model = st.model === c && canAct;
+          const flown = ghost?.value === c || (solvedNow && c === targetOf(ex));
+          const cls = ["sb-balloon", `sb-b${i}`, out ? "is-out" : "", wrong ? "is-wrong" : "", model ? "is-model" : "", flown ? "is-flown" : "", solvedNow && c !== targetOf(ex) ? "is-released" : ""].join(" ");
           return (
             <button
               key={c}
@@ -213,7 +214,7 @@ export function SkyBoard({ st, act, alongIndex }: BoardProps) {
               }}
               onClick={(e) => {
                 if (e.timeStamp - suppressClick.current < 80 || disabled) return;
-                act({ type: "CHOOSE", value: c });
+                act({ type: "SUBMIT", value: c });
               }}
             >
               <span className="sb-bob" style={{ animationDelay: `${i * -1.1}s` }}>
