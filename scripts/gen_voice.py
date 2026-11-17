@@ -65,7 +65,7 @@ def expand(data: dict):
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model-dir", default=os.environ.get("KOKORO_DIR", "."))
-    ap.add_argument("--voice", default="af_heart")
+    ap.add_argument("--voice", default="af_bella")  # chosen by the owner 2026-11-17
     ap.add_argument("--speed", type=float, default=0.95)
     ap.add_argument("--only", default="", help="only regenerate keys starting with this prefix")
     ap.add_argument("--force", action="store_true", help="regenerate files that already exist")
