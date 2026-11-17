@@ -41,6 +41,7 @@ export function MapScreen() {
     window.setTimeout(() => navigate(`/play/${id}`), 700);
   };
   const target = STOPS.find((s) => s.id === going) ?? STOPS[0];
+  const portrait = typeof window !== "undefined" && window.innerHeight > window.innerWidth;
 
   return (
     <main className="map-screen" data-testid="map">
@@ -76,7 +77,12 @@ export function MapScreen() {
             </button>
           );
         })}
-        <div className={`map-monster ${going ? "hop" : ""}`} style={{ left: `${target.x + 9}%`, top: `${target.y - 2}%` }} aria-hidden="true">
+        <div
+          className={`map-monster ${going ? "hop" : ""}`}
+          // portrait: stand above the stop; landscape: beside it (never on top of a button)
+          style={portrait ? { left: `${target.x}%`, top: `${target.y - 11}%` } : { left: `${target.x + 9}%`, top: `${target.y - 2}%` }}
+          aria-hidden="true"
+        >
           <Monster config={monster} state={going ? "celebrating" : "greeting"} size={110} label="" />
           {p.monsterName && <span className="nameplate small">{p.monsterName}</span>}
         </div>

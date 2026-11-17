@@ -432,7 +432,7 @@ function AgeStep({ onDone }: { onDone: () => void }) {
 function GrownUp({ onDone }: { onDone: (s: "pending" | "skipped") => void }) {
   const { caption } = useApp();
   const [phase, setPhase] = useState<"gate" | "form" | "sent">("gate");
-  const gate = useMemo(() => ({ a: 6 + Math.floor(Math.random() * 4), b: 5 + Math.floor(Math.random() * 4) }), []);
+  const gate = useMemo(() => ({ a: 13 + Math.floor(Math.random() * 7), b: 6 + Math.floor(Math.random() * 4) }), []);
   const [answer, setAnswer] = useState("");
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
@@ -475,11 +475,11 @@ function GrownUp({ onDone }: { onDone: (s: "pending" | "skipped") => void }) {
             className="gate"
             onSubmit={(e) => {
               e.preventDefault();
-              if (Number(answer) === gate.a + gate.b) setPhase("form");
+              if (Number(answer) === gate.a * gate.b) setPhase("form");
               else setAnswer("");
             }}
           >
-            <label htmlFor="onb-gate">Grown-ups: what is {gate.a} + {gate.b}?</label>
+            <label htmlFor="onb-gate">Grown-ups: what is {gate.a} × {gate.b}?</label>
             <input id="onb-gate" data-testid="onb-gate-answer" inputMode="numeric" autoComplete="off" value={answer} onChange={(e) => setAnswer(e.target.value.replace(/\D/g, "").slice(0, 3))} />
             <button type="submit" className="pill-btn" data-testid="onb-gate-ok">OK</button>
           </form>

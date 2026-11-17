@@ -23,6 +23,12 @@ Known limitations: voice is browser speech synthesis (device-dependent quality) 
 - Tests: 46 unit, 48 Playwright passing (32 skipped by design); new onboarding e2e asserts the child's name never leaves the device.
 - Open: email provider for parent confirmations; voice choice (samples provided) or human recording session.
 
+## Milestone 2 — Story worlds, music, helpers, level-ups  ✅ complete locally
+- Cinematic "Brain Spark" opening story (7 beats) that explains the goal and how difficulty grows; every game has a story intro/outro + between-exercise beats; helper characters explain concepts.
+- Four worlds on Monster Island: Bobbo's Breakfast (counting), Glow Cave Hops (number line, slide the cart), Sky Balloon Race (addition, drag balloons), Cookie Kitchen (fair sharing, drag cookies). 104 exercises total.
+- Original music per world (5 loops); level-ups per completed round (gated on ≥50% first-try); parent explainer on /grown-ups and in the grown-up step.
+- 589 voice clips (Bella). Independent review: 0 critical; high/medium items fixed (see DECISIONS D-022); remaining: Sky "making ten" needs its own hint, Cookie tray cookies small on landscape phones.
+
 ## Next milestone (proposed) — M2: Production-quality voice & polish + staging deploy
 1. Voice: cast/record Bobbo (≈60 lines); wire `file` entries; loudness-normalise. *Decision needed: budget and casting route.*
 2. Staging on Cloudflare: create D1 DBs, API token in CI, staging deploy + smoke e2e on the deployed URL. *Needs: Cloudflare account access.*

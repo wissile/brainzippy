@@ -93,7 +93,7 @@ export function StoryPlayer({ beats, onDone, label = "Story", testId = "story" }
       ) : (
         canSkip && (
           <button type="button" className="story-skip" data-testid={`${testId}-skip`} aria-label="Skip the story" onClick={(e) => { e.stopPropagation(); finish(); }}>
-            Skip ⏭
+            Skip ›
           </button>
         )
       )}

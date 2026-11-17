@@ -289,7 +289,7 @@ class AudioEngine {
         if (token === this.speakToken) this.emit(false, text);
         resolve();
       };
-      window.setTimeout(done, this.muted ? Math.min(capMs, 1400) : capMs);
+      window.setTimeout(done, this.muted ? Math.min(capMs, Math.max(1800, text.length * 45)) : capMs);
       if (this.muted) return;
 
       void (async () => {

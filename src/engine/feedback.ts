@@ -31,6 +31,10 @@ export function feedbackFor(exercise: Exercise, result: ValidationResult, attemp
   } else if (attempt >= 2) {
     hints.push("model-answer", "count-along");
     voiceId = "hint.model";
+  } else if (exercise.interaction === "choose") {
+    // first miss: strategy only (the helper explains the idea); the full worked example waits for the second miss
+    hints.push("eliminate-choice");
+    voiceId = "hint.countAlong";
   } else {
     hints.push("eliminate-choice");
     if (exercise.interaction === "tap-count") {

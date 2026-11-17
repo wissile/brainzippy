@@ -189,6 +189,9 @@
   .gc-hud.in-board { display: none; }
   .gc-hud.in-tray { display: inline-flex; }
   .gc-tray { gap: 10px; }
+  /* short screens: keep the cart above the prompt pill so it stays visible and draggable */
+  .game.play-screen:has(.gc-cart) .board { z-index: 6; }
+  .game.play-screen:has(.gc-cart) .prompt-pill { min-height: 46px; padding-top: 2px; padding-bottom: 2px; }
 }
 
 /* ---------- reduced motion: hold states, no looping movement ---------- */

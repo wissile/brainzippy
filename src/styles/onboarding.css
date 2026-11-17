@@ -258,15 +258,16 @@
 @media (prefers-reduced-motion: reduce) { .actor, .zzz { animation: none !important; } .story-camera { animation: none !important; } }
 
 /* ---------- helper character ---------- */
-.helper { position: fixed; z-index: 45; right: 1.5vw; top: calc(max(10px, env(safe-area-inset-top)) + 76px); display: flex; flex-direction: row-reverse; align-items: flex-start; gap: 14px; pointer-events: none; animation: helper-in 520ms var(--ease-bounce) both; }
+.helper { position: fixed; z-index: 45; right: 1.5vw; top: calc(max(10px, env(safe-area-inset-top)) + 160px); display: flex; flex-direction: row; align-items: flex-start; gap: 14px; pointer-events: none; animation: helper-in 520ms var(--ease-bounce) both; }
 .helper.leaving { animation: helper-out 420ms var(--ease-out) both; }
 .helper-char { flex: none; width: clamp(90px, 12vw, 160px); filter: drop-shadow(0 10px 10px rgba(43, 33, 64, 0.25)); }
 .helper-char .critter { width: 100%; height: auto; }
 .helper-bubble { max-width: min(420px, 62vw); margin-top: 26px; }
 @keyframes helper-in { from { transform: translateX(120%) rotate(8deg); } }
 @keyframes helper-out { to { transform: translateX(130%) rotate(-6deg); opacity: 0; } }
-@media (orientation: portrait) { .helper { top: calc(max(10px, env(safe-area-inset-top)) + 140px); } .helper-char { width: 22vw; } .helper-bubble { max-width: 64vw; } }
-@media (max-height: 520px) { .helper-char { width: 84px; } .helper { top: 60px; } }
+/* small screens: the helper speaks over the prompt row (never over objects or answers) */
+@media (orientation: portrait) { .helper { top: calc(max(10px, env(safe-area-inset-top)) + 64px); right: 2vw; left: 2vw; justify-content: flex-end; } .helper-char { width: 20vw; } .helper-bubble { max-width: 70vw; margin-top: 6px; font-size: 1rem; } }
+@media (max-height: 520px) and (orientation: landscape) { .helper-char { width: 64px; } .helper { top: 52px; right: 8px; } .helper-bubble { margin-top: 0; font-size: 0.9rem; padding: 6px 10px; max-width: 50vw; } }
 @media (prefers-reduced-motion: reduce) { .helper, .helper.leaving { animation: none; } }
 
 /* level chip */

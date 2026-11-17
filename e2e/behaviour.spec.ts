@@ -186,11 +186,11 @@ test("grown-ups: delete progress is behind a parent gate and clears local data",
   await page.goto("/grown-ups");
   await page.getByTestId("reset-progress").click();
   const q = await page.locator('label[for="gate-answer"]').innerText();
-  const [a, b] = q.match(/(\d+) \+ (\d+)/)!.slice(1).map(Number);
+  const [a, b] = q.match(/(\d+) × (\d+)/)!.slice(1).map(Number);
   await page.getByTestId("gate-answer").fill("1");
   await page.getByTestId("gate-confirm").click();
   expect(await page.evaluate(() => localStorage.getItem("bz.v1"))).toContain("counting-champ");
-  await page.getByTestId("gate-answer").fill(String(a! + b!));
+  await page.getByTestId("gate-answer").fill(String(a! * b!));
   await page.getByTestId("gate-confirm").click();
   await expect(page.getByTestId("reset-done")).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem("bz.v1"))).toBeNull();

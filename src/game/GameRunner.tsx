@@ -60,6 +60,17 @@ const PROMPT_LINE: Record<Exercise["interaction"], string> = {
 };
 const IDLE_MS = 9000;
 
+/** Track input modality so focus is only moved programmatically for keyboard users. */
+let keyboardUser = false;
+if (typeof window !== "undefined") {
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Tab" || e.key.startsWith("Arrow") || e.key === "Enter" || e.key === " ") keyboardUser = true;
+  }, true);
+  window.addEventListener("pointerdown", () => {
+    keyboardUser = false;
+  }, true);
+}
+
 export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSkin }) {
   const { navigate, caption, speaking, reducedMotion, unlockAudio } = useApp();
 
@@ -84,12 +95,26 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
   );
   const [stage, setStage] = useState<Stage>(() => (resume || !skin.story?.intro?.length ? "intro" : "story"));
   const [prog, setProg] = useState<ProgressionState>(() => resume?.progression ?? freshProgression(level));
-  const [helper, setHelper] = useState<{ line: string; vars?: Record<string, string | number>; done: () => void } | null>(null);
+  const [leveledUp, setLeveledUp] = useState(false);
+  const [helper, setHelper] = useState<{ id: number; line: string; vars?: Record<string, string | number>; done: () => void } | null>(null);
+  const helperRef = useRef<{ id: number; done: () => void } | null>(null);
+  const helperSeq = useRef(0);
+  /** Show the helper; a newer helper replaces (and releases) an older one, so no sequence can wait forever. */
   const showHelper = (line: string, vars?: Record<string, string | number>) =>
     new Promise<void>((resolve) => {
       if (!skin.helper) return resolve();
-      setHelper({ line, vars, done: resolve });
+      helperRef.current?.done();
+      const h = { id: ++helperSeq.current, line, vars, done: resolve };
+      helperRef.current = h;
+      setHelper(h);
     });
+  const finishHelper = (id: number) => {
+    const h = helperRef.current;
+    if (!h || h.id !== id) return;
+    helperRef.current = null;
+    setHelper(null);
+    h.done();
+  };
   useEffect(() => {
     void audio.playMusic(skin.music ?? "meadow");
   }, [skin.music]);
@@ -116,6 +141,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
       setPointer(null);
       // keep keyboard users in place: focus the first thing to act on (no visible ring for touch/mouse users)
       window.setTimeout(() => {
+        if (!keyboardUser) return; // mouse/touch users don't get a focus ring on an answer (it can look like a suggestion)
         const sel = ex.interaction === "make-set" ? '[data-testid="pile-object"]' : ex.interaction === "tap-count" ? '[data-testid="count-object"]' : '[data-testid="choice"]';
         (document.querySelector(sel) as HTMLElement | null)?.focus({ preventScroll: true });
       }, 60);
@@ -200,7 +226,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
       void (async () => {
         if (!(await sleep(700, t))) return;
         setMascot("thinking");
-        if (document.activeElement?.getAttribute("data-testid") === "count-object") (document.querySelector('[data-testid="choice"]') as HTMLElement | null)?.focus({ preventScroll: true });
+        if (keyboardUser && document.activeElement?.getAttribute("data-testid") === "count-object") (document.querySelector('[data-testid="choice"]') as HTMLElement | null)?.focus({ preventScroll: true });
         await audio.speak("prompt.howMany", { kind: st.exercise.objectKind });
         if (t === token.current) setMascot("idle");
       })();
@@ -308,7 +334,11 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
     if (!had) progress.stickers.push(game.achievement.id);
     progress.roundsCompleted += 1;
     const maxLevel = game.progression.maxDifficulty - game.progression.minDifficulty;
-    progress.levels = { ...progress.levels, [game.id]: Math.min(maxLevel, level + 1) };
+    // R0: level up only when at least half the round was solved first try; otherwise practise this level again
+    const firstTries = prog.results.filter((r) => r.firstTry).length;
+    const earned = firstTries * 2 >= prog.results.length;
+    setLeveledUp(earned && level < maxLevel);
+    progress.levels = { ...progress.levels, [game.id]: earned ? Math.min(maxLevel, level + 1) : level };
     for (const r of prog.results) {
       const tally = (progress.skills[r.skillId] ??= { attempts: 0, firstTry: 0, completed: 0 });
       tally.attempts += r.attempts;
@@ -458,7 +488,7 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
               </div>
             )}
             <h2 className="reward-title">{game.achievement.title}</h2>
-            <p className="level-up" data-testid="level-up">Level up! Next time: Level {Math.min(level + 2, game.progression.maxDifficulty - game.progression.minDifficulty + 1)}</p>
+            <p className="level-up" data-testid="level-up">{leveledUp ? `Level up! Next time: Level ${level + 2}` : "Great practice! Let's play this level again."}</p>
             <p className="reward-sub">{profile.monsterName ? `${profile.monsterName} is so proud of you!` : newSticker ? "New sticker!" : "Another great round!"}</p>
             <div className="reward-actions">
               <button
@@ -538,15 +568,12 @@ export function GameRunner({ game, skin }: { game: GameDefinition; skin: GameSki
       {pointer && <HandPointer pointer={pointer} reducedMotion={reducedMotion} />}
       {helper && skin.helper && (
         <HelperOverlay
+          key={helper.id}
           Character={skin.helper.Character}
           name={skin.helper.name}
           line={helper.line}
           vars={helper.vars}
-          onDone={() => {
-            const d = helper.done;
-            setHelper(null);
-            d();
-          }}
+          onDone={() => finishHelper(helper.id)}
         />
       )}
     </main>

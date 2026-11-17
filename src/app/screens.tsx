@@ -180,8 +180,8 @@ export function GamesScreen({ bandId }: { bandId: string }) {
 export function GrownUpsScreen() {
   const [status, setStatus] = useState<"idle" | "gate" | "deleted" | "failed">("idle");
   const [answer, setAnswer] = useState("");
-  // Simple parent gate: arithmetic a 4–6-year-old is unlikely to solve. Not a security boundary.
-  const [gate] = useState(() => ({ a: 6 + Math.floor(Math.random() * 4), b: 5 + Math.floor(Math.random() * 4) }));
+  // Parent gate: multiplication beyond the games' range (a speed bump for children, not a security boundary).
+  const [gate] = useState(() => ({ a: 13 + Math.floor(Math.random() * 7), b: 6 + Math.floor(Math.random() * 4) }));
 
   const doDelete = async () => {
     const id = loadState().serverId;
@@ -200,7 +200,7 @@ export function GrownUpsScreen() {
     <main className="screen grownups">
       <div className="screen-top"><NavButton to="/" label="Home" /><h1 className="screen-title">For grown-ups</h1><span /></div>
       <article className="prose">
-        <p className="lead">BrainZippy turns early maths and reading into short story adventures. Your child is the hero who brings back the lost Brain Sparks of Monster Island, with the Critter Crew as guides.</p>
+        <p className="lead">BrainZippy turns early maths into short story adventures (reading, spelling and science worlds are on the way). Your child is the hero who brings back the lost Brain Sparks of Monster Island, with the Critter Crew as guides.</p>
 
         <h2>The goal</h2>
         <p>To help children aged 3–14 build real understanding and confidence through play they choose to come back to: one clear learning goal per game, no ads, no reading needed for the youngest players, and nothing that punishes mistakes.</p>
@@ -210,7 +210,7 @@ export function GrownUpsScreen() {
           <li><strong>A story sets up a problem worth solving.</strong> Bobbo needs his breakfast, Gloop's cave has gone dark, the cookies must be shared fairly. Short animated scenes give each game a reason.</li>
           <li><strong>Children learn by doing.</strong> They touch, drag, slide and share objects on screen, so the idea is something they do with their hands, not only words on a page.</li>
           <li><strong>A helper character explains the idea.</strong> Hoot, Zuzu or Puff pops in to show the trick (for example, "the last number you say tells how many", or "each hop is plus one").</li>
-          <li><strong>Every answer gets useful feedback.</strong> Right answers are celebrated and the idea is named. A wrong answer brings a gentle hint; a second one brings a step-by-step worked example, and the child still makes the final tap.</li>
+          <li><strong>Every answer gets useful feedback.</strong> Right answers are celebrated and the idea is named. A wrong answer brings a gentle hint that explains the idea; a second one brings a step-by-step worked example, and the child still makes the final tap.</li>
         </ol>
 
         <h2>How the difficulty grows</h2>
@@ -241,7 +241,7 @@ export function GrownUpsScreen() {
         <p className="honest"><strong>An honest note:</strong> these principles are well researched, but BrainZippy itself has not yet been tested in a formal study, so we don't claim it is "proven". We plan to measure learning with families who opt in, and we'll publish what we find.</p>
 
         <h2>Privacy</h2>
-        <p>Guest play needs no account. We don't ask for names, emails, photos, or location, and there are no ads, chat, or third-party trackers. Progress (stickers and practice counts) and settings are stored only in this browser; guest play sends no progress to our servers.</p>
+        <p>Guest play needs no account and there are no ads, chat, or third-party trackers. Your child's first name (optional), their monster and their progress are stored only in this browser and are never sent to us. The only thing that can be sent is <strong>your</strong> email, if you choose to add it in the grown-up step, with your consent. We never ask for photos or location.</p>
         {status === "idle" && (
           <p><button type="button" className="pill-btn danger" data-testid="reset-progress" onClick={() => setStatus("gate")}>Delete all progress on this device</button></p>
         )}
@@ -250,11 +250,11 @@ export function GrownUpsScreen() {
             className="gate"
             onSubmit={(e) => {
               e.preventDefault();
-              if (Number(answer) === gate.a + gate.b) void doDelete();
+              if (Number(answer) === gate.a * gate.b) void doDelete();
               else setAnswer("");
             }}
           >
-            <label htmlFor="gate-answer">Grown-ups only: what is {gate.a} + {gate.b}?</label>
+            <label htmlFor="gate-answer">Grown-ups only: what is {gate.a} × {gate.b}?</label>
             <input id="gate-answer" data-testid="gate-answer" inputMode="numeric" autoComplete="off" value={answer} onChange={(e) => setAnswer(e.target.value.replace(/\D/g, "").slice(0, 3))} />
             <button type="submit" className="pill-btn danger" data-testid="gate-confirm">Delete</button>
             <button type="button" className="pill-btn" onClick={() => setStatus("idle")}>Cancel</button>

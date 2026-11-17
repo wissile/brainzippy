@@ -18,8 +18,8 @@ async function popBubbles(page: Page) {
 
 async function answerGate(page: Page, labelFor: string, input: string, ok: string) {
   const q = await page.locator(`label[for="${labelFor}"]`).innerText();
-  const [a, b] = q.match(/(\d+) \+ (\d+)/)!.slice(1).map(Number);
-  await page.getByTestId(input).fill(String(a! + b!));
+  const [a, b] = q.match(/(\d+) × (\d+)/)!.slice(1).map(Number);
+  await page.getByTestId(input).fill(String(a! * b!));
   await press(page, `[data-testid="${ok}"]`);
 }
 

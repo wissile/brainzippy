@@ -53,12 +53,17 @@ test("child races Bobbo's balloon to the finish by adding", async ({ page }, inf
     const id = (await screen(page).getAttribute("data-exercise"))!;
     const ans = await answerOf(page);
     if (i === 0) {
-      // wrong answer: never punished — the balloon is greyed out and Puff shows counting on in ten frames
+      // first miss: never punished — the balloon is greyed out and Puff explains counting on (strategy, not the answer)
       const wrong = await page.locator(`[data-testid="choice"]:not([data-value="${ans}"])`).first().getAttribute("data-value");
       await press(page, `[data-testid="choice"][data-value="${wrong}"]`);
-      await expect(page.getByTestId("count-on")).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByTestId("helper")).toBeVisible({ timeout: 20_000 });
       await answering(page);
       await expect(page.locator(`[data-testid="choice"][data-value="${wrong}"]`)).toHaveAttribute("aria-disabled", "true");
+      // second miss: the worked example counts on in ten frames, then the answer is modelled
+      const wrong2 = await page.locator(`[data-testid="choice"]:not([data-value="${ans}"]):not([data-value="${wrong}"])`).first().getAttribute("data-value");
+      await press(page, `[data-testid="choice"][data-value="${wrong2}"]`);
+      await expect(page.getByTestId("count-on")).toBeVisible({ timeout: 20_000 });
+      await answering(page);
       await shot("03-count-on");
       await press(page, `[data-testid="choice"][data-value="${ans}"]`);
     } else if (i === 1 && info.project.name === "desktop") {

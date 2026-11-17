@@ -22,6 +22,7 @@
 | D-019 | 2026-11-17 | Level-up per completed round (R0) on top of in-round adaptivity | Owner: "difficulty increases every time the kid succeeds"; in-round step-down kept so strugglers are never stuck | Only in-round adaptation |
 | D-020 | 2026-11-17 | Describe the method as "built on research" with citations, never "proven" | BrainZippy hasn't been studied; unproven efficacy claims to parents risk deceptive-advertising rules; master instructions forbid it | "Proven method" claim |
 | D-021 | 2026-11-17 | New games built in parallel by agents with strict file ownership (one folder each) against `docs/GAME_AUTHORING.md` | Parallel speed without merge conflicts; framework changes stay with the lead | Sequential build |
+| D-022 | 2026-11-17 | Milestone 2 review fixes: phone top bar keeps sound button on screen; parent gates use 2-digit × 1-digit multiplication (sums are game content); first miss in "choose" games gives strategy only, worked example on second miss; focus moves only for keyboard users; level-up requires ≥50% first-try; grown-ups page corrected (data, hint ladder, maths-only); helper anchored below the prompt | Independent QA review found these issues | — |
 | D-017 | 2026-11-17 | Parent-signup endpoint returns 503 outside development until an email provider is chosen | Don't store addresses that can't be verified | Store and send later |
 
 ## Review findings (milestone 1)

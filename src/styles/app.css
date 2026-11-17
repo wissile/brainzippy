@@ -465,3 +465,23 @@ button.snack:active { transform: rotate(var(--r, 0deg)) scale(0.9); }
 .learn-table th, .learn-table td { border-bottom: 1px solid #e6e0f0; padding: 8px; text-align: left; vertical-align: top; }
 .learn-table th { background: #f1ecff; }
 .prose .honest { background: #fff6da; border-radius: 12px; padding: 10px 14px; }
+
+/* top bar: level + stars group flexes so the sound/music buttons always stay on screen */
+.game-top .top-mid { min-width: 0; flex: 1 1 auto; justify-content: center; }
+.game-top > .icon-btn, .game-top > .audio-btns { flex: none; }
+@media (max-width: 440px) {
+  .stars { gap: 1px; padding: 6px 8px; }
+  .star-slot svg { width: 17px; }
+  .level-chip { padding: 4px 8px; font-size: 0.85rem; }
+  .game .audio-btns .music-btn { display: none; } /* on narrow game screens keep only the sound button */
+}
+/* reward screen fits 800px-tall laptops */
+.reward-wrap .sticker { width: clamp(150px, 26vh, 300px); }
+.reward-wrap .reward-monster { width: clamp(90px, 13vh, 150px); }
+@media (max-height: 520px) and (orientation: landscape) {
+  .reward-wrap .sticker { width: 20vh; }
+  .reward-wrap .reward-sub { margin: 0; font-size: 0.95rem; }
+  .reward-wrap { gap: 4px; }
+  .reward-wrap .level-up { font-size: 0.95rem; padding: 0 12px; }
+  .reward-title { font-size: 1.5rem; }
+}
