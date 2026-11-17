@@ -62,7 +62,8 @@ export function SkyBoard({ st, act, alongIndex }: BoardProps) {
   const [ghost, setGhost] = useState<Ghost | null>(null);
   const ghostRef = useRef<Ghost | null>(null);
   ghostRef.current = ghost;
-  const suppressClick = useRef(false);
+  /** Time of the last drag release: the click the browser fires right after it is ignored (event timestamps, so a busy device never swallows a later tap). */
+  const suppressClick = useRef(-Infinity);
 
   const bodyCentre = (value: number) => {
     const r = refs.current.get(value)?.getBoundingClientRect();
@@ -94,8 +95,7 @@ export function SkyBoard({ st, act, alongIndex }: BoardProps) {
       setDrag(null);
       setHot(false);
       if (!d?.active) return;
-      suppressClick.current = true;
-      window.setTimeout(() => (suppressClick.current = false), 60);
+      suppressClick.current = e.timeStamp;
       if (overDrop(e.clientX, e.clientY) && e.type === "pointerup") {
         setGhost((g) => (g ? { ...g, mode: "held" } : g));
         act({ type: "CHOOSE", value: d.value });
@@ -211,8 +211,8 @@ export function SkyBoard({ st, act, alongIndex }: BoardProps) {
                 dragRef.current = d0;
                 setDrag(d0);
               }}
-              onClick={() => {
-                if (suppressClick.current || disabled) return;
+              onClick={(e) => {
+                if (e.timeStamp - suppressClick.current < 80 || disabled) return;
                 act({ type: "CHOOSE", value: c });
               }}
             >

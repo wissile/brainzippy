@@ -174,7 +174,8 @@ export function MakeSetBoard({ st, act, alongIndex, ObjectArt, Basket }: BoardPr
   const basketRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
   const dragRef = useRef<Drag | null>(null);
-  const suppressClick = useRef(false);
+  /** Time of the last drag release: the click the browser fires right after it is ignored (event timestamps, so a busy device never swallows a later tap). */
+  const suppressClick = useRef(-Infinity);
   const [hot, setHot] = useState(false);
   const showSlots = st.activeHints.includes("show-slots");
   const canAct = st.phase === "answering";
@@ -198,8 +199,7 @@ export function MakeSetBoard({ st, act, alongIndex, ObjectArt, Basket }: BoardPr
     const up = (e: PointerEvent) => {
       const d = dragRef.current;
       if (d?.active) {
-        suppressClick.current = true;
-        window.setTimeout(() => (suppressClick.current = false), 50);
+        suppressClick.current = e.timeStamp;
         if (overBasket(e.clientX, e.clientY)) act({ type: "ADD_TO_BASKET", index: d.index });
       }
       dragRef.current = null;
@@ -238,8 +238,8 @@ export function MakeSetBoard({ st, act, alongIndex, ObjectArt, Basket }: BoardPr
                     dragRef.current = d0;
                     setDrag(d0);
                   }}
-                  onClick={() => {
-                    if (suppressClick.current || !canAct) return;
+                  onClick={(e) => {
+                    if (e.timeStamp - suppressClick.current < 80 || !canAct) return;
                     act({ type: "ADD_TO_BASKET", index: i });
                   }}
                 >

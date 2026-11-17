@@ -258,11 +258,11 @@
 @media (prefers-reduced-motion: reduce) { .actor, .zzz { animation: none !important; } .story-camera { animation: none !important; } }
 
 /* ---------- helper character ---------- */
-.helper { position: fixed; z-index: 45; right: 1.5vw; top: calc(max(10px, env(safe-area-inset-top)) + 160px); display: flex; flex-direction: row; align-items: flex-start; gap: 14px; pointer-events: none; animation: helper-in 520ms var(--ease-bounce) both; }
+.helper { position: fixed; z-index: 45; right: 1.5vw; top: calc(max(10px, env(safe-area-inset-top)) + 56px); display: flex; flex-direction: row; align-items: flex-start; gap: 14px; pointer-events: none; animation: helper-in 520ms var(--ease-bounce) both; }
 .helper.leaving { animation: helper-out 420ms var(--ease-out) both; }
-.helper-char { flex: none; width: clamp(90px, 12vw, 160px); filter: drop-shadow(0 10px 10px rgba(43, 33, 64, 0.25)); }
+.helper-char { flex: none; width: clamp(64px, 6.5vw, 96px); filter: drop-shadow(0 10px 10px rgba(43, 33, 64, 0.25)); }
 .helper-char .critter { width: 100%; height: auto; }
-.helper-bubble { max-width: min(420px, 62vw); margin-top: 26px; }
+.helper-bubble { max-width: min(320px, 25vw); margin-top: 4px; font-size: 0.95rem; padding: 8px 12px; }
 @keyframes helper-in { from { transform: translateX(120%) rotate(8deg); } }
 @keyframes helper-out { to { transform: translateX(130%) rotate(-6deg); opacity: 0; } }
 /* small screens: the helper speaks over the prompt row (never over objects or answers) */
@@ -314,3 +314,5 @@
 .how-it-works summary { font-weight: 800; cursor: pointer; min-height: 32px; }
 .how-it-works ul { margin: 6px 0 0; padding-left: 18px; line-height: 1.45; font-size: 0.95rem; }
 .how-it-works li { margin-bottom: 4px; }
+/* portrait tablets: same as desktop — beside the prompt pill, above the play area */
+@media (orientation: portrait) and (min-width: 700px) { .helper { top: calc(max(10px, env(safe-area-inset-top)) + 56px); left: auto; right: 1.5vw; } .helper-char { width: 80px; } .helper-bubble { max-width: min(300px, 30vw); margin-top: 4px; font-size: 0.95rem; } }

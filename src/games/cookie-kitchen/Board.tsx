@@ -88,7 +88,8 @@ export function CookieBoard({ st, act, alongIndex }: BoardProps) {
   const [drag, setDrag] = useState<Drag | null>(null);
   const dragRef = useRef<Drag | null>(null);
   const [hot, setHot] = useState<number | null>(null); // plate under the dragged cookie (−1 = tray)
-  const suppressClick = useRef(false);
+  /** Time of the last drag release: the click the browser fires right after it is ignored (event timestamps, so a busy device never swallows a later tap). */
+  const suppressClick = useRef(-Infinity);
   const [moves, setMoves] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
   const [zoneRef, zone] = useSize<HTMLDivElement>();
@@ -188,8 +189,7 @@ export function CookieBoard({ st, act, alongIndex }: BoardProps) {
     const up = (e: PointerEvent) => {
       const d = dragRef.current;
       if (d?.active) {
-        suppressClick.current = true;
-        window.setTimeout(() => (suppressClick.current = false), 60);
+        suppressClick.current = e.timeStamp;
         const t = targetAt(e.clientX, e.clientY);
         if (t !== null && t >= 0 && t !== d.plate) place(d.cookie, t);
         else if (t === -1 && d.from === "plate") place(d.cookie, -1);
@@ -280,7 +280,7 @@ export function CookieBoard({ st, act, alongIndex }: BoardProps) {
                     }
                   }}
                   onClick={(e) => {
-                    if (suppressClick.current || !canAct) return;
+                    if (e.timeStamp - suppressClick.current < 80 || !canAct) return;
                     ping();
                     if (selected === i) return setSelected(null);
                     setSelected(i);
@@ -331,7 +331,7 @@ export function CookieBoard({ st, act, alongIndex }: BoardProps) {
                     if (selected === null && top !== undefined) startDrag(e, "plate", top, k);
                   }}
                   onClick={(e) => {
-                    if (suppressClick.current || !canAct) return;
+                    if (e.timeStamp - suppressClick.current < 80 || !canAct) return;
                     if (selected !== null) return place(selected, k, e.detail === 0);
                     if (top !== undefined) place(top, -1);
                   }}
