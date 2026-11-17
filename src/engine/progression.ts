@@ -8,8 +8,9 @@ import type { Difficulty, Exercise, ExerciseResult, ProgressionConfig, Progressi
  *  R2  First-try success increments the streak; at `stepUpAfter` the difficulty rises one band (capped) and the streak resets.
  *  R3  Needing `stepDownAtAttempts` or more attempts lowers difficulty one band (floored at 1) and resets the streak.
  *  R4  Any other success (e.g. second try) resets the streak and keeps difficulty.
- *  R5  The next exercise is the first unplayed one at the current difficulty whose interaction/answer kind differs
- *      from the previous one; if none, any unplayed at that difficulty; then nearest difficulty (lower first).
+ *  R5  The next exercise is an unplayed one at the current difficulty, preferring (a) an interaction/answer kind
+ *      different from the previous one, then (b) the kind played least so far this round, then (c) pool order;
+ *      if the difficulty is exhausted, the nearest difficulty (lower first).
  *  R6  The round ends after `roundLength` exercises.
  */
 
@@ -79,11 +80,18 @@ export function selectNextExercise(pool: { readonly exercises: readonly Exercise
   const order: number[] = [state.difficulty];
   for (let delta = 1; delta <= maxD; delta++) order.push(state.difficulty - delta, state.difficulty + delta);
 
+  const used = new Map<string, number>();
+  for (const id of state.played) {
+    const e = all.find((x) => x.id === id);
+    if (e) used.set(variety(e), (used.get(variety(e)) ?? 0) + 1);
+  }
   for (const d of order) {
     const atLevel = unplayed.filter((e) => e.difficulty === d && !e.tutorial);
     if (atLevel.length === 0) continue;
-    const varied = atLevel.find((e) => !last || variety(e) !== variety(last));
-    return varied ?? atLevel[0];
+    const varied = atLevel.filter((e) => !last || variety(e) !== variety(last));
+    const pool = varied.length ? varied : atLevel;
+    // stable: least-used kind wins, ties keep pool order
+    return pool.reduce((best, e) => ((used.get(variety(e)) ?? 0) < (used.get(variety(best)) ?? 0) ? e : best), pool[0]!);
   }
   return unplayed[0];
 }

@@ -1,31 +1,29 @@
 import { Suspense, lazy, useEffect } from "react";
+import { getWorld } from "../content/registry";
+import type { World } from "../content/types";
 import { AppProvider, useApp } from "./AppContext";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { MapScreen } from "./MapScreen";
 import { AgeScreen, GamesScreen, GrownUpsScreen, HomeScreen } from "./screens";
 import { Onboarding } from "../onboarding/Onboarding";
 
-// Game code + art is lazy-loaded so the home screen stays light.
-const CountingAdventure = lazy(() => import("../games/counting-adventure/CountingAdventure"));
-const SkyBalloonRace = lazy(() => import("../games/sky-balloon-race/SkyBalloonRace"));
-const GlowCaveHops = lazy(() => import("../games/glow-cave-hops/GlowCaveHops"));
-const CookieKitchen = lazy(() => import("../games/cookie-kitchen/CookieKitchen"));
-const GAMES: Record<string, React.LazyExoticComponent<() => React.JSX.Element>> = {
-  "counting-adventure": CountingAdventure,
-  "sky-balloon-race": SkyBalloonRace,
-  "glow-cave-hops": GlowCaveHops,
-  "cookie-kitchen": CookieKitchen,
-};
+// Worlds come from the content registry (src/content/packs/*); game code + art is lazy-loaded so the home screen stays light.
+const lazyGames = new Map<string, React.LazyExoticComponent<React.ComponentType>>();
+function gameComponent(world: World) {
+  let C = lazyGames.get(world.id);
+  if (!C) {
+    C = lazy(world.load);
+    lazyGames.set(world.id, C);
+  }
+  return C;
+}
+const worldTitle = (w: World) => `${w.title} — ${w.gameType} (ages ${w.ages[0]}–${w.ages[1]}) — BrainZippy`;
 // Voice studio: development-only tool for recording human voice takes (never shipped in production builds).
 const Studio = import.meta.env.DEV ? lazy(() => import("../studio/Studio")) : null;
 
 const TITLES: Record<string, string> = {
   "/": "BrainZippy — Learning games for kids",
   "/play": "Choose your age — BrainZippy",
-  "/play/counting-adventure": "Bobbo's Breakfast — counting game (ages 4–6) — BrainZippy",
-  "/play/sky-balloon-race": "Sky Balloon Race — addition game — BrainZippy",
-  "/play/glow-cave-hops": "Glow Cave Hops — number line game — BrainZippy",
-  "/play/cookie-kitchen": "Cookie Kitchen — sharing game — BrainZippy",
   "/grown-ups": "For grown-ups — BrainZippy",
   "/hello": "Welcome — BrainZippy",
   "/map": "Monster Island — BrainZippy",
@@ -34,7 +32,8 @@ const TITLES: Record<string, string> = {
 function Router() {
   const { path } = useApp();
   useEffect(() => {
-    document.title = TITLES[path] ?? "BrainZippy";
+    const world = getWorld(path.match(/^\/play\/([a-z0-9-]+)$/)?.[1] ?? "");
+    document.title = world ? worldTitle(world) : (TITLES[path] ?? "BrainZippy");
   }, [path]);
 
   if (path === "/") return <HomeScreen />;
@@ -48,8 +47,9 @@ function Router() {
         <Studio />
       </Suspense>
     );
-  const game = path.match(/^\/play\/([a-z-]+)$/)?.[1];
-  const Game = game ? GAMES[game] : undefined;
+  const game = path.match(/^\/play\/([a-z0-9-]+)$/)?.[1];
+  const world = game ? getWorld(game) : undefined;
+  const Game = world ? gameComponent(world) : undefined;
   if (Game)
     return (
       <Suspense fallback={<Loading />}>

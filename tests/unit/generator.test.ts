@@ -119,6 +119,23 @@ describe("counting-adventure generator: content", () => {
     expect(levelAfterRound(0, st.results, cfg)).toEqual({ level: 1, leveledUp: true });
   });
 
+  it("every round, at every level and pace, offers all three interactions (R5 least-used)", () => {
+    const cfg = countingAdventure.progression;
+    for (const seed of SEEDS.slice(0, 20))
+      for (let level = 0; level <= cfg.maxLevel; level++)
+        for (const attempts of [1, 2, 3]) {
+          const round = buildRound(countingAdventure, { level, seed });
+          let st = initialProgression(cfg, startDifficultyFor(level, cfg));
+          const kinds = new Set<string>();
+          while (!isRoundComplete(st, cfg)) {
+            const ex = selectNextExercise(round, st)!;
+            kinds.add(ex.interaction);
+            st = applyResult(markPlayed(st, ex.id), { exerciseId: ex.id, skillId: ex.skillId, difficulty: ex.difficulty, attempts, firstTry: attempts === 1, hintsShown: attempts - 1 }, cfg);
+          }
+          expect(kinds.size, `seed ${seed} level ${level} attempts ${attempts}`).toBe(3);
+        }
+  });
+
   it("a struggling child at level 0 only meets quantities 1–3", () => {
     const cfg = countingAdventure.progression;
     const round = buildRound(countingAdventure, { level: 0, seed: 31 });
