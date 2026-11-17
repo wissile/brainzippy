@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BrainZippy — three creative directions</title>
+<style>
+  :root { --ink:#2B2140; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: "Nunito", system-ui, sans-serif; color: var(--ink); background:#F6F3EC; }
+  header { padding: 28px 32px 8px; }
+  h1 { font-family: "Baloo 2", system-ui, sans-serif; font-size: 2.4rem; margin: 0; }
+  header p { max-width: 900px; margin: 6px 0 0; }
+  .grid { display:grid; grid-template-columns: repeat(3, 1fr); gap: 22px; padding: 22px 32px; }
+  .concept { background:#fff; border-radius: 22px; overflow:hidden; box-shadow: 0 6px 0 rgba(43,33,64,.12); display:flex; flex-direction:column; }
+  .concept.pick { outline: 6px solid #FFD43B; }
+  .tag { font-weight:800; font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; opacity:.7; }
+  .meta { padding: 16px 18px 18px; font-size: .95rem; line-height:1.45; }
+  .meta h2 { margin: 2px 0 6px; font-size: 1.6rem; }
+  .meta dl { display:grid; grid-template-columns: 112px 1fr; gap: 4px 10px; margin: 10px 0 0; }
+  .meta dt { font-weight: 800; }
+  .meta dd { margin: 0; }
+  .sw { display:flex; gap:6px; margin:8px 0; }
+  .sw i { width: 30px; height: 30px; border-radius: 50%; border: 2px solid rgba(0,0,0,.2); }
+  .stage { position: relative; aspect-ratio: 16/10; overflow:hidden; }
+  .stage svg { position:absolute; inset:0; width:100%; height:100%; }
+  /* A: Critter Crew */
+  .a .stage { background: linear-gradient(#8FD3FF, #D9F1FF 58%, #7FD27A 58.3%); }
+  .a .pill { position:absolute; left:50%; top:7%; transform:translateX(-50%); padding:6px 18px; border-radius:99px; background:linear-gradient(#8FD0FF,#3B8EEA); border:4px solid #FFF6DA; color:#fff; font:800 1.1rem "Baloo 2", system-ui; -webkit-text-stroke:1px #1c4fa0; box-shadow:0 4px 0 #2468C4; white-space:nowrap; }
+  .a .choices { position:absolute; bottom:6%; left:40%; display:flex; gap:8px; }
+  .a .choices b { width:46px; height:46px; border-radius:14px; display:grid; place-items:center; background:linear-gradient(#8AE86F,#45B83A); border:3px solid #FFF6DA; color:#fff; font:800 1.4rem "Baloo 2"; box-shadow:0 4px 0 #2D8A27; }
+  /* B: Paper Garden */
+  .b .stage { background: #F4E9D4; }
+  .b .pill { position:absolute; left:50%; top:7%; transform:translateX(-50%) rotate(-1.5deg); padding:6px 16px; background:#fff; color:#3D5A40; font: 700 1.05rem Georgia, serif; box-shadow: 3px 3px 0 #C9B48E; white-space:nowrap; }
+  .b .choices { position:absolute; bottom:6%; left:40%; display:flex; gap:10px; }
+  .b .choices b { width:46px; height:46px; border-radius:50%; display:grid; place-items:center; background:#E9A178; color:#fff; font: 700 1.3rem Georgia, serif; box-shadow: 2px 3px 0 #B9744E; }
+  /* C: Star Arcade */
+  .c .stage { background: radial-gradient(circle at 70% 20%, #3A2A8C, #120B33 70%); }
+  .c .pill { position:absolute; left:50%; top:7%; transform:translateX(-50%); padding:6px 18px; border-radius:10px; background:#120B33; border:2px solid #4FF3FF; color:#4FF3FF; font: 800 1.05rem ui-monospace, monospace; box-shadow: 0 0 14px #4FF3FF; white-space:nowrap; letter-spacing:.06em; }
+  .c .choices { position:absolute; bottom:6%; left:40%; display:flex; gap:10px; }
+  .c .choices b { width:46px; height:46px; border-radius:10px; display:grid; place-items:center; background:transparent; border:2px solid #FF4FD8; color:#FF4FD8; font: 800 1.3rem ui-monospace, monospace; box-shadow: 0 0 12px #FF4FD8; }
+  table { border-collapse: collapse; margin: 0 32px 18px; background:#fff; border-radius: 16px; overflow:hidden; }
+  th, td { padding: 9px 14px; border-bottom: 1px solid #eee; text-align:center; }
+  th:first-child, td:first-child { text-align:left; }
+  thead th { background: var(--ink); color:#fff; }
+  .rec { margin: 0 32px 40px; max-width: 980px; line-height:1.55; }
+  .bob { animation: bob 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+  @keyframes bob { 50% { transform: translateY(-6px) scale(1.02,.98); } }
+  @media (prefers-reduced-motion: reduce) { .bob { animation: none; } }
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>BrainZippy — three original creative directions</h1>
+  <p>Each concept shows the same moment of Counting Adventure ("How many?") so they can be compared like for like. All artwork is original and drawn in code. Concept A is built from the owner's Critter Crew sheet; B and C are alternatives explored for comparison.</p>
+</header>
+<section class="grid">
+  <article class="concept a pick">
+    <div class="stage">
+      <svg viewBox="0 0 320 200" aria-hidden="true">
+        <rect x="104" y="46" width="200" height="104" rx="14" fill="#FF8F86" stroke="#fff" stroke-width="4"/>
+        <g fill="#FF5A4E" stroke="#2B2140" stroke-width="2.5"><circle cx="150" cy="96" r="14"/><circle cx="204" cy="86" r="14"/><circle cx="256" cy="104" r="14"/></g>
+        <g class="bob"><path d="M50 108 C68 108 80 136 80 152 C80 168 66 176 50 176 C34 176 20 168 20 152 C20 136 32 108 50 108Z" fill="#FF9F43" stroke="#2B2140" stroke-width="3"/>
+        <path d="M45 112 L50 92 L55 112Z" fill="#FFE6BA" stroke="#2B2140" stroke-width="2.5"/>
+        <circle cx="42" cy="136" r="7" fill="#fff" stroke="#2B2140" stroke-width="2.5"/><circle cx="58" cy="136" r="7" fill="#fff" stroke="#2B2140" stroke-width="2.5"/>
+        <circle cx="43" cy="137" r="3" fill="#2B2140"/><circle cx="59" cy="137" r="3" fill="#2B2140"/>
+        <path d="M44 150 Q50 156 56 150" fill="none" stroke="#2B2140" stroke-width="2.5" stroke-linecap="round"/></g>
+      </svg>
+      <div class="pill">How many apples?</div>
+      <div class="choices"><b>2</b><b>3</b><b>4</b></div>
+    </div>
+    <div class="meta">
+      <span class="tag">Concept A · Recommended</span>
+      <h2>Critter Crew</h2>
+      <div class="sw"><i style="background:#FF9F43"></i><i style="background:#8E6CEF"></i><i style="background:#2EC4B6"></i><i style="background:#6BCB77"></i><i style="background:#4D96FF"></i><i style="background:#FF8FB1"></i><i style="background:#FFD43B"></i><i style="background:#2B2140"></i></div>
+      <dl>
+        <dt>Typography</dt><dd>Baloo 2 (display, chunky numerals) + Nunito</dd>
+        <dt>Mascots</dt><dd>Six round "learning buddies", one per subject, shared shape kit, ink outlines</dd>
+        <dt>Illustration</dt><dd>Flat vector with soft highlight strokes, bright daylight scenes</dd>
+        <dt>Buttons/nav</dt><dd>Glossy 3D pills that sink on press; icon-first nav</dd>
+        <dt>Motion</dt><dd>Bouncy squash-and-stretch, playful but brief</dd>
+        <dt>Game layout</dt><dd>Prompt pill top · play surface centre · mascot left · answers bottom</dd>
+        <dt>Rewards</dt><dd>Stars track + collectible character stickers</dd>
+        <dt>Ages</dt><dd>Strongest 3–9; extends to 10–14 with calmer "big kid" skin</dd>
+      </dl>
+    </div>
+  </article>
+  <article class="concept b">
+    <div class="stage">
+      <svg viewBox="0 0 320 200" aria-hidden="true">
+        <defs><filter id="paper"><feTurbulence baseFrequency=".9" numOctaves="2" result="n"/><feColorMatrix type="saturate" values="0"/><feBlend in="SourceGraphic" mode="multiply"/></filter></defs>
+        <path d="M0 150 Q80 120 160 140 T320 130 V200 H0Z" fill="#A8C69F"/>
+        <path d="M0 170 Q100 150 200 168 T320 160 V200 H0Z" fill="#7FA87A"/>
+        <g transform="translate(140 60)"><circle r="16" fill="#D9573B"/><circle cx="58" cy="10" r="16" fill="#D9573B"/><circle cx="112" cy="-4" r="16" fill="#D9573B"/></g>
+        <g class="bob"><ellipse cx="54" cy="140" rx="30" ry="34" fill="#8FB8DE"/><ellipse cx="54" cy="150" rx="18" ry="16" fill="#DCEAF5"/>
+        <path d="M34 112 Q30 92 40 96 M74 112 Q78 92 68 96" stroke="#5A7FA6" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="46" cy="130" r="3.5" fill="#2E3A45"/><circle cx="62" cy="130" r="3.5" fill="#2E3A45"/>
+        <path d="M48 140 Q54 144 60 140" stroke="#2E3A45" stroke-width="2" fill="none"/></g>
+      </svg>
+      <div class="pill">How many apples?</div>
+      <div class="choices"><b>2</b><b>3</b><b>4</b></div>
+    </div>
+    <div class="meta">
+      <span class="tag">Concept B</span>
+      <h2>Paper Garden</h2>
+      <div class="sw"><i style="background:#F4E9D4"></i><i style="background:#A8C69F"></i><i style="background:#7FA87A"></i><i style="background:#D9573B"></i><i style="background:#E9A178"></i><i style="background:#8FB8DE"></i><i style="background:#3D5A40"></i></div>
+      <dl>
+        <dt>Typography</dt><dd>Serif storybook headings + rounded sans body</dd>
+        <dt>Mascots</dt><dd>Cut-paper woodland animals, no outlines</dd>
+        <dt>Illustration</dt><dd>Torn-paper layers, paper grain, muted earth tones</dd>
+        <dt>Buttons/nav</dt><dd>Paper tokens with offset shadow; slight rotation</dd>
+        <dt>Motion</dt><dd>Gentle paper flutter, page-turn transitions</dd>
+        <dt>Game layout</dt><dd>Same structure, more negative space</dd>
+        <dt>Rewards</dt><dd>Pressed-flower collection book</dd>
+        <dt>Ages</dt><dd>Calm, best 3–6; reads young for 9+</dd>
+      </dl>
+    </div>
+  </article>
+  <article class="concept c">
+    <div class="stage">
+      <svg viewBox="0 0 320 200" aria-hidden="true">
+        <g fill="#fff" opacity=".8"><circle cx="30" cy="30" r="1.5"/><circle cx="90" cy="60" r="1"/><circle cx="280" cy="40" r="1.5"/><circle cx="220" cy="20" r="1"/><circle cx="300" cy="120" r="1"/></g>
+        <rect x="108" y="52" width="196" height="96" rx="8" fill="none" stroke="#4FF3FF" stroke-width="2" opacity=".7"/>
+        <g fill="none" stroke="#FFE066" stroke-width="3" style="filter:drop-shadow(0 0 4px #FFE066)"><circle cx="152" cy="100" r="13"/><circle cx="206" cy="92" r="13"/><circle cx="258" cy="106" r="13"/></g>
+        <g class="bob"><rect x="26" y="104" width="52" height="64" rx="18" fill="#1B1450" stroke="#7CFF6B" stroke-width="3" style="filter:drop-shadow(0 0 6px #7CFF6B)"/>
+        <circle cx="52" cy="128" r="10" fill="#7CFF6B"/><circle cx="54" cy="128" r="4" fill="#120B33"/>
+        <path d="M52 104 V92" stroke="#7CFF6B" stroke-width="3"/><circle cx="52" cy="90" r="4" fill="#FF4FD8"/></g>
+      </svg>
+      <div class="pill">HOW MANY STARS?</div>
+      <div class="choices"><b>2</b><b>3</b><b>4</b></div>
+    </div>
+    <div class="meta">
+      <span class="tag">Concept C</span>
+      <h2>Star Arcade</h2>
+      <div class="sw"><i style="background:#120B33"></i><i style="background:#3A2A8C"></i><i style="background:#4FF3FF"></i><i style="background:#FF4FD8"></i><i style="background:#7CFF6B"></i><i style="background:#FFE066"></i></div>
+      <dl>
+        <dt>Typography</dt><dd>Monospace display + geometric sans</dd>
+        <dt>Mascots</dt><dd>Neon robot crew, line-art glow</dd>
+        <dt>Illustration</dt><dd>Dark space, glowing strokes, pixel accents</dd>
+        <dt>Buttons/nav</dt><dd>Outlined neon keys with glow</dd>
+        <dt>Motion</dt><dd>Fast arcade pulses and scanlines</dd>
+        <dt>Game layout</dt><dd>Same structure, HUD-style chrome</dd>
+        <dt>Rewards</dt><dd>Trophies, high-score style badges</dd>
+        <dt>Ages</dt><dd>Appeals 9–14; too intense for 3–6</dd>
+      </dl>
+    </div>
+  </article>
+</section>
+<table>
+  <thead><tr><th>Criterion (1–5)</th><th>A · Critter Crew</th><th>B · Paper Garden</th><th>C · Star Arcade</th></tr></thead>
+  <tbody>
+    <tr><td>Age appropriateness (3–14 span)</td><td>5</td><td>3</td><td>2</td></tr>
+    <tr><td>Visual coherence</td><td>5</td><td>4</td><td>4</td></tr>
+    <tr><td>Child usability (contrast, legibility, targets)</td><td>5</td><td>3</td><td>3</td></tr>
+    <tr><td>Distinctive branding</td><td>4</td><td>4</td><td>3</td></tr>
+    <tr><td>Accessibility (contrast, motion, photosensitivity)</td><td>4</td><td>4</td><td>2</td></tr>
+    <tr><td>Animation feasibility (SVG now, Rive later)</td><td>5</td><td>3</td><td>4</td></tr>
+    <tr><td>Reusability across games &amp; subjects</td><td>5</td><td>3</td><td>3</td></tr>
+    <tr><th>Total / 35</th><th>33</th><th>24</th><th>21</th></tr>
+  </tbody>
+</table>
+<div class="rec">
+  <h2>Recommendation: Concept A — Critter Crew</h2>
+  <p>It is the only direction that works for a 3-year-old and can mature for a 12-year-old without changing identity: the shape kit and palette stay, while scene complexity, text density and reward style scale with age. Its six subject buddies give every future game a built-in guide, and thick outlines plus flat fills keep numerals and objects readable on small phones. Flat vector parts map one-to-one onto SVG today and Rive bones later. Paper Garden is lovely but low-contrast and textures cost performance and animation effort; Star Arcade suits teens but dark neon with pulsing glow is harder on accessibility (contrast, photosensitivity) and feels intense for preschoolers. Implementation uses Concept A only.</p>
+</div>
+</body>
+</html>
