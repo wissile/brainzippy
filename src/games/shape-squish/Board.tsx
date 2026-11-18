@@ -51,7 +51,7 @@ export function gridFor(n: number, w: number, h: number, max = 150, gap = 10): {
   for (let cols = 1; cols <= Math.max(1, n); cols++) {
     const rows = Math.ceil(n / cols);
     const cell = Math.min((w - gap * (cols - 1)) / cols, (h - gap * (rows - 1)) / rows, max);
-    if (cell > best.cell + 0.5) best = { cols, cell };
+    if (cell >= best.cell - 0.5) best = { cols, cell }; // ties prefer the wider layout
   }
   return { cols: best.cols, cell: Math.max(64, Math.floor(best.cell)) };
 }
@@ -435,7 +435,9 @@ function SortBoard({ st, alongIndex, busy }: BoardProps) {
   const [srcRef, src] = useSize<HTMLDivElement>();
   const [binRef, bin] = useSize<HTMLDivElement>();
   const grid = gridFor(items.length, src.w, src.h, 140, 10);
-  const binGrid = gridFor(Math.max(2, items.length - 1), bin.w - 16, bin.h - 64, 96, 4);
+  const binW = (bin.w - 18) / targets.length - 20;
+  const binGrid = gridFor(Math.max(2, items.length - 2), binW, bin.h - 84, 96, 4);
+  const binCell = Math.min(binGrid.cell, 96);
   const [assign, setAssign] = useState<Record<string, string>>({});
   const [okLocked, setOkLocked] = useState<string[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -527,16 +529,19 @@ function SortBoard({ st, alongIndex, busy }: BoardProps) {
                   <span className="ss-bin-word">sides</span>
                   <span className="ss-tally" aria-hidden="true">{Array.from({ length: n }, (_, i) => <i key={i} />)}</span>
                 </button>
-                <div className="ss-jar-grid" style={{ gridTemplateColumns: `repeat(${Math.max(1, Math.floor((bin.w / targets.length - 16) / (Math.min(binGrid.cell, 96) + 4)))}, ${Math.min(binGrid.cell, 96)}px)` }}>
-                  {inside.map((it) => {
+                <div className="ss-jar-grid" style={{ gridTemplateColumns: `repeat(${Math.max(1, Math.floor((binW + 4) / (binCell + 4)))}, ${binCell}px)` }}>
+                  {inside.map((it, j) => {
                     const ok = okLocked.includes(it.id);
+                    const cols = Math.max(1, Math.floor((binW + 4) / (binCell + 4)));
+                    const rows = Math.ceil(inside.length / cols);
+                    const over = rows > 1 ? Math.max(0, (rows * (binCell + 4) - (bin.h - 80)) / (rows - 1)) : 0;
                     const isWrong = wrong && st.check?.parts?.[it.id] === false;
                     return (
                       <button
                         key={it.id}
                         type="button"
                         className={`ss-item in-jar ${ok ? "is-ok" : ""} ${isWrong ? "is-wrong" : ""} ${model ? "is-model" : ""}`}
-                        style={{ width: Math.min(binGrid.cell, 96), height: Math.min(binGrid.cell, 96) }}
+                        style={{ width: binCell, height: binCell, marginTop: j >= cols ? -Math.min(over, binCell * 0.3) : 0 }}
                         data-testid="sorted"
                         data-value={it.id}
                         data-ss-drag={it.id}
@@ -574,9 +579,13 @@ function ComposeBoard({ st, alongIndex, busy }: BoardProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [srcRef, src] = useSize<HTMLDivElement>();
   const [dstRef, dst] = useSize<HTMLDivElement>();
-  const grid = gridFor(options.length, src.w, src.h, 130, 8);
+  const grid = gridFor(options.length, src.w, src.h, 180, 8);
   const vertical = dst.h > dst.w * 1.15 && count === 2;
   const oSize = Math.max(120, Math.floor(Math.min(vertical ? dst.w : (dst.w - 16 * (count - 1)) / count, vertical ? (dst.h - 16) / 2 : dst.h, 340)));
+  // one scale for tray pieces and outlines, so a piece looks exactly as big as the part of the gate it fills
+  const k = Math.min(grid.cell / 152, oSize / 148);
+  const oDraw = Math.max(96, Math.floor(148 * k));
+  const pDraw = Math.floor(152 * k);
   const specs = useMemo(() => Object.fromEntries(options.map((o) => [o.id, pieceOf(o)])) as Record<string, PieceSpec>, [options]);
   const kindOf = (id: string) => specs[id]!.kind;
   const [boxes, setBoxes] = useState<string[][]>(() => Array.from({ length: count }, () => []));
@@ -679,7 +688,7 @@ function ComposeBoard({ st, alongIndex, busy }: BoardProps) {
                   onPointerDown={(e) => !out && start(e, o.id)}
                   onClick={(e) => onPiece(e, o.id)}
                 >
-                  <PieceArt spec={spec} />
+                  <span className="ss-piece-in" style={{ width: pDraw, height: pDraw }}><PieceArt spec={spec} /></span>
                 </button>
               );
             })}
@@ -691,7 +700,7 @@ function ComposeBoard({ st, alongIndex, busy }: BoardProps) {
               key={o}
               type="button"
               className={`ss-outline ${hot === `outline:${o}` || (selected && !locked) ? "hot" : ""} ${celebrate ? "is-right" : ""} ${model && st.phase === "answering" ? "is-model" : ""}`}
-              style={{ width: oSize, height: oSize }}
+              style={{ width: oDraw, height: oDraw }}
               data-testid="outline"
               data-value={o}
               data-used={usedCells(b.map(kindOf))}
@@ -711,7 +720,7 @@ function ComposeBoard({ st, alongIndex, busy }: BoardProps) {
         </div>
       </div>
       <p className="sr-only" aria-live="polite">{shownBoxes.map((_, o) => label(o)).join(" ")}</p>
-      <Ghost drag={drag} size={grid.cell * 1.1}>{dragged && <PieceArt spec={dragged} />}</Ghost>
+      <Ghost drag={drag} size={pDraw}>{dragged && <PieceArt spec={dragged} />}</Ghost>
     </div>
   );
 }

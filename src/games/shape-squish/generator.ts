@@ -104,7 +104,7 @@ function gate(level: number, rng: Rng, index: number): Omit<Exercise, "difficult
     const others = rng
       .shuffle(["circle", "square", "triangle", "rectangle", "hexagon"].filter((n) => n !== target && !(target === "rectangle" && n === "square")) as ShapeName[])
       .slice(0, count - 2);
-    const sizes = rng.shuffle([56, 70, 84, 98]);
+    const sizes = rng.shuffle([62, 74, 86, 98]);
     specs.push(shape(rng.pick(NAMED_KINDS[target]), rng, { turned: true, size: sizes[0]!, color: colors[0]! }));
     specs.push(shape(rng.pick(NEAR_MISS[target]), rng, { turned: true, size: sizes[1]!, color: colors[1]! }));
     others.forEach((n, i) => specs.push(shape(rng.pick(NAMED_KINDS[n]), rng, { turned: true, size: sizes[i + 2]!, color: colors[i + 2]! })));
@@ -136,7 +136,7 @@ function find(level: number, rng: Rng, index: number): Omit<Exercise, "difficult
   const target: ShapeName = index % 3 === 2 ? "square" : "triangle";
   const k = rng.int(2, 3);
   const colors = rng.shuffle([0, 1, 2, 3, 4, 5]);
-  const sizes = rng.shuffle([54, 62, 72, 82, 92, 100]);
+  const sizes = rng.shuffle([62, 68, 76, 84, 92, 100]);
   const targets: ShapeSpec[] =
     target === "triangle"
       ? rng.shuffle(TRIANGLE_KINDS).slice(0, k).map((kind, i) => shape(kind, rng, { turned: true, size: sizes[i]!, color: colors[i]! }))
@@ -173,7 +173,7 @@ function sort(level: number, rng: Rng, index: number): Omit<Exercise, "difficult
   const threes = rng.int(2, n - 2);
   // three colours shared across both jars, so colour can never be the sorting rule
   const palette = rng.shuffle([0, 1, 2, 3, 4, 5]).slice(0, 3);
-  const sizes = rng.shuffle([54, 62, 72, 82, 92, 100]);
+  const sizes = rng.shuffle([62, 68, 76, 84, 92, 100]);
   const kinds = [
     ...rng.shuffle(TRIANGLE_KINDS).slice(0, threes),
     ...rng.shuffle(QUAD_KINDS).slice(0, n - threes),

@@ -231,9 +231,7 @@ export function PondBackground({ className = "scene-bg" }: { className?: string 
       {/* hedge wall with three distant shaped gates */}
       <path d="M0 420 Q80 380 160 410 T320 400 T480 410 T640 396 T800 408 T960 398 T1120 410 T1280 396 T1440 408 T1600 400 L1600 640 L0 640 Z" fill="#3FA552" />
       <path d="M0 470 Q200 440 400 462 T800 456 T1200 462 T1600 452 L1600 640 L0 640 Z" fill="#4DB05E" />
-      <circle cx="300" cy="520" r="44" fill="#24324F" stroke="#C79A5A" strokeWidth="8" />
-      <rect x="740" y="476" width="88" height="88" rx="4" fill="#24324F" stroke="#C79A5A" strokeWidth="8" />
-      <path d="M1290 470 L1340 560 L1240 560 Z" fill="#24324F" stroke="#C79A5A" strokeWidth="8" strokeLinejoin="round" />
+      {[200, 560, 1000, 1400].map((x) => <path key={x} d={`M${x - 46} 560 L${x - 46} 500 Q${x} 446 ${x + 46} 500 L${x + 46} 560 Z`} fill="#2F8A43" opacity="0.55" />)}
       {[[120, 450], [520, 440], [980, 450], [1480, 444]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="9" fill={i % 2 ? "#FF8FB1" : "#FFE27A"} stroke={INK} strokeWidth="3" />)}
       {/* grass + pond */}
       <path d="M0 600 Q400 570 800 590 T1600 584 L1600 900 L0 900 Z" fill="#8EDB7E" />
