@@ -1,11 +1,23 @@
 import { isUuid } from "./validation";
 import { LIVE_SUB_STATUSES } from "../../src/billing/model";
-import { idOf, parseEvent, subscriptionFields, verifyStripeSignature, type StripeEvent, type StripeObject } from "./stripe";
+import { idOf, parseEvent, subscriptionFields, verifyStripeSignature, type StripeApi, type StripeEvent, type StripeObject } from "./stripe";
 
 /**
  * Webhook processing. Exactly-once: the event id is inserted in the SAME D1 batch (a transaction) as the state
  * change, with a plain INSERT on the primary key, so a concurrent duplicate fails and rolls back; a later duplicate is
- * answered from the stripe_events lookup. Out-of-order events are guarded by event.created (sub_event_at).
+ * answered from the stripe_events lookup.
+ *
+ * Ordering: Stripe doesn't guarantee delivery order, and event.created has 1-second resolution. For subscription
+ * events we therefore RE-FETCH the subscription from Stripe and derive state from that current object, not from the
+ * (possibly stale) payload. Consequences:
+ * - Two events in the same second, in either order, both write the current state.
+ * - A late `customer.subscription.created` for an old subscription reads its current status (e.g. canceled), so it
+ *   can't overwrite a newer live subscription (the upsert's WHERE keeps a live subscription unless the incoming one
+ *   is live too).
+ * - sub_event_at still skips an event older than the last applied one (its refetch adds nothing newer).
+ * - Unknown to Stripe (404): `deleted` events apply as canceled; other subscription events are ignored.
+ * - Stripe unreachable: the call throws → 500 → Stripe retries the event later (nothing recorded).
+ * Without a client (no secret key and not the dev fake) the payload is used as before.
  */
 export const HANDLED_EVENTS = [
   "checkout.session.completed",
@@ -17,17 +29,20 @@ export const HANDLED_EVENTS = [
 ] as const;
 
 export const MAX_WEBHOOK_BYTES = 512 * 1024;
-const EVENT_RETENTION_MS = 30 * 86_400_000;
+/** Processed event ids are kept this long for idempotency; purged by the daily job (worker/jobs/purge.ts). */
+export const STRIPE_EVENT_RETENTION_MS = 30 * 86_400_000;
 
 export type WebhookResult = { status: number; body: { received?: boolean; duplicate?: boolean; ignored?: boolean; error?: string } };
 
-export async function processWebhook(env: Env, payload: string, signature: string | null, secret: string, now = Date.now()): Promise<WebhookResult> {
+export type SubscriptionFetcher = Pick<StripeApi, "retrieveSubscription"> | null;
+
+export async function processWebhook(env: Env, payload: string, signature: string | null, secret: string, now = Date.now(), stripe: SubscriptionFetcher = null): Promise<WebhookResult> {
   if (!(await verifyStripeSignature(payload, signature, secret, Math.floor(now / 1000)))) return { status: 400, body: { error: "invalid_signature" } };
   const event = parseEvent(payload);
   if (!event) return { status: 400, body: { error: "invalid_event" } };
   const seen = await env.DB.prepare("SELECT 1 AS x FROM stripe_events WHERE id = ?").bind(event.id).first();
   if (seen) return { status: 200, body: { received: true, duplicate: true } };
-  const stmts = (HANDLED_EVENTS as readonly string[]).includes(event.type) ? await statementsFor(env, event, now) : [];
+  const stmts = (HANDLED_EVENTS as readonly string[]).includes(event.type) ? await statementsFor(env, await withCurrentSubscription(event, stripe), now) : [];
   const record = env.DB.prepare("INSERT INTO stripe_events (id, type, received_at) VALUES (?, ?, ?)").bind(event.id, event.type, now);
   try {
     await env.DB.batch([record, ...stmts]);
@@ -36,8 +51,18 @@ export async function processWebhook(env: Env, payload: string, signature: strin
     if (await env.DB.prepare("SELECT 1 AS x FROM stripe_events WHERE id = ?").bind(event.id).first()) return { status: 200, body: { received: true, duplicate: true } };
     throw e;
   }
-  if (Math.random() < 0.02) await env.DB.prepare("DELETE FROM stripe_events WHERE received_at < ?").bind(now - EVENT_RETENTION_MS).run();
   return { status: 200, body: stmts.length ? { received: true } : { received: true, ignored: true } };
+}
+
+/** For subscription events, replaces the payload object with Stripe's current one (see the header). Null object = ignore. */
+async function withCurrentSubscription(event: StripeEvent, stripe: SubscriptionFetcher): Promise<StripeEvent> {
+  if (!stripe || !event.type.startsWith("customer.subscription.")) return event;
+  const id = idOf(event.data.object.id);
+  if (!id || !/^sub_[A-Za-z0-9_]{1,250}$/.test(id)) return { ...event, data: { object: {} } };
+  const current = await stripe.retrieveSubscription(id); // throws on network/5xx → 500 → Stripe retries
+  if (current && idOf(current.id) === id) return { ...event, data: { object: current } };
+  if (event.type === "customer.subscription.deleted") return { ...event, data: { object: { ...event.data.object, status: "canceled" } } };
+  return { ...event, data: { object: {} } }; // Stripe doesn't know it: ignore
 }
 
 async function parentExists(env: Env, id: string | null): Promise<boolean> {

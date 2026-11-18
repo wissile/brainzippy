@@ -1,7 +1,7 @@
 import type { Ctx, Route } from "../router";
 import { WORLDS } from "../../src/account/catalog";
 import { ownChild, requireParent } from "../lib/auth";
-import { rowMonster } from "../lib/children";
+import { rowMonster, rowPublicName } from "../lib/children";
 import { appOrigin } from "../lib/config";
 import { randomToken, sha256Hex } from "../lib/crypto";
 import { err, json, readJson } from "../lib/http";
@@ -26,14 +26,14 @@ interface ChallengeRow {
   created_at: number;
   expires_at: number;
   from_parent: string;
-  monster_name: string;
+  public_name: string | null;
   monster_json: string;
 }
 
 async function loadChallenge(c: Ctx, token: string | undefined): Promise<ChallengeRow | null> {
   if (!token || !CHALLENGE_TOKEN_RE.test(token)) return null;
   return c.env.DB.prepare(
-    `SELECT ch.*, k.parent_id AS from_parent, k.monster_name, k.monster_json FROM challenges ch JOIN children k ON k.id = ch.from_child
+    `SELECT ch.*, k.parent_id AS from_parent, k.public_name, k.monster_json FROM challenges ch JOIN children k ON k.id = ch.from_child
      WHERE ch.token_hash = ? AND ch.expires_at > ?`,
   )
     .bind(await sha256Hex(token), Date.now())
@@ -44,16 +44,16 @@ async function loadChallenge(c: Ctx, token: string | undefined): Promise<Challen
 async function eligibleChildren(c: Ctx, parentId: string, fromChild: string) {
   return (
     await c.env.DB.prepare(
-      `SELECT k.id, k.monster_name FROM children k JOIN friendships f
+      `SELECT k.id, k.public_name FROM children k JOIN friendships f
          ON ((f.child_a = k.id AND f.child_b = ?1) OR (f.child_b = k.id AND f.child_a = ?1))
        WHERE k.parent_id = ?2 AND f.approved_a = 1 AND f.approved_b = 1 ORDER BY k.created_at`,
     )
       .bind(fromChild, parentId)
-      .all<{ id: string; monster_name: string }>()
+      .all<{ id: string; public_name: string | null }>()
   ).results;
 }
 
-export const routes: Route[] = [
+const featureRoutes: Route[] = [
   {
     method: "POST",
     path: "/api/challenges",
@@ -67,7 +67,7 @@ export const routes: Route[] = [
       if (!isWorldId(worldId) || !world || !isInt(level, 0, world.maxLevel) || !isInt(seed, 0, 2_147_483_647) || !isInt(score, 0, MAX_SCORE)) return err("invalid_body", 400);
       const child = await ownChild(c, s, typeof body.childId === "string" ? body.childId : undefined);
       if (child instanceof Response) return child;
-      if (!(await allow(c.env, LIMITS.challengePerParent, s.parentId))) return err("rate_limited", 429);
+      if (!(await allow(c.env, LIMITS.challengePerParent, s.parentId, c.url))) return err("rate_limited", 429);
       const token = randomToken(16);
       const now = Date.now();
       await c.env.DB.prepare("INSERT INTO challenges (id, token_hash, from_child, world_id, level, seed, score, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
@@ -89,10 +89,10 @@ export const routes: Route[] = [
       if (!mine && players.length === 0) return err("not_found", 404); // not a friend: indistinguishable from a missing challenge
       const results = (
         await c.env.DB.prepare(
-          `SELECT r.child_id, r.score, k.monster_name, k.parent_id FROM challenge_results r JOIN children k ON k.id = r.child_id WHERE r.challenge_id = ? ORDER BY r.created_at`,
+          `SELECT r.child_id, r.score, k.public_name, k.parent_id FROM challenge_results r JOIN children k ON k.id = r.child_id WHERE r.challenge_id = ? ORDER BY r.created_at`,
         )
           .bind(ch.id)
-          .all<{ child_id: string; score: number; monster_name: string; parent_id: string }>()
+          .all<{ child_id: string; score: number; public_name: string | null; parent_id: string }>()
       ).results.filter((r) => mine || r.parent_id === s.parentId);
       return json({
         worldId: ch.world_id,
@@ -101,9 +101,9 @@ export const routes: Route[] = [
         score: ch.score,
         expiresAt: ch.expires_at,
         mine,
-        from: { monsterName: ch.monster_name, monster: rowMonster(ch) },
-        players: players.map((p) => ({ id: p.id, monsterName: p.monster_name })),
-        results: results.map((r) => ({ childId: r.parent_id === s.parentId ? r.child_id : undefined, monsterName: r.monster_name, score: r.score, beat: r.score > ch.score })),
+        from: { publicName: rowPublicName({ id: ch.from_child, public_name: ch.public_name }), monster: rowMonster(ch) },
+        players: players.map((p) => ({ id: p.id, publicName: rowPublicName(p) })),
+        results: results.map((r) => ({ childId: r.parent_id === s.parentId ? r.child_id : undefined, publicName: rowPublicName({ id: r.child_id, public_name: r.public_name }), score: r.score, beat: r.score > ch.score })),
       });
     },
   },
@@ -141,28 +141,31 @@ export const routes: Route[] = [
       const now = Date.now();
       const [sent, played] = await c.env.DB.batch([
         c.env.DB.prepare(
-          `SELECT ch.id, ch.world_id, ch.score, ch.created_at, r.score AS their_score, k.monster_name AS their_name
+          `SELECT ch.id, ch.world_id, ch.score, ch.created_at, r.score AS their_score, k.id AS their_id, k.public_name AS their_name
            FROM challenges ch LEFT JOIN challenge_results r ON r.challenge_id = ch.id LEFT JOIN children k ON k.id = r.child_id
            WHERE ch.from_child = ? AND ch.expires_at > ? ORDER BY ch.created_at DESC LIMIT 50`,
         ).bind(child.id, now),
         c.env.DB.prepare(
-          `SELECT ch.id, ch.world_id, ch.score AS their_score, r.score AS my_score, k.monster_name AS their_name, r.created_at
+          `SELECT ch.id, ch.world_id, ch.score AS their_score, r.score AS my_score, k.id AS their_id, k.public_name AS their_name, r.created_at
            FROM challenge_results r JOIN challenges ch ON ch.id = r.challenge_id JOIN children k ON k.id = ch.from_child
            WHERE r.child_id = ? ORDER BY r.created_at DESC LIMIT 50`,
         ).bind(child.id),
       ]);
-      type SentRow = { id: string; world_id: string; score: number; created_at: number; their_score: number | null; their_name: string | null };
-      const byId = new Map<string, { id: string; worldId: string; score: number; createdAt: number; results: { monsterName: string; score: number; beat: boolean }[] }>();
+      type SentRow = { id: string; world_id: string; score: number; created_at: number; their_score: number | null; their_id: string | null; their_name: string | null };
+      const byId = new Map<string, { id: string; worldId: string; score: number; createdAt: number; results: { publicName: string; score: number; beat: boolean }[] }>();
       for (const r of (sent?.results ?? []) as SentRow[]) {
         const e = byId.get(r.id) ?? { id: r.id, worldId: r.world_id, score: r.score, createdAt: r.created_at, results: [] };
-        if (r.their_name !== null && r.their_score !== null) e.results.push({ monsterName: r.their_name, score: r.their_score, beat: r.their_score > r.score });
+        if (r.their_id !== null && r.their_score !== null) e.results.push({ publicName: rowPublicName({ id: r.their_id, public_name: r.their_name }), score: r.their_score, beat: r.their_score > r.score });
         byId.set(r.id, e);
       }
-      type PlayedRow = { id: string; world_id: string; their_score: number; my_score: number; their_name: string };
+      type PlayedRow = { id: string; world_id: string; their_score: number; my_score: number; their_id: string; their_name: string | null };
       return json({
         sent: [...byId.values()],
-        played: ((played?.results ?? []) as PlayedRow[]).map((r) => ({ id: r.id, worldId: r.world_id, from: r.their_name, target: r.their_score, score: r.my_score, beat: r.my_score > r.their_score })),
+        played: ((played?.results ?? []) as PlayedRow[]).map((r) => ({ id: r.id, worldId: r.world_id, from: rowPublicName({ id: r.their_id, public_name: r.their_name }), target: r.their_score, score: r.my_score, beat: r.my_score > r.their_score })),
       });
     },
   },
 ];
+
+/** Behind FRIENDS_ENABLED (off in production until a lawyer decides on verifiable parental consent). */
+export const routes: Route[] = featureRoutes.map((r) => ({ ...r, feature: "friends" }));

@@ -2,7 +2,7 @@ import { hmacHex, safeEqual } from "./crypto";
 import { isDev } from "./config";
 
 /**
- * Minimal Stripe REST client over fetch (no SDK): three calls, form-encoded, pinned API version.
+ * Minimal Stripe REST client over fetch (no SDK): a handful of calls, form-encoded, pinned API version.
  * Why not stripe-node: it does run on Workers (createFetchHttpClient + createSubtleCryptoProvider), but we need only
  * three endpoints and webhook verification; plain fetch keeps the bundle small and lets tests point STRIPE_API_BASE
  * at a stub. See docs/BILLING.md.
@@ -45,6 +45,13 @@ export interface StripeApi {
   createCheckoutSession(p: CheckoutParams): Promise<{ id: string; url: string }>;
   createPortalSession(p: { customerId: string; returnUrl: string; cancelSubscriptionId?: string }): Promise<{ url: string }>;
   cancelSubscriptionNow(subscriptionId: string): Promise<void>;
+  /**
+   * Current state of a subscription (GET /v1/subscriptions/:id), or null if Stripe doesn't know it (404). Webhooks
+   * derive state from this rather than from the event payload, so out-of-order or late events can't apply stale data.
+   */
+  retrieveSubscription(subscriptionId: string): Promise<StripeObject | null>;
+  /** Account deletion: removes the Customer (and its saved payment methods) from Stripe. 404 = already gone. */
+  deleteCustomer(customerId: string): Promise<void>;
 }
 
 export class StripeError extends Error {
@@ -57,12 +64,10 @@ export class StripeError extends Error {
   }
 }
 
-const isLocalhost = (url: URL) => url.hostname === "localhost" || url.hostname === "127.0.0.1";
-
 export function stripeMode(env: Env, url: URL): "live" | "fake" | null {
   const e = benv(env);
   if (e.STRIPE_SECRET_KEY && e.STRIPE_PRICE_ID) return "live";
-  if (!e.STRIPE_SECRET_KEY && isDev(env) && isLocalhost(url)) return "fake";
+  if (!e.STRIPE_SECRET_KEY && isDev(env, url)) return "fake"; // isDev includes the localhost check
   return null;
 }
 
@@ -81,11 +86,11 @@ export function encodeForm(obj: Record<string, unknown>, prefix = "", out = new 
 export function liveStripe(env: Env): StripeApi {
   const e = benv(env);
   const base = (e.STRIPE_API_BASE || "https://api.stripe.com").replace(/\/$/, "");
-  async function call<T>(method: "POST" | "DELETE", path: string, params: Record<string, unknown> = {}): Promise<T> {
+  async function call<T>(method: "GET" | "POST" | "DELETE", path: string, params: Record<string, unknown> = {}): Promise<T> {
     const res = await fetch(`${base}${path}`, {
       method,
-      headers: { authorization: `Bearer ${e.STRIPE_SECRET_KEY}`, "content-type": "application/x-www-form-urlencoded", "stripe-version": STRIPE_API_VERSION },
-      body: encodeForm(params).toString(),
+      headers: { authorization: `Bearer ${e.STRIPE_SECRET_KEY}`, "stripe-version": STRIPE_API_VERSION, ...(method === "GET" ? {} : { "content-type": "application/x-www-form-urlencoded" }) },
+      ...(method === "GET" ? {} : { body: encodeForm(params).toString() }),
     });
     const data = (await res.json().catch(() => ({}))) as Record<string, unknown> & { error?: { code?: string; type?: string } };
     if (!res.ok) throw new StripeError(res.status, data.error?.code ?? data.error?.type ?? "error");
@@ -123,6 +128,22 @@ export function liveStripe(env: Env): StripeApi {
     async cancelSubscriptionNow(id) {
       try {
         await call("DELETE", `/v1/subscriptions/${encodeURIComponent(id)}`);
+      } catch (e) {
+        if (e instanceof StripeError && e.status === 404) return; // already gone
+        throw e;
+      }
+    },
+    async retrieveSubscription(id) {
+      try {
+        return await call<StripeObject>("GET", `/v1/subscriptions/${encodeURIComponent(id)}`);
+      } catch (e) {
+        if (e instanceof StripeError && e.status === 404) return null;
+        throw e;
+      }
+    },
+    async deleteCustomer(id) {
+      try {
+        await call("DELETE", `/v1/customers/${encodeURIComponent(id)}`);
       } catch (e) {
         if (e instanceof StripeError && e.status === 404) return; // already gone
         throw e;

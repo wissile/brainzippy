@@ -1,4 +1,5 @@
 /** Daily retention purge. Retention periods are documented in docs/PRIVACY_SECURITY.md. */
+import { STRIPE_EVENT_RETENTION_MS } from "../lib/stripeEvents";
 export const GUEST_RETENTION_MS = 180 * 24 * 60 * 60 * 1000;
 export const PENDING_SIGNUP_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const DAY = 24 * 60 * 60 * 1000;
@@ -14,5 +15,7 @@ export async function purge(env: Env, now = Date.now()): Promise<void> {
     db.prepare("DELETE FROM challenge_results WHERE challenge_id IN (SELECT id FROM challenges WHERE expires_at < ?)").bind(now),
     db.prepare("DELETE FROM challenges WHERE expires_at < ?").bind(now),
     db.prepare("DELETE FROM rate_limits WHERE window_start < ?").bind(now - 2 * DAY),
+    // Stripe retries a webhook for up to 3 days, so 30 days of processed ids is ample for idempotency.
+    db.prepare("DELETE FROM stripe_events WHERE received_at < ?").bind(now - STRIPE_EVENT_RETENTION_MS),
   ]);
 }

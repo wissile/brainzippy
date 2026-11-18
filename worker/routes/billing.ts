@@ -2,11 +2,11 @@ import type { Ctx, Route } from "../router";
 import { requireParent } from "../lib/auth";
 import { appOrigin } from "../lib/config";
 import { billingDeletionStatements, billingExport, loadBilling, mergeTrialStart } from "../lib/entitlements";
-import { err, esc, html, json, readJson, redirect } from "../lib/http";
+import { err, esc, html, json, readCapped, readJson, redirect } from "../lib/http";
 import { allow, clientIp, type Limit } from "../lib/rateLimit";
 import { benv, StripeError, stripeMode } from "../lib/stripe";
 import { MAX_WEBHOOK_BYTES, processWebhook } from "../lib/stripeEvents";
-import { devSubscription, devWebhookRequest, stripeFor, verifyDevLink, webhookSecret } from "../lib/stripeFake";
+import { devSubscription, devWebhookRequest, rememberDevSubscription, stripeFor, stripeForWebhook, verifyDevLink, webhookSecret } from "../lib/stripeFake";
 import { isObj, onlyKeys } from "../lib/validation";
 import { hashAccessCode, normaliseAccessCode } from "../../src/billing/codes";
 import { CHECKOUT_SUBMIT_MESSAGE, fmtDate } from "../../src/billing/copy";
@@ -66,7 +66,7 @@ export const routes: Route[] = [
       if (body.consent !== true) return err("consent_required", 400);
       const stripe = stripeFor(c.env, c.url);
       if (!stripe) return err("billing_not_configured", 503);
-      if (!(await allow(c.env, BILLING_LIMITS.checkoutPerParent, s.parentId))) return err("rate_limited", 429);
+      if (!(await allow(c.env, BILLING_LIMITS.checkoutPerParent, s.parentId, c.url))) return err("rate_limited", 429);
       const now = Date.now();
       const loaded = await loadBilling(c.env, s.parentId);
       if (!loaded) return err("unauthorized", 401);
@@ -109,7 +109,7 @@ export const routes: Route[] = [
       if (!body || (body.flow !== undefined && body.flow !== "cancel")) return err("invalid_body", 400);
       const stripe = stripeFor(c.env, c.url);
       if (!stripe) return err("billing_not_configured", 503);
-      if (!(await allow(c.env, BILLING_LIMITS.portalPerParent, s.parentId))) return err("rate_limited", 429);
+      if (!(await allow(c.env, BILLING_LIMITS.portalPerParent, s.parentId, c.url))) return err("rate_limited", 429);
       const loaded = await loadBilling(c.env, s.parentId);
       const customer = loaded?.row?.stripe_customer_id;
       if (!loaded || !customer) return err("no_billing_account", 404);
@@ -129,7 +129,7 @@ export const routes: Route[] = [
     async handler(c) {
       const s = await requireParent(c);
       if (s instanceof Response) return s;
-      if (!(await allow(c.env, BILLING_LIMITS.redeemPerParent, s.parentId)) || !(await allow(c.env, BILLING_LIMITS.redeemPerIp, clientIp(c.req)))) return err("rate_limited", 429);
+      if (!(await allow(c.env, BILLING_LIMITS.redeemPerParent, s.parentId, c.url)) || !(await allow(c.env, BILLING_LIMITS.redeemPerIp, clientIp(c.req), c.url))) return err("rate_limited", 429);
       const body = await readBody(c, ["code"]);
       if (!body) return err("invalid_body", 400);
       const code = normaliseAccessCode(body.code);
@@ -180,10 +180,10 @@ export const routes: Route[] = [
     async handler({ req, env, url }) {
       const secret = webhookSecret(env, url);
       if (!secret) return err("billing_not_configured", 503);
-      if (Number(req.headers.get("content-length") ?? "0") > MAX_WEBHOOK_BYTES) return err("too_large", 413);
-      const payload = await req.text();
-      if (payload.length > MAX_WEBHOOK_BYTES) return err("too_large", 413);
-      const r = await processWebhook(env, payload, req.headers.get("stripe-signature"), secret);
+      // Byte-counted read that stops at the cap (Content-Length can be absent or wrong).
+      const payload = await readCapped(req, MAX_WEBHOOK_BYTES);
+      if (payload === undefined) return err("too_large", 413);
+      const r = await processWebhook(env, payload, req.headers.get("stripe-signature"), secret, Date.now(), stripeForWebhook(env, url));
       return json(r.body, r.status);
     },
   },
@@ -192,12 +192,16 @@ export const routes: Route[] = [
 
 /* ---------------- account deletion + export hooks (used by worker/routes/me.ts) ---------------- */
 
-/** Cancels the Stripe subscription now and returns statements deleting billing rows. Throws when Stripe fails. */
+/** Cancels the Stripe subscription, deletes the Stripe Customer and returns statements deleting billing rows. Throws when Stripe fails. */
 export async function billingOnAccountDelete(c: Ctx, parentId: string): Promise<D1PreparedStatement[]> {
   const stripe = stripeFor(c.env, c.url);
-  return billingDeletionStatements(c.env, parentId, async (id) => {
+  const need = () => {
     if (!stripe) throw new Error("billing_not_configured");
-    await stripe.cancelSubscriptionNow(id);
+    return stripe;
+  };
+  return billingDeletionStatements(c.env, parentId, {
+    cancel: (id) => need().cancelSubscriptionNow(id),
+    deleteCustomer: (id) => need().deleteCustomer(id),
   });
 }
 export { billingExport };
@@ -210,9 +214,10 @@ function devRoutes(): Route[] {
   const banner = '<p style="background:#fff4d6;border:2px dashed #c9a227;padding:8px;border-radius:10px">Development test page. No real card, no real Stripe.</p>';
   // Deliver through the real webhook processor so signature verification and idempotency run exactly as in production.
   const post = async (c: Ctx, type: string, object: Record<string, unknown>) => {
+    if (object.object === "subscription") rememberDevSubscription(object); // the fake's "Stripe side" now holds this state
     const req = await devWebhookRequest(c.url.origin, type, object);
     const secret = webhookSecret(c.env, c.url)!;
-    const r = await processWebhook(c.env, await req.text(), req.headers.get("stripe-signature"), secret);
+    const r = await processWebhook(c.env, await req.text(), req.headers.get("stripe-signature"), secret, Date.now(), stripeForWebhook(c.env, c.url));
     if (r.status !== 200) throw new Error(`dev webhook ${type} failed`);
   };
   return [

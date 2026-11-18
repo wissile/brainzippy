@@ -63,12 +63,12 @@ Controls: same-origin check on writes (Origin header), UUID-format ids (122-bit 
 | Method | Path | Notes |
 |---|---|---|
 | POST | /api/auth/magic-link | `{email, mode: "signup"\|"signin", consent}`; signup needs `consent: true`; 202; dev returns `devLink` |
-| GET / POST | /api/auth/verify | GET shows a confirm page (never consumes); POST (form `token`) consumes, sets cookie, 303 → /parents |
+| GET / POST | /api/auth/verify | GET shows a confirm page naming the email being signed in (login-CSRF visibility; never consumes); POST (form `token`) consumes, sets cookie, 303 → /parents |
 | POST | /api/auth/logout | deletes session |
 | GET / PUT / DELETE | /api/me | profile + children + entitlement; `{digestOptIn}`; delete needs `{confirm:"delete"}` |
 | GET | /api/me/export | JSON download |
-| GET / POST | /api/children | list; create `{monsterName, monster, ageBand, progress?}` (max 4 → 409) |
-| PUT / DELETE | /api/children/:id | `{monsterName?, monster?, ageBand?, nickname?: string\|null}` |
+| GET / POST | /api/children | list; create `{monster, ageBand, publicName?, nickname?, progress?}` (max 4 → 409). The child-typed monster name is never accepted; `publicName` must be a pick-list combination (`src/account/publicName.ts`), default derived from the child id |
+| PUT / DELETE | /api/children/:id | `{publicName?, monster?, ageBand?, nickname?: string\|null}` |
 | GET / PUT | /api/children/:id/settings | see contract below |
 | GET | /api/children/:id/progress | ChildProgress |
 | POST | /api/children/:id/sync | `{progress: ChildProgress}` → server merges (src/account/merge.ts) → `{progress, settings}` |
@@ -78,7 +78,8 @@ Controls: same-origin check on writes (Origin header), UUID-format ids (122-bit 
 | POST / DELETE | /api/friendships/:id/approve · /api/friendships/:id | either side's parent |
 | POST / GET | /api/challenges · /api/challenges/:token · /api/challenges/:token/result | friends-only; `{childId, worldId, level, seed, score}` |
 | GET / POST | /api/unsubscribe?p=&s= | no session; HMAC-signed; POST is RFC 8058 one-click (cross-origin allowed) |
-| POST / GET | /api/parent-signup(/verify) | legacy onboarding contract, now creates a `parents` row |
+| POST | /api/parent-signup | legacy onboarding contract; always `202 {status:"pending"}` (no account enumeration; an existing account gets a "you already have an account" email instead of a link) |
+| GET / POST | /api/parent-signup/verify | GET shows a confirm page with the email (never consumes); POST (form `token`) consumes it and creates the `parents` row with the recorded consent |
 
 ### Contract: per-child settings (for the daily-learning feature)
 ```
@@ -98,14 +99,14 @@ When `loadState().challenge` is set and its `gameId` matches the game being open
 ## Environments
 | Env | How | Data |
 |---|---|---|
-| Local | `npm run dev` (Worker + D1 in workerd; state in `.wrangler/`) — **verified**: guest row insert works after `db:migrate:local` | local SQLite |
+| Local | `cp .dev.vars.example .dev.vars` once (sets `APP_ENV=development`; the `wrangler.jsonc` top level is `production`), then `npm run dev` (Worker + D1 in workerd; state in `.wrangler/`). Development behaviour also requires a localhost request (`worker/lib/config.ts`) | local SQLite |
 | Preview | `wrangler versions upload --preview-alias <name>`; `preview_urls: false` keeps workers.dev previews off until Access protects them | staging DB |
 | Staging | `CLOUDFLARE_ENV=staging vite build && wrangler deploy` (env chosen at build time with the Vite plugin) | `brainzippy-db-staging` |
-| Production | Same with default env — **requires owner approval** | `brainzippy-db` |
+| Production | `CLOUDFLARE_ENV=production` build + `wrangler deploy` (manual workflow) — **requires owner approval**. An unset `CLOUDFLARE_ENV` falls back to the production-safe top level; an unknown name is an error (docs/DEPLOY.md) | `brainzippy-db` |
 
 Config hardening: `workers_dev: false`, `preview_urls: false`, invocation logs off, no `nodejs_compat` (unused), compatibility date 2026-11-01.
 
-Placeholders: both `database_id` values in `wrangler.jsonc` are zero UUIDs; replace after `wrangler d1 create`. Secrets (`wrangler secret put`, `.dev.vars` locally): `RESEND_API_KEY`, `SIGNING_SECRET` (≥32 random bytes). Vars: `EMAIL_FROM`, `APP_ORIGIN` (https origin for emailed links), `DIGEST_BATCH`. Development needs none (magic links are logged and shown on screen).
+Placeholders: both `database_id` values in `wrangler.jsonc` are zero UUIDs; replace after `wrangler d1 create`. Secrets (`wrangler secret put`, `.dev.vars` locally): `RESEND_API_KEY`, `SIGNING_SECRET` (≥32 random bytes). Vars: `EMAIL_FROM`, `APP_ORIGIN` (https origin for emailed links), `DIGEST_BATCH`. Local development needs none (magic links are logged and shown on screen), but only with `APP_ENV=development` from `.dev.vars` and a localhost request.
 
 ## Caching
 `public/_headers`: `/assets/*` (hashed) `max-age=31536000, immutable`; `/audio/*` 7 days; HTML default (revalidate). Worker responses set their own headers (`_headers` doesn't apply to them).

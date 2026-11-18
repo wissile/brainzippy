@@ -67,11 +67,15 @@ test("parent signs up with a dev magic link, saves this device's progress to a n
   await signUp(page, email);
 
   // device link: create a profile from this device (merges guest progress)
-  await expect(page.getByTestId("device-link")).toContainText("Ziggy");
+  await expect(page.getByTestId("device-link")).toContainText("Ziggy"); // local name, shown from this device only
   await page.getByTestId("create-from-device").click();
-  await expect(page.getByTestId("device-linked")).toContainText("Ziggy");
-  const card = page.getByTestId("child-Ziggy");
+  const card = page.getByTestId("child-card");
   await expect(card).toBeVisible();
+  const publicName = await card.getByTestId("child-public-name").innerText();
+  expect(publicName).toMatch(/^[A-Z][a-z]+ [A-Z][a-z-]+$/);
+  expect(publicName).not.toContain("Ziggy");
+  await expect(page.getByTestId("device-linked")).toContainText(publicName);
+  await expect(card.getByTestId("child-local-name")).toContainText("Ziggy");
   await expect(card.getByTestId("world-counting-adventure")).toContainText("2 of 4");
   await expect(card.getByTestId("stat-rounds")).toHaveText("1");
   await expect(card.getByTestId("stat-minutes")).toHaveText("3");
@@ -88,6 +92,14 @@ test("parent signs up with a dev magic link, saves this device's progress to a n
   expect(server.progress.worlds["counting-adventure"]!.level).toBe(1);
   expect(server.progress.history).toHaveLength(1);
   expect(sent.join("\n")).not.toContain(ONBOARDED.kidName);
+  expect(sent.join("\n")).not.toContain(ONBOARDED.monsterName); // the typed monster name never leaves the device
+
+  // the parent picks another public name from the word lists
+  await card.getByTestId("public-name-adj").selectOption("Brave");
+  await card.getByTestId("public-name-creature").selectOption("Zoomkin");
+  await card.getByTestId("public-name-save").click();
+  await expect(card.getByTestId("child-public-name")).toHaveText("Brave Zoomkin");
+  await expect(card.getByTestId("public-name").getByRole("status")).toHaveText("Name updated");
 
   // settings round-trip and apply to this device
   await card.getByTestId("daily-limit").selectOption("7");
@@ -118,8 +130,8 @@ test("a second device's progress merges into an existing child profile (best of 
   await second.page.getByTestId("pa-send-link").click();
   await second.page.getByTestId("dev-magic-link").click();
   await second.page.getByTestId("verify-continue").click();
-  await second.page.getByTestId("link-Ziggy").click();
-  const card = second.page.getByTestId("child-Ziggy");
+  await second.page.getByTestId("link-child").click();
+  const card = second.page.getByTestId("child-card");
   await expect(card.getByTestId("world-glow-cave-hops")).toContainText("2 of 4");
   await expect(card.getByTestId("world-counting-adventure")).toContainText("2 of 4");
   await expect(card.getByTestId("stat-rounds")).toHaveText("2");
@@ -136,30 +148,35 @@ test("friends: invite in one browser, accept in another, both parents approve, l
   await a.page.getByTestId("create-from-device").click();
   await signUp(b.page, `fb+${uniq()}@example.com`);
   await b.page.getByTestId("create-from-device").click();
-  await expect(b.page.getByTestId("child-Nova")).toBeVisible();
+  await expect(b.page.getByTestId("child-card")).toBeVisible();
 
-  const ziggy = a.page.getByTestId("child-Ziggy");
+  const ziggy = a.page.getByTestId("child-card");
+  const pubA = await ziggy.getByTestId("child-public-name").innerText();
+  const pubB = await b.page.getByTestId("child-card").getByTestId("child-public-name").innerText();
   await ziggy.getByTestId("create-invite").click();
   const link = await ziggy.getByTestId("invite-link").inputValue();
   expect(link).toMatch(/\/parents\/invite\/[2-9A-Z]{5}-[2-9A-Z]{5}$/);
 
   await b.page.goto(link);
-  await expect(b.page.getByTestId("invite-accept")).toContainText("Friend invite from Ziggy");
+  await expect(b.page.getByTestId("invite-accept")).toContainText(`Friend invite from ${pubA}`);
+  await expect(b.page.getByTestId("invite-accept")).not.toContainText("Ziggy");
   await b.page.getByTestId("invite-accept-btn").click();
   await expect(b.page.getByTestId("invite-accepted")).toBeVisible();
 
   await a.page.reload();
-  const friendRow = a.page.getByTestId("child-Ziggy").getByTestId("friend-Nova");
+  const friendRow = a.page.getByTestId("child-card").getByTestId("friend-row");
+  await expect(friendRow).toHaveAttribute("data-name", pubB);
   await expect(friendRow).toHaveAttribute("data-status", "needs-your-approval");
-  await expect(a.page.getByTestId("child-Ziggy").getByTestId("leaderboard-row")).toHaveCount(1); // not friends until both approve
-  await friendRow.getByTestId("approve-Nova").click();
+  await expect(a.page.getByTestId("child-card").getByTestId("leaderboard-row")).toHaveCount(1); // not friends until both approve
+  await friendRow.getByTestId("approve-friend").click();
   await expect(friendRow).toHaveAttribute("data-status", "active");
-  await expect(a.page.getByTestId("child-Ziggy").getByTestId("leaderboard-row")).toHaveCount(2);
+  await expect(a.page.getByTestId("child-card").getByTestId("leaderboard-row")).toHaveCount(2);
 
   await b.page.goto("/parents");
-  const board = b.page.getByTestId("child-Nova").getByTestId("leaderboard");
+  const board = b.page.getByTestId("child-card").getByTestId("leaderboard");
   await expect(board.getByTestId("leaderboard-row")).toHaveCount(2);
-  await expect(board).toContainText("Ziggy");
+  await expect(board).toContainText(pubA);
+  await expect(board).not.toContainText("Ziggy"); // the other child's typed monster name is never shown
   await expect(board).not.toContainText(ONBOARDED.kidName);
   // invite codes are single-use
   await b.page.goto(link);
@@ -177,18 +194,20 @@ test("challenge link: the friend's child plays the round and both parents see th
   await signUp(b.page, `cb+${uniq()}@example.com`);
   await b.page.getByTestId("create-from-device").click();
   await expect(b.page.getByTestId("device-linked")).toBeVisible();
+  const pubA = await a.page.getByTestId("child-public-name").innerText();
+  const pubB = await b.page.getByTestId("child-public-name").innerText();
   // become friends
-  await a.page.getByTestId("child-Ziggy").getByTestId("create-invite").click();
-  const invite = await a.page.getByTestId("child-Ziggy").getByTestId("invite-link").inputValue();
+  await a.page.getByTestId("child-card").getByTestId("create-invite").click();
+  const invite = await a.page.getByTestId("child-card").getByTestId("invite-link").inputValue();
   await b.page.goto(invite);
   await b.page.getByTestId("invite-accept-btn").click();
   await expect(b.page.getByTestId("invite-accepted")).toBeVisible();
   await a.page.reload();
-  await a.page.getByTestId("child-Ziggy").getByTestId("approve-Nova").click();
-  await expect(a.page.getByTestId("child-Ziggy").getByTestId("friend-Nova")).toHaveAttribute("data-status", "active");
+  await a.page.getByTestId("child-card").getByTestId("approve-friend").click();
+  await expect(a.page.getByTestId("child-card").getByTestId("friend-row")).toHaveAttribute("data-status", "active");
 
   // Ziggy challenges: best counting round = 10×2 + 2×6 = 32
-  const chA = a.page.getByTestId("child-Ziggy").getByTestId("challenges");
+  const chA = a.page.getByTestId("child-card").getByTestId("challenges");
   await chA.getByTestId("challenge-world").selectOption("counting-adventure");
   await chA.getByTestId("create-challenge").click();
   const challengeLink = await chA.getByTestId("challenge-link").inputValue();
@@ -223,11 +242,11 @@ test("challenge link: the friend's child plays the round and both parents see th
   await expect(b.page.getByTestId("challenge-result")).toContainText("You beat it!");
   // and the round synced to Nova's profile
   await b.page.goto("/parents");
-  await expect(b.page.getByTestId("child-Nova").getByTestId("challenge-played")).toContainText("Ziggy's challenge in Bobbo's Breakfast");
-  await expect(b.page.getByTestId("child-Nova").getByTestId("stat-rounds")).toHaveText("2");
+  await expect(b.page.getByTestId("child-card").getByTestId("challenge-played")).toContainText(`${pubA}'s challenge in Bobbo's Breakfast`);
+  await expect(b.page.getByTestId("child-card").getByTestId("stat-rounds")).toHaveText("2");
 
   await a.page.reload();
-  await expect(a.page.getByTestId("child-Ziggy").getByTestId("challenge-list")).toContainText("Nova 46 (beat it!)");
+  await expect(a.page.getByTestId("child-card").getByTestId("challenge-list")).toContainText(`${pubB} 46 (beat it!)`);
   await a.ctx.close();
   await b.ctx.close();
 });

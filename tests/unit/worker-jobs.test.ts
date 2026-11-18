@@ -24,7 +24,7 @@ function seedParent(t: ReturnType<typeof fakeEnv>, id: string, email: string, op
   t.raw.prepare("INSERT INTO parents (id, email, consent_version, consented_at, created_at, digest_opt_in) VALUES (?, ?, '2026-11-17', 1, 1, ?)").run(id, email, optIn);
   const progress = { ...emptyChildProgress(), worlds: { "sky-balloon-race": { level: 1, stars: 2 } }, skills: { "math.add.within-20": { attempts: 12, firstTry: 4, completed: 8 } }, history };
   t.raw
-    .prepare("INSERT INTO children (id, parent_id, monster_json, monster_name, age_band, nickname, settings_json, progress_json, created_at, updated_at) VALUES (?, ?, '{}', 'Ziggy', 'ages-6-8', ?, '{}', ?, 1, 1)")
+    .prepare("INSERT INTO children (id, parent_id, monster_json, public_name, age_band, nickname, settings_json, progress_json, created_at, updated_at) VALUES (?, ?, '{}', 'Brave Zoomkin', 'ages-6-8', ?, '{}', ?, 1, 1)")
     .run(`${id}-kid`, id, nickname, JSON.stringify(progress));
 }
 
@@ -72,7 +72,7 @@ describe("digest job", () => {
     expect(batch[0]!.to).toEqual(["yes@example.com"]);
     expect(batch[0]!.headers["List-Unsubscribe-Post"]).toBe("List-Unsubscribe=One-Click");
     expect(batch[0]!.headers["List-Unsubscribe"]).toMatch(/^<https:\/\/brainzippy\.test\/api\/unsubscribe\?p=11111111-1111-4111-8111-111111111111&s=[0-9a-f]{64}>$/);
-    expect(batch[0]!.html).toContain("Ziggy");
+    expect(batch[0]!.html).toContain("Brave Zoomkin");
     expect(batch[0]!.text).toContain("Streak: 1 day in a row");
     expect((init!.headers as Record<string, string>)["idempotency-key"]).toMatch(/^digest-2026-11-17-/);
     expect(await dailyDigest(t.env, NOW + 60_000)).toEqual({ considered: 0, sent: 0 });
@@ -100,7 +100,9 @@ describe("cron dispatch and purge", () => {
     t.raw.prepare("INSERT INTO auth_tokens (token_hash, email, purpose, created_at, expires_at) VALUES ('old', 'a@x.co', 'signin', 0, ?), ('new', 'a@x.co', 'signin', 0, ?)").run(now - 2 * 86400_000, now + 60_000);
     t.raw.prepare("INSERT INTO rate_limits (key, window_start, count) VALUES ('a', ?, 1), ('b', ?, 1)").run(now - 3 * 86400_000, now);
     t.raw.prepare("INSERT INTO guest_sessions (id, created_at, updated_at) VALUES ('g1', 0, 0), ('g2', ?, ?)").run(now, now);
+    t.raw.prepare("INSERT INTO stripe_events (id, type, received_at) VALUES ('evt_old', 'x', ?), ('evt_new', 'x', ?)").run(now - 31 * 86400_000, now - 29 * 86400_000);
     await purge(t.env, now);
+    expect(t.raw.prepare("SELECT id FROM stripe_events").all()).toEqual([{ id: "evt_new" }]); // 30-day idempotency window
     expect(t.raw.prepare("SELECT token_hash FROM auth_tokens").all()).toEqual([{ token_hash: "new" }]);
     expect(t.raw.prepare("SELECT key FROM rate_limits").all()).toEqual([{ key: "b" }]);
     expect(t.raw.prepare("SELECT id FROM guest_sessions").all()).toEqual([{ id: "g2" }]);

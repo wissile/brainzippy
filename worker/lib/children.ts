@@ -1,9 +1,11 @@
 import { emptyChildProgress, DEFAULT_SETTINGS, parseChildProgress, type ChildProgress, type ChildSettings, type MonsterSpec } from "../../src/account/schema";
+import { publicNameFor } from "../../src/account/publicName";
 import type { ChildRow } from "./auth";
 
 export interface ChildOut {
   id: string;
-  monsterName: string;
+  /** The only name other families ever see (src/account/publicName.ts). */
+  publicName: string;
   monster: MonsterSpec;
   ageBand: string;
   nickname: string | null;
@@ -22,12 +24,13 @@ const safeParse = (s: string): unknown => {
 
 export const rowProgress = (row: Pick<ChildRow, "progress_json">) => parseChildProgress(safeParse(row.progress_json)) ?? emptyChildProgress();
 export const rowSettings = (row: Pick<ChildRow, "settings_json">): ChildSettings => ({ ...DEFAULT_SETTINGS, ...(safeParse(row.settings_json) as Partial<ChildSettings> | null) });
+export const rowPublicName = (row: { id: string; public_name: string | null }) => publicNameFor(row.id, row.public_name);
 export const rowMonster = (row: Pick<ChildRow, "monster_json">) => safeParse(row.monster_json) as MonsterSpec;
 
 export function childOut(row: ChildRow): ChildOut {
   return {
     id: row.id,
-    monsterName: row.monster_name,
+    publicName: publicNameFor(row.id, row.public_name),
     monster: rowMonster(row),
     ageBand: row.age_band,
     nickname: row.nickname,

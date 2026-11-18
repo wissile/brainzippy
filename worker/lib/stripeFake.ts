@@ -26,6 +26,14 @@ export async function verifyDevLink(params: URLSearchParams): Promise<boolean> {
   return safeEqual(await hmacHex(DEV_LINK_SECRET, copy.toString()), sig);
 }
 
+/**
+ * The fake's "Stripe side": subscriptions the dev pages created, so retrieveSubscription can answer like Stripe.
+ * Module memory of the local workerd isolate (lost on restart: a lost subscription then reads as 404 and its events
+ * are ignored, as they would be for a subscription Stripe doesn't know).
+ */
+const FAKE_SUBSCRIPTIONS = new Map<string, Record<string, unknown>>();
+export const rememberDevSubscription = (sub: Record<string, unknown>) => void FAKE_SUBSCRIPTIONS.set(String(sub.id), sub);
+
 export function fakeStripe(url: URL): StripeApi {
   return {
     mode: "fake",
@@ -40,12 +48,24 @@ export function fakeStripe(url: URL): StripeApi {
     async cancelSubscriptionNow() {
       /* nothing to cancel: rows are deleted by the caller */
     },
+    async retrieveSubscription(id) {
+      return FAKE_SUBSCRIPTIONS.get(id) ?? null;
+    },
+    async deleteCustomer() {
+      /* no customer exists outside our own rows, which the caller deletes */
+    },
   };
 }
 
 export function stripeFor(env: Env, url: URL): StripeApi | null {
   const mode = stripeMode(env, url);
   return mode === "live" ? liveStripe(env) : mode === "fake" ? fakeStripe(url) : null;
+}
+
+/** Client the webhook uses to re-fetch subscriptions: any configured secret key (even without a price id), else the fake. */
+export function stripeForWebhook(env: Env, url: URL): StripeApi | null {
+  if (benv(env).STRIPE_SECRET_KEY) return liveStripe(env);
+  return stripeMode(env, url) === "fake" ? fakeStripe(url) : null;
 }
 
 /** A signed webhook request, as Stripe would send it. */

@@ -8,7 +8,9 @@ import { AGE_BAND_IDS, WORLDS, ageBandLabel, skillLabel, worldName } from "./cat
 import { currentStreak, localDay, roundPoints, weekSummary } from "./points";
 import { DAILY_LIMIT_MAX, DAILY_LIMIT_MIN, MAX_CHILDREN, type ChildSettings } from "./schema";
 import { MonsterArt, shareLink, Toggle } from "./ui";
+import { PUBLIC_ADJECTIVES, PUBLIC_CREATURES, formatPublicName, splitPublicName } from "./publicName";
 import { BillingCard } from "../billing/ParentBilling";
+import { disableReminders, loadReminderSettings } from "../pwa/push";
 
 const today = () => localDay(Date.now());
 
@@ -29,7 +31,7 @@ export function Dashboard({ me, refresh, onSignedOut }: { me: Me; refresh: () =>
       </p>
       <DeviceLink me={me} linked={linked} onLink={doLink} onCreated={doLink} atLimit={atLimit} onUnlink={() => (unlinkDevice(), setLinked(null))} />
       {me.children.map((c) => (
-        <ChildCard key={c.id} child={c} linked={linked === c.id} refresh={refresh} onDeleted={() => linked === c.id && (unlinkDevice(), setLinked(null))} />
+        <ChildCard key={c.id} child={c} social={me.features?.friends === true} linked={linked === c.id} refresh={refresh} onDeleted={() => linked === c.id && (unlinkDevice(), setLinked(null))} />
       ))}
       {!atLimit && <AddChild onAdded={refresh} />}
       <BillingCard initial={me.entitlement} />
@@ -49,8 +51,8 @@ function DeviceLink({ me, linked, onLink, onCreated, onUnlink, atLimit }: { me: 
   const createFromDevice = async () => {
     setBusy(true);
     setError("");
+    // The typed monster name stays on this device; the server gives the profile a made-up public name.
     const r = await api.addChild({
-      monsterName: st.profile.monsterName || "Monster",
       monster: st.profile.monster ?? DEFAULT_MONSTER,
       ageBand: (AGE_BAND_IDS as readonly string[]).includes(st.ageBand ?? "") ? st.ageBand! : "ages-3-5",
       progress: guestToChildProgress(st.progress, st.history),
@@ -65,7 +67,7 @@ function DeviceLink({ me, linked, onLink, onCreated, onUnlink, atLimit }: { me: 
       <section className="pa-card" data-testid="device-linked">
         <h2>This device</h2>
         <p>
-          Progress on this device is saved to <strong>{linkedChild.monsterName}</strong> after every game.
+          Progress on this device is saved to <strong>{linkedChild.publicName}</strong> after every game.
         </p>
         <button type="button" className="pa-btn" onClick={onUnlink}>
           Stop saving this device
@@ -86,11 +88,11 @@ function DeviceLink({ me, linked, onLink, onCreated, onUnlink, atLimit }: { me: 
           "Link this device to a child so their games are saved."
         )}
       </p>
-      <p className="pa-muted">Your child's first name stays on this device. Only the monster, the monster name, the age group and game progress are saved to your account.</p>
+      <p className="pa-muted">Your child's first name and the monster name they typed stay on this device. Only the monster's look, the age group and game progress are saved to your account. Other families only ever see a made-up public name, which you can change.</p>
       <div className="pa-row">
         {me.children.map((c) => (
-          <button key={c.id} type="button" className="pa-btn primary" data-testid={`link-${c.monsterName}`} disabled={busy} onClick={() => (setBusy(true), void onLink(c.id).finally(() => setBusy(false)))}>
-            Save to {c.monsterName}
+          <button key={c.id} type="button" className="pa-btn primary" data-testid="link-child" data-name={c.publicName} disabled={busy} onClick={() => (setBusy(true), void onLink(c.id).finally(() => setBusy(false)))}>
+            Save to {c.publicName}
           </button>
         ))}
         {hasLocal && !atLimit && (
@@ -107,7 +109,6 @@ function DeviceLink({ me, linked, onLink, onCreated, onUnlink, atLimit }: { me: 
 /* ---------------- add a child ---------------- */
 function AddChild({ onAdded }: { onAdded: () => Promise<void> }) {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
   const [band, setBand] = useState<string>("ages-3-5");
   const [color, setColor] = useState<string>("teal");
   const [error, setError] = useState("");
@@ -125,19 +126,14 @@ function AddChild({ onAdded }: { onAdded: () => Promise<void> }) {
       onSubmit={async (e) => {
         e.preventDefault();
         setError("");
-        const r = await api.addChild({ monsterName: name, monster: { ...DEFAULT_MONSTER, color }, ageBand: band });
-        if (!r.ok) return setError(r.error === "too_many_children" ? `You can add up to ${MAX_CHILDREN} children.` : "Please give the monster a name made of letters.");
+        const r = await api.addChild({ monster: { ...DEFAULT_MONSTER, color }, ageBand: band });
+        if (!r.ok) return setError(r.error === "too_many_children" ? `You can add up to ${MAX_CHILDREN} children.` : "We couldn't add the profile. Please try again.");
         setOpen(false);
-        setName("");
         await onAdded();
       }}
     >
       <h2>Add a child profile</h2>
-      <p className="pa-muted">Profiles use a monster name, not your child's real name. Your child can redesign the monster in the game.</p>
-      <div className="pa-field">
-        <label htmlFor="add-name">Monster name</label>
-        <input id="add-name" type="text" data-testid="add-child-name" value={name} maxLength={16} onChange={(e) => setName(e.target.value)} />
-      </div>
+      <p className="pa-muted">Profiles never use your child's real name. Each profile gets a made-up public name (you can change it), and your child names their monster in the game on their own device.</p>
       <div className="pa-row">
         <div className="pa-field">
           <label htmlFor="add-band">Age group</label>
@@ -174,22 +170,24 @@ function AddChild({ onAdded }: { onAdded: () => Promise<void> }) {
 }
 
 /* ---------------- one child ---------------- */
-function ChildCard({ child, linked, refresh, onDeleted }: { child: ChildOut; linked: boolean; refresh: () => Promise<void>; onDeleted: () => void }) {
+function ChildCard({ child, social, linked, refresh, onDeleted }: { child: ChildOut; social: boolean; linked: boolean; refresh: () => Promise<void>; onDeleted: () => void }) {
   const p = child.progress;
   const week = weekSummary(p.history, today());
   const streak = currentStreak(p.history, today());
   const skills = Object.entries(p.skills).sort((a, b) => b[1].completed - a[1].completed);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const localName = linked ? loadState().profile.monsterName : "";
 
   return (
-    <section className="pa-card" data-testid={`child-${child.monsterName}`} aria-labelledby={`child-${child.id}`}>
+    <section className="pa-card" data-testid="child-card" data-name={child.publicName} aria-labelledby={`child-${child.id}`}>
       <div className="pa-child-head">
         <MonsterArt monster={child.monster} size={72} />
         <div>
           <h2 id={`child-${child.id}`}>
-            {child.monsterName}
+            <span data-testid="child-public-name">{child.publicName}</span>
             {linked && <span className="pa-badge">This device</span>}
           </h2>
+          {linked && localName && <p className="pa-muted" data-testid="child-local-name">Called “{localName}” in the game on this device (never sent to BrainZippy).</p>}
           <p className="pa-muted">
             {ageBandLabel(child.ageBand)}
             {child.nickname ? ` · nickname: ${child.nickname}` : ""}
@@ -255,13 +253,14 @@ function ChildCard({ child, linked, refresh, onDeleted }: { child: ChildOut; lin
       )}
 
       <Settings child={child} linked={linked} />
+      <PublicName child={child} refresh={refresh} />
       <Nickname child={child} refresh={refresh} />
-      <Friends child={child} />
-      <Challenges child={child} />
+      {social && <Friends child={child} />}
+      {social && <Challenges child={child} />}
 
       <div className="pa-section">
         <h3>Delete this profile</h3>
-        <p className="pa-muted">Removes {child.monsterName}'s profile, progress, friends and challenges from our servers straight away. Progress saved on a device stays on that device.</p>
+        <p className="pa-muted">Removes {child.publicName}'s profile, progress, friends and challenges from our servers straight away. Progress saved on a device stays on that device.</p>
         {confirmDelete ? (
           <div className="pa-row">
             <button
@@ -276,7 +275,7 @@ function ChildCard({ child, linked, refresh, onDeleted }: { child: ChildOut; lin
                 }
               }}
             >
-              Yes, delete {child.monsterName}
+              Yes, delete {child.publicName}
             </button>
             <button type="button" className="pa-btn" onClick={() => setConfirmDelete(false)}>
               Cancel
@@ -329,6 +328,56 @@ function Settings({ child, linked }: { child: ChildOut; linked: boolean }) {
         </p>
       )}
     </div>
+  );
+}
+
+/* ---------------- public name ---------------- */
+function PublicName({ child, refresh }: { child: ChildOut; refresh: () => Promise<void> }) {
+  const parts = splitPublicName(child.publicName);
+  const [adjective, setAdjective] = useState<string>(parts?.adjective ?? PUBLIC_ADJECTIVES[0]);
+  const [creature, setCreature] = useState<string>(parts?.creature ?? PUBLIC_CREATURES[0]);
+  const [status, setStatus] = useState("");
+  const changed = formatPublicName(adjective, creature) !== child.publicName;
+  return (
+    <form
+      className="pa-section"
+      data-testid="public-name"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const r = await api.updateChild(child.id, { publicName: formatPublicName(adjective, creature) });
+        setStatus(r.ok ? "Name updated" : "We couldn't change the name. Please try again.");
+        if (r.ok) await refresh();
+      }}
+    >
+      <h3>Public name</h3>
+      <p className="pa-muted">The only name other families can see (on friends lists, leaderboards and challenges). It's made from fixed word lists, so it can never contain a real name.</p>
+      <div className="pa-row">
+        <div className="pa-field">
+          <label htmlFor={`pn-adj-${child.id}`}>Describing word</label>
+          <select id={`pn-adj-${child.id}`} data-testid="public-name-adj" value={adjective} onChange={(e) => (setAdjective(e.target.value), setStatus(""))}>
+            {PUBLIC_ADJECTIVES.map((a) => (
+              <option key={a} value={a}>
+                {a}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="pa-field">
+          <label htmlFor={`pn-cre-${child.id}`}>Creature</label>
+          <select id={`pn-cre-${child.id}`} data-testid="public-name-creature" value={creature} onChange={(e) => (setCreature(e.target.value), setStatus(""))}>
+            {PUBLIC_CREATURES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button type="submit" className="pa-btn" data-testid="public-name-save" disabled={!changed}>
+          Use “{formatPublicName(adjective, creature)}”
+        </button>
+      </div>
+      {status && <p role="status">{status}</p>}
+    </form>
   );
 }
 
@@ -401,19 +450,19 @@ function Friends({ child }: { child: ChildOut }) {
   return (
     <div className="pa-section" data-testid="friends">
       <h3>Friends</h3>
-      <p className="pa-muted">Friends are added by invite only, and both parents approve. Friends see {child.monsterName}'s monster, monster name and weekly points. No chat, no profiles.</p>
+      <p className="pa-muted">Friends are added by invite only, and both parents approve. Friends see only the monster, the public name <strong>{child.publicName}</strong> and weekly points. The name your child typed is never shown to other families. No chat, no profiles.</p>
       {friends.length > 0 && (
         <ul className="pa-list">
           {friends.map((f) => (
-            <li key={f.id} data-testid={`friend-${f.monsterName}`} data-status={f.status}>
+            <li key={f.id} data-testid="friend-row" data-name={f.publicName} data-status={f.status}>
               <span className="pa-mini">
                 <MonsterArt monster={f.monster} size={36} />
-                {f.monsterName}
+                {f.publicName}
                 <span className="pa-muted">{f.status === "active" ? "Friends" : f.status === "waiting-for-them" ? "Waiting for the other parent" : "Asks to be friends"}</span>
               </span>
               <span className="pa-row">
                 {f.status === "needs-your-approval" && (
-                  <button type="button" className="pa-btn primary" data-testid={`approve-${f.monsterName}`} onClick={async () => (await api.approveFriend(f.id), await load())}>
+                  <button type="button" className="pa-btn primary" data-testid="approve-friend" onClick={async () => (await api.approveFriend(f.id), await load())}>
                     Approve
                   </button>
                 )}
@@ -468,7 +517,7 @@ function Friends({ child }: { child: ChildOut }) {
               <td>
                 <span className="pa-mini">
                   <MonsterArt monster={e.monster} size={32} />
-                  {e.monsterName}
+                  {e.publicName}
                 </span>
               </td>
               <td>{e.points}</td>
@@ -507,7 +556,7 @@ function Challenges({ child }: { child: ChildOut }) {
     <div className="pa-section" data-testid="challenges">
       <h3>Challenges</h3>
       {played.length === 0 ? (
-        <p className="pa-muted">After {child.monsterName} plays a world, you can challenge friends to beat that score in the same round.</p>
+        <p className="pa-muted">After {child.publicName} plays a world, you can challenge friends to beat that score in the same round.</p>
       ) : (
         <div className="pa-row">
           <label htmlFor={`ch-world-${child.id}`}>Beat my score in</label>
@@ -540,9 +589,9 @@ function Challenges({ child }: { child: ChildOut }) {
           {list.sent.map((c) => (
             <li key={c.id}>
               <span>
-                {worldName(c.worldId)}: {child.monsterName} scored {c.score}
+                {worldName(c.worldId)}: {child.publicName} scored {c.score}
               </span>
-              <span className="pa-muted">{c.results.length ? c.results.map((r) => `${r.monsterName} ${r.score}${r.beat ? " (beat it!)" : ""}`).join(", ") : "No one has played yet"}</span>
+              <span className="pa-muted">{c.results.length ? c.results.map((r) => `${r.publicName} ${r.score}${r.beat ? " (beat it!)" : ""}`).join(", ") : "No one has played yet"}</span>
             </li>
           ))}
           {list.played.map((c) => (
@@ -551,7 +600,7 @@ function Challenges({ child }: { child: ChildOut }) {
                 {c.from}'s challenge in {worldName(c.worldId)}
               </span>
               <span className="pa-muted">
-                {child.monsterName} scored {c.score} (target {c.target}){c.beat ? " and beat it!" : ""}
+                {child.publicName} scored {c.score} (target {c.target}){c.beat ? " and beat it!" : ""}
               </span>
             </li>
           ))}
@@ -570,6 +619,9 @@ function AccountCard({ me, refresh, onSignedOut }: { me: Me; refresh: () => Prom
       <section className="pa-card" role="status">
         <h2>Account deleted</h2>
         <p>Your account and your children's profiles have been deleted from our servers.</p>
+        <p className="pa-muted">
+          Daily reminders on this device are switched off. Reminders aren't linked to your account, so turn them off on any other device in its parent settings. If you subscribed, your plan was cancelled and your payment details were removed from Stripe; Stripe keeps its own records of past payments for as long as the law requires.
+        </p>
       </section>
     );
   return (
@@ -602,6 +654,8 @@ function AccountCard({ me, refresh, onSignedOut }: { me: Me; refresh: () => Prom
                   const r = await api.deleteAccount();
                   if (r.ok) {
                     unlinkDevice();
+                    // Push subscriptions belong to the device, not the account: switch this device's reminders off too.
+                    if (loadReminderSettings().enabled || loadReminderSettings().deviceId) void disableReminders().catch(() => undefined);
                     setDeleted(true);
                   }
                 }}

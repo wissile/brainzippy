@@ -1,5 +1,6 @@
 import { REMINDER_TITLE, type ReminderPayload, reminderBody, reminderVariant } from "../../src/pwa/reminderCopy";
 import type { Ctx, Route } from "../router";
+import { readCapped } from "../lib/http";
 import { LIMITS, allow, clientIp } from "../lib/rateLimit";
 import { type VapidKeys, b64urlDecode, sendWebPush } from "../lib/webpush";
 import { isAllowedHour, isValidTimeZone, selectDue } from "../lib/webpushSchedule";
@@ -29,7 +30,7 @@ const HEADERS: Record<string, string> = {
   "referrer-policy": "no-referrer",
   "cross-origin-resource-policy": "same-origin",
   "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
-  "strict-transport-security": "max-age=31536000",
+  "strict-transport-security": "max-age=63072000; includeSubDomains",
 };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: HEADERS });
 
@@ -76,9 +77,9 @@ function sameOrigin(req: Request): boolean {
 
 async function readBody(req: Request): Promise<Record<string, unknown> | undefined> {
   if (!(req.headers.get("content-type") ?? "").includes("application/json")) return undefined;
-  if (Number(req.headers.get("content-length") ?? "0") > MAX_BODY) return undefined;
-  const text = await new Response(req.body).text().catch(() => "");
-  if (text.length > MAX_BODY) return undefined;
+  // Byte-counted, aborts at MAX_BODY: never buffers an oversized or chunked body.
+  const text = await readCapped(req, MAX_BODY).catch(() => undefined);
+  if (text === undefined) return undefined;
   try {
     const v = JSON.parse(text) as unknown;
     return v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : undefined;
@@ -175,7 +176,13 @@ export async function sendDueReminders(env: PushEnv, now = new Date(), fetchImpl
   if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY || !env.VAPID_SUBJECT) return { skipped: "not_configured", due: 0, sent: 0, removed: 0, failed: 0 };
   const keys: VapidKeys = { publicKey: env.VAPID_PUBLIC_KEY, privateKey: env.VAPID_PRIVATE_KEY };
 
-  const { results } = await env.DB.prepare(`SELECT id, endpoint, p256dh, auth, hour, tz, last_sent FROM push_subscriptions LIMIT ${MAX_ROWS_PER_RUN}`).all<SubRow>();
+  // Most overdue first: never-sent rows, then the oldest last_sent (local dates sort as text), then the least recently
+  // refreshed. With more due rows than MAX_SENDS_PER_RUN (or rows than MAX_ROWS_PER_RUN), nobody is starved by
+  // insertion order: whoever was skipped today has the oldest last_sent tomorrow.
+  const { results } = await env.DB.prepare(
+    `SELECT id, endpoint, p256dh, auth, hour, tz, last_sent FROM push_subscriptions
+     ORDER BY last_sent IS NOT NULL, last_sent ASC, updated_at ASC, id ASC LIMIT ${MAX_ROWS_PER_RUN}`,
+  ).all<SubRow>();
   const due = selectDue(results ?? [], now);
   const result: ReminderRunResult = { due: due.length, sent: 0, removed: 0, failed: 0 };
 
@@ -203,7 +210,7 @@ export async function sendDueReminders(env: PushEnv, now = new Date(), fetchImpl
 
 /** Router adapter: /api/push/* keeps its self-contained handler; state-changing calls are rate-limited per IP. */
 const limited = async (c: Ctx): Promise<Response> => {
-  if (!(await allow(c.env, LIMITS.pushPerIp, clientIp(c.req)))) return json({ error: "rate_limited" }, 429);
+  if (!(await allow(c.env, LIMITS.pushPerIp, clientIp(c.req), c.url))) return json({ error: "rate_limited" }, 429);
   return handlePush(c.req, c.env as unknown as PushEnv);
 };
 export const routes: Route[] = [

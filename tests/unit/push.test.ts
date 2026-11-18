@@ -233,3 +233,30 @@ describe("push API", () => {
     expect(r.sent).toBe(MAX_SENDS_PER_RUN);
   });
 });
+
+describe("cron selection order (real SQLite)", () => {
+  it("sends to never-sent and oldest last_sent first, so a capped run never starves the same devices", async () => {
+    const { fakeEnv } = await import("./helpers/d1");
+    const t = fakeEnv();
+    const env = await vapidEnv(t.env.DB);
+    const k = await browserKeys();
+    const now = at("2026-11-17T17:00:00Z");
+    const ins = t.raw.prepare("INSERT INTO push_subscriptions (id, endpoint, p256dh, auth, hour, tz, last_sent, created_at, updated_at) VALUES (?, ?, ?, ?, 17, 'UTC', ?, ?, ?)");
+    // inserted first: MAX_SENDS_PER_RUN + 4 rows sent yesterday; inserted last: one never sent, one sent a week ago
+    for (let i = 0; i < MAX_SENDS_PER_RUN + 4; i++) ins.run(`recent-${i}`, `https://fcm.googleapis.com/fcm/send/r${i}`, k.p256dh, k.auth, "2026-11-16", now.getTime(), now.getTime());
+    ins.run("week-old", "https://fcm.googleapis.com/fcm/send/w", k.p256dh, k.auth, "2026-11-10", now.getTime(), now.getTime());
+    ins.run("never", "https://fcm.googleapis.com/fcm/send/n", k.p256dh, k.auth, null, now.getTime(), now.getTime());
+    const hit: string[] = [];
+    const fakeFetch = (async (url: string) => (hit.push(url.split("/").pop()!), new Response(null, { status: 201 }))) as unknown as typeof fetch;
+    const r = await sendDueReminders(env, now, fakeFetch);
+    expect(r.sent).toBe(MAX_SENDS_PER_RUN);
+    expect(hit.slice(0, 2)).toEqual(["n", "w"]);
+    const skipped = (t.raw.prepare("SELECT id FROM push_subscriptions WHERE last_sent = '2026-11-16'").all() as { id: string }[]).map((x) => x.id).sort();
+    expect(skipped).toHaveLength(6);
+    const tomorrow = await sendDueReminders(env, at("2026-11-18T17:00:00Z"), (async (url: string) => (hit.push(`t:${url.split("/").pop()}`), new Response(null, { status: 201 }))) as unknown as typeof fetch);
+    expect(tomorrow.sent).toBe(MAX_SENDS_PER_RUN);
+    // yesterday's skipped rows (oldest last_sent) go first today
+    const firstTomorrow = hit.filter((h) => h.startsWith("t:")).slice(0, 6).map((h) => `recent-${h.slice(3)}`).sort();
+    expect(firstTomorrow).toEqual(skipped);
+  });
+});

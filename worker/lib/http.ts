@@ -6,7 +6,7 @@ export const SECURITY_HEADERS: Record<string, string> = {
   "referrer-policy": "no-referrer",
   "cross-origin-resource-policy": "same-origin",
   "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
-  "strict-transport-security": "max-age=31536000",
+  "strict-transport-security": "max-age=63072000; includeSubDomains",
 };
 
 export function json(body: unknown, status = 200, extra: HeadersInit = {}): Response {
@@ -46,8 +46,11 @@ export function redirect(location: string, extra: HeadersInit = {}): Response {
   return new Response(null, { status: 303, headers });
 }
 
-/** Read a body, counting real bytes and aborting once `max` is exceeded (works without Content-Length). */
-async function readCapped(req: Request, max: number): Promise<string | undefined> {
+/**
+ * Read a body, counting real bytes and aborting once `max` is exceeded (works without Content-Length or with a lying
+ * one). Returns undefined when there is no body or it is too large. Use this (or readJson/readForm) for every body.
+ */
+export async function readCapped(req: Request, max: number): Promise<string | undefined> {
   if (Number(req.headers.get("content-length") ?? "0") > max) return undefined;
   if (!req.body) return undefined;
   const reader = req.body.getReader();

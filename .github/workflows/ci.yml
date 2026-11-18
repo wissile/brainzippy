@@ -29,6 +29,8 @@ jobs:
         run: npm test
       - name: Local D1 schema
         run: npm run db:migrate:local
+      - name: Development vars for e2e (wrangler.jsonc top level is production)
+        run: cp .dev.vars.example .dev.vars
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
       - name: End-to-end tests (desktop + phone)

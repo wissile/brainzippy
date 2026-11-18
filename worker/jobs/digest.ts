@@ -1,3 +1,4 @@
+import { publicNameFor } from "../../src/account/publicName";
 import { SKILL_WORLD, WORLDS, skillLabel, worldName } from "../../src/account/catalog";
 import { currentStreak } from "../../src/account/points";
 import type { ChildProgress } from "../../src/account/schema";
@@ -59,15 +60,17 @@ interface DigestParent {
   email: string;
 }
 interface DigestChildRow {
+  id: string;
   parent_id: string;
-  monster_name: string;
+  public_name: string | null;
   nickname: string | null;
   progress_json: string;
 }
 
 export async function dailyDigest(env: Env, now = Date.now()): Promise<{ considered: number; sent: number }> {
   const base = new URL(appOrigin(env, new URL("https://brainzippy.com")));
-  if (!signingSecret(env)) {
+  // Cron has no request: `base` is the public origin, so development fallbacks (dev secret, console email) never apply.
+  if (!signingSecret(env, base)) {
     console.warn("[digest] SIGNING_SECRET missing: not sending (every email needs a signed unsubscribe link)");
     return { considered: 0, sent: 0 };
   }
@@ -80,13 +83,13 @@ export async function dailyDigest(env: Env, now = Date.now()): Promise<{ conside
   ).results;
   if (parents.length === 0) return { considered: 0, sent: 0 };
   const ph = parents.map(() => "?").join(",");
-  const kids = (await db.prepare(`SELECT parent_id, monster_name, nickname, progress_json FROM children WHERE parent_id IN (${ph}) ORDER BY created_at`).bind(...parents.map((p) => p.id)).all<DigestChildRow>()).results;
+  const kids = (await db.prepare(`SELECT id, parent_id, public_name, nickname, progress_json FROM children WHERE parent_id IN (${ph}) ORDER BY created_at`).bind(...parents.map((p) => p.id)).all<DigestChildRow>()).results;
 
   const messages: EmailMessage[] = [];
   for (const p of parents) {
     const sections = kids
       .filter((k) => k.parent_id === p.id)
-      .map((k) => digestChild(k.nickname ?? k.monster_name, rowProgress(k), now))
+      .map((k) => digestChild(k.nickname ?? publicNameFor(k.id, k.public_name), rowProgress(k), now))
       .filter((x): x is DigestChild => x !== null);
     if (sections.length === 0) continue;
     const unsub = (await unsubscribeUrl(env, base, p.id))!;
@@ -99,7 +102,7 @@ export async function dailyDigest(env: Env, now = Date.now()): Promise<{ conside
     });
   }
   const day = new Date(now).toISOString().slice(0, 10);
-  const result = await sendBatch(env, messages, `digest-${day}-${parents[0]!.id}`);
+  const result = await sendBatch(env, base, messages, `digest-${day}-${parents[0]!.id}`);
   if (!result.ok) {
     console.warn(`[digest] not sent: ${result.reason}`);
     return { considered: parents.length, sent: 0 };

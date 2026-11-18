@@ -61,6 +61,13 @@ Non-secret settings live in `wrangler.jsonc` under each environment's `vars`:
 - `STRIPE_PRICE_ID`
 - `VAPID_PUBLIC_KEY`
 
+### Which environment a deploy uses (and why the top level is production-safe)
+
+- The Vite plugin picks the environment **at build time** from `CLOUDFLARE_ENV` and writes a flattened `dist/brainzippy/wrangler.json`; `wrangler deploy` then deploys exactly that ([Vite plugin: Cloudflare environments](https://developers.cloudflare.com/workers/vite-plugin/reference/cloudflare-environments/)). The workflows always set `CLOUDFLARE_ENV=staging` or `production`.
+- **Unknown name → hard error.** Verified 2026-11-18 against the pinned wrangler 4.163.0 (the config loader used by both wrangler and the Vite plugin): `CLOUDFLARE_ENV=nope` (or `--env nope`) fails with `No environment found in configuration with name "nope"` because `wrangler.jsonc` defines `env` sections. (Wrangler only downgrades this to a warning when a config has no `env` sections at all.) The official docs ([system environment variables](https://developers.cloudflare.com/workers/wrangler/system-environment-variables/)) don't describe this case, so re-check after upgrading wrangler.
+- **Unset or empty → silent fallback to the top level.** `CLOUDFLARE_ENV=""` or a missing variable builds the top-level config (Worker name `brainzippy`, no custom domain, placeholder D1). That is why the top level is production-safe: `APP_ENV` is `"production"` and `FRIENDS_ENABLED` is `"false"` there, so a mistaken fallback can't switch on development behaviour or unreviewed features.
+- **Development only comes from `.dev.vars`** (gitignored; `cp .dev.vars.example .dev.vars`), which `npm run dev` and `vite preview` read. The Worker also refuses development behaviour (on-screen magic links, dev signing secret, fake Stripe, per-IP rate-limit bypass) unless the request host is `localhost` or `127.0.0.1` (`worker/lib/config.ts`), so even a misconfigured deploy can't expose it on a real host. CI copies the example before the browser tests. `wrangler deploy` never reads `.dev.vars`.
+
 ## 4. Resend (parent emails)
 
 1. Create a Resend account and add the domain **brainzippy.com**.

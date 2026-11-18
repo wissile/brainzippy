@@ -53,8 +53,12 @@ describe("owner CLI (scripts/access-code.mjs)", () => {
     expect(() => cli.buildCreate({ kind: "free_forever", days: "3" })).toThrow(/--days/);
     expect(() => cli.buildCreate({ kind: "free_forever", max: "0" })).toThrow(/--max/);
     expect(() => cli.buildCreate({ kind: "free_forever", expires: "2001-01-01" })).toThrow(/future/);
+    // custom (human-chosen) codes are refused: every code is generated with ≈59 bits
     expect(() => cli.buildCreate({ kind: "free_forever", code: "ab" })).toThrow(/--code/);
-    expect(cli.buildCreate({ kind: "free_forever", code: "teachers-2027" }).code).toBe("TEACHERS-2027");
+    expect(() => cli.buildCreate({ kind: "free_forever", code: "TEACHERS2027-LONG-ENOUGH" })).toThrow(/--code/);
+    const g = cli.buildCreate({ kind: "free_forever" }).code;
+    expect(g).toMatch(/^[2-9A-HJKMNP-Z]{4}-[2-9A-HJKMNP-Z]{4}-[2-9A-HJKMNP-Z]{4}$/);
+    expect(12 * Math.log2(31)).toBeGreaterThanOrEqual(59);
   });
 
   it("targets exactly one database with the right wrangler flags", () => {

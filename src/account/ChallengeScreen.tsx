@@ -63,9 +63,9 @@ export default function ChallengeScreen({ token }: { token: string }) {
       )}
       {typeof view === "object" && (
         <div className="ch-card">
-          <MonsterArt monster={view.from.monster} size={150} label={view.from.monsterName} />
+          <MonsterArt monster={view.from.monster} size={150} label={view.from.publicName} />
           <h1>
-            {view.mine ? "Your challenge" : `${view.from.monsterName}'s challenge`}
+            {view.mine ? "Your challenge" : `${view.from.publicName}'s challenge`}
           </h1>
           <p>{worldName(view.worldId)}</p>
           <p aria-label={`Score to beat: ${view.score}`}>
@@ -88,7 +88,7 @@ export default function ChallengeScreen({ token }: { token: string }) {
                 <div className="ch-players" role="group" aria-label="Who is playing?">
                   {view.players.map((p) => (
                     <button key={p.id} type="button" className="pa-btn" aria-pressed={player === p.id} onClick={() => setPlayer(p.id)}>
-                      {p.monsterName}
+                      {p.publicName}
                     </button>
                   ))}
                 </div>
@@ -103,7 +103,7 @@ export default function ChallengeScreen({ token }: { token: string }) {
             <ul className="pa-list" aria-label="Results">
               {view.results.map((r, i) => (
                 <li key={i}>
-                  <span>{r.monsterName}</span>
+                  <span>{r.publicName}</span>
                   <span>
                     {r.score}
                     {r.beat ? " ★" : ""}

@@ -33,7 +33,7 @@ Play is gated **on the device**. A determined adult can clear site data to resta
 At the end of the free period the child sees their own monster asleep and a "Grown-up" button (spoken + captioned line `paywall.askGrownUp`). Prices, cards and codes appear only after the parent gate (`/plan`, `/parents`).
 
 ### Webhooks
-`POST /api/billing/webhook` (router `crossOrigin: true`; the signature is the authentication). We verify `Stripe-Signature` ourselves: HMAC-SHA256 of `${t}.${rawBody}` with the endpoint secret, constant-time compared with every `v1`, and `t` within ±300 s. Event ids are inserted in the same D1 batch as the state change (plain `INSERT` on the primary key), so each event applies exactly once; duplicates get `200 {duplicate:true}`. Subscription events older than the last applied one (`sub_event_at`) are ignored. Ids are purged after 30 days. Events handled: `checkout.session.completed`, `customer.subscription.created|updated|deleted`, `invoice.payment_failed`, `invoice.paid`. Unknown types get `200 {ignored:true}`.
+`POST /api/billing/webhook` (router `crossOrigin: true`; the signature is the authentication). We verify `Stripe-Signature` ourselves: HMAC-SHA256 of `${t}.${rawBody}` with the endpoint secret, constant-time compared with every `v1`, and `t` within ±300 s. Event ids are inserted in the same D1 batch as the state change (plain `INSERT` on the primary key), so each event applies exactly once; duplicates get `200 {duplicate:true}`. For `customer.subscription.*` events the Worker **re-fetches the subscription** (`GET /v1/subscriptions/:id`) and derives state from Stripe's current object, so same-second reordering and a late `subscription.created` for an old subscription can't apply stale data; events older than the last applied one (`sub_event_at`) are still skipped; a subscription Stripe doesn't know (404) is ignored except `deleted` (applied as canceled); if Stripe is unreachable the webhook fails (500) and Stripe retries. The dev fake keeps the subscriptions its pages create so it answers the same call. Ids are purged after 30 days by the daily purge cron (`worker/jobs/purge.ts`). Events handled: `checkout.session.completed`, `customer.subscription.created|updated|deleted`, `invoice.payment_failed`, `invoice.paid`. Unknown types get `200 {ignored:true}`.
 
 Stripe API version is pinned in `worker/lib/stripe.ts` (`STRIPE_API_VERSION`). The parser reads `current_period_end` from subscription items (API ≥ 2025-03-31) and falls back to the old top-level field.
 
@@ -73,7 +73,6 @@ Created only from the command line; the code is printed **once** and only its SH
 ```
 node scripts/access-code.mjs create --kind free_forever --note "Grandma" --prod
 node scripts/access-code.mjs create --kind free_days --days 30 --max 200 --expires 2027-06-30 --note "School pilot" --prod
-node scripts/access-code.mjs create --kind free_days --days 60 --code TEACHERS2027 --max 50 --prod   # custom, guessable: keep --max low
 node scripts/access-code.mjs list --prod
 node scripts/access-code.mjs disable <id> --prod        # stops new redemptions; existing families keep access
 ```

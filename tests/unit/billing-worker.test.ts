@@ -51,6 +51,35 @@ const sendWebhook = async (env: Env, payload: string, opts: { t?: number; secret
   const header = opts.header ?? (await signStripePayload(payload, opts.secret ?? SECRET, t));
   return handleApi(new Request(`${ORIGIN}/api/billing/webhook`, { method: "POST", headers: { "stripe-signature": header, "content-type": "application/json", origin: "https://stripe.example" }, body: payload }), env);
 };
+/**
+ * Stripe's side for webhook tests: the webhook re-fetches subscriptions (GET /v1/subscriptions/:id), so tests set what
+ * Stripe currently holds. `sendSub` sets Stripe's current object (default: the event's object) and delivers the event.
+ */
+function stripeSide() {
+  const subs = new Map<string, Record<string, unknown>>();
+  const gets: string[] = [];
+  let failing = false;
+  vi.stubGlobal("fetch", async (input: string, init: RequestInit) => {
+    const u = new URL(String(input));
+    const m = u.pathname.match(/^\/v1\/subscriptions\/([^/]+)$/);
+    if ((init.method ?? "GET") === "GET" && m) {
+      gets.push(decodeURIComponent(m[1]!));
+      if (failing) return new Response("{}", { status: 500 });
+      const s = subs.get(decodeURIComponent(m[1]!));
+      return s ? new Response(JSON.stringify(s)) : new Response(JSON.stringify({ error: { code: "resource_missing" } }), { status: 404 });
+    }
+    return new Response("{}");
+  });
+  return {
+    subs,
+    gets,
+    fail: (v: boolean) => (failing = v),
+    sendSub: (env: Env, type: string, obj: Record<string, unknown>, created?: number, current: Record<string, unknown> | null = obj) => {
+      if (current) subs.set(String(current.id), current);
+      return sendWebhook(env, event(type, obj, created));
+    },
+  };
+}
 const subObj = (o: Record<string, unknown>) => ({ id: "sub_1", object: "subscription", customer: "cus_1", status: "trialing", trial_end: null, cancel_at_period_end: false, cancel_at: null, ended_at: null, metadata: {}, items: { data: [{ current_period_end: null }] }, ...o });
 
 describe("webhook signature verification", () => {
@@ -86,21 +115,26 @@ describe("webhook signature verification", () => {
 
 describe("webhook processing", () => {
   it("checkout + subscription events produce a Stripe trial; deleting ends it", async () => {
+    const stripe = stripeSide();
     const { env, call, parentId, count } = await setup();
     const trialEnd = Math.floor((Date.now() + 20 * DAY_MS) / 1000);
     expect((await sendWebhook(env, event("checkout.session.completed", { object: "checkout.session", mode: "subscription", client_reference_id: parentId, customer: "cus_1", subscription: "sub_1" }))).status).toBe(200);
-    await sendWebhook(env, event("customer.subscription.created", subObj({ trial_end: trialEnd, metadata: { parent_id: parentId }, items: { data: [{ current_period_end: trialEnd }] } })));
+    await stripe.sendSub(env, "customer.subscription.created", subObj({ trial_end: trialEnd, metadata: { parent_id: parentId }, items: { data: [{ current_period_end: trialEnd }] } }));
     let ent = ((await (await call("/api/billing/status", {})).json()) as { entitlement: Record<string, unknown> }).entitlement;
     expect(ent).toMatchObject({ status: "trial", source: "stripe", trialEndsAt: trialEnd * 1000, renewsAt: trialEnd * 1000, manageable: true });
-    await sendWebhook(env, event("customer.subscription.deleted", subObj({ status: "canceled", metadata: { parent_id: parentId } })));
+    await stripe.sendSub(env, "customer.subscription.deleted", subObj({ status: "canceled", metadata: { parent_id: parentId } }));
+    expect(stripe.gets).toEqual(["sub_1", "sub_1"]); // state comes from Stripe, not from the payload
     ent = ((await (await call("/api/billing/status", {})).json()) as { entitlement: Record<string, unknown> }).entitlement;
     expect(ent).toMatchObject({ status: "trial", source: "intro" }); // account is new: back to its own free days
     expect(count("stripe_events")).toBe(3);
   });
 
   it("is idempotent: a replayed event is applied once", async () => {
+    const stripe = stripeSide();
     const { env, parentId, raw } = await setup();
-    const p = event("customer.subscription.updated", subObj({ status: "active", metadata: { parent_id: parentId }, items: { data: [{ current_period_end: 2_000_000_000 }] } }));
+    const obj = subObj({ status: "active", metadata: { parent_id: parentId }, items: { data: [{ current_period_end: 2_000_000_000 }] } });
+    stripe.subs.set("sub_1", obj);
+    const p = event("customer.subscription.updated", obj);
     const first = await sendWebhook(env, p);
     expect(await first.json()).toEqual({ received: true });
     raw.prepare("UPDATE billing_accounts SET sub_status = 'canceled'").run(); // pretend something else changed it since
@@ -110,24 +144,67 @@ describe("webhook processing", () => {
   });
 
   it("ignores out-of-order (older) subscription events and unknown event types", async () => {
+    const stripe = stripeSide();
     const { env, parentId, raw } = await setup();
     const t = Math.floor(Date.now() / 1000);
-    await sendWebhook(env, event("customer.subscription.updated", subObj({ status: "active", metadata: { parent_id: parentId } }), t));
-    await sendWebhook(env, event("customer.subscription.created", subObj({ status: "trialing", metadata: { parent_id: parentId } }), t - 60));
+    const active = subObj({ status: "active", metadata: { parent_id: parentId } });
+    await stripe.sendSub(env, "customer.subscription.updated", active, t);
+    await stripe.sendSub(env, "customer.subscription.created", subObj({ status: "trialing", metadata: { parent_id: parentId } }), t - 60, active);
     expect(raw.prepare("SELECT sub_status FROM billing_accounts").get()).toEqual({ sub_status: "active" });
     expect(await (await sendWebhook(env, event("charge.refunded", { id: "ch_1" }))).json()).toEqual({ received: true, ignored: true });
   });
 
   it("invoice.payment_failed starts a 7-day grace, then needs-payment; invoice.paid clears it", async () => {
+    const stripe = stripeSide();
     const { env, call, parentId } = await setup();
     const now = Date.now();
-    await sendWebhook(env, event("customer.subscription.updated", subObj({ status: "past_due", metadata: { parent_id: parentId }, items: { data: [{ current_period_end: Math.floor(now / 1000) }] } })));
+    await stripe.sendSub(env, "customer.subscription.updated", subObj({ status: "past_due", metadata: { parent_id: parentId }, items: { data: [{ current_period_end: Math.floor(now / 1000) }] } }));
     await sendWebhook(env, event("invoice.payment_failed", { object: "invoice", customer: "cus_1" }, Math.floor((now - 8 * DAY_MS) / 1000)));
     const late = ((await (await call("/api/billing/status", {})).json()) as { entitlement: Record<string, unknown> }).entitlement;
     expect(late).toMatchObject({ status: "needs-payment", paymentIssue: true });
     await sendWebhook(env, event("invoice.paid", { object: "invoice", customer: "cus_1" }));
     const ok = ((await (await call("/api/billing/status", {})).json()) as { entitlement: Record<string, unknown> }).entitlement;
     expect(ok).toMatchObject({ status: "active", paymentIssue: true }); // still past_due, grace restarts from the row update
+  });
+
+  it("same-second events in the wrong order end in Stripe's current state (re-fetched), not the last payload", async () => {
+    const stripe = stripeSide();
+    const { env, parentId, raw } = await setup();
+    const t = Math.floor(Date.now() / 1000);
+    const end = t + 20 * 86400;
+    const current = subObj({ status: "trialing", trial_end: end, cancel_at_period_end: true, cancel_at: end, metadata: { parent_id: parentId }, items: { data: [{ current_period_end: end }] } });
+    stripe.subs.set("sub_1", current);
+    // delivered: the newer "updated" (cancel scheduled) first, then the older-looking "created" with the same timestamp
+    await sendWebhook(env, event("customer.subscription.updated", current, t));
+    await sendWebhook(env, event("customer.subscription.created", subObj({ status: "trialing", trial_end: end, cancel_at_period_end: false, metadata: { parent_id: parentId } }), t));
+    expect(raw.prepare("SELECT sub_status, cancel_at_period_end FROM billing_accounts").get()).toEqual({ sub_status: "trialing", cancel_at_period_end: 1 });
+  });
+
+  it("a late subscription.created for an old (now canceled) subscription can't replace the live one", async () => {
+    const stripe = stripeSide();
+    const { env, parentId, raw } = await setup();
+    const t = Math.floor(Date.now() / 1000);
+    await stripe.sendSub(env, "customer.subscription.created", subObj({ id: "sub_2", status: "active", metadata: { parent_id: parentId } }), t);
+    // Stripe now says sub_1 is canceled; its creation event (payload: trialing) arrives late, with a newer timestamp too
+    stripe.subs.set("sub_1", subObj({ id: "sub_1", status: "canceled", ended_at: t - 100, metadata: { parent_id: parentId } }));
+    const r = await sendWebhook(env, event("customer.subscription.created", subObj({ id: "sub_1", status: "trialing", metadata: { parent_id: parentId } }), t + 5));
+    expect(r.status).toBe(200);
+    expect(raw.prepare("SELECT stripe_subscription_id, sub_status FROM billing_accounts").get()).toEqual({ stripe_subscription_id: "sub_2", sub_status: "active" });
+  });
+
+  it("subscription unknown to Stripe: updates are ignored, deletes apply as canceled; Stripe down → error, event not recorded (retried)", async () => {
+    const stripe = stripeSide();
+    const { env, parentId, raw, count } = await setup();
+    expect(await (await sendWebhook(env, event("customer.subscription.updated", subObj({ id: "sub_ghost", status: "active", metadata: { parent_id: parentId } })))).json()).toEqual({ received: true, ignored: true });
+    expect(count("billing_accounts")).toBe(0);
+    await stripe.sendSub(env, "customer.subscription.created", subObj({ status: "active", metadata: { parent_id: parentId } }));
+    stripe.subs.delete("sub_1");
+    await sendWebhook(env, event("customer.subscription.deleted", subObj({ status: "active", metadata: { parent_id: parentId } })));
+    expect(raw.prepare("SELECT sub_status FROM billing_accounts").get()).toEqual({ sub_status: "canceled" });
+    stripe.fail(true);
+    const before = count("stripe_events");
+    await expect(sendWebhook(env, event("customer.subscription.updated", subObj({ status: "active", metadata: { parent_id: parentId } })))).rejects.toThrow();
+    expect(count("stripe_events")).toBe(before);
   });
 
   it("drops events for unknown parents or customers owned by someone else", async () => {
@@ -205,15 +282,34 @@ describe("checkout, portal, status", () => {
     expect((await call("/api/billing/status", { firstPlayAt: 1, extra: 1 })).status).toBe(400);
   });
 
-  it("account deletion cancels the live subscription first and removes billing rows", async () => {
+  it("account deletion cancels the live subscription first, then deletes the Stripe customer, and removes billing rows", async () => {
     const calls = stubStripe();
     const { call, raw, parentId, count } = await setup();
     raw.prepare("INSERT INTO billing_accounts (parent_id, stripe_customer_id, stripe_subscription_id, sub_status, created_at, updated_at) VALUES (?, 'cus_1', 'sub_1', 'active', 1, 1)").run(parentId);
     const res = await call("/api/me", { confirm: "delete" }, "DELETE");
     expect(res.status).toBe(200);
-    expect(calls.map((c) => `${c.method} ${new URL(c.url).pathname}`)).toEqual(["DELETE /v1/subscriptions/sub_1"]);
+    expect(calls.map((c) => `${c.method} ${new URL(c.url).pathname}`)).toEqual(["DELETE /v1/subscriptions/sub_1", "DELETE /v1/customers/cus_1"]);
     expect(count("billing_accounts")).toBe(0);
     expect(count("parents")).toBe(0);
+  });
+
+  it("account deletion deletes a Stripe customer with no live subscription; a 404 customer is fine; other errors stop deletion", async () => {
+    const calls = stubStripe();
+    const a = await setup();
+    a.raw.prepare("INSERT INTO billing_accounts (parent_id, stripe_customer_id, stripe_subscription_id, sub_status, created_at, updated_at) VALUES (?, 'cus_9', 'sub_9', 'canceled', 1, 1)").run(a.parentId);
+    expect((await a.call("/api/me", { confirm: "delete" }, "DELETE")).status).toBe(200);
+    expect(calls.map((c) => `${c.method} ${new URL(c.url).pathname}`)).toEqual(["DELETE /v1/customers/cus_9"]);
+
+    vi.stubGlobal("fetch", async () => new Response(JSON.stringify({ error: { code: "resource_missing" } }), { status: 404 }));
+    const b = await setup();
+    b.raw.prepare("INSERT INTO billing_accounts (parent_id, stripe_customer_id, created_at, updated_at) VALUES (?, 'cus_gone', 1, 1)").run(b.parentId);
+    expect((await b.call("/api/me", { confirm: "delete" }, "DELETE")).status).toBe(200);
+
+    vi.stubGlobal("fetch", async () => new Response("{}", { status: 500 }));
+    const c = await setup();
+    c.raw.prepare("INSERT INTO billing_accounts (parent_id, stripe_customer_id, created_at, updated_at) VALUES (?, 'cus_x', 1, 1)").run(c.parentId);
+    expect((await c.call("/api/me", { confirm: "delete" }, "DELETE")).status).toBe(502);
+    expect(c.count("parents")).toBe(1);
   });
 
   it("account deletion stops (502) if Stripe can't cancel the subscription", async () => {

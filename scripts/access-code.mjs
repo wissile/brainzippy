@@ -5,7 +5,8 @@
  *
  *   node scripts/access-code.mjs create --kind free_forever [--max 1] [--expires 2027-06-30] [--note "Grandma"] --local|--staging|--prod
  *   node scripts/access-code.mjs create --kind free_days --days 30 --max 200 --note "School pilot" --prod
- *   node scripts/access-code.mjs create --kind free_days --days 60 --code TEACHERS2027 --prod   (custom code: guessable, use a low --max)
+ *   (Custom codes such as TEACHERS2027 are not supported: a human-chosen code is guessable whatever its length.
+ *    Every code is 12 random characters from a 31-letter alphabet, ≈59 bits.)
  *   node scripts/access-code.mjs list --prod
  *   node scripts/access-code.mjs disable <id> --prod
  *
@@ -70,11 +71,9 @@ export function buildCreate(flags, now = Date.now()) {
     if (!Number.isFinite(expires) || expires <= now) throw new Error("--expires must be a future date");
   }
   const note = flags.note === undefined ? null : String(flags.note).slice(0, 200);
-  let display;
-  if (flags.code !== undefined) {
-    if (!normaliseAccessCode(flags.code)) throw new Error("--code must have 6 to 24 letters or digits");
-    display = String(flags.code).toUpperCase();
-  } else display = generateCode();
+  // Custom codes were removed (security review 2026-11-18): a chosen word can't carry ≥59 bits of entropy.
+  if (flags.code !== undefined) throw new Error("--code is not supported: codes are always generated (12 random characters, ≈59 bits)");
+  const display = generateCode();
   const normalised = normaliseAccessCode(display);
   const id = randomUUID();
   const sql = `INSERT INTO access_codes (id, code_hash, kind, days, max_redemptions, redemptions, expires_at, note, disabled, created_at) VALUES (${sqlStr(id)}, ${sqlStr(hashAccessCode(normalised))}, ${sqlStr(kind)}, ${days ?? "NULL"}, ${max}, 0, ${expires ?? "NULL"}, ${sqlStr(note)}, 0, ${now});`;
