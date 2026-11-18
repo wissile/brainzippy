@@ -73,7 +73,6 @@ Created only from the command line; the code is printed **once** and only its SH
 ```
 node scripts/access-code.mjs create --kind free_forever --note "Grandma" --prod
 node scripts/access-code.mjs create --kind free_days --days 30 --max 200 --expires 2027-06-30 --note "School pilot" --prod
-node scripts/access-code.mjs create --kind free_days --days 60 --code TEACHERS2027 --max 50 --prod   # custom, guessable: keep --max low
 node scripts/access-code.mjs list --prod
 node scripts/access-code.mjs disable <id> --prod        # stops new redemptions; existing families keep access
 ```
