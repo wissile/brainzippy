@@ -63,7 +63,7 @@ Controls: same-origin check on writes (Origin header), UUID-format ids (122-bit 
 | Method | Path | Notes |
 |---|---|---|
 | POST | /api/auth/magic-link | `{email, mode: "signup"\|"signin", consent}`; signup needs `consent: true`; 202; dev returns `devLink` |
-| GET / POST | /api/auth/verify | GET shows a confirm page (never consumes); POST (form `token`) consumes, sets cookie, 303 → /parents |
+| GET / POST | /api/auth/verify | GET shows a confirm page naming the email being signed in (login-CSRF visibility; never consumes); POST (form `token`) consumes, sets cookie, 303 → /parents |
 | POST | /api/auth/logout | deletes session |
 | GET / PUT / DELETE | /api/me | profile + children + entitlement; `{digestOptIn}`; delete needs `{confirm:"delete"}` |
 | GET | /api/me/export | JSON download |
@@ -78,7 +78,8 @@ Controls: same-origin check on writes (Origin header), UUID-format ids (122-bit 
 | POST / DELETE | /api/friendships/:id/approve · /api/friendships/:id | either side's parent |
 | POST / GET | /api/challenges · /api/challenges/:token · /api/challenges/:token/result | friends-only; `{childId, worldId, level, seed, score}` |
 | GET / POST | /api/unsubscribe?p=&s= | no session; HMAC-signed; POST is RFC 8058 one-click (cross-origin allowed) |
-| POST / GET | /api/parent-signup(/verify) | legacy onboarding contract, now creates a `parents` row |
+| POST | /api/parent-signup | legacy onboarding contract; always `202 {status:"pending"}` (no account enumeration; an existing account gets a "you already have an account" email instead of a link) |
+| GET / POST | /api/parent-signup/verify | GET shows a confirm page with the email (never consumes); POST (form `token`) consumes it and creates the `parents` row with the recorded consent |
 
 ### Contract: per-child settings (for the daily-learning feature)
 ```

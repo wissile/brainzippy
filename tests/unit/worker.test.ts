@@ -64,13 +64,29 @@ describe("legacy onboarding sign-up now creates a parent account", () => {
     const res = await handleApi(req("/api/parent-signup", json({ email: " P@Example.com ", consent: true })), env);
     expect(res.status).toBe(202);
     const { devVerifyUrl } = (await res.json()) as { devVerifyUrl: string };
-    const ok = await handleApi(req(new URL(devVerifyUrl).pathname + new URL(devVerifyUrl).search), env);
+    const link = new URL(devVerifyUrl);
+    // GET is only a confirmation page: it shows the address and consumes nothing (mail scanners prefetch links)
+    for (let i = 0; i < 2; i++) {
+      const page = await handleApi(req(link.pathname + link.search), env);
+      const text = await page.text();
+      expect(text).toContain("p@example.com");
+      expect(text).toContain('method="post"');
+      expect(text).not.toContain("Thank you!");
+    }
+    expect(raw.prepare("SELECT COUNT(*) AS n FROM parents").get()).toEqual({ n: 0 });
+    const token = link.searchParams.get("token")!;
+    const confirm = () => handleApi(req("/api/parent-signup/verify", { method: "POST", headers: { origin: ORIGIN, "content-type": "application/x-www-form-urlencoded" }, body: `token=${token}` }), env);
+    expect((await handleApi(req("/api/parent-signup/verify", { method: "POST", headers: { origin: "https://evil.example", "content-type": "application/x-www-form-urlencoded" }, body: `token=${token}` }), env)).status).toBe(403);
+    const ok = await confirm();
     expect(await ok.text()).toContain("Thank you!");
     expect(raw.prepare("SELECT email, consent_version FROM parents").all()).toEqual([expect.objectContaining({ email: "p@example.com", consent_version: "2026-11-17" })]);
-    const again = await handleApi(req(new URL(devVerifyUrl).pathname + new URL(devVerifyUrl).search), env);
-    expect(await again.text()).not.toContain("Thank you!");
+    const again = await confirm();
+    expect(again.status).toBe(410);
+    expect((await handleApi(req(link.pathname + link.search), env)).status).toBe(410);
+    // an existing account gets the same answer as a new sign-up (no enumeration)
     const after = await handleApi(req("/api/parent-signup", json({ email: "p@example.com", consent: true })), env);
-    expect(await after.json()).toEqual({ ok: true, status: "verified" });
+    expect(after.status).toBe(202);
+    expect(await after.json()).toEqual({ ok: true, status: "pending" });
     const staging = fakeEnv({ APP_ENV: "staging" });
     expect((await handleApi(req("/api/parent-signup", json({ email: "q@example.com", consent: true })), staging.env)).status).toBe(503);
   });

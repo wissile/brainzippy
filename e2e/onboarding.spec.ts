@@ -91,10 +91,12 @@ test("first-time child: story → bubbles → build monster → names → age �
   const link = page.getByTestId("dev-verify-link");
   await expect(link).toBeVisible();
 
-  // verification link works exactly once
+  // verification link: GET shows the address and changes nothing; the button confirms, exactly once
   const href = (await link.getAttribute("href"))!;
   const v = await page.context().newPage();
   await v.goto(href);
+  await expect(v.getByTestId("signup-email")).toHaveText(parentEmail);
+  await v.getByTestId("signup-confirm").click();
   await expect(v.locator("h1")).toHaveText("Thank you!");
   await v.goto(href);
   await expect(v.locator("h1")).not.toHaveText("Thank you!");

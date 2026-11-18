@@ -13,6 +13,7 @@ import { isObj, normaliseEmail, onlyKeys } from "../lib/validation";
  * - Tokens: 256-bit random, stored as SHA-256 only, single use, 15-minute expiry.
  * - The emailed link opens a confirmation page (GET never consumes the token, so mail scanners that prefetch links
  *   cannot burn it); the page's button POSTs the token, which consumes it, creates the session and redirects to /parents.
+ * - The confirmation page shows the email being signed in, so a link planted by someone else (login CSRF) is visible.
  * - Sign-in for an unknown email answers exactly like a known one (no account enumeration) and sends nothing.
  */
 export const MAGIC_LINK_TTL_MS = 15 * 60 * 1000;
@@ -58,13 +59,15 @@ export const routes: Route[] = [
     async handler({ env, url }) {
       const token = url.searchParams.get("token") ?? "";
       if (!TOKEN_RE.test(token)) return expiredPage();
-      const row = await env.DB.prepare("SELECT purpose FROM auth_tokens WHERE token_hash = ? AND used_at IS NULL AND expires_at > ?")
+      const row = await env.DB.prepare("SELECT email, purpose FROM auth_tokens WHERE token_hash = ? AND used_at IS NULL AND expires_at > ?")
         .bind(await sha256Hex(token), Date.now())
-        .first<{ purpose: string }>();
+        .first<{ email: string; purpose: string }>();
       if (!row) return expiredPage();
       const label = row.purpose === "signup" ? "Confirm and continue" : "Continue to BrainZippy";
       return html(
         `<h1>${row.purpose === "signup" ? "Confirm your parent account" : "Sign in to BrainZippy"}</h1>
+<p>You are signing in as <strong data-testid="verify-email">${esc(row.email)}</strong>.</p>
+<p>If that isn't your email address, close this page: someone may be trying to sign you in to their account.</p>
 <p>Press the button to finish on this device.</p>
 <form method="post" action="/api/auth/verify"><input type="hidden" name="token" value="${esc(token)}"><button type="submit" data-testid="verify-continue">${label}</button></form>`,
       );

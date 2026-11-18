@@ -110,3 +110,30 @@ describe("migration 0006: typed monster names leave the server", () => {
     expect(childOut(row as never).publicName).toBe(defaultPublicName("11111111-1111-4111-8111-111111111111"));
   });
 });
+
+describe("legacy sign-up and magic-link confirmation pages", () => {
+  it("existing and new emails get the same reply outside development; existing accounts get a notice, not a link", async () => {
+    const t = fakeEnv({ APP_ENV: "staging", RESEND_API_KEY: "re_test" });
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}"));
+    t.raw.prepare("INSERT INTO parents (id, email, consent_version, consented_at, created_at, digest_opt_in) VALUES ('p1', 'known@example.com', 'v', 1, 1, 0)").run();
+    const post = (email: string) =>
+      handleApi(new Request("https://brainzippy.test/api/parent-signup", { method: "POST", headers: { origin: "https://brainzippy.test", "content-type": "application/json" }, body: JSON.stringify({ email, consent: true }) }), t.env);
+    const known = await post("known@example.com");
+    const fresh = await post("new@example.com");
+    expect([known.status, fresh.status]).toEqual([202, 202]);
+    expect(await known.json()).toEqual(await fresh.json());
+    const bodies = fetchSpy.mock.calls.map((c) => JSON.parse(c[1]!.body as string) as { to: string[]; text: string });
+    expect(bodies.find((b) => b.to[0] === "known@example.com")!.text).not.toMatch(/token=/);
+    expect(bodies.find((b) => b.to[0] === "new@example.com")!.text).toMatch(/parent-signup\/verify\?token=[0-9a-f]{64}/);
+  });
+
+  it("the magic-link confirmation page names the account being signed in (login CSRF)", async () => {
+    const t = fakeEnv();
+    const o = "https://localhost";
+    const r = await handleApi(new Request(`${o}/api/auth/magic-link`, { method: "POST", headers: { origin: o, "content-type": "application/json" }, body: JSON.stringify({ email: "csrf@example.com", consent: true, mode: "signup" }) }), t.env);
+    const { devLink } = (await r.json()) as { devLink: string };
+    const page = await (await handleApi(new Request(devLink.replace(/^https?:\/\/[^/]+/, o)), t.env)).text();
+    expect(page).toContain("You are signing in as");
+    expect(page).toContain("csrf@example.com");
+  });
+});
