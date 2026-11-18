@@ -143,7 +143,23 @@ for (const vp of [{ width: 390, height: 844 }, { width: 915, height: 412 }]) {
     await page.goto("/map");
     await expect(page.getByTestId("eod-monster")).toHaveAttribute("data-state", "sleeping", { timeout: 10_000 });
     await page.waitForTimeout(600);
-    await noOverflow(page, '[data-testid="nav-back"], [data-testid="sound-toggle"], .eod-title');
+    // fits without scrolling, and the caption (own band) never covers a card or "Come back tomorrow!"
+    await noOverflow(page, '[data-testid="nav-back"], [data-testid="sound-toggle"], .eod-title, [data-testid="recap"], [data-testid="teaser"], [data-testid="come-back"]');
+    expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(vp.height + 1);
+    const cards = await page.locator('.eod-recap-item, [data-testid="teaser"], [data-testid="come-back"]').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()));
+    for (let t = 0; t < 6; t++) {
+      const bubble = page.locator(".eod-caption");
+      if (await bubble.isVisible()) {
+        const b = (await bubble.boundingBox())!;
+        for (const c of cards) {
+          const overlap = Math.max(0, Math.min(b.x + b.width, c.right) - Math.max(b.x, c.left)) * Math.max(0, Math.min(b.y + b.height, c.bottom) - Math.max(b.y, c.top));
+          expect(overlap).toBe(0);
+        }
+        await page.screenshot({ path: `${SHOTS}/${vp.width}x${vp.height}-end-of-day-caption.png` });
+        break;
+      }
+      await page.waitForTimeout(500);
+    }
     await page.screenshot({ path: `${SHOTS}/${vp.width}x${vp.height}-end-of-day.png`, fullPage: true });
   });
 }
