@@ -17,7 +17,8 @@ export const HANDLED_EVENTS = [
 ] as const;
 
 export const MAX_WEBHOOK_BYTES = 512 * 1024;
-const EVENT_RETENTION_MS = 30 * 86_400_000;
+/** Processed event ids are kept this long for idempotency; purged by the daily job (worker/jobs/purge.ts). */
+export const STRIPE_EVENT_RETENTION_MS = 30 * 86_400_000;
 
 export type WebhookResult = { status: number; body: { received?: boolean; duplicate?: boolean; ignored?: boolean; error?: string } };
 
@@ -36,7 +37,6 @@ export async function processWebhook(env: Env, payload: string, signature: strin
     if (await env.DB.prepare("SELECT 1 AS x FROM stripe_events WHERE id = ?").bind(event.id).first()) return { status: 200, body: { received: true, duplicate: true } };
     throw e;
   }
-  if (Math.random() < 0.02) await env.DB.prepare("DELETE FROM stripe_events WHERE received_at < ?").bind(now - EVENT_RETENTION_MS).run();
   return { status: 200, body: stmts.length ? { received: true } : { received: true, ignored: true } };
 }
 

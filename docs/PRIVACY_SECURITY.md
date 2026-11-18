@@ -60,7 +60,7 @@ Not collected for accounts: child email, child password, birthdate, photo, voice
 | Stripe customer id, subscription id, status, trial/period/cancel dates, failed-payment time | D1 `billing_accounts` | pseudonymous (linked to the parent) | entitlement | deleted with the account |
 | Renewal-consent time + wording version | D1 `billing_accounts` | yes (parent) | proof of consent to auto-renewal (California ARL) | deleted with the account — **counsel: retention may need to be longer** |
 | Free-access code **hash**, kind, limits, owner note; redemptions (code id, parent id, time) | D1 `access_codes`, `access_code_redemptions` | redemptions pseudonymous | free access | codes until disabled; redemptions deleted with the account |
-| Processed webhook event ids | D1 `stripe_events` | no | idempotency | 30 days |
+| Processed webhook event ids | D1 `stripe_events` | no | idempotency | 30 days (daily purge job, `worker/jobs/purge.ts`) |
 | Device first-play time; last entitlement answer | browser localStorage `bz.billing` | no | 14-day free period, offline play | until site data is cleared (kept by "delete progress on this device" so the free period isn't restarted by it) |
 | Parent email, card, billing address | **Stripe** (processor) | yes (parent) | payment, receipts, tax | Customer object deleted on account deletion. **Stripe keeps its own records of past charges, invoices and disputes after a Customer is deleted** (legal, tax and anti-fraud obligations; Stripe's privacy policy), which we can't delete; we never see card numbers |
 

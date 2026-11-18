@@ -100,7 +100,9 @@ describe("cron dispatch and purge", () => {
     t.raw.prepare("INSERT INTO auth_tokens (token_hash, email, purpose, created_at, expires_at) VALUES ('old', 'a@x.co', 'signin', 0, ?), ('new', 'a@x.co', 'signin', 0, ?)").run(now - 2 * 86400_000, now + 60_000);
     t.raw.prepare("INSERT INTO rate_limits (key, window_start, count) VALUES ('a', ?, 1), ('b', ?, 1)").run(now - 3 * 86400_000, now);
     t.raw.prepare("INSERT INTO guest_sessions (id, created_at, updated_at) VALUES ('g1', 0, 0), ('g2', ?, ?)").run(now, now);
+    t.raw.prepare("INSERT INTO stripe_events (id, type, received_at) VALUES ('evt_old', 'x', ?), ('evt_new', 'x', ?)").run(now - 31 * 86400_000, now - 29 * 86400_000);
     await purge(t.env, now);
+    expect(t.raw.prepare("SELECT id FROM stripe_events").all()).toEqual([{ id: "evt_new" }]); // 30-day idempotency window
     expect(t.raw.prepare("SELECT token_hash FROM auth_tokens").all()).toEqual([{ token_hash: "new" }]);
     expect(t.raw.prepare("SELECT key FROM rate_limits").all()).toEqual([{ key: "b" }]);
     expect(t.raw.prepare("SELECT id FROM guest_sessions").all()).toEqual([{ id: "g2" }]);
