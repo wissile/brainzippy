@@ -2,7 +2,8 @@
  * BrainZippy service worker (compiled to /sw.js by scripts/pwa-plugin.ts with the build data inlined).
  *
  * Strategies
- *  - App shell (entry JS/CSS, fonts, SFX, icons, "/", offline page): precached at install, cache-first.
+ *  - App shell (entry JS/CSS, fonts, SFX, icons, the SPA shell at /__app, offline page): precached at install, cache-first.
+ *    ("/" itself is the prerendered landing page; offline, "/" and app routes get the SPA shell, which routes home.)
  *  - Navigations: network-first (4 s cap for app routes) → cached shell → offline.html for anything else.
  *  - /assets/* not precached (game chunks): cache-first, filled at runtime. Opening a world caches its whole
  *    bundle: chunk + deps + CSS, its music, its voice clips, plus the shared clips/music.
@@ -66,7 +67,7 @@ const precacheSet = new Set(B.precache);
 const assetSet = new Set(B.assets);
 const worldByEntry = new Map(Object.entries(B.worlds).map(([id, w]) => [w.entry, id]));
 /** Client-side routes rendered by the SPA shell. Anything else offline gets offline.html. */
-const APP_ROUTE = /^\/(?:play(?:\/[a-z0-9-]+)?|map|hello|grown-ups)?\/?$/;
+const APP_ROUTE = /^\/(?:play(?:\/[a-z0-9-]+)?|map|hello|grown-ups|start)?\/?$/;
 
 /** Store a response without redirect flags (a redirected response can't answer a navigation). */
 async function clean(res: Response, extraHeaders: Record<string, string> = {}): Promise<Response> {
@@ -209,7 +210,7 @@ async function navigate(req: Request): Promise<Response> {
     return await (app ? withTimeout(net, 4000) : net);
   } catch {
     if (app) {
-      const shell = await precached("/");
+      const shell = await precached("/__app");
       if (shell) return shell;
     }
     return (await precached("/offline.html")) ?? new Response("You're offline.", { status: 503, headers: { "content-type": "text/plain; charset=utf-8" } });
@@ -225,7 +226,7 @@ sw.addEventListener("fetch", (e) => {
   if (path.startsWith("/api/")) return; // network only, never cached
 
   if (req.mode === "navigate") return e.respondWith(navigate(req));
-  if (precacheSet.has(path) && path !== "/") return e.respondWith(precached(path).then((r) => r ?? fetch(req)));
+  if (precacheSet.has(path) && path !== "/__app") return e.respondWith(precached(path).then((r) => r ?? fetch(req)));
   if (path.startsWith("/assets/")) {
     const world = worldByEntry.get(path);
     if (world) e.waitUntil(cacheWorld(world));

@@ -18,7 +18,7 @@ const worldCached = (page: Page, id: string) =>
 
 test("service worker registers, controls the page and precaches the app shell", async ({ page }) => {
   await seed(page, { muted: true });
-  await page.goto("/");
+  await page.goto("/map");
   await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/manifest.webmanifest");
   await waitForController(page);
   const info = await page.evaluate(async () => {
@@ -29,19 +29,18 @@ test("service worker registers, controls the page and precaches the app shell", 
     return { script: reg?.active?.scriptURL ?? "", keys, manifest };
   });
   expect(info.script).toMatch(/\/sw\.js$/);
-  expect(info.keys).toEqual(expect.arrayContaining(["/", "/offline.html", "/audio/sfx/correct.mp3", "/icons/icon-192.png"]));
+  expect(info.keys).toEqual(expect.arrayContaining(["/__app", "/offline.html", "/audio/sfx/correct.mp3", "/icons/icon-192.png"]));
   expect(info.keys.some((k) => /^\/assets\/index-.*\.js$/.test(k))).toBe(true);
   expect(info.keys.some((k) => k.endsWith(".woff2"))).toBe(true);
-  expect(info.manifest).toMatchObject({ display: "standalone", orientation: "any", short_name: "BrainZippy" });
+  expect(info.manifest).toMatchObject({ start_url: "/start", display: "standalone", orientation: "any", short_name: "BrainZippy" });
   expect(info.manifest.icons.some((i: { purpose: string }) => i.purpose === "maskable")).toBe(true);
 });
 
 test("after one online visit, a world plays a full exercise offline", async ({ page, context }) => {
   const errors = collectErrors(page);
   await seed(page, { muted: true });
-  await page.goto("/");
+  await page.goto("/map");
   await waitForController(page);
-  await press(page, '[data-testid="home-play"]');
   await press(page, '[data-testid="stop-counting-adventure"]');
   await expect(page.getByTestId("story")).toBeVisible();
   // opening the world caches its whole bundle: chunk + deps, music, voice clips
@@ -70,7 +69,7 @@ test("after one online visit, a world plays a full exercise offline", async ({ p
 
 test("offline: an app route opens the cached app; an unknown page shows the offline page", async ({ page, context }) => {
   await seed(page, { muted: true });
-  await page.goto("/");
+  await page.goto("/map");
   await waitForController(page);
   await context.setOffline(true);
   await page.goto("/map");
@@ -151,7 +150,7 @@ test("push reminders: permission is requested only after the grown-up's tap; sub
 
 test("push message shows the reminder with the device-local monster name", async ({ page, context }) => {
   await seed(page, { muted: true });
-  await page.goto("/");
+  await page.goto("/map");
   await waitForController(page);
   await page.evaluate(() => navigator.serviceWorker.controller!.postMessage({ type: "PREFS", monsterName: "Ziggy" }));
   await expect.poll(() => page.evaluate(async () => Boolean(await (await caches.open("bz-local")).match("/__bz/prefs")))).toBe(true);

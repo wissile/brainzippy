@@ -4,7 +4,8 @@ import type { World } from "../content/types";
 import { AppProvider, useApp } from "./AppContext";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { MapScreen } from "./MapScreen";
-import { AgeScreen, GamesScreen, GrownUpsScreen, HomeScreen } from "./screens";
+import { loadState } from "../services/storage";
+import { AgeScreen, GamesScreen, GrownUpsScreen } from "./screens";
 import { Onboarding } from "../onboarding/Onboarding";
 import { startAccountSync } from "../services/accountSync";
 
@@ -43,7 +44,8 @@ function Router() {
     document.title = world ? worldTitle(world) : (TITLES[path] ?? "BrainZippy");
   }, [path]);
 
-  if (path === "/") return <HomeScreen />;
+  // "/" is the prerendered landing page on a full load; inside the app it means "home" = map or first-run story.
+  if (path === "/") return <RootRedirect />;
   if (path === "/play") return <AgeScreen />;
   if (path === "/grown-ups") return <GrownUpsScreen />;
   if (path === "/hello") return <Onboarding />;
@@ -78,7 +80,14 @@ function Router() {
     );
   const m = path.match(/^\/play\/(ages-[0-9-]+)$/);
   if (m?.[1]) return <GamesScreen bandId={m[1]} />;
-  return <HomeScreen />;
+  return <RootRedirect />;
+}
+
+/** In-app "/" and unknown paths: returning players go to Monster Island, new players to the first-run story. */
+function RootRedirect() {
+  const { navigate } = useApp();
+  useEffect(() => navigate(loadState().profile.step === "done" ? "/map" : "/hello", { replace: true }), [navigate]);
+  return <Loading />;
 }
 
 function Loading() {

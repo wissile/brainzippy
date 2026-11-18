@@ -8,9 +8,9 @@ test("child plays a complete round from home to sticker, then plays again", asyn
   const shot = (name: string) => page.screenshot({ path: `test-results/screens/${info.project.name}-${name}.png` });
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "BrainZippy" })).toBeVisible();
+  await expect(page.getByTestId("site-play")).toBeVisible(); // prerendered landing page
   await shot("01-home");
-  await press(page, '[data-testid="home-play"]');
+  await press(page, '[data-testid="site-play"]');
   await expect(page.getByTestId("map")).toBeVisible();
   await shot("02-map");
   await press(page, '[data-testid="stop-counting-adventure"]');

@@ -119,6 +119,25 @@ class AudioEngine {
     return () => this.listeners.delete(l);
   }
 
+  /**
+   * True only when the browser already allows sound without a new gesture on this page (e.g. the player tapped on
+   * the site recently). Never creates an AudioContext when the browser says autoplay is disallowed. Never throws.
+   */
+  async canAutoUnlock(): Promise<boolean> {
+    try {
+      const nav = navigator as Navigator & { getAutoplayPolicy?: (type: "audiocontext") => string };
+      if (typeof nav.getAutoplayPolicy === "function") return nav.getAutoplayPolicy("audiocontext") === "allowed";
+      const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!Ctor) return false;
+      const probe = new Ctor();
+      const running = probe.state === "running";
+      void probe.close();
+      return running;
+    } catch {
+      return false;
+    }
+  }
+
   /** Must be called from a user gesture (first tap). Creates/resumes the context and preloads SFX. */
   unlock(): void {
     try {

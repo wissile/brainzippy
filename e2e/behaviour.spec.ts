@@ -61,7 +61,7 @@ test.describe("gameplay behaviour", () => {
     test.skip(info.project.name !== "desktop");
     await seed(page, { muted: true });
     await page.goto("/");
-    await expect(page.getByTestId("home-play")).toBeVisible();
+    await expect(page.getByTestId("site-play")).toBeVisible();
     const focusAndEnter = async (testId: string) => {
       for (let i = 0; i < 25; i++) {
         await page.keyboard.press("Tab");
@@ -71,7 +71,7 @@ test.describe("gameplay behaviour", () => {
       await page.keyboard.press("Enter");
       await page.waitForTimeout(400);
     };
-    await focusAndEnter("home-play");
+    await focusAndEnter("site-play");
     await focusAndEnter("stop-counting-adventure");
     await page.getByTestId("story-skip").waitFor();
     await focusAndEnter("story-skip");
@@ -97,10 +97,9 @@ test.describe("gameplay behaviour", () => {
 
   test("muted: no audio needed, captions still shown, mute persists", async ({ page }) => {
     await seed(page, {});
-    await page.goto("/");
+    await page.goto("/map");
     await press(page, '[data-testid="sound-toggle"]');
     await expect(page.getByTestId("sound-toggle")).toHaveAttribute("aria-pressed", "false");
-    await press(page, '[data-testid="home-play"]');
     await press(page, '[data-testid="stop-counting-adventure"]');
     await enterGame(page);
     await expect(page.getByTestId("speech-bubble").first()).toContainText("count the apples");
@@ -153,9 +152,9 @@ test.describe("gameplay behaviour", () => {
     await seed(page, { muted: true });
     const start = Date.now();
     await page.goto("/");
-    await expect(page.getByTestId("home-play")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("site-play")).toBeVisible({ timeout: 30_000 });
     const homeMs = Date.now() - start;
-    await press(page, '[data-testid="home-play"]');
+    await press(page, '[data-testid="site-play"]');
     await press(page, '[data-testid="stop-counting-adventure"]');
     await enterGame(page);
     const id = await solve(page);

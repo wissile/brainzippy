@@ -5,7 +5,7 @@
   "description": "Friendly, ad-free learning games for children ages 3–14, with spoken instructions and gentle hints.",
   "lang": "en",
   "dir": "ltr",
-  "start_url": "/",
+  "start_url": "/start",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",

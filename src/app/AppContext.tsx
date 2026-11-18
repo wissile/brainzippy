@@ -10,6 +10,8 @@ interface AppCtx {
   musicOn: boolean;
   toggleMusic: () => void;
   audioReady: boolean;
+  /** True once we know whether the browser allows sound without a tap (so a Start button never flashes). */
+  audioChecked: boolean;
   unlockAudio: () => void;
   caption: string;
   speaking: boolean;
@@ -30,6 +32,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
   const [audioReady, setAudioReady] = useState(false);
+  const [audioChecked, setAudioChecked] = useState(false);
   const [caption, setCaption] = useState("");
   const [speaking, setSpeaking] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false);
@@ -65,6 +68,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setAudioReady(true);
   }, []);
 
+  // Arriving from the landing page is a full page load: if the browser still allows sound, skip the extra "Start" tap.
+  useEffect(() => {
+    let live = true;
+    void audio.canAutoUnlock().then((ok) => {
+      if (!live) return;
+      if (ok) unlockAudio();
+      setAudioChecked(true);
+    });
+    return () => {
+      live = false;
+    };
+  }, [unlockAudio]);
+
   // Any first tap anywhere unlocks audio (browsers require a user gesture).
   useEffect(() => {
     if (audioReady) return;
@@ -94,8 +110,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ path, navigate, muted, toggleMute, musicOn, toggleMusic, audioReady, unlockAudio, caption, speaking, reducedMotion }),
-    [path, navigate, muted, toggleMute, musicOn, toggleMusic, audioReady, unlockAudio, caption, speaking, reducedMotion],
+    () => ({ path, navigate, muted, toggleMute, musicOn, toggleMusic, audioReady, audioChecked, unlockAudio, caption, speaking, reducedMotion }),
+    [path, navigate, muted, toggleMute, musicOn, toggleMusic, audioReady, audioChecked, unlockAudio, caption, speaking, reducedMotion],
   );
   return (
     <Ctx.Provider value={value}>

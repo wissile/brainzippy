@@ -46,6 +46,9 @@ interface AssetLike {
 type Output = ChunkLike | AssetLike;
 
 const hash = (data: Buffer | string, n = 10) => createHash("sha256").update(data).digest("hex").slice(0, n);
+/** URL under which the service worker caches the SPA shell (index.html). Must not exist as a file. */
+export const SHELL_URL = "/__app";
+
 const url = (fileName: string) => `/${fileName.replace(/\\/g, "/")}`;
 
 /** Shell files from public/ that must work offline (relative to the output dir). */
@@ -91,7 +94,9 @@ export function bzPwa(): Plugin {
 
       // 1. precache: entry closure + its CSS + woff2 fonts + SFX + shell
       const entryFiles = withCss(closure([...chunks.values()].filter((c) => c.isEntry)));
-      const precache = new Set<string>(["/", "/offline.html"]);
+      // "/" is the prerendered landing page, so the SPA shell is cached under its own URL: any unknown path is answered
+      // with index.html by Workers Static Assets (single-page-application fallback).
+      const precache = new Set<string>([SHELL_URL, "/offline.html"]);
       for (const f of entryFiles) if (!f.endsWith(".woff")) precache.add(url(f));
       for (const o of outputs) if (o.fileName.endsWith(".woff2")) precache.add(url(o.fileName));
       const sfxDir = path.join(outDir, "audio/sfx");
@@ -143,7 +148,7 @@ export function bzPwa(): Plugin {
         if (fs.existsSync(p)) revs[u] = hash(fs.readFileSync(p));
       }
       const precacheRevs = [...precache].map((u) => {
-        const p = path.join(outDir, u === "/" ? "index.html" : u);
+        const p = path.join(outDir, u === SHELL_URL ? "index.html" : u);
         return `${u}@${fs.existsSync(p) ? hash(fs.readFileSync(p)) : "?"}`;
       });
 

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { enterGame, seed } from "./helpers";
+import { enterGame, seed, beginIfAsked } from "./helpers";
 
 /** Public, prerendered content pages (src/site). Run: PW_PORT=4182 npx playwright test e2e/site.spec.ts --project=desktop --project=phone */
 
@@ -51,8 +51,8 @@ test.describe("public site", () => {
     await page.goto("/");
     await page.getByTestId("site-play").click();
     await expect(page).toHaveURL(/\/hello$/);
-    // A full page load needs a fresh user gesture to unlock audio, so the app shows its Start tap first.
-    await page.getByTestId("onb-begin").click({ force: true }); // breathing animation never settles
+    // A full page load may need a fresh tap to unlock sound: the app either starts the story or shows a Start tap.
+    await beginIfAsked(page);
     await expect(page.getByTestId("onboarding")).toBeVisible();
   });
 

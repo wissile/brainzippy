@@ -34,7 +34,7 @@ function useProfile() {
 }
 
 export function Onboarding() {
-  const { navigate, audioReady, unlockAudio } = useApp();
+  const { navigate, audioReady, audioChecked, unlockAudio } = useApp();
   const [profile, update] = useProfile();
   const step = profile.step;
   const next = useCallback(() => {
@@ -52,9 +52,12 @@ export function Onboarding() {
     return (
       <main className="onb onb-tap">
         <MeadowBackground />
-        <button type="button" className="big-play" data-testid="onb-begin" aria-label="Start" onClick={() => { unlockAudio(); audio.play("tap"); }}>
-          <IconPlay />
-        </button>
+        {/* The Start tap appears only when the browser really needs one, so it never flashes before auto-start. */}
+        {audioChecked && (
+          <button type="button" className="big-play" data-testid="onb-begin" aria-label="Start the story" onClick={() => { unlockAudio(); audio.play("tap"); }}>
+            <IconPlay />
+          </button>
+        )}
       </main>
     );
   }

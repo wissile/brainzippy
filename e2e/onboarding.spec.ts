@@ -1,5 +1,5 @@
 import { type Page, expect, test } from "@playwright/test";
-import { collectErrors, press, seed } from "./helpers";
+import { collectErrors, press, seed, beginIfAsked } from "./helpers";
 
 test.beforeEach(({}, info) => {
   test.skip(info.project.name === "tablet", "onboarding runs on desktop, phone and phone-landscape");
@@ -33,7 +33,8 @@ test("first-time child: story → bubbles → build monster → names → age �
   const shot = (n: string) => page.screenshot({ path: `test-results/screens/${info.project.name}-onb-${n}.png` });
 
   await page.goto("/");
-  await press(page, '[data-testid="home-play"]');
+  await press(page, '[data-testid="site-play"]');
+  await beginIfAsked(page);
   await expect(step(page)).toHaveAttribute("data-step", "intro");
   await expect(page.getByTestId("opening")).toBeVisible();
   await page.waitForTimeout(1300);
@@ -123,13 +124,14 @@ test("first-time child: story → bubbles → build monster → names → age �
 test("grown-up step can be skipped, and onboarding resumes after refresh", async ({ page }) => {
   await seed(page, { muted: true }, { fresh: true });
   await page.goto("/");
-  await press(page, '[data-testid="home-play"]');
+  await press(page, '[data-testid="site-play"]');
+  await beginIfAsked(page);
   await press(page, '[data-testid="opening-skip"]');
   await popBubbles(page);
   await expect(step(page)).toHaveAttribute("data-step", "build", { timeout: 15_000 });
   await press(page, '[data-testid="build-random"]');
   await page.reload();
-  await press(page, '[data-testid="onb-begin"]'); // audio unlock after a reload
+  await beginIfAsked(page); // audio unlock after a reload, when the browser asks for one
   await expect(step(page)).toHaveAttribute("data-step", "build");
   await press(page, '[data-testid="build-done"]');
   await page.getByTestId("monster-name-input").fill("Bob1!");
@@ -142,7 +144,7 @@ test("grown-up step can be skipped, and onboarding resumes after refresh", async
   await expect(page.getByText("Monster Island")).toBeVisible(); // no kid name given
   // returning child goes straight to the map
   await page.goto("/");
-  await press(page, '[data-testid="home-play"]');
+  await press(page, '[data-testid="site-play"]');
   await expect(page.getByTestId("map")).toBeVisible();
 });
 
@@ -154,8 +156,9 @@ test("voice clips: the game plays recorded audio files, not only speech synthesi
   });
   await seed(page, { muted: false });
   await page.goto("/");
-  await press(page, '[data-testid="home-play"]');
-  await expect.poll(() => clips.includes("map.back.mp3") || clips.includes("map.start.mp3"), { timeout: 10_000 }).toBe(true);
+  await press(page, '[data-testid="site-play"]');
+  await expect(page.getByTestId("map")).toBeVisible();
+  // (arriving by full page load: the map's greeting waits for the first tap — covered by the daily-learning specs)
   await press(page, '[data-testid="stop-counting-adventure"]');
   await expect.poll(() => clips.includes("ca.story.1.mp3"), { timeout: 10_000 }).toBe(true);
   await press(page, '[data-testid="story-skip"]');

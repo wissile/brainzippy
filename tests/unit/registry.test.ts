@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildRegistry, checkRegistry, getWorld, registry, skillPrereqs, worldsBySubject, worldsForAge } from "../../src/content/registry";
+import { allWorlds, buildRegistry, checkRegistry, getWorld, registry, skillPrereqs, worldsBySubject, worldsForAge } from "../../src/content/registry";
 import type { ContentPack } from "../../src/content/types";
 import { buildRound } from "../../src/engine/round";
 import { lintExercise } from "../../src/engine/validation";
@@ -46,11 +46,16 @@ describe("content registry integrity", () => {
 });
 
 describe("registry helpers", () => {
-  it("worldsForAge uses inclusive age ranges", () => {
-    expect(worldsForAge(4).map((w) => w.id)).toEqual(["counting-adventure"]);
-    expect(worldsForAge(6).map((w) => w.id).sort()).toEqual(["counting-adventure", "glow-cave-hops", "sky-balloon-race"]);
-    expect(worldsForAge(9).map((w) => w.id)).toEqual(["cookie-kitchen"]);
-    expect(worldsForAge(13)).toEqual([]);
+  it("worldsForAge uses inclusive age ranges (any number of worlds)", () => {
+    // Property-based so new worlds from parallel agents never break this test.
+    for (const age of [3, 4, 6, 9, 13]) {
+      const expected = allWorlds().filter((w) => w.ages[0] <= age && age <= w.ages[1]).map((w) => w.id).sort();
+      expect(worldsForAge(age).map((w) => w.id).sort(), `age ${age}`).toEqual(expected);
+    }
+    // The core worlds sit where their definitions say.
+    expect(worldsForAge(4).map((w) => w.id)).toContain("counting-adventure");
+    expect(worldsForAge(9).map((w) => w.id)).toContain("cookie-kitchen");
+    expect(worldsForAge(9).map((w) => w.id)).not.toContain("counting-adventure");
   });
 
   it("worldsBySubject groups by subject", () => {

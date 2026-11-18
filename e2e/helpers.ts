@@ -38,7 +38,7 @@ export async function enterGame(page: Page) {
 
 export async function openGame(page: Page, id = "counting-adventure") {
   await page.goto("/");
-  await press(page, '[data-testid="home-play"]');
+  await press(page, '[data-testid="site-play"]');
   await press(page, `[data-testid="stop-${id}"]`);
   await enterGame(page);
 }
@@ -108,4 +108,13 @@ export function collectErrors(page: Page) {
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("console", (m) => m.type() === "error" && !m.text().includes("Failed to load resource") && errors.push(m.text()));
   return errors;
+}
+
+/** After a full page load into the app, the browser may still need one tap before sound; tap Start if it is shown. */
+export async function beginIfAsked(page: Page) {
+  const begin = page.getByTestId("onb-begin");
+  const onb = page.locator('[data-testid="onboarding"]');
+  // Either the story starts by itself (sound already allowed) or a Start button appears: handle both.
+  await expect(begin.or(onb).first()).toBeVisible({ timeout: 15_000 });
+  if (await begin.isVisible()) await begin.click({ force: true, timeout: 5_000 }).catch(() => undefined); // breathing animation never settles
 }
