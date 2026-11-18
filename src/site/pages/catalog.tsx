@@ -2,6 +2,7 @@ import { GAMES, overlapYears, type SiteGame } from "../catalog";
 import { Critter, GameCard, GuideCard, PageHead, RefList, Section, ages } from "../components";
 import { SKILLS, type AgeBandInfo, type SubjectInfo } from "../content/curriculum";
 import { GAME_COPY } from "../content/games";
+import { registry } from "../../content";
 import { GUIDES, guideBySlug } from "../content/guides";
 import { REFERENCES } from "../content/references";
 import { PlayIcon } from "../layout";
@@ -19,14 +20,14 @@ export function GamesHub() {
       </Section>
       <Section title="At a glance" className="tinted">
         <table className="table">
-          <thead><tr><th scope="col">Game</th><th scope="col">Ages</th><th scope="col">Skills</th><th scope="col">Puzzles</th></tr></thead>
+          <thead><tr><th scope="col">Game</th><th scope="col">Ages</th><th scope="col">Skills</th><th scope="col">Levels</th></tr></thead>
           <tbody>
             {GAMES.map((g) => (
               <tr key={g.id}>
                 <td><a href={`/games/${g.id}`}>{g.title}</a></td>
                 <td>{ages(g.ages)}</td>
                 <td>{g.skillIds.map((s) => SKILLS[s]?.name ?? s).join(", ")}</td>
-                <td>{g.exerciseCount} across {g.levels.length} levels</td>
+                <td>{g.levelCount} levels</td>
               </tr>
             ))}
           </tbody>
@@ -49,8 +50,8 @@ export function GamePage({ game }: { game: SiteGame }) {
           <p className="lead">{c.oneLine}</p>
           <ul className="badges" aria-label="Game facts">
             <li>Ages {ages(game.ages)}</li>
-            <li>Maths</li>
-            <li>{game.levels.length} levels</li>
+            <li>{registry.subjects.find((x) => x.id === game.subject)?.title ?? "Maths"}</li>
+            <li>{game.levelCount} levels</li>
             <li>No reading needed</li>
           </ul>
           <a className="play play-big" href={game.playPath} data-testid="game-play"><PlayIcon /><span>Play {game.title}</span></a>
@@ -81,14 +82,14 @@ export function GamePage({ game }: { game: SiteGame }) {
         </ol>
       </Section>
       <Section title="How the difficulty grows" className="tinted">
-        <p>{game.title} has {game.exerciseCount} puzzles across {game.levels.length} levels, played in rounds of {game.roundLength}. Two first-try answers in a row move up a level; needing three tries moves down, and each finished round starts one level higher.</p>
+        <p>{game.title} has {game.levelCount} levels, played in rounds of {game.roundLength} puzzles. Puzzles are made fresh each day. Within a round, first-try answers make the next puzzles a little harder and puzzles that need several tries make them easier. After a round where at least half the answers were right first time, the next round starts one level higher.</p>
         <table className="table">
           <thead><tr><th scope="col">Level</th><th scope="col">What changes</th><th scope="col">Example puzzles</th></tr></thead>
           <tbody>
             {game.levels.map((l) => (
               <tr key={l.difficulty}>
                 <td>{l.difficulty}</td>
-                <td>{c.levelNames[l.difficulty - 1] ?? ""} <span className="muted">(answers {l.answerRange[0]}–{l.answerRange[1]})</span></td>
+                <td>{c.levelNames[l.difficulty - 1] ?? ""} {l.answerRange && <span className="muted">(answers {l.answerRange[0]}–{l.answerRange[1]})</span>}</td>
                 <td>{l.examples.join("; ")}</td>
               </tr>
             ))}

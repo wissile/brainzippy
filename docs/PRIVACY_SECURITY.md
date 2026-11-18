@@ -10,7 +10,7 @@
 | Age band | localStorage | Never | |
 | **Parent's** email + explicit consent | D1 `parent_signups` | Yes, behind a parent gate, optional ("Skip for now") | token stored only as SHA-256; link single-use; unverified rows purged after 7 days; resend cooldown 10 min |
 **Why the email belongs to the parent, not the child:** collecting a child's (under 13) email or other online contact information requires verifiable parental consent under COPPA, and BrainZippy's master instructions require a parent-controlled process. Asking the parent directly, with consent, and keeping the child's name on the device is the data-minimising design. The API rejects any field other than `email` and `consent`.
-**Email delivery is not configured yet:** in development the confirmation link is shown on screen; in any other environment the endpoint returns 503 instead of storing addresses it can't verify. Choosing an email provider (e.g. Cloudflare Email Service, Postmark, Resend) is an open decision. A parent-facing unsubscribe/delete-email path must ship with it.
+**Email delivery:** Resend (owner decision 2026-11-17), via its REST API with the `RESEND_API_KEY` secret. In development without a key, links are logged to the console (link + subject, never the address) and shown on screen; other environments without a key return 503. `parent_signups` is superseded by `parents` (migration 0003): confirming the onboarding email creates a parent account.
 
 ## Milestone 1 data inventory
 | Data | Where | Personal? | Purpose | Retention |
@@ -20,6 +20,46 @@
 | In-progress round snapshot | localStorage | no | refresh-safe resume | cleared at round end |
 | ~~Random guest UUID + progress JSON~~ | D1 `guest_sessions` | — | **Client sync is OFF** (D-011): the API and table exist and are tested, but guest play sends nothing until a parent-controlled restore path exists | purge cron (180 days) remains for safety |
 Not collected: names, emails, birthdates, photos, voice, location, contacts, device fingerprints, ad IDs. No cookies. No analytics or third-party scripts; fonts self-hosted. Request IP addresses are processed by Cloudflare for delivery but not stored by the app. Workers invocation logs (which would retain request URLs) are disabled in `wrangler.jsonc`.
+
+## Parent accounts (Phase 1, migration 0003) — data inventory
+| Data | Where | Personal? | Purpose | Retention |
+|---|---|---|---|---|
+| Parent email, consent version + time, created/last-login time, digest opt-in | D1 `parents` | **yes** (parent) | sign-in, consent record, digest | until the parent deletes the account (immediate hard delete) — inactive-account policy: lawyer to decide (proposed 24 months) |
+| Magic-link token **hash**, email, purpose | D1 `auth_tokens` | yes (email) | single-use sign-in, 15-minute expiry | purged 1 day after expiry |
+| Session id **hash**, parent id, expiry | D1 `sessions` (+ HttpOnly cookie) | pseudonymous | stay signed in, 30-day rolling | deleted at logout/expiry (daily purge) |
+| Child profile: monster design, monster name, age band (`ages-3-5`…) | D1 `children` | low (chosen nickname-like name, coarse age) | dashboard, friends | until the parent deletes the child or account |
+| Child **nickname** | D1 `children.nickname` | yes (could be a real name) | parent's dashboard and emails only; **never shown to friends** | **NULL by default**; set only when the parent opts in; cleared when they opt out |
+| Per-child settings (daily limit 3–10, sound, music) | D1 `children.settings_json` | no | parent controls | with the profile |
+| Progress: worlds/levels/stars, stickers, per-skill tallies, last 200 rounds (time, game, level, counts, seconds) | D1 `children.progress_json` + device | no direct identifier | dashboard, points, streaks, digest | with the profile; history capped at 200 rounds |
+| Friend invite code **hash** | D1 `friend_invites` | no | single-use invite, 7 days | purged on use/expiry |
+| Friendship (two child ids + two approvals) | D1 `friendships` | no | friends-only leaderboard | until either parent removes it or deletes the child |
+| Challenge (token **hash**, world, level, seed, score) + results (score) | D1 `challenges`, `challenge_results` | no | "beat my score" | 14 days, then purged |
+| Rate-limit counters (keyed HMAC of IP or email, never raw) | D1 `rate_limits` | pseudonymous | abuse prevention | purged after 2 days |
+| Device link (child id, cached settings), round history, active challenge | browser localStorage | no | local-first sync | until "Clear this device" / "Delete all progress on this device" |
+
+What friends see: **monster name, monster picture, weekly points** (and challenge scores). Never the nickname, email, age band, skills or history.
+Not collected for accounts: child email, child password, birthdate, photo, voice, location, contacts, free text between users.
+
+### Controls added with accounts
+- Magic-link tokens: 256-bit random, SHA-256 stored, single use (atomic `UPDATE … WHERE used_at IS NULL … RETURNING`), 15-minute expiry. The emailed link opens a confirmation page; only its button (POST) consumes the token, so mail-scanner prefetches can't burn or use it.
+- Sessions: `__Host-bz_sid` cookie, `HttpOnly; Secure; SameSite=Lax; Path=/`, 256-bit id, only the hash in D1, 30-day rolling expiry (refreshed at most daily), logout deletes the row. (Plain-http localhost only: `bz_sid` without `Secure`.)
+- Origin check in the router for every POST/PUT/DELETE: a mismatched Origin is rejected; a missing Origin is rejected when a session cookie is present. Only the signed one-click unsubscribe POST is exempt (RFC 8058 senders post cross-origin; the HMAC signature authorises it).
+- Rate limits (D1 fixed window): magic links 10/hour per IP and 3/15 min per email; verify 30/10 min per IP; invites 20/day per parent; invite lookups 20/hour per IP; challenges 30/day per parent; sync 600/hour per parent. IP limits are skipped in development (all requests are loopback).
+- Sign-in for an unknown email answers exactly like a known one and sends nothing (no account enumeration). Children's ids are only reachable through the owning parent's session (404 otherwise).
+- Strict validators shared by client and Worker (`src/account/schema.ts`): unknown keys rejected, ids/days pattern-checked, sizes capped (64 KB progress, 200 rounds, 16-char names). Parameterised SQL only.
+- No PII in logs: email addresses are never logged; error logs replace ids in paths; invocation logs stay off.
+- Tokens appear in URLs only in single-use or short-lived links: magic link (15 min, single use), legacy onboarding confirmation (single use, 7 days), invite (single use, 7 days), challenge (opaque, friends-only, 14 days), unsubscribe (HMAC signature, no session).
+- Deletion: "Delete profile" and "Delete account" hard-delete rows explicitly (children, friendships, invites, challenges, results, sessions, tokens, legacy sign-ups) in one D1 batch. Copies persist only in D1 Time Travel (7 days on Free, 30 on Paid) — the policy says "up to 30 days".
+- Export: `GET /api/me/export` returns all account data as JSON (friend entries show only the friend's monster name).
+- Daily digest: opt-in per parent (off by default), parents only, only on days a child played, no images, text twin, `List-Unsubscribe` + `List-Unsubscribe-Post: List-Unsubscribe=One-Click`, unsubscribe page needs no sign-in. Not sent at all without `SIGNING_SECRET`.
+- Entitlements seam (`worker/lib/entitlements.ts`) is a stub returning `free`; billing UI stays behind the parent gate.
+
+### Open items for review (accounts)
+1. **Verifiable parental consent (lawyer):** email + confirmation link ("email plus") is only permitted under COPPA for internal uses without disclosure. Friends/leaderboards make a child's monster name and points visible to another family: decide whether that is a "disclosure" requiring a stronger VPC method (e.g. card check via Stripe, signed form). See `docs/legal/COPPA_CHECKLIST.md`.
+2. Inactive-account retention period (proposed 24 months, with an email warning 30 days before deletion).
+3. Session revocation UI ("sign out everywhere") and a per-parent session cap.
+4. DPA/sub-processor review: Cloudflare (hosting, D1), Resend (email).
+5. Independent security review of `worker/**` and `src/account/**` before enabling accounts in production.
 
 ## Controls
 - Strict server-side schema (`progressSchema.ts`): unknown keys rejected, ids pattern-checked, sizes capped (8 KB body, 200 items).
@@ -32,7 +72,7 @@ Not collected: names, emails, birthdates, photos, voice, location, contacts, dev
 - Test data only: automated tests use synthetic data; no real child data in development.
 
 ## Known gaps / next steps
-1. Rate limiting on `/api/*` (free WAF rule or Workers rate-limit binding) and lazy row creation (create on first valid PUT) — before enabling sync or launch.
+1. Rate limiting: account endpoints are rate-limited in the Worker (above). Guest endpoints (`/api/guest*`, sync OFF) still have none; add a free WAF rate-limiting rule on `/api/*` before launch.
 2. Restore path for server backup (parent-held recovery code behind a parent gate) — prerequisite for re-enabling sync.
 3. Stronger parent gate design (current arithmetic gate is a speed bump, not a security control).
 4. Privacy policy text and data-processing records drafted with counsel.

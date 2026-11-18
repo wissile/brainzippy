@@ -1,6 +1,9 @@
 import { type GuestProgress, emptyProgress, parseGuestProgress } from "../engine/progressSchema";
 import type { ProgressionState } from "../engine/types";
 import { type MonsterConfig, isMonsterConfig } from "../characters/Monster";
+import { HISTORY_CAP, parseRoundRecord, parseSettings, type ChildSettings, type RoundRecord } from "../account/schema";
+import { localDay, roundStars } from "../account/points";
+import { UUID_RE } from "../account/schema";
 
 /**
  * Local guest storage. Holds no personal data: a random device-local id, coarse settings, progress.
@@ -48,6 +51,32 @@ export function parseProfile(x: unknown): Profile {
 }
 export { cleanName };
 
+/**
+ * Device ⇄ child-profile link, set only by a signed-in parent in /parents. Holds the child's server id and the
+ * parent's settings for that child (cached so the game can read the daily limit offline). No personal data.
+ */
+export interface AccountLink {
+  childId: string;
+  linkedAt: number;
+  settings: ChildSettings | null;
+}
+
+/**
+ * An accepted friend challenge being played on this device (see src/account/ChallengeScreen.tsx).
+ * Contract for the game runtime: when `challenge` is set and `challenge.gameId` matches the game, the round SHOULD be
+ * played at `level` with exercise order seeded by `seed`, so both children get the same round.
+ */
+export interface ActiveChallenge {
+  token: string;
+  gameId: string;
+  level: number;
+  seed: number;
+  target: number;
+  childId: string;
+  startedAt: number;
+  result: { score: number; beat: boolean; posted: boolean } | null;
+}
+
 export interface LocalState {
   profile: Profile;
   music: boolean;
@@ -56,9 +85,55 @@ export interface LocalState {
   serverId: string | null;
   progress: GuestProgress;
   round: RoundSnapshot | null;
+  /** Finished rounds on this device (newest last, capped). Feeds points, streaks and minutes. No personal data. */
+  history: RoundRecord[];
+  /** The round in play (set on its first exercise; kept after the runtime clears its snapshot until progress is saved). */
+  currentRound: { gameId: string; startedAt: number } | null;
+  account: AccountLink | null;
+  challenge: ActiveChallenge | null;
 }
 
-const defaults = (): LocalState => ({ profile: emptyProfile(), music: true, muted: false, ageBand: null, serverId: null, progress: emptyProgress(), round: null });
+const defaults = (): LocalState => ({
+  profile: emptyProfile(),
+  music: true,
+  muted: false,
+  ageBand: null,
+  serverId: null,
+  progress: emptyProgress(),
+  round: null,
+  history: [],
+  currentRound: null,
+  account: null,
+  challenge: null,
+});
+
+function parseHistory(x: unknown): RoundRecord[] {
+  if (!Array.isArray(x)) return [];
+  return x.map(parseRoundRecord).filter((r): r is RoundRecord => r !== null).slice(-HISTORY_CAP);
+}
+
+function parseCurrentRound(x: unknown): LocalState["currentRound"] {
+  if (!x || typeof x !== "object") return null;
+  const o = x as Record<string, unknown>;
+  return typeof o.gameId === "string" && typeof o.startedAt === "number" ? { gameId: o.gameId, startedAt: o.startedAt } : null;
+}
+
+function parseAccount(x: unknown): AccountLink | null {
+  if (!x || typeof x !== "object") return null;
+  const o = x as Record<string, unknown>;
+  if (typeof o.childId !== "string" || !UUID_RE.test(o.childId) || typeof o.linkedAt !== "number") return null;
+  return { childId: o.childId, linkedAt: o.linkedAt, settings: o.settings ? parseSettings(o.settings) : null };
+}
+
+function parseChallenge(x: unknown): ActiveChallenge | null {
+  if (!x || typeof x !== "object") return null;
+  const o = x as Record<string, unknown>;
+  if (typeof o.token !== "string" || !/^[0-9a-f]{32}$/.test(o.token) || typeof o.gameId !== "string" || typeof o.childId !== "string") return null;
+  if (![o.level, o.seed, o.target, o.startedAt].every((n) => typeof n === "number" && Number.isFinite(n))) return null;
+  const r = o.result as Record<string, unknown> | null | undefined;
+  const result = r && typeof r.score === "number" && typeof r.beat === "boolean" ? { score: r.score, beat: r.beat, posted: r.posted === true } : null;
+  return { token: o.token, gameId: o.gameId, level: o.level as number, seed: o.seed as number, target: o.target as number, childId: o.childId, startedAt: o.startedAt as number, result };
+}
 let memory: LocalState | null = null;
 
 export function loadState(): LocalState {
@@ -76,6 +151,10 @@ export function loadState(): LocalState {
         serverId: typeof o.serverId === "string" ? o.serverId : null,
         progress: parseGuestProgress(o.progress) ?? emptyProgress(),
         round: parseRoundSnapshot(o.round),
+        history: parseHistory(o.history),
+        currentRound: parseCurrentRound(o.currentRound),
+        account: parseAccount(o.account),
+        challenge: parseChallenge(o.challenge),
       };
       return memory;
     }
@@ -106,12 +185,82 @@ export function parseRoundSnapshot(input: unknown): RoundSnapshot | null {
   return input as RoundSnapshot;
 }
 
+type RoundListener = (record: RoundRecord, state: LocalState) => void;
+const roundListeners = new Set<RoundListener>();
+/** Subscribe to finished rounds (used by services/accountSync). Returns an unsubscribe function. */
+export function onRoundRecorded(fn: RoundListener): () => void {
+  roundListeners.add(fn);
+  return () => roundListeners.delete(fn);
+}
+
+/**
+ * Derive a RoundRecord from the game runtime's own writes, without touching the runtime: a round starts with the
+ * first `saveState({ round: snapshot })` (→ currentRound) and completes with `saveState({ progress, round: null })`
+ * raising `roundsCompleted`. Exercise and first-try counts are the per-skill tally deltas of that write.
+ * Writes without a `round` key (e.g. account sync folding server progress in) never create records.
+ */
+export function deriveRoundRecord(prev: LocalState, patch: Partial<LocalState>, now: number): RoundRecord | null {
+  if (!patch.progress || !("round" in patch) || patch.round !== null || !prev.currentRound) return null;
+  if (patch.progress.roundsCompleted <= prev.progress.roundsCompleted) return null;
+  const gameId = prev.currentRound.gameId;
+  let exercises = 0;
+  let firstTry = 0;
+  const skills: string[] = [];
+  for (const [id, t] of Object.entries(patch.progress.skills)) {
+    const before = prev.progress.skills[id] ?? { attempts: 0, firstTry: 0, completed: 0 };
+    const done = t.completed - before.completed;
+    if (done > 0) {
+      exercises += done;
+      firstTry += Math.max(0, t.firstTry - before.firstTry);
+      skills.push(id);
+    }
+  }
+  if (exercises <= 0 || !/^[a-z0-9][a-z0-9.\-]{0,63}$/.test(gameId)) return null;
+  firstTry = Math.min(firstTry, exercises);
+  const started = prev.currentRound.startedAt;
+  return {
+    id: `${now}-${gameId}`,
+    ts: now,
+    day: localDay(now),
+    gameId,
+    level: Math.min(20, prev.progress.levels?.[gameId] ?? 0),
+    exercises: Math.min(50, exercises),
+    firstTry: Math.min(50, firstTry),
+    stars: roundStars(exercises, firstTry),
+    seconds: Math.max(0, Math.min(1800, Math.round((now - started) / 1000))),
+    skills: skills.sort().slice(0, 20),
+  };
+}
+
 export function saveState(patch: Partial<LocalState>): LocalState {
-  memory = { ...loadState(), ...patch };
+  const prev = loadState();
+  const now = Date.now();
+  const record = deriveRoundRecord(prev, patch, now);
+  const extra: Partial<LocalState> = {};
+  const cur = prev.currentRound;
+  // first exercise of a new round (a resumed round keeps its start; an abandoned one older than 2 h starts afresh)
+  if (patch.round && (!cur || cur.gameId !== patch.round.gameId || now - cur.startedAt > 2 * 3600_000)) {
+    extra.currentRound = { gameId: patch.round.gameId, startedAt: now };
+  }
+  if (record) {
+    extra.history = [...prev.history, record].slice(-HISTORY_CAP);
+    extra.currentRound = null;
+  }
+  memory = { ...prev, ...patch, ...extra };
   try {
     localStorage.setItem(KEY, JSON.stringify(memory));
   } catch {
     /* in-memory only */
+  }
+  if (record) {
+    const state = memory;
+    for (const fn of roundListeners) {
+      try {
+        fn(record, state);
+      } catch {
+        /* listeners never break gameplay */
+      }
+    }
   }
   return memory;
 }

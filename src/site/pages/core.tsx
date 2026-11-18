@@ -89,16 +89,16 @@ export function HowItWorks() {
         </ol>
       </Section>
       <Section title="How difficulty changes" className="tinted">
-        <p>Every game has four levels. These rules are the same for every child, so you can always tell why a puzzle got harder or easier:</p>
+        <p>Every game has several levels (between 6 and 10). These rules are the same for every child, so you can always tell why a puzzle got harder or easier:</p>
         <table className="table">
           <thead><tr><th scope="col">When</th><th scope="col">What happens</th></tr></thead>
           <tbody>
-            <tr><td>First time in a game</td><td>Level 1, starting with a demonstration puzzle.</td></tr>
-            <tr><td>Two first-try answers in a row</td><td>The next puzzles are one level harder (up to level 4).</td></tr>
-            <tr><td>A puzzle needs three or more tries</td><td>The next puzzles are one level easier (down to level 1).</td></tr>
+            <tr><td>First time in a game</td><td>The first level, starting with a demonstration puzzle.</td></tr>
+            <tr><td>Two first-try answers in a row</td><td>The next puzzles in the round get a little harder.</td></tr>
+            <tr><td>A puzzle needs three or more tries</td><td>The next puzzles in the round get a little easier.</td></tr>
             <tr><td>Right on the second try</td><td>The level stays the same and the streak starts again.</td></tr>
             <tr><td>Choosing the next puzzle</td><td>An unplayed puzzle at the current level, with a different kind of interaction from the last one where possible.</td></tr>
-            <tr><td>End of a round (8 puzzles)</td><td>A Brain Spark comes back, and the next round starts one level higher.</td></tr>
+            <tr><td>End of a round (8 puzzles)</td><td>A Brain Spark comes back. If at least half the puzzles were right first time, the next round starts one level higher; otherwise your child plays the same level again.</td></tr>
           </tbody>
         </table>
         <p>We never use answer speed to judge a child, and there are no countdown timers. Speed isn't the same as understanding.</p>

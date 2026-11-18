@@ -1,4 +1,6 @@
 import { REMINDER_TITLE, type ReminderPayload, reminderBody, reminderVariant } from "../../src/pwa/reminderCopy";
+import type { Ctx, Route } from "../router";
+import { LIMITS, allow, clientIp } from "../lib/rateLimit";
 import { type VapidKeys, b64urlDecode, sendWebPush } from "../lib/webpush";
 import { isAllowedHour, isValidTimeZone, selectDue } from "../lib/webpushSchedule";
 
@@ -198,3 +200,14 @@ export async function sendDueReminders(env: PushEnv, now = new Date(), fetchImpl
   }
   return result;
 }
+
+/** Router adapter: /api/push/* keeps its self-contained handler; state-changing calls are rate-limited per IP. */
+const limited = async (c: Ctx): Promise<Response> => {
+  if (!(await allow(c.env, LIMITS.pushPerIp, clientIp(c.req)))) return json({ error: "rate_limited" }, 429);
+  return handlePush(c.req, c.env as unknown as PushEnv);
+};
+export const routes: Route[] = [
+  { method: "GET", path: "/api/push/key", handler: (c) => handlePush(c.req, c.env as unknown as PushEnv) },
+  { method: "POST", path: "/api/push/subscribe", handler: limited },
+  { method: "POST", path: "/api/push/unsubscribe", handler: limited },
+];

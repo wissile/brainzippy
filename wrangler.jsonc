@@ -7,8 +7,9 @@
   // Invocation logs would retain request URLs (incl. guest ids) — keep them off for a children's product.
   "observability": { "enabled": true, "logs": { "invocation_logs": false } },
   "preview_urls": false,
-  // 03:17 UTC daily retention purge; hourly at :00 = daily-reminder push job (worker/routes/push.ts)
-  "triggers": { "crons": ["17 3 * * *", "0 * * * *"] },
+  // UTC. Each cron maps to named jobs in worker/jobs/index.ts (CRON_JOBS). Free plan allows 5 Cron Triggers per account; this uses 3.
+  // 03:17 retention purge · every 10 min in hour 23 daily parent digest · hourly at :00 daily-reminder push.
+  "triggers": { "crons": ["17 3 * * *", "*/10 23 * * *", "0 * * * *"] },
   "assets": {
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
@@ -23,7 +24,8 @@
       "migrations_dir": "migrations"
     }
   ],
-  // VAPID_PUBLIC_KEY: from `node scripts/gen-vapid.mjs` (empty = reminders off). VAPID_PRIVATE_KEY is a secret (wrangler secret put / .dev.vars).
+  // Secrets (wrangler secret put / .dev.vars): RESEND_API_KEY, SIGNING_SECRET, VAPID_PRIVATE_KEY.
+  // Optional vars: EMAIL_FROM, APP_ORIGIN, DIGEST_BATCH. VAPID_PUBLIC_KEY from `node scripts/gen-vapid.mjs` (empty = reminders off).
   "vars": { "APP_ENV": "development", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
   "env": {
     "staging": {
