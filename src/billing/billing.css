@@ -1,0 +1,34 @@
+/* Billing: the child-facing "ask a grown-up" nap scene and the parent-facing plan screen. Tokens: src/styles/tokens.css. */
+.bz-nap { background: linear-gradient(#2c2a5a, #4b3f8f 55%, #6a5bb0); color: #fff; gap: clamp(8px, 2vh, 18px); }
+.bz-nap .screen-title { color: #fff; }
+.bz-nap-scene { position: relative; margin-top: auto; width: 260px; max-width: 80vw; height: 230px; display: grid; place-items: end center; }
+.bz-nap-monster { position: relative; z-index: 1; transform-origin: 50% 100%; animation: bz-nap-breathe 3.4s ease-in-out infinite; }
+.bz-nap-pillow { position: absolute; bottom: 6px; width: 230px; max-width: 90%; height: 34px; border-radius: 50%; background: #c9bdf5; border: 4px solid var(--ink); }
+.bz-nap-z { position: absolute; font-family: var(--font-display); font-weight: 800; color: var(--sparkle); opacity: 0; animation: bz-nap-z 3.6s ease-in-out infinite; }
+.bz-nap-z.z1 { right: 46px; top: 46px; font-size: 1.6rem; }
+.bz-nap-z.z2 { right: 26px; top: 22px; font-size: 2rem; animation-delay: 1.2s; }
+.bz-nap-z.z3 { right: 2px; top: -6px; font-size: 2.5rem; animation-delay: 2.4s; }
+.bz-nap-bubble { max-width: min(560px, 92vw); color: var(--ink); text-align: center; }
+.bz-nap-go { margin-bottom: auto; background: linear-gradient(var(--gold-top), var(--gold-bottom)); box-shadow: 0 10px 0 var(--gold-shadow), inset 0 6px 0 rgba(255, 255, 255, 0.35); font-size: clamp(1.8rem, 6vw, 2.4rem); }
+.bz-nap-go span { -webkit-text-stroke-color: #6b4a00; }
+@keyframes bz-nap-breathe { 50% { transform: scaleY(0.96) scaleX(1.02); } }
+@keyframes bz-nap-z { 0% { opacity: 0; transform: translate(0, 10px) scale(0.7); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(14px, -26px) scale(1.1); } }
+@media (prefers-reduced-motion: reduce) {
+  .bz-nap-monster, .bz-nap-z { animation: none; }
+  .bz-nap-z { opacity: 0.9; }
+}
+@media (max-height: 500px) {
+  .bz-nap-scene { height: 150px; }
+  .bz-nap-scene .monster, .bz-nap-scene svg { max-height: 140px; }
+  .bz-nap-go { height: 76px; }
+}
+
+/* Parent-facing plan screen + billing card (reuses .pa-* from src/account/parents.css). */
+.bz-plan-price { font-family: var(--font-display); font-size: clamp(1.6rem, 3vw + 1rem, 2.2rem); margin: 4px 0; line-height: 1.15; }
+.bz-plan-terms { background: var(--cream); border-radius: var(--r-sm); padding: 12px 14px; }
+.bz-plan-terms p { margin: 4px 0; }
+.bz-plan-list { margin: 8px 0; padding-left: 1.2em; line-height: 1.5; }
+.bz-plan-list li { margin: 4px 0; }
+.bz-code-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bz-code-row input { flex: 1 1 200px; min-width: 0; }
+.bz-billing-status { font-weight: 700; }

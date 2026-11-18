@@ -79,6 +79,7 @@ function Footer() {
           <ul>
             <li><a href="/about">About</a></li>
             <li><a href="/faq">FAQ</a></li>
+            <li><a href="/pricing">Pricing</a></li>
             <li><a href="/for-parents">For parents</a></li>
             <li><a href="/for-teachers">For teachers</a></li>
             <li><a href="/research">Research</a></li>

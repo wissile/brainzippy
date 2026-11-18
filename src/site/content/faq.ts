@@ -89,8 +89,8 @@ export const FAQ: readonly FaqGroup[] = [
       },
       {
         q: "Is BrainZippy free?",
-        // TODO(billing): align with SITE.priceLine (entity.ts) once Stripe billing is live.
-        a: "Guest play is free to try today. We plan to offer a family subscription later; prices will be shown clearly to grown-ups before anything is charged, and children never see purchase prompts.",
+        a: "Every device gets 14 days of free play with no account or card. Then a grown-up can add a card for a 14-day free trial, after which the family plan costs $6.99 a month until you cancel. Cancel anytime from the parent page; children never see prices or purchase prompts. Free-access codes, which need no card, are available for schools and some promotions.",
+        link: { href: "/pricing", label: "Pricing and renewal terms" },
       },
       {
         q: "How do I delete my child's progress?",
@@ -104,7 +104,7 @@ export const FAQ: readonly FaqGroup[] = [
     items: [
       {
         q: "Can teachers use BrainZippy in class?",
-        a: "Yes, in guest mode on classroom devices, with no student accounts and no student data collected. Classroom features such as class codes and teacher reports are not available yet.",
+        a: "Yes, in guest mode on classroom devices, with no student accounts and no student data collected. Each device gets the same free play and trial as a family, and schools can ask for free-access codes. Classroom features such as class codes and teacher reports are not available yet.",
         link: { href: "/for-teachers", label: "BrainZippy for teachers" },
       },
     ],

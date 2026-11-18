@@ -315,10 +315,16 @@ export function ForTeachers() {
           <li><strong>Guest mode only.</strong> Open BrainZippy in the browser on a classroom tablet or computer. No sign-up, no student accounts, no student data sent to us. Progress stays on that device.</li>
           <li><strong>Good for stations and small groups.</strong> Rounds are eight puzzles long, instructions are spoken, and a helper character gives hints, so children can work independently.</li>
           <li><strong>Headphones recommended.</strong> Every spoken line is also captioned, and games work with sound off.</li>
+          <li><strong>A short daily plan.</strong> Each device stops after a few games a day (5 by default). A grown-up can change this from 3 to 10 on the grown-ups page.</li>
           <li><strong>Not available yet:</strong> class codes, teacher dashboards and reports. We'll design these with privacy reviews before launch.</li>
         </ul>
       </Section>
-      <Section title="Curriculum links (Common Core)" className="tinted">
+      <Section title="What it costs" className="tinted">
+        <p>BrainZippy is not free, but you can try it fully before paying anything. {SITE.pricing ? `Every device gets ${SITE.pricing.freePlayDays} days of free play with no account or card. After that, a grown-up can add a card for a ${SITE.pricing.trialDays}-day free trial, and then the plan costs $${SITE.pricing.amount} a month until it's cancelled. Cancel anytime.` : ""}</p>
+        <p><strong>Schools can ask for free-access codes.</strong> A code unlocks BrainZippy with no card. It is redeemed once by the grown-up who holds the account, on the parent page; students never need accounts of their own. Children never see prices or purchase prompts.</p>
+        <p><a className="text-link" href="/pricing">Pricing and renewal terms</a></p>
+      </Section>
+      <Section title="Curriculum links (Common Core)">
         <p>Our own mapping of each skill to the Common Core State Standards {stdRefs.map((k) => <C key={k} k={k} />)}. “Builds toward” means the game practises an early form or a part of the idea, not the full standard. This is not an official alignment review, and it has not yet been checked by an independent educator.</p>
         <table className="table">
           <thead><tr><th scope="col">Skill</th><th scope="col">Game</th><th scope="col">Standards</th></tr></thead>
@@ -337,7 +343,7 @@ export function ForTeachers() {
           </tbody>
         </table>
       </Section>
-      <Section title="Lesson ideas">
+      <Section title="Lesson ideas" className="tinted">
         <ul>
           {GAMES.map((g) => {
             const c = GAME_COPY[g.id];
@@ -345,7 +351,7 @@ export function ForTeachers() {
           })}
         </ul>
       </Section>
-      <Section title="References" className="tinted">
+      <Section title="References">
         <RefList keys={stdRefs} />
       </Section>
     </>

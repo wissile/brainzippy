@@ -7,6 +7,7 @@
  * they update by themselves when a world gets its editorial copy. llms.txt is generated from this file
  * at build time (src/site/llms.ts), so it can never go stale.
  */
+import { CARD_TRIAL_DAYS, INTRO_TRIAL_DAYS, PRICE } from "../billing/model";
 import { AGES_NOW, SUBJECTS_NOW, listJoin } from "./catalog";
 
 const subjectsNow = SUBJECTS_NOW.map((s) => s.title);
@@ -39,14 +40,10 @@ export const SITE = {
     "Games can be played with touch, mouse or keyboard, with sound on or off.",
     "Wrong answers lead to hints and a worked example, never a penalty.",
   ],
-  /** Pricing is not published until billing is live. Keep null until then (see docs/SEO_STRATEGY.md). */
-  pricing: null as null | { amount: string; currency: string; period: string; trialDays: number },
-  /**
-   * The one price sentence used in llms.txt. Owner-approved wording ("$6.99/month after a free trial").
-   * TODO(billing): when Stripe billing is live, set `pricing` above and expand this line (trial length,
-   * free-access codes) from the same values; don't add any other price wording here before then.
-   */
-  priceLine: "Guest play needs no account. A family subscription is $6.99/month after a free trial.",
+  /** Published price (docs/BILLING.md). Must match src/billing/model.ts PRICE (checked in tests/unit/billing-site.test.ts). */
+  pricing: { amount: "6.99", currency: "USD", period: "month", trialDays: 14, freePlayDays: 14 } as null | { amount: string; currency: string; period: string; trialDays: number; freePlayDays: number },
+  /** Price facts for llms.txt, FAQ and teacher page, from src/billing/model.ts (docs/BILLING.md), so they can't drift. */
+  priceLine: `${INTRO_TRIAL_DAYS} days of free play on a device (no account or card), then a ${CARD_TRIAL_DAYS}-day free trial once a grown-up adds a card, then ${PRICE.display} per month per family, cancel anytime. Free-access codes are available for schools and promotions. Children never see prices.`,
   logoPath: "/og/logo.png",
   defaultOgImage: "/og/default.png",
 } as const;

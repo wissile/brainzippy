@@ -23,7 +23,7 @@ const publicFile = (url: string) => existsSync(join(root, "public", url));
 describe("prerendered public pages", () => {
   // Data-driven: the expected page set is derived from the catalog, guides and editorial content, so adding a
   // world (or its copy) never breaks these assertions; only a missing or extra page does.
-  const CORE = ["/", "/how-it-works", "/research", "/for-parents", "/for-teachers", "/faq", "/about", "/games", "/guides"];
+  const CORE = ["/", "/how-it-works", "/research", "/for-parents", "/for-teachers", "/faq", "/pricing", "/about", "/games", "/guides"];
   const expectedSubjects = SUBJECTS.filter((s) => GAMES.some((g) => g.skillIds.some((id) => id.startsWith(s.skillPrefix)))).map((s) => `/subjects/${s.slug}`);
   const expectedAges = AGE_BANDS.filter((b) => GAMES.some((g) => overlapYears(g.ages, b) >= 2)).map((b) => `/ages/${b.slug}`);
 
@@ -230,7 +230,9 @@ describe("sitemap, robots and llms.txt", () => {
     expect(llms).toContain(`ages ${SITE.agesNow.min}–${SITE.agesNow.max}`);
     expect(llms).toContain(`ages ${SITE.agesPlanned.min}–${SITE.agesPlanned.max}`);
     for (const s of SITE.subjectsNow) expect(llms).toContain(s);
-    expect(llms).toContain("$6.99/month after a free trial");
+    expect(llms).toContain(SITE.priceLine);
+    expect(llms).toMatch(/\$6\.99 per month/);
+    expect(llms).toMatch(/free-access codes/i);
     expect(llms).toMatch(/no ads/i);
     expect(llms).toMatch(/guests? without an account/);
     const links = [...llms.matchAll(/https:\/\/brainzippy\.com(\/[^)\s]*)/g)].map((m) => m[1]!);
@@ -239,6 +241,7 @@ describe("sitemap, robots and llms.txt", () => {
     for (const g of GAMES) expect(llms).toContain(`/games/${g.id}`);
     for (const g of GUIDES) expect(llms).toContain(`/guides/${g.slug}`);
     expect(llms).not.toMatch(/TODO|undefined|NaN/);
+    expect(llms).toContain("/pricing");
     expect(llms.split("\n").length, "keep llms.txt concise").toBeLessThan(80);
   });
 

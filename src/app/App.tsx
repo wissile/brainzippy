@@ -8,10 +8,12 @@ import { loadState } from "../services/storage";
 import { AgeScreen, GamesScreen, GrownUpsScreen } from "./screens";
 import { Onboarding } from "../onboarding/Onboarding";
 import { startAccountSync } from "../services/accountSync";
+import { PlayGate } from "../billing/PlayGate";
 
 // Parent area + friend challenges (lazy: never loaded during normal play).
 const ParentsApp = lazy(() => import("../account/ParentsApp"));
 const ChallengeScreen = lazy(() => import("../account/ChallengeScreen"));
+const PlanScreen = lazy(() => import("../billing/PlanScreen"));
 startAccountSync();
 import { DailyGate } from "../daily/DailyGate";
 
@@ -37,6 +39,7 @@ const TITLES: Record<string, string> = {
   "/map": "Monster Island — BrainZippy",
   "/parents": "Parents — BrainZippy",
   "/explore": "Explore — BrainZippy",
+  "/plan": "Keep playing — BrainZippy",
 };
 
 function Router() {
@@ -58,6 +61,12 @@ function Router() {
         <ParentsApp />
       </Suspense>
     );
+  if (path === "/plan")
+    return (
+      <Suspense fallback={<Loading />}>
+        <PlanScreen />
+      </Suspense>
+    );
   const challenge = path.match(/^\/challenge\/([0-9a-f]{32})$/)?.[1];
   if (challenge)
     return (
@@ -77,12 +86,15 @@ function Router() {
   const Game = world ? gameComponent(world) : undefined;
   if (Game)
     return (
-      // daily learning: logs rounds, seeds today's content, and shows "come back tomorrow" after the limit
-      <DailyGate key={game} worldId={game!}>
-        <Suspense fallback={<Loading />}>
-          <Game key={game} />
-        </Suspense>
-      </DailyGate>
+      // Outer: trial/subscription gate (billing). Inner: daily learning (logs rounds, seeds today's content,
+      // "come back tomorrow" after the limit). A child never sees prices: PlayGate shows the ask-a-grown-up scene.
+      <Suspense fallback={<Loading />}>
+        <PlayGate key={game}>
+          <DailyGate key={game} worldId={game!}>
+            <Game key={game} />
+          </DailyGate>
+        </PlayGate>
+      </Suspense>
     );
   const m = path.match(/^\/play\/(ages-[0-9-]+)$/);
   if (m?.[1]) return <GamesScreen bandId={m[1]} />;

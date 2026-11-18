@@ -93,7 +93,7 @@ test.describe("public site", () => {
     expect(res.status()).toBe(200);
     const llms = await res.text();
     expect(llms.startsWith("# BrainZippy\n")).toBe(true);
-    expect(llms).toContain("$6.99/month after a free trial");
+    expect(llms).toContain("$6.99 per month");
     const games = (await sitemapPaths(request)).filter((p) => p.startsWith("/games/"));
     expect(games.length).toBeGreaterThan(0);
     for (const g of games) expect(llms, g).toContain(`https://brainzippy.com${g})`);

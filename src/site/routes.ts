@@ -13,11 +13,12 @@ import { SITE } from "./entity";
 import { About, FaqPage, ForParents, ForTeachers, HowItWorks, Landing, Research } from "./pages/core";
 import { AgePage, GamePage, GamesHub, SubjectPage, gamesForBand } from "./pages/catalog";
 import { GuidePage, GuidesHub } from "./pages/guides";
+import { PricingPage } from "./pages/pricing";
 import { article, breadcrumbList, faqPage, learningResource, organization, website } from "./seo";
 import type { Crumb, PageDef } from "./types";
 
 /** Client-side app routes (served by the SPA shell, noindex). Internal links to these are allowed. */
-export const APP_ROUTES = ["/hello", "/map", "/play", "/grown-ups", "/parents"] as const;
+export const APP_ROUTES = ["/hello", "/map", "/play", "/grown-ups", "/parents", "/plan"] as const;
 export const isAppRoute = (p: string) => APP_ROUTES.some((r) => p === r || p.startsWith(`${r}/`));
 
 /** A band page needs a game sharing ≥2 years with the band; games sharing 1 year are listed as "also try". */
@@ -94,6 +95,14 @@ export function buildRoutes(): PageDef[] {
       breadcrumbs: crumbs({ name: "FAQ", path: "/faq" }),
       jsonLd: [faqPage(FAQ.flatMap((g) => g.items))],
       render: () => h(FaqPage),
+    }),
+    page({
+      path: "/pricing",
+      title: "BrainZippy pricing: $6.99/month after a free trial",
+      description: "BrainZippy costs $6.99 a month for the family after 14 days of free play and a 14-day free trial with a card. Cancel anytime; children never see prices.",
+      updated: "2026-11-18",
+      breadcrumbs: crumbs({ name: "Pricing", path: "/pricing" }),
+      render: () => h(PricingPage),
     }),
     page({
       path: "/about",

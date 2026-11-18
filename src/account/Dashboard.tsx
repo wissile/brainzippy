@@ -8,6 +8,7 @@ import { AGE_BAND_IDS, WORLDS, ageBandLabel, skillLabel, worldName } from "./cat
 import { currentStreak, localDay, roundPoints, weekSummary } from "./points";
 import { DAILY_LIMIT_MAX, DAILY_LIMIT_MIN, MAX_CHILDREN, type ChildSettings } from "./schema";
 import { MonsterArt, shareLink, Toggle } from "./ui";
+import { BillingCard } from "../billing/ParentBilling";
 
 const today = () => localDay(Date.now());
 
@@ -31,6 +32,7 @@ export function Dashboard({ me, refresh, onSignedOut }: { me: Me; refresh: () =>
         <ChildCard key={c.id} child={c} linked={linked === c.id} refresh={refresh} onDeleted={() => linked === c.id && (unlinkDevice(), setLinked(null))} />
       ))}
       {!atLimit && <AddChild onAdded={refresh} />}
+      <BillingCard initial={me.entitlement} />
       <AccountCard me={me} refresh={refresh} onSignedOut={onSignedOut} />
     </>
   );
