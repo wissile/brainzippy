@@ -6,6 +6,7 @@ import { clearState, loadState, saveState } from "../services/storage";
 import { NavButton, SoundButton, SpeechBubble } from "../ui/controls";
 import { IconLock, IconPlay } from "../ui/icons";
 import { useApp } from "./AppContext";
+import { ReminderSettings } from "../pwa/ReminderSettings";
 
 export const AGE_BANDS = [
   { id: "ages-3-5", label: "3–5", min: 3, max: 5, critter: "bobbo" },
@@ -239,6 +240,8 @@ export function GrownUpsScreen() {
           <li><strong>Practice spread over days</strong> helps learning stick (Vlach &amp; Sandhofer, 2012); our mastery tracking across sessions is next on the roadmap.</li>
         </ul>
         <p className="honest"><strong>An honest note:</strong> these principles are well researched, but BrainZippy itself has not yet been tested in a formal study, so we don't claim it is "proven". We plan to measure learning with families who opt in, and we'll publish what we find.</p>
+
+        <ReminderSettings />
 
         <h2>Privacy</h2>
         <p>Guest play needs no account and there are no ads, chat, or third-party trackers. Your child's first name (optional), their monster and their progress are stored only in this browser and are never sent to us. The only thing that can be sent is <strong>your</strong> email, if you choose to add it in the grown-up step, with your consent. We never ask for photos or location.</p>
