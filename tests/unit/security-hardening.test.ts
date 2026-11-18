@@ -64,7 +64,7 @@ describe("FRIENDS_ENABLED feature flag", () => {
     const { devLink } = (await (await post("/api/auth/magic-link", { email: `f${Math.random()}@example.com`, consent: true, mode: "signup" })).json()) as { devLink: string };
     const v = await handleApi(new Request(`${o}/api/auth/verify`, { method: "POST", headers: { origin: o, "content-type": "application/x-www-form-urlencoded" }, body: `token=${new URL(devLink).searchParams.get("token")}` }), t.env);
     const cookie = v.headers.get("set-cookie")!.split(";")[0]!;
-    const child = (await (await post("/api/children", { monsterName: "Ziggy", monster: MONSTER, ageBand: "ages-3-5" }, cookie)).json()) as { child: { id: string } };
+    const child = (await (await post("/api/children", { monster: MONSTER, ageBand: "ages-3-5" }, cookie)).json()) as { child: { id: string } };
     return { cookie, id: child.child.id, get: (p: string) => handleApi(new Request(`${o}${p}`, { headers: { cookie } }), t.env), post: (p: string, b: unknown) => post(p, b, cookie) };
   }
 
@@ -90,5 +90,23 @@ describe("FRIENDS_ENABLED feature flag", () => {
     expect((await p.post(`/api/children/${p.id}/invites`, {})).status).toBe(201);
     expect((await p.get(`/api/children/${p.id}/friends`)).status).toBe(200);
     expect(((await (await p.get("/api/me")).json()) as { features: { friends: boolean } }).features).toEqual({ friends: true });
+  });
+});
+
+describe("migration 0006: typed monster names leave the server", () => {
+  it("drops monster_name; existing children get their deterministic public name", async () => {
+    const t = fakeEnv({}, { upTo: "0005_billing.sql" });
+    t.raw.prepare("INSERT INTO parents (id, email, consent_version, consented_at, created_at, digest_opt_in) VALUES ('p1', 'p@example.com', 'v', 1, 1, 0)").run();
+    t.raw
+      .prepare("INSERT INTO children (id, parent_id, monster_json, monster_name, age_band, nickname, settings_json, progress_json, created_at, updated_at) VALUES ('11111111-1111-4111-8111-111111111111', 'p1', '{}', 'Samantha', 'ages-6-8', NULL, '{}', '{}', 1, 1)")
+      .run();
+    t.apply("0006_public_names.sql");
+    const row = t.raw.prepare("SELECT * FROM children").get() as Record<string, unknown>;
+    expect(Object.keys(row)).not.toContain("monster_name");
+    expect(JSON.stringify(row)).not.toContain("Samantha");
+    expect(row.public_name).toBeNull();
+    const { childOut } = await import("../../worker/lib/children");
+    const { defaultPublicName } = await import("../../src/account/publicName");
+    expect(childOut(row as never).publicName).toBe(defaultPublicName("11111111-1111-4111-8111-111111111111"));
   });
 });

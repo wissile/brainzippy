@@ -10,7 +10,7 @@ BrainZippy ("we", "us") makes learning games for children aged 3–14 at brainzi
 ## 2. The short version
 - Children can play **without an account**. Guest play stores progress only in the browser on your device.
 - Only a **parent or guardian** can create an account, using **their own email**. We never ask for a child's email, password, photo, voice or location.
-- Your child's **first name stays on your device**. Child profiles use a monster name the family chooses. A nickname is stored only if you turn that on.
+- Your child's **first name stays on your device**. The name your child gives their monster also stays on your device. On our servers, each child profile has a made-up **public name** built from fixed word lists (for example "Sunny Bobblefin"), which you can change. A nickname is stored only if you turn that on.
 - No ads, no tracking or analytics scripts on children's pages, no chat, no public profiles.
 - You can download or delete your data at any time from the parent area.
 
@@ -25,14 +25,14 @@ Stored **only in your browser**: monster design and name, your child's first nam
 | Your email address | Sign-in links, account notices, optional daily summary | Contract; consent for the daily summary |
 | Your consent (wording version and time) | Record that a parent agreed | Legal obligation |
 | Sign-in and session records (stored as one-way hashes) | Keep you signed in securely | Contract / legitimate interest (security) |
-| For each child profile: monster design, monster name, age group (e.g. "ages 6–8"), optional nickname (off by default) | Show progress to you; friends see the monster | Contract / consent (nickname) |
+| For each child profile: monster design, public name (from fixed word lists), age group (e.g. "ages 6–8"), optional nickname (off by default) | Show progress to you; friends see the monster | Contract / consent (nickname) |
 | Settings (games per day, sound, music) | Apply your choices | Contract |
 | Game progress: levels, stars, stickers, skills practised, the last 200 games (date, game, level, number of first-try answers, minutes) | Dashboard, points, streaks, daily summary | Contract |
 | Friend connections and challenge scores | Friends-only leaderboard and challenges you approve | Consent of both parents |
 | Rate-limit counters (keyed hashes of IP addresses or emails, not the raw values) | Prevent abuse | Legitimate interest (security) |
 
 ## 4. Friends and challenges
-Friends are added only by an invite that one parent sends and the other parent accepts; **both parents approve**. Friends can see only your child's **monster name, monster picture, weekly points and challenge scores**. They never see the nickname, your email, age group or detailed progress. There is no messaging and no free text between families. You can remove a friend at any time. **[LAWYER]** whether this sharing is a "disclosure" under COPPA requiring a stronger consent method (see `COPPA_CHECKLIST.md`).
+Friends are added only by an invite that one parent sends and the other parent accepts; **both parents approve**. Friends can see only your child's **public name, monster picture, weekly points and challenge scores**. They never see the nickname, your email, age group or detailed progress. There is no messaging and no free text between families. You can remove a friend at any time. **[LAWYER]** whether this sharing is a "disclosure" under COPPA requiring a stronger consent method (see `COPPA_CHECKLIST.md`).
 
 ## 5. Emails
 We send sign-in links when you ask for them. If you turn it on, we send a short daily summary on days your child played. Every summary has a one-click unsubscribe link. We never email children.

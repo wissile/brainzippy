@@ -67,8 +67,8 @@ Controls: same-origin check on writes (Origin header), UUID-format ids (122-bit 
 | POST | /api/auth/logout | deletes session |
 | GET / PUT / DELETE | /api/me | profile + children + entitlement; `{digestOptIn}`; delete needs `{confirm:"delete"}` |
 | GET | /api/me/export | JSON download |
-| GET / POST | /api/children | list; create `{monsterName, monster, ageBand, progress?}` (max 4 → 409) |
-| PUT / DELETE | /api/children/:id | `{monsterName?, monster?, ageBand?, nickname?: string\|null}` |
+| GET / POST | /api/children | list; create `{monster, ageBand, publicName?, nickname?, progress?}` (max 4 → 409). The child-typed monster name is never accepted; `publicName` must be a pick-list combination (`src/account/publicName.ts`), default derived from the child id |
+| PUT / DELETE | /api/children/:id | `{publicName?, monster?, ageBand?, nickname?: string\|null}` |
 | GET / PUT | /api/children/:id/settings | see contract below |
 | GET | /api/children/:id/progress | ChildProgress |
 | POST | /api/children/:id/sync | `{progress: ChildProgress}` → server merges (src/account/merge.ts) → `{progress, settings}` |

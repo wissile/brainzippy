@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { handleApi } from "../../worker/index";
 import { fakeEnv } from "./helpers/d1";
+import { defaultPublicName } from "../../src/account/publicName";
 
 /**
  * Development behaviour (dev magic links, dev signing secret, fake Stripe, per-IP bypass) only runs for localhost
@@ -107,8 +108,11 @@ async function signIn(t: Env2, email: string): Promise<string> {
 }
 
 const MONSTER = { body: "round", color: "purple", eyes: "three", mouth: "smile", arms: "wings", top: "horns" };
-async function addChild(t: Env2, cookie: string, monsterName = "Ziggy") {
-  const r = await call(t, "/api/children", { cookie, body: { monsterName, monster: MONSTER, ageBand: "ages-3-5" } });
+/** Public names are pick-list combinations; the child-typed monster name is never sent (src/account/publicName.ts). */
+const ZIGGY = "Brave Zoomkin";
+const NOVA = "Sunny Puffaroo";
+async function addChild(t: Env2, cookie: string, publicName?: string) {
+  const r = await call(t, "/api/children", { cookie, body: { ...(publicName ? { publicName } : {}), monster: MONSTER, ageBand: "ages-3-5" } });
   expect(r.status).toBe(201);
   return ((await r.json()) as { child: { id: string } }).child.id;
 }
@@ -217,8 +221,8 @@ describe("magic-link auth and sessions", () => {
   it("enforces Origin on cookie-authenticated writes, and logout ends the session", async () => {
     const t = fakeEnv();
     const cookie = await signIn(t, "o@example.com");
-    expect((await call(t, "/api/children", { cookie, body: { monsterName: "Ziggy", monster: MONSTER, ageBand: "ages-3-5" }, origin: "https://evil.example" })).status).toBe(403);
-    expect((await call(t, "/api/children", { cookie, body: { monsterName: "Ziggy", monster: MONSTER, ageBand: "ages-3-5" }, origin: null })).status).toBe(403);
+    expect((await call(t, "/api/children", { cookie, body: { monster: MONSTER, ageBand: "ages-3-5" }, origin: "https://evil.example" })).status).toBe(403);
+    expect((await call(t, "/api/children", { cookie, body: { monster: MONSTER, ageBand: "ages-3-5" }, origin: null })).status).toBe(403);
     expect((await call(t, "/api/auth/logout", { cookie, method: "POST" })).headers.get("set-cookie")).toContain("Max-Age=0");
     expect((await call(t, "/api/me", { cookie })).status).toBe(401);
     expect(t.count("sessions")).toBe(0);
@@ -238,13 +242,26 @@ describe("children, settings, sync", () => {
     const t = fakeEnv();
     const a = await signIn(t, "a@example.com");
     const b = await signIn(t, "b@example.com");
-    expect((await call(t, "/api/children", { cookie: a, body: { monsterName: "Ziggy", monster: { ...MONSTER, color: "gold" }, ageBand: "ages-3-5" } })).status).toBe(400);
-    expect((await call(t, "/api/children", { cookie: a, body: { monsterName: "Ziggy", monster: MONSTER, ageBand: "ages-3-5", kidName: "Sam" } })).status).toBe(400);
+    expect((await call(t, "/api/children", { cookie: a, body: { monster: { ...MONSTER, color: "gold" }, ageBand: "ages-3-5" } })).status).toBe(400);
+    // the child-typed monster name is refused outright, and so is a public name that isn't from the pick lists
+    expect((await call(t, "/api/children", { cookie: a, body: { monsterName: "Ziggy", monster: MONSTER, ageBand: "ages-3-5" } })).status).toBe(400);
+    expect((await call(t, "/api/children", { cookie: a, body: { publicName: "Sam Smith", monster: MONSTER, ageBand: "ages-3-5" } })).status).toBe(400);
+    expect((await call(t, "/api/children", { cookie: a, body: { monster: MONSTER, ageBand: "ages-3-5", kidName: "Sam" } })).status).toBe(400);
     const ids = [];
-    for (let i = 0; i < 4; i++) ids.push(await addChild(t, a, `Mon${"abcd"[i]}`));
-    expect((await call(t, "/api/children", { cookie: a, body: { monsterName: "Five", monster: MONSTER, ageBand: "ages-3-5" } })).status).toBe(409);
-    const list = (await (await call(t, "/api/children", { cookie: a })).json()) as { children: { nickname: string | null; settings: unknown }[] };
+    for (let i = 0; i < 4; i++) ids.push(await addChild(t, a, i === 0 ? ZIGGY : undefined));
+    expect((await call(t, "/api/children", { cookie: a, body: { monster: MONSTER, ageBand: "ages-3-5" } })).status).toBe(409);
+    const list = (await (await call(t, "/api/children", { cookie: a })).json()) as { children: { id: string; publicName: string; nickname: string | null; settings: unknown }[] };
     expect(list.children).toHaveLength(4);
+    // chosen public name kept; others get the deterministic default for their id
+    expect(list.children[0]!.publicName).toBe(ZIGGY);
+    for (const c of list.children.slice(1)) expect(c.publicName).toBe(defaultPublicName(c.id));
+    expect(t.raw.prepare("SELECT public_name FROM children WHERE id = ?").get(ids[1])).toEqual({ public_name: null });
+    // parent changes the public name from the picker; invalid combinations are refused
+    const renamed = await call(t, `/api/children/${ids[1]}`, { cookie: a, method: "PUT", body: { publicName: "Cosmic Picklepuff" } });
+    expect(((await renamed.json()) as { child: { publicName: string } }).child.publicName).toBe("Cosmic Picklepuff");
+    expect((await call(t, `/api/children/${ids[1]}`, { cookie: a, method: "PUT", body: { publicName: "Cosmic Ziggy" } })).status).toBe(400);
+    expect((await call(t, `/api/children/${ids[1]}`, { cookie: a, method: "PUT", body: { monsterName: "Ziggy" } })).status).toBe(400);
+    expect(Object.keys(t.raw.prepare("SELECT * FROM children LIMIT 1").get() as object)).not.toContain("monster_name");
     expect(list.children[0]!.nickname).toBeNull();
     expect(list.children[0]!.settings).toEqual({ dailyLimit: 5, sound: true, music: true });
     expect((await call(t, `/api/children/${ids[0]}`, { cookie: b })).status).toBe(405);
@@ -295,9 +312,9 @@ describe("friends, leaderboard, challenges", () => {
     const a = await signIn(t, "a@example.com");
     const b = await signIn(t, "b@example.com");
     const c = await signIn(t, "c@example.com");
-    const ka = await addChild(t, a, "Ziggy");
-    const kb = await addChild(t, b, "Nova");
-    const kc = await addChild(t, c, "Pip");
+    const ka = await addChild(t, a, ZIGGY);
+    const kb = await addChild(t, b, NOVA);
+    const kc = await addChild(t, c, "Calm Marshmole");
     return { t, a, b, c, ka, kb, kc };
   }
 
@@ -308,20 +325,20 @@ describe("friends, leaderboard, challenges", () => {
     expect(inv.link).toContain(`/parents/invite/${inv.code}`);
     expect((await call(t, `/api/invites/${inv.code}/accept`, { cookie: a, body: { childId: ka } })).status).toBe(400); // own child
     const peek = (await (await call(t, `/api/invites/${inv.code.toLowerCase()}`, { cookie: b })).json()) as { from: Record<string, unknown> };
-    expect(Object.keys(peek.from).sort()).toEqual(["monster", "monsterName"]);
+    expect(Object.keys(peek.from).sort()).toEqual(["monster", "publicName"]);
     expect((await call(t, `/api/invites/${inv.code}/accept`, { cookie: b, body: { childId: kb } })).status).toBe(201);
     expect((await call(t, `/api/invites/${inv.code}/accept`, { cookie: b, body: { childId: kb } })).status).toBe(404);
     const fb = (await (await call(t, `/api/children/${kb}/friends`, { cookie: b })).json()) as { friends: { id: string; status: string }[] };
     expect(fb.friends[0]!.status).toBe("waiting-for-them");
-    const fa = (await (await call(t, `/api/children/${ka}/friends`, { cookie: a })).json()) as { friends: { id: string; status: string; monsterName: string }[] };
-    expect(fa.friends[0]).toMatchObject({ status: "needs-your-approval", monsterName: "Nova" });
+    const fa = (await (await call(t, `/api/children/${ka}/friends`, { cookie: a })).json()) as { friends: { id: string; status: string; publicName: string }[] };
+    expect(fa.friends[0]).toMatchObject({ status: "needs-your-approval", publicName: NOVA });
     // not yet on the leaderboard
     let lb = (await (await call(t, `/api/children/${ka}/leaderboard`, { cookie: a })).json()) as { entries: unknown[] };
     expect(lb.entries).toHaveLength(1);
     expect((await call(t, `/api/friendships/${fa.friends[0]!.id}/approve`, { cookie: a, method: "POST" })).status).toBe(200);
     lb = (await (await call(t, `/api/children/${ka}/leaderboard`, { cookie: a })).json()) as { entries: Record<string, unknown>[] };
     expect(lb.entries).toHaveLength(2);
-    for (const e of lb.entries) expect(Object.keys(e as object).sort()).toEqual(["key", "me", "monster", "monsterName", "points"]);
+    for (const e of lb.entries) expect(Object.keys(e as object).sort()).toEqual(["key", "me", "monster", "points", "publicName"]);
   });
 
   it("leaderboard ranks by weekly points; strangers can't approve or delete", async () => {
@@ -332,8 +349,8 @@ describe("friends, leaderboard, challenges", () => {
     await call(t, `/api/friendships/${friendshipId}/approve`, { cookie: a, method: "POST" });
     const now = Date.now();
     await call(t, `/api/children/${kb}/sync`, { cookie: b, body: { progress: { v: 1, worlds: {}, stickers: [], skills: {}, roundsCompleted: 1, history: [round(now - 1000)] } } });
-    const lb = (await (await call(t, `/api/children/${ka}/leaderboard`, { cookie: a })).json()) as { entries: { monsterName: string; points: number; me: boolean }[] };
-    expect(lb.entries[0]).toMatchObject({ monsterName: "Nova", me: false });
+    const lb = (await (await call(t, `/api/children/${ka}/leaderboard`, { cookie: a })).json()) as { entries: { publicName: string; points: number; me: boolean }[] };
+    expect(lb.entries[0]).toMatchObject({ publicName: NOVA, me: false });
     expect(lb.entries[0]!.points).toBe(10 * 3 + 2 * 8 + 5);
     expect((await call(t, `/api/friendships/${friendshipId}`, { cookie: c, method: "DELETE" })).status).toBe(404);
     expect((await call(t, `/api/friendships/${friendshipId}`, { cookie: b, method: "DELETE" })).status).toBe(200);
@@ -359,10 +376,10 @@ describe("friends, leaderboard, challenges", () => {
     const res = (await (await call(t, `/api/challenges/${ch.token}/result`, { cookie: b, body: { childId: kb, score: 36 } })).json()) as { beat: boolean };
     expect(res.beat).toBe(true);
     await call(t, `/api/challenges/${ch.token}/result`, { cookie: b, body: { childId: kb, score: 12 } }); // keeps the best
-    const sent = (await (await call(t, `/api/children/${ka}/challenges`, { cookie: a })).json()) as { sent: { results: { monsterName: string; score: number; beat: boolean }[] }[] };
-    expect(sent.sent[0]!.results).toEqual([{ monsterName: "Nova", score: 36, beat: true }]);
+    const sent = (await (await call(t, `/api/children/${ka}/challenges`, { cookie: a })).json()) as { sent: { results: { publicName: string; score: number; beat: boolean }[] }[] };
+    expect(sent.sent[0]!.results).toEqual([{ publicName: NOVA, score: 36, beat: true }]);
     const played = (await (await call(t, `/api/children/${kb}/challenges`, { cookie: b })).json()) as { played: { from: string; score: number; target: number }[] };
-    expect(played.played[0]).toMatchObject({ from: "Ziggy", score: 36, target: 30 });
+    expect(played.played[0]).toMatchObject({ from: ZIGGY, score: 36, target: 30 });
   });
 });
 
@@ -371,17 +388,17 @@ describe("export, delete, unsubscribe", () => {
     const t = fakeEnv();
     const a = await signIn(t, "a@example.com");
     const b = await signIn(t, "b@example.com");
-    const ka = await addChild(t, a, "Ziggy");
-    const kb = await addChild(t, b, "Nova");
+    const ka = await addChild(t, a, ZIGGY);
+    const kb = await addChild(t, b, NOVA);
     const { code } = (await (await call(t, `/api/children/${ka}/invites`, { cookie: a, method: "POST" })).json()) as { code: string };
     await call(t, `/api/invites/${code}/accept`, { cookie: b, body: { childId: kb } });
     await call(t, "/api/challenges", { cookie: a, body: { childId: ka, worldId: "cookie-kitchen", level: 0, seed: 1, score: 10 } });
     await call(t, `/api/children/${ka}/invites`, { cookie: a, method: "POST" });
     const exp = await call(t, "/api/me/export", { cookie: a });
     expect(exp.headers.get("content-disposition")).toContain("attachment");
-    const data = (await exp.json()) as { parent: { email: string }; children: { monsterName: string }[]; friendships: unknown[]; challengesSent: unknown[] };
+    const data = (await exp.json()) as { parent: { email: string }; children: { publicName: string }[]; friendships: unknown[]; challengesSent: unknown[] };
     expect(data.parent.email).toBe("a@example.com");
-    expect(data.children.map((c) => c.monsterName)).toEqual(["Ziggy"]);
+    expect(data.children.map((c) => c.publicName)).toEqual([ZIGGY]);
     expect(data.friendships).toHaveLength(1);
     expect(data.challengesSent).toHaveLength(1);
     expect((await call(t, "/api/me", { cookie: a, method: "DELETE", body: {} })).status).toBe(400);
@@ -390,7 +407,7 @@ describe("export, delete, unsubscribe", () => {
     expect(del.headers.get("set-cookie")).toContain("Max-Age=0");
     for (const table of ["friendships", "challenges", "friend_invites"]) expect(t.count(table)).toBe(0);
     expect(t.raw.prepare("SELECT email FROM parents").all()).toEqual([{ email: "b@example.com" }]);
-    expect(t.raw.prepare("SELECT monster_name FROM children").all()).toEqual([{ monster_name: "Nova" }]);
+    expect(t.raw.prepare("SELECT public_name FROM children").all()).toEqual([{ public_name: NOVA }]);
     expect(t.raw.prepare("SELECT COUNT(*) AS n FROM auth_tokens WHERE email = 'a@example.com'").get()).toEqual({ n: 0 });
     expect((await call(t, "/api/me", { cookie: a })).status).toBe(401);
   });

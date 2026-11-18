@@ -24,7 +24,7 @@ function seedParent(t: ReturnType<typeof fakeEnv>, id: string, email: string, op
   t.raw.prepare("INSERT INTO parents (id, email, consent_version, consented_at, created_at, digest_opt_in) VALUES (?, ?, '2026-11-17', 1, 1, ?)").run(id, email, optIn);
   const progress = { ...emptyChildProgress(), worlds: { "sky-balloon-race": { level: 1, stars: 2 } }, skills: { "math.add.within-20": { attempts: 12, firstTry: 4, completed: 8 } }, history };
   t.raw
-    .prepare("INSERT INTO children (id, parent_id, monster_json, monster_name, age_band, nickname, settings_json, progress_json, created_at, updated_at) VALUES (?, ?, '{}', 'Ziggy', 'ages-6-8', ?, '{}', ?, 1, 1)")
+    .prepare("INSERT INTO children (id, parent_id, monster_json, public_name, age_band, nickname, settings_json, progress_json, created_at, updated_at) VALUES (?, ?, '{}', 'Brave Zoomkin', 'ages-6-8', ?, '{}', ?, 1, 1)")
     .run(`${id}-kid`, id, nickname, JSON.stringify(progress));
 }
 
@@ -72,7 +72,7 @@ describe("digest job", () => {
     expect(batch[0]!.to).toEqual(["yes@example.com"]);
     expect(batch[0]!.headers["List-Unsubscribe-Post"]).toBe("List-Unsubscribe=One-Click");
     expect(batch[0]!.headers["List-Unsubscribe"]).toMatch(/^<https:\/\/brainzippy\.test\/api\/unsubscribe\?p=11111111-1111-4111-8111-111111111111&s=[0-9a-f]{64}>$/);
-    expect(batch[0]!.html).toContain("Ziggy");
+    expect(batch[0]!.html).toContain("Brave Zoomkin");
     expect(batch[0]!.text).toContain("Streak: 1 day in a row");
     expect((init!.headers as Record<string, string>)["idempotency-key"]).toMatch(/^digest-2026-11-17-/);
     expect(await dailyDigest(t.env, NOW + 60_000)).toEqual({ considered: 0, sent: 0 });

@@ -1,7 +1,7 @@
 import type { Route, Ctx } from "../router";
 import { weekSummary, addDays } from "../../src/account/points";
 import { ownChild, requireParent, type ChildRow } from "../lib/auth";
-import { rowMonster, rowProgress } from "../lib/children";
+import { rowMonster, rowProgress, rowPublicName } from "../lib/children";
 import { appOrigin } from "../lib/config";
 import { inviteCode, normaliseInviteCode, sha256Hex } from "../lib/crypto";
 import { err, json, readJson } from "../lib/http";
@@ -11,8 +11,8 @@ import { isObj, isUuid, onlyKeys } from "../lib/validation";
 /**
  * Friends-only social features. A friendship is between two CHILD profiles and becomes active only when both
  * parents approve: the inviting parent creates a single-use code; the other (signed-in) parent accepts it for one
- * of their children (their approval); the inviting parent then approves. Friends see only monster name, monster art
- * and weekly points. There is no messaging and no free text between families.
+ * of their children (their approval); the inviting parent then approves. Friends see only the PUBLIC name (pick-list
+ * combination, never the child-typed monster name), monster art and weekly points. There is no messaging and no free text between families.
  */
 export const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export const MAX_FRIENDS = 20;
@@ -33,7 +33,7 @@ interface FriendRow {
   approved_b: number;
   created_at: number;
   other_id: string;
-  monster_name: string;
+  public_name: string | null;
   monster_json: string;
   progress_json: string;
 }
@@ -41,7 +41,7 @@ interface FriendRow {
 export async function friendsOf(c: Ctx, childId: string): Promise<FriendRow[]> {
   return (
     await c.env.DB.prepare(
-      `SELECT f.id, f.child_a, f.child_b, f.approved_a, f.approved_b, f.created_at, o.id AS other_id, o.monster_name, o.monster_json, o.progress_json
+      `SELECT f.id, f.child_a, f.child_b, f.approved_a, f.approved_b, f.created_at, o.id AS other_id, o.public_name, o.monster_json, o.progress_json
        FROM friendships f JOIN children o ON o.id = CASE WHEN f.child_a = ?1 THEN f.child_b ELSE f.child_a END
        WHERE f.child_a = ?1 OR f.child_b = ?1 ORDER BY f.created_at`,
     )
@@ -88,12 +88,12 @@ const featureRoutes: Route[] = [
       const code = normaliseInviteCode(c.params.code);
       if (!code) return err("not_found", 404);
       const row = await c.env.DB.prepare(
-        "SELECT ch.parent_id, ch.monster_name, ch.monster_json FROM friend_invites i JOIN children ch ON ch.id = i.child_id WHERE i.code_hash = ? AND i.expires_at > ?",
+        "SELECT ch.id, ch.parent_id, ch.public_name, ch.monster_json FROM friend_invites i JOIN children ch ON ch.id = i.child_id WHERE i.code_hash = ? AND i.expires_at > ?",
       )
         .bind(await sha256Hex(code), Date.now())
-        .first<{ parent_id: string; monster_name: string; monster_json: string }>();
+        .first<{ id: string; parent_id: string; public_name: string | null; monster_json: string }>();
       if (!row) return err("not_found", 404);
-      return json({ from: { monsterName: row.monster_name, monster: rowMonster(row) }, ownChild: row.parent_id === s.parentId });
+      return json({ from: { publicName: rowPublicName(row), monster: rowMonster(row) }, ownChild: row.parent_id === s.parentId });
     },
   },
   {
@@ -141,7 +141,7 @@ const featureRoutes: Route[] = [
       const child = await ownChild(c, s, c.params.id);
       if (child instanceof Response) return child;
       const rows = await friendsOf(c, child.id);
-      return json({ friends: rows.map((f) => ({ id: f.id, status: statusFor(f, child.id), monsterName: f.monster_name, monster: rowMonster(f) })) });
+      return json({ friends: rows.map((f) => ({ id: f.id, status: statusFor(f, child.id), publicName: rowPublicName({ id: f.other_id, public_name: f.public_name }), monster: rowMonster(f) })) });
     },
   },
   {
@@ -188,16 +188,16 @@ const featureRoutes: Route[] = [
       const child = await ownChild(c, s, c.params.id);
       if (child instanceof Response) return child;
       const today = todayFor(c.url);
-      const entry = (key: string, row: Pick<ChildRow, "monster_name" | "monster_json" | "progress_json">, me: boolean) => ({
+      const entry = (key: string, childId: string, row: Pick<ChildRow, "public_name" | "monster_json" | "progress_json">, me: boolean) => ({
         key,
         me,
-        monsterName: row.monster_name,
+        publicName: rowPublicName({ id: childId, public_name: row.public_name }),
         monster: rowMonster(row),
         points: weekSummary(rowProgress(row).history, today).points,
       });
       const friends = (await friendsOf(c, child.id)).filter((f) => f.approved_a && f.approved_b);
-      const rows = [entry("me", child, true), ...friends.map((f) => entry(f.id, f, false))];
-      rows.sort((a, b) => b.points - a.points || (a.me ? -1 : b.me ? 1 : a.monsterName.localeCompare(b.monsterName)));
+      const rows = [entry("me", child.id, child, true), ...friends.map((f) => entry(f.id, f.other_id, f, false))];
+      rows.sort((a, b) => b.points - a.points || (a.me ? -1 : b.me ? 1 : a.publicName.localeCompare(b.publicName)));
       return json({ week: weekSummary([], today).weekStart, entries: rows });
     },
   },

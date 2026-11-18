@@ -1,6 +1,7 @@
 import type { Route } from "../router";
 import { mergeChildProgress } from "../../src/account/merge";
 import { emptyChildProgress, DEFAULT_SETTINGS, MAX_CHILDREN } from "../../src/account/schema";
+import { parsePublicName } from "../../src/account/publicName";
 import { ownChild, requireParent, type ChildRow } from "../lib/auth";
 import { childOut, deleteChildrenStatements, rowProgress, rowSettings } from "../lib/children";
 import { err, json, readJson } from "../lib/http";
@@ -10,6 +11,8 @@ import { cleanDisplayName, isObj, MAX_CHILD_PROGRESS_BYTES, onlyKeys, parseAgeBa
 /**
  * Child profiles (max 4 per parent), per-child settings and local-first progress sync.
  * Contract for GET/PUT /api/children/:id/settings is documented in docs/TECHNICAL_ARCHITECTURE.md (API section).
+ * The child-typed monster name is never accepted: other families see only `publicName`, a pick-list combination
+ * (src/account/publicName.ts) that defaults to a deterministic name and can be changed by the parent.
  */
 export const routes: Route[] = [
   {
@@ -29,11 +32,11 @@ export const routes: Route[] = [
       const s = await requireParent(c);
       if (s instanceof Response) return s;
       const body = await readJson(c.req, MAX_CHILD_PROGRESS_BYTES);
-      if (!isObj(body) || !onlyKeys(body, ["monsterName", "monster", "ageBand", "nickname", "progress"])) return err("invalid_body", 400);
-      const monsterName = cleanDisplayName(body.monsterName);
+      if (!isObj(body) || !onlyKeys(body, ["publicName", "monster", "ageBand", "nickname", "progress"])) return err("invalid_body", 400);
       const monster = parseMonster(body.monster);
       const ageBand = parseAgeBand(body.ageBand);
-      if (!monsterName || !monster || !ageBand) return err("invalid_body", 400);
+      const publicName = body.publicName === undefined ? null : parsePublicName(body.publicName);
+      if (!monster || !ageBand || (body.publicName !== undefined && !publicName)) return err("invalid_body", 400);
       let nickname: string | null = null;
       if (body.nickname !== undefined && body.nickname !== null) {
         nickname = cleanDisplayName(body.nickname);
@@ -45,10 +48,10 @@ export const routes: Route[] = [
       const now = Date.now();
       // Single statement so two concurrent requests can never exceed the cap (D1 runs one query at a time per database).
       const res = await c.env.DB.prepare(
-        `INSERT INTO children (id, parent_id, monster_json, monster_name, age_band, nickname, settings_json, progress_json, created_at, updated_at)
+        `INSERT INTO children (id, parent_id, monster_json, public_name, age_band, nickname, settings_json, progress_json, created_at, updated_at)
          SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ? WHERE (SELECT COUNT(*) FROM children WHERE parent_id = ?) < ?`,
       )
-        .bind(id, s.parentId, JSON.stringify(monster), monsterName, ageBand, nickname, JSON.stringify(DEFAULT_SETTINGS), JSON.stringify(progress), now, now, s.parentId, MAX_CHILDREN)
+        .bind(id, s.parentId, JSON.stringify(monster), publicName, ageBand, nickname, JSON.stringify(DEFAULT_SETTINGS), JSON.stringify(progress), now, now, s.parentId, MAX_CHILDREN)
         .run();
       if (!res.meta.changes) return err("too_many_children", 409);
       const row = await c.env.DB.prepare("SELECT * FROM children WHERE id = ?").bind(id).first<ChildRow>();
@@ -64,12 +67,12 @@ export const routes: Route[] = [
       const child = await ownChild(c, s, c.params.id);
       if (child instanceof Response) return child;
       const body = await readJson(c.req);
-      if (!isObj(body) || !onlyKeys(body, ["monsterName", "monster", "ageBand", "nickname"])) return err("invalid_body", 400);
-      let { monster_name, monster_json, age_band, nickname } = child;
-      if (body.monsterName !== undefined) {
-        const v = cleanDisplayName(body.monsterName);
+      if (!isObj(body) || !onlyKeys(body, ["publicName", "monster", "ageBand", "nickname"])) return err("invalid_body", 400);
+      let { public_name, monster_json, age_band, nickname } = child;
+      if (body.publicName !== undefined) {
+        const v = parsePublicName(body.publicName);
         if (!v) return err("invalid_body", 400);
-        monster_name = v;
+        public_name = v;
       }
       if (body.monster !== undefined) {
         const v = parseMonster(body.monster);
@@ -89,10 +92,10 @@ export const routes: Route[] = [
           nickname = v;
         }
       }
-      await c.env.DB.prepare("UPDATE children SET monster_name = ?, monster_json = ?, age_band = ?, nickname = ?, updated_at = ? WHERE id = ?")
-        .bind(monster_name, monster_json, age_band, nickname, Date.now(), child.id)
+      await c.env.DB.prepare("UPDATE children SET public_name = ?, monster_json = ?, age_band = ?, nickname = ?, updated_at = ? WHERE id = ?")
+        .bind(public_name, monster_json, age_band, nickname, Date.now(), child.id)
         .run();
-      return json({ child: childOut({ ...child, monster_name, monster_json, age_band, nickname }) });
+      return json({ child: childOut({ ...child, public_name, monster_json, age_band, nickname }) });
     },
   },
   {

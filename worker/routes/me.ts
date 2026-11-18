@@ -1,6 +1,6 @@
 import type { Route } from "../router";
 import { requireParent, type ChildRow } from "../lib/auth";
-import { childOut, deleteChildrenStatements } from "../lib/children";
+import { childOut, deleteChildrenStatements, rowPublicName } from "../lib/children";
 import { friendsEnabled } from "../lib/config";
 import { getEntitlement } from "../lib/entitlements";
 import { err, json, readJson } from "../lib/http";
@@ -65,7 +65,7 @@ export const routes: Route[] = [
       const [friends, challenges, results] = ids.length
         ? await db.batch([
             db.prepare(
-              `SELECT f.id, f.child_a, f.child_b, f.approved_a, f.approved_b, f.created_at, ca.monster_name AS name_a, cb.monster_name AS name_b
+              `SELECT f.id, f.child_a, f.child_b, f.approved_a, f.approved_b, f.created_at, ca.public_name AS name_a, cb.public_name AS name_b
                FROM friendships f JOIN children ca ON ca.id = f.child_a JOIN children cb ON cb.id = f.child_b WHERE f.child_a IN (${ph}) OR f.child_b IN (${ph})`,
             ).bind(...ids, ...ids),
             db.prepare(`SELECT id, from_child, world_id, level, seed, score, created_at, expires_at FROM challenges WHERE from_child IN (${ph})`).bind(...ids),
@@ -77,11 +77,15 @@ export const routes: Route[] = [
         format: "brainzippy-export-v1",
         parent: parent && { ...parent, digest_opt_in: parent.digest_opt_in === 1 },
         children: kids.map(childOut),
-        friendships: friends?.results ?? [],
+        friendships: ((friends?.results ?? []) as { child_a: string; child_b: string; name_a: string | null; name_b: string | null }[]).map((f) => ({
+          ...f,
+          name_a: rowPublicName({ id: f.child_a, public_name: f.name_a }),
+          name_b: rowPublicName({ id: f.child_b, public_name: f.name_b }),
+        })),
         challengesSent: challenges?.results ?? [],
         challengeResults: results?.results ?? [],
         billing: await billingExport(c.env, s.parentId),
-        note: "Friend entries show only the friend's monster name. Progress on a device that is not linked to an account is not included.",
+        note: "Friend entries show only public names (made-up names from fixed word lists). Progress on a device that is not linked to an account is not included.",
       };
       return json(body, 200, { "content-disposition": 'attachment; filename="brainzippy-export.json"' });
     },

@@ -25,7 +25,9 @@ async function call<T>(method: string, path: string, body?: unknown): Promise<Ap
 
 export interface ChildOut {
   id: string;
-  monsterName: string;
+  /** The only name other families see: a pick-list combination (src/account/publicName.ts). The child-typed
+   * monster name never leaves the device. */
+  publicName: string;
   monster: MonsterSpec;
   ageBand: string;
   nickname: string | null;
@@ -43,13 +45,13 @@ export interface Me {
 export interface Friend {
   id: string;
   status: "active" | "waiting-for-them" | "needs-your-approval";
-  monsterName: string;
+  publicName: string;
   monster: MonsterSpec;
 }
 export interface LeaderboardEntry {
   key: string;
   me: boolean;
-  monsterName: string;
+  publicName: string;
   monster: MonsterSpec;
   points: number;
 }
@@ -60,12 +62,12 @@ export interface ChallengeView {
   score: number;
   expiresAt: number;
   mine: boolean;
-  from: { monsterName: string; monster: MonsterSpec };
-  players: { id: string; monsterName: string }[];
-  results: { childId?: string; monsterName: string; score: number; beat: boolean }[];
+  from: { publicName: string; monster: MonsterSpec };
+  players: { id: string; publicName: string }[];
+  results: { childId?: string; publicName: string; score: number; beat: boolean }[];
 }
 export interface ChildChallenges {
-  sent: { id: string; worldId: string; score: number; createdAt: number; results: { monsterName: string; score: number; beat: boolean }[] }[];
+  sent: { id: string; worldId: string; score: number; createdAt: number; results: { publicName: string; score: number; beat: boolean }[] }[];
   played: { id: string; worldId: string; from: string; target: number; score: number; beat: boolean }[];
 }
 
@@ -75,14 +77,14 @@ export const api = {
   me: () => call<Me>("GET", "/api/me"),
   setDigest: (digestOptIn: boolean) => call<{ digestOptIn: boolean }>("PUT", "/api/me", { digestOptIn }),
   deleteAccount: () => call<object>("DELETE", "/api/me", { confirm: "delete" }),
-  addChild: (c: { monsterName: string; monster: MonsterSpec; ageBand: string; progress?: ChildProgress }) => call<{ child: ChildOut }>("POST", "/api/children", c),
-  updateChild: (id: string, patch: { monsterName?: string; nickname?: string | null; ageBand?: string }) => call<{ child: ChildOut }>("PUT", `/api/children/${id}`, patch),
+  addChild: (c: { publicName?: string; monster: MonsterSpec; ageBand: string; progress?: ChildProgress }) => call<{ child: ChildOut }>("POST", "/api/children", c),
+  updateChild: (id: string, patch: { publicName?: string; nickname?: string | null; ageBand?: string }) => call<{ child: ChildOut }>("PUT", `/api/children/${id}`, patch),
   deleteChild: (id: string) => call<object>("DELETE", `/api/children/${id}`),
   getSettings: (id: string) => call<{ settings: ChildSettings }>("GET", `/api/children/${id}/settings`),
   putSettings: (id: string, s: Partial<ChildSettings>) => call<{ settings: ChildSettings }>("PUT", `/api/children/${id}/settings`, s),
   sync: (id: string, progress: ChildProgress) => call<{ progress: ChildProgress; settings: ChildSettings }>("POST", `/api/children/${id}/sync`, { progress }),
   createInvite: (id: string) => call<{ code: string; link: string; expiresAt: number }>("POST", `/api/children/${id}/invites`),
-  peekInvite: (code: string) => call<{ from: { monsterName: string; monster: MonsterSpec }; ownChild: boolean }>("GET", `/api/invites/${encodeURIComponent(code)}`),
+  peekInvite: (code: string) => call<{ from: { publicName: string; monster: MonsterSpec }; ownChild: boolean }>("GET", `/api/invites/${encodeURIComponent(code)}`),
   acceptInvite: (code: string, childId: string) => call<{ friendshipId: string }>("POST", `/api/invites/${encodeURIComponent(code)}/accept`, { childId }),
   friends: (id: string) => call<{ friends: Friend[] }>("GET", `/api/children/${id}/friends`),
   approveFriend: (fid: string) => call<object>("POST", `/api/friendships/${fid}/approve`),

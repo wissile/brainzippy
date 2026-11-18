@@ -12,7 +12,7 @@ BrainZippy provides educational games for children aged 3–14, an optional pare
 
 ## 3. Parent accounts
 - You sign in with a link sent to your email; keep access to that email secure.
-- You may add up to four child profiles. Use a monster name rather than your child's real name. The optional nickname is your choice.
+- You may add up to four child profiles. Profiles get a made-up public name from fixed word lists; your child's real name and typed monster name stay on your device. The optional nickname is your choice.
 - You are responsible for activity under your account and for the friend connections you approve.
 
 ## 4. Friends and challenges

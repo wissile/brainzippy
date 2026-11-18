@@ -6,7 +6,7 @@
 | Data | Where | Sent to server? | Notes |
 |---|---|---|---|
 | Child's first name / nickname (optional, "Skip" offered) | localStorage `profile.kidName` | **Never** (e2e asserts no request contains it) | sanitised to letters, ≤16 chars |
-| Monster design + monster name | localStorage | Never | |
+| Monster design + monster name (typed by the child) | localStorage | Never (not even for signed-in accounts) | |
 | Age band | localStorage | Never | |
 | **Parent's** email + explicit consent | D1 `parent_signups` | Yes, behind a parent gate, optional ("Skip for now") | token stored only as SHA-256; link single-use; unverified rows purged after 7 days; resend cooldown 10 min |
 **Why the email belongs to the parent, not the child:** collecting a child's (under 13) email or other online contact information requires verifiable parental consent under COPPA, and BrainZippy's master instructions require a parent-controlled process. Asking the parent directly, with consent, and keeping the child's name on the device is the data-minimising design. The API rejects any field other than `email` and `consent`.
@@ -27,7 +27,7 @@ Not collected: names, emails, birthdates, photos, voice, location, contacts, dev
 | Parent email, consent version + time, created/last-login time, digest opt-in | D1 `parents` | **yes** (parent) | sign-in, consent record, digest | until the parent deletes the account (immediate hard delete) — inactive-account policy: lawyer to decide (proposed 24 months) |
 | Magic-link token **hash**, email, purpose | D1 `auth_tokens` | yes (email) | single-use sign-in, 15-minute expiry | purged 1 day after expiry |
 | Session id **hash**, parent id, expiry | D1 `sessions` (+ HttpOnly cookie) | pseudonymous | stay signed in, 30-day rolling | deleted at logout/expiry (daily purge) |
-| Child profile: monster design, monster name, age band (`ages-3-5`…) | D1 `children` | low (chosen nickname-like name, coarse age) | dashboard, friends | until the parent deletes the child or account |
+| Child profile: monster design, **public name** (pick-list combination; NULL = default derived from the profile id), age band (`ages-3-5`…) | D1 `children` | low (chosen nickname-like name, coarse age) | dashboard, friends | until the parent deletes the child or account |
 | Child **nickname** | D1 `children.nickname` | yes (could be a real name) | parent's dashboard and emails only; **never shown to friends** | **NULL by default**; set only when the parent opts in; cleared when they opt out |
 | Per-child settings (daily limit 3–10, sound, music) | D1 `children.settings_json` | no | parent controls | with the profile |
 | Progress: worlds/levels/stars, stickers, per-skill tallies, last 200 rounds (time, game, level, counts, seconds) | D1 `children.progress_json` + device | no direct identifier | dashboard, points, streaks, digest | with the profile; history capped at 200 rounds |
@@ -37,7 +37,7 @@ Not collected: names, emails, birthdates, photos, voice, location, contacts, dev
 | Rate-limit counters (keyed HMAC of IP or email, never raw) | D1 `rate_limits` | pseudonymous | abuse prevention | purged after 2 days |
 | Device link (child id, cached settings), round history, active challenge | browser localStorage | no | local-first sync | until "Clear this device" / "Delete all progress on this device" |
 
-What friends see: **monster name, monster picture, weekly points** (and challenge scores). Never the nickname, email, age band, skills or history.
+What friends see: **public name (from fixed word lists, never the typed monster name), monster picture, weekly points** (and challenge scores). Never the nickname, email, age band, skills or history.
 Not collected for accounts: child email, child password, birthdate, photo, voice, location, contacts, free text between users.
 
 ### Controls added with accounts
@@ -50,7 +50,7 @@ Not collected for accounts: child email, child password, birthdate, photo, voice
 - No PII in logs: email addresses are never logged; error logs replace ids in paths; invocation logs stay off.
 - Tokens appear in URLs only in single-use or short-lived links: magic link (15 min, single use), legacy onboarding confirmation (single use, 7 days), invite (single use, 7 days), challenge (opaque, friends-only, 14 days), unsubscribe (HMAC signature, no session).
 - Deletion: "Delete profile" and "Delete account" hard-delete rows explicitly (children, friendships, invites, challenges, results, sessions, tokens, legacy sign-ups) in one D1 batch. Copies persist only in D1 Time Travel (7 days on Free, 30 on Paid) — the policy says "up to 30 days".
-- Export: `GET /api/me/export` returns all account data as JSON (friend entries show only the friend's monster name).
+- Export: `GET /api/me/export` returns all account data as JSON (friend entries show only the friend's public name).
 - Daily digest: opt-in per parent (off by default), parents only, only on days a child played, no images, text twin, `List-Unsubscribe` + `List-Unsubscribe-Post: List-Unsubscribe=One-Click`, unsubscribe page needs no sign-in. Not sent at all without `SIGNING_SECRET`.
 - Entitlements (`worker/lib/entitlements.ts`) are Stripe-backed since migration 0005; see "Billing" below. Billing UI stays behind the parent gate.
 

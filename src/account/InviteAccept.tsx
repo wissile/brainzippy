@@ -5,7 +5,7 @@ import { MonsterArt } from "./ui";
 
 /** Accepting a friend invite: the accepting parent picks one of their children. The inviting parent approves next. */
 export function InviteAccept({ code, me, onDone }: { code: string; me: Me; onDone: () => void }) {
-  const [from, setFrom] = useState<{ monsterName: string; monster: MonsterSpec } | null | "loading" | "own">("loading");
+  const [from, setFrom] = useState<{ publicName: string; monster: MonsterSpec } | null | "loading" | "own">("loading");
   const [childId, setChildId] = useState(me.children[0]?.id ?? "");
   const [status, setStatus] = useState<"idle" | "busy" | "done" | "error">("idle");
   const [error, setError] = useState("");
@@ -35,14 +35,14 @@ export function InviteAccept({ code, me, onDone }: { code: string; me: Me; onDon
       <div className="pa-child-head">
         <MonsterArt monster={from.monster} size={72} />
         <div>
-          <h2>Friend invite from {from.monsterName}</h2>
+          <h2>Friend invite from {from.publicName}</h2>
           <p className="pa-muted">Friends see only each other's monster name, monster picture and weekly points. There is no chat.</p>
         </div>
       </div>
       {status === "done" ? (
         <>
           <p className="pa-ok" role="status" data-testid="invite-accepted">
-            Done! The other parent will be asked to approve too. You'll see {from.monsterName} on the leaderboard once they do.
+            Done! The other parent will be asked to approve too. You'll see {from.publicName} on the leaderboard once they do.
           </p>
           <button type="button" className="pa-btn primary" onClick={onDone}>
             Back to the dashboard
@@ -57,7 +57,7 @@ export function InviteAccept({ code, me, onDone }: { code: string; me: Me; onDon
             <select id="invite-child" data-testid="invite-child" value={childId} onChange={(e) => setChildId(e.target.value)}>
               {me.children.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.nickname ? `${c.monsterName} (${c.nickname})` : c.monsterName}
+                  {c.nickname ? `${c.publicName} (${c.nickname})` : c.publicName}
                 </option>
               ))}
             </select>

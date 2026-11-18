@@ -12,7 +12,8 @@ export interface ChildRow {
   id: string;
   parent_id: string;
   monster_json: string;
-  monster_name: string;
+  /** Parent-chosen public name (validated against the pick lists); NULL = deterministic default. */
+  public_name: string | null;
   age_band: string;
   nickname: string | null;
   settings_json: string;
