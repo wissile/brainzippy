@@ -345,7 +345,7 @@ function PublicName({ child, refresh }: { child: ChildOut; refresh: () => Promis
       onSubmit={async (e) => {
         e.preventDefault();
         const r = await api.updateChild(child.id, { publicName: formatPublicName(adjective, creature) });
-        setStatus(r.ok ? "Saved" : "We couldn't save the name. Please try again.");
+        setStatus(r.ok ? "Name updated" : "We couldn't change the name. Please try again.");
         if (r.ok) await refresh();
       }}
     >

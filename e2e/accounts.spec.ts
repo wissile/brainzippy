@@ -99,6 +99,7 @@ test("parent signs up with a dev magic link, saves this device's progress to a n
   await card.getByTestId("public-name-creature").selectOption("Zoomkin");
   await card.getByTestId("public-name-save").click();
   await expect(card.getByTestId("child-public-name")).toHaveText("Brave Zoomkin");
+  await expect(card.getByTestId("public-name").getByRole("status")).toHaveText("Name updated");
 
   // settings round-trip and apply to this device
   await card.getByTestId("daily-limit").selectOption("7");
