@@ -6,6 +6,7 @@ import { Critter, hostOf } from "../daily/critters";
 import { EndOfDay } from "../daily/EndOfDay";
 import { Explore } from "../daily/Explore";
 import { type DailyStatus, bandOf, dailyStatus, setActiveStop } from "../daily/store";
+import { useSpeakWhenReady } from "../daily/useSpeakWhenReady";
 import { useToday } from "../daily/useToday";
 import type { DailyPlanStop } from "../engine/progressSchema";
 import { loadState } from "../services/storage";
@@ -39,7 +40,7 @@ export function trailPoints(n: number, portrait: boolean): { x: number; y: numbe
     const t = n === 1 ? 0.5 : i / (n - 1);
     // portrait: a serpentine over three columns, so neighbours never overlap even with 10 stops
     return portrait
-      ? { x: [26, 50, 74, 50][i % 4]!, y: 27 + 59 * t }
+      ? { x: [26, 50, 74, 50][i % 4]!, y: 27 + (n > 5 ? 59 : 46) * t } // short trails stay clear of the caption
       : { x: 9 + 82 * t, y: 58 + 18 * Math.sin(i * 1.05 + 0.5) };
   });
 }
@@ -102,7 +103,7 @@ function Island({ status, view }: { status: DailyStatus; view: "today" | "explor
   const from = Math.max(0, next - 1);
   const [at, setAt] = useState(done > 0 && next > 0 ? from : Math.max(0, next));
   const firstEver = st.progress.roundsCompleted === 0 && done === 0;
-  const spoke = useRef(false);
+  const goingRef = useRef(false);
 
   useEffect(() => {
     void audio.playMusic("island");
@@ -110,23 +111,23 @@ function Island({ status, view }: { status: DailyStatus; view: "today" | "explor
     return () => window.clearTimeout(walk);
   }, [next, going]);
 
-  useEffect(() => {
-    if (spoke.current) return;
-    spoke.current = true;
-    const line =
+  // welcome line; queued until the first tap if audio is still locked (full page load), skipped if that tap opens a stop
+  useSpeakWhenReady(
+    () => [
       view === "explore" ? "daily.explore.hello"
       : firstEver ? "daily.map.first"
       : done === 0 ? "daily.map.hello"
       : stops[next]?.k === "pick" ? "daily.map.pick"
       : limit - done === 1 ? "daily.map.last"
-      : "daily.map.next";
-    const t = window.setTimeout(() => void audio.speak(line), 450);
-    return () => window.clearTimeout(t);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+      : "daily.map.next",
+    ],
+    () => goingRef.current,
+  );
 
   const go = (index: number, world: string) => {
     audio.play("whoosh");
     setActiveStop(index, world);
+    goingRef.current = true;
     setGoing(index);
     window.setTimeout(() => navigate(`/play/${world}`), 700);
   };

@@ -10,10 +10,10 @@ const DAY = "2026-11-18";
 const NEXT = "2026-11-19";
 const round = (l: number) => ({ w: "counting-adventure", l, ft: 7, n: 8 });
 
-async function start(page: Page, opts: { roundsToday: number; limit?: number; ageBand?: string }) {
+async function start(page: Page, opts: { roundsToday: number; limit?: number; ageBand?: string; muted?: boolean }) {
   await page.clock.install({ time: new Date(`${DAY}T10:00:00`) });
   const state = {
-    muted: true,
+    muted: opts.muted ?? true,
     profile: ONBOARDED,
     ageBand: opts.ageBand ?? "ages-3-5",
     dailyLimit: opts.limit ?? 3,
@@ -167,4 +167,26 @@ test("grown-ups: daily pace is changed only behind the parent gate", async ({ pa
   await page.getByTestId("daily-limit-save").click();
   await expect(page.getByTestId("daily-limit-value")).toHaveText("4");
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("bz.v1")!).dailyLimit)).toBe(4);
+});
+
+test.describe("full page load onto the map (audio still locked)", () => {
+  test("the welcome line is captioned at once and voiced again after the first tap", async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop");
+    await start(page, { roundsToday: 2, muted: false });
+    await page.goto("/map");
+    const live = page.getByTestId("live-caption");
+    await expect(live).toContainText("One more stop");
+    await expect(live).toHaveText("", { timeout: 15_000 });
+    await page.mouse.click(640, 300); // first tap on empty island unlocks audio → the queued line plays
+    await expect(live).toContainText("One more stop", { timeout: 5_000 });
+  });
+
+  test("the first tap is never swallowed: tapping a stop opens it", async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop");
+    await start(page, { roundsToday: 0, muted: false });
+    await page.goto("/map");
+    await page.locator('.trail-stop[data-state="next"] [data-testid^="stop-"]').first().click();
+    await expect(page).toHaveURL(/\/play\/counting-adventure$/);
+    await expect(page.locator('[data-testid="story"], [data-testid="start-game"]').first()).toBeVisible({ timeout: 20_000 });
+  });
 });

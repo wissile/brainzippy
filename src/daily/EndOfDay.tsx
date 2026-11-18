@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSpeakWhenReady } from "./useSpeakWhenReady";
 import { useApp } from "../app/AppContext";
 import { audio } from "../audio/AudioEngine";
 import { VOICE_LINES, renderLine } from "../audio/voiceLines";
@@ -67,27 +68,19 @@ export function EndOfDay() {
   const teaser = useMemo(() => tomorrowPreview(), []);
   const [asleep, setAsleep] = useState(false);
 
+  // the whole scene is voiced; if audio is still locked (full page load) it replays after the first tap
+  useSpeakWhenReady(() => ["daily.end.title", "daily.end.yawn", "daily.end.recap", ...played.slice(0, 3).map((w) => recapLine(w.id)), teaser?.isNew ? "daily.teaser.new" : "daily.teaser.more", "daily.end.tomorrow"]);
   useEffect(() => {
-    let alive = true;
     void audio.playMusic("island");
     const t = window.setTimeout(() => setAsleep(true), reducedMotion ? 1200 : 2600);
-    void (async () => {
-      await new Promise((r) => window.setTimeout(r, 450));
-      const lines = ["daily.end.title", "daily.end.yawn", "daily.end.recap", ...played.slice(0, 3).map((w) => recapLine(w.id)), teaser?.isNew ? "daily.teaser.new" : "daily.teaser.more", "daily.end.tomorrow"];
-      for (const id of lines) {
-        if (!alive) return;
-        await audio.speak(id);
-      }
-    })();
     return () => {
-      alive = false;
       window.clearTimeout(t);
       audio.stopVoice();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <main className="screen eod" data-testid="end-of-day">
+    <main className="eod" data-testid="end-of-day">
       <div className="eod-bg" aria-hidden="true"><NightBackground /></div>
       <div className="eod-top">
         <NavButton to="/" label="Home" />
