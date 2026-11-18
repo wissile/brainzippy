@@ -8,6 +8,7 @@ import { IconLock, IconPlay } from "../ui/icons";
 import { useApp } from "./AppContext";
 import { ReminderSettings } from "../pwa/ReminderSettings";
 import { disableReminders } from "../pwa/push";
+import { DailyLimitSetting } from "../daily/DailyLimitSetting";
 
 export const AGE_BANDS = [
   { id: "ages-3-5", label: "3–5", min: 3, max: 5, critter: "bobbo" },
@@ -220,6 +221,8 @@ export function GrownUpsScreen() {
 
         <h2>How the difficulty grows</h2>
         <p>Each game has four levels. Within a round: two first-try answers in a row move to harder puzzles; needing three tries moves back to easier ones, so no child gets stuck. Every completed round starts the next round one level higher. The rules are the same for every child and are published here, so you always know why a puzzle got harder or easier.</p>
+
+        <DailyLimitSetting />
 
         <h2>What children learn</h2>
         <table className="learn-table">

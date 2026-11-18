@@ -59,7 +59,10 @@ describe("registry helpers", () => {
   });
 
   it("worldsBySubject groups by subject", () => {
-    expect(worldsBySubject().get("math")?.length).toBe(4);
+    const groups = worldsBySubject();
+    for (const w of allWorlds()) expect(groups.get(w.subject), w.id).toContainEqual(w);
+    expect([...groups.values()].reduce((n, ws) => n + ws.length, 0)).toBe(allWorlds().length);
+    expect(groups.get("math")?.map((w) => w.id)).toEqual(expect.arrayContaining(["counting-adventure", "glow-cave-hops", "sky-balloon-race", "cookie-kitchen"]));
   });
 
   it("skillPrereqs returns the transitive chain, learn-first", () => {

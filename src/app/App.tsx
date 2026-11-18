@@ -13,6 +13,7 @@ import { startAccountSync } from "../services/accountSync";
 const ParentsApp = lazy(() => import("../account/ParentsApp"));
 const ChallengeScreen = lazy(() => import("../account/ChallengeScreen"));
 startAccountSync();
+import { DailyGate } from "../daily/DailyGate";
 
 // Worlds come from the content registry (src/content/packs/*); game code + art is lazy-loaded so the home screen stays light.
 const lazyGames = new Map<string, React.LazyExoticComponent<React.ComponentType>>();
@@ -35,6 +36,7 @@ const TITLES: Record<string, string> = {
   "/hello": "Welcome — BrainZippy",
   "/map": "Monster Island — BrainZippy",
   "/parents": "Parents — BrainZippy",
+  "/explore": "Explore — BrainZippy",
 };
 
 function Router() {
@@ -63,6 +65,7 @@ function Router() {
         <ChallengeScreen token={challenge} />
       </Suspense>
     );
+  if (path === "/explore") return <MapScreen view="explore" />;
   if (path === "/studio" && Studio)
     return (
       <Suspense fallback={<Loading />}>
@@ -74,9 +77,12 @@ function Router() {
   const Game = world ? gameComponent(world) : undefined;
   if (Game)
     return (
-      <Suspense fallback={<Loading />}>
-        <Game key={game} />
-      </Suspense>
+      // daily learning: logs rounds, seeds today's content, and shows "come back tomorrow" after the limit
+      <DailyGate key={game} worldId={game!}>
+        <Suspense fallback={<Loading />}>
+          <Game key={game} />
+        </Suspense>
+      </DailyGate>
     );
   const m = path.match(/^\/play\/(ages-[0-9-]+)$/);
   if (m?.[1]) return <GamesScreen bandId={m[1]} />;

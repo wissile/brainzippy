@@ -4,6 +4,7 @@
  * so public pages cannot drift from the product. New worlds appear here automatically when their pack lands.
  */
 import { allWorlds, registry } from "../content";
+import { GAME_COPY } from "./content/games";
 import { asNumber, correctValue, generateBand } from "../engine";
 import type { Exercise, GameDefinition } from "../engine/types";
 
@@ -63,7 +64,9 @@ const DEFS = new Map<string, GameDefinition>(await Promise.all(allWorlds().map(a
 const characterName = (id: string | undefined) => registry.characters.find((c) => c.id === id)?.name ?? "Bobbo";
 
 /** Games in the order a child meets them (youngest first). */
+// A world gets public pages once its editorial copy exists (src/site/content/games.ts): no thin auto-generated pages.
 export const GAMES: readonly SiteGame[] = allWorlds()
+  .filter((w) => w.id in GAME_COPY)
   .map((w) => ({
     id: w.id,
     title: w.title,

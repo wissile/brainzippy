@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { audio } from "../audio/AudioEngine";
 import { useApp } from "../app/AppContext";
 import { applyResult, clampLevel, initialProgression, isRoundComplete, levelAfterRound, markPlayed, selectNextExercise, startDifficultyFor } from "../engine/progression";
@@ -16,6 +16,7 @@ import { soundForTransition } from "./audioEvents";
 import { defaultAnswerBoard } from "./answer-boards";
 import { type BoardProps, ChoiceTray, CountField, DoneButton, MakeSetBoard } from "./boards";
 import { HelperOverlay, type StoryBeat, StoryPlayer } from "./story";
+import { RoundHooksContext } from "./roundHooks";
 
 export interface GameSkin {
   Background: () => React.JSX.Element;
@@ -97,6 +98,7 @@ const storedLevel = (game: GameDefinition) => clampLevel(loadState().progress.le
 
 export function GameRunner({ game, skin, seed }: GameRunnerProps) {
   const { navigate, caption, speaking, reducedMotion, unlockAudio } = useApp();
+  const hooks = useContext(RoundHooksContext); // optional host hooks (daily learning): seed, stretch, completion
 
   // A saved round resumes only if its exercises can be rebuilt exactly (same game, level and seed).
   const [resume] = useState(() => {
@@ -109,10 +111,10 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
   });
 
   // Level-ups (R0): a round at level L starts at difficulty L + 1; tutorials play on level 0 only (buildRound).
-  const [round, setRound] = useState<Round>(() => resume?.round ?? buildRound(game, { level: storedLevel(game), seed: seed ?? randomSeed() }));
+  const [round, setRound] = useState<Round>(() => resume?.round ?? buildRound(game, { level: storedLevel(game), seed: seed ?? hooks.seed?.(game.id) ?? randomSeed() }));
   const level = round.level;
   const againCount = useRef(0);
-  const freshProgression = useCallback((r: Round) => initialProgression(game.progression, startDifficultyFor(r.level, game.progression)), [game]);
+  const freshProgression = useCallback((r: Round) => initialProgression(game.progression, startDifficultyFor(r.level, game.progression) + (hooks.stretch?.(game.id) ? 1 : 0)), [game, hooks]);
   const [stage, setStage] = useState<Stage>(() => (resume || !skin.story?.intro?.length ? "intro" : "story"));
   const [prog, setProg] = useState<ProgressionState>(() => resume?.progression ?? freshProgression(round));
   const [leveledUp, setLeveledUp] = useState(false);
@@ -366,6 +368,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
       tally.completed += 1;
     }
     saveState({ progress, round: null });
+    hooks.onRoundComplete?.({ gameId: game.id, level, maxLevel: game.progression.maxLevel, results: prog.results });
     setNewSticker(!had);
     // Server backup (services/sync.ts) is intentionally OFF until a parent-controlled restore path exists:
     // storing data that can never be restored to the child would breach data minimisation (DECISIONS D-011).
@@ -511,7 +514,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
             <p className="level-up" data-testid="level-up">{leveledUp ? `Level up! Next time: Level ${level + 2}` : "Great practice! Let's play this level again."}</p>
             <p className="reward-sub">{profile.monsterName ? `${profile.monsterName} is so proud of you!` : newSticker ? "New sticker!" : "Another great round!"}</p>
             <div className="reward-actions">
-              <button
+              {hooks.canPlayAgain?.() !== false && <button
                 type="button"
                 className="big-btn again"
                 data-testid="play-again"
@@ -519,7 +522,8 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
                 onClick={() => {
                   audio.play("tap");
                   againCount.current += 1;
-                  const r = buildRound(game, { level: storedLevel(game), seed: seed !== undefined ? hashSeed(seed, "again", againCount.current) : randomSeed() });
+                  const base = seed ?? hooks.seed?.(game.id);
+                  const r = buildRound(game, { level: storedLevel(game), seed: base !== undefined ? hashSeed(base, "again", againCount.current) : randomSeed() });
                   const p = freshProgression(r);
                   const first = selectNextExercise(r, p);
                   if (!first) return;
@@ -531,7 +535,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
                 }}
               >
                 <IconAgain /><span>Again</span>
-              </button>
+              </button>}
               <button type="button" className="big-btn more" data-testid="more-games" aria-label="More games" onClick={() => { audio.play("tap"); navigate(backTo); }}>
                 <IconGrid /><span>Games</span>
               </button>

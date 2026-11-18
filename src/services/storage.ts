@@ -91,7 +91,13 @@ export interface LocalState {
   currentRound: { gameId: string; startedAt: number } | null;
   account: AccountLink | null;
   challenge: ActiveChallenge | null;
+  /** Parent setting: completed rounds per local day before play pauses until tomorrow (src/daily/settings.ts). */
+  dailyLimit: number;
 }
+
+export const DAILY_LIMIT = { min: 3, max: 10, default: 5 } as const;
+export const clampDailyLimit = (n: unknown): number =>
+  typeof n === "number" && Number.isFinite(n) ? Math.max(DAILY_LIMIT.min, Math.min(DAILY_LIMIT.max, Math.round(n))) : DAILY_LIMIT.default;
 
 const defaults = (): LocalState => ({
   profile: emptyProfile(),
@@ -105,6 +111,7 @@ const defaults = (): LocalState => ({
   currentRound: null,
   account: null,
   challenge: null,
+  dailyLimit: DAILY_LIMIT.default,
 });
 
 function parseHistory(x: unknown): RoundRecord[] {
@@ -134,6 +141,15 @@ function parseChallenge(x: unknown): ActiveChallenge | null {
   const result = r && typeof r.score === "number" && typeof r.beat === "boolean" ? { score: r.score, beat: r.beat, posted: r.posted === true } : null;
   return { token: o.token, gameId: o.gameId, level: o.level as number, seed: o.seed as number, target: o.target as number, childId: o.childId, startedAt: o.startedAt as number, result };
 }
+
+/** A corrupted daily log must never wipe the rest of the progress: retry without it. */
+function parseStoredProgress(x: unknown): GuestProgress | null {
+  const p = parseGuestProgress(x);
+  if (p || !x || typeof x !== "object" || !("daily" in x)) return p;
+  const rest: Record<string, unknown> = { ...(x as Record<string, unknown>) };
+  delete rest.daily;
+  return parseGuestProgress(rest);
+}
 let memory: LocalState | null = null;
 
 export function loadState(): LocalState {
@@ -149,12 +165,13 @@ export function loadState(): LocalState {
         muted: o.muted === true,
         ageBand: typeof o.ageBand === "string" ? o.ageBand : null,
         serverId: typeof o.serverId === "string" ? o.serverId : null,
-        progress: parseGuestProgress(o.progress) ?? emptyProgress(),
+        progress: parseStoredProgress(o.progress) ?? emptyProgress(),
         round: parseRoundSnapshot(o.round),
         history: parseHistory(o.history),
         currentRound: parseCurrentRound(o.currentRound),
         account: parseAccount(o.account),
         challenge: parseChallenge(o.challenge),
+        dailyLimit: clampDailyLimit(o.dailyLimit),
       };
       return memory;
     }
