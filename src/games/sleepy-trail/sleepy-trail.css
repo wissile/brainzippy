@@ -32,13 +32,12 @@
 @keyframes st-arc-in { from { opacity: 0; transform: scale(0.4); } }
 
 .st-whole { position: absolute; transform: translate(-50%, 0); display: flex; flex-direction: column; align-items: center; pointer-events: none; z-index: 1; }
-.is-vertical .st-whole { transform: translate(-100%, -50%); flex-direction: row-reverse; gap: 4px; }
+.is-vertical .st-whole { transform: translate(0, -50%); flex-direction: row; gap: 4px; }
 .st-num {
   font-family: var(--font-display); font-weight: 800; font-size: clamp(1.4rem, 2vw + 0.6rem, 2.1rem); line-height: 1; color: #fff;
   -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; text-shadow: 0 3px 0 var(--ink);
 }
 .st-landmark { display: block; width: var(--landmark, 56px); order: 2; }
-.is-vertical .st-landmark { order: 0; }
 .st-landmark-art { width: 100%; height: auto; display: block; }
 
 .st-tag {
@@ -51,7 +50,7 @@
 .tag-bobbo { border: 3px solid #FF9F43; }
 
 .st-posts { list-style: none; margin: 0; padding: 0; }
-.st-posts li { position: absolute; transform: translate(-50%, -50%); z-index: 2; }
+.st-posts li { position: absolute; transform: translate(-50%, -50%); z-index: 4; } /* above the critters: a post is always tappable */
 .st-post {
   width: var(--hit); height: var(--hit); border-radius: 50%; background: transparent; border: 3px dashed transparent;
   transition: transform var(--t-fast) var(--ease-bounce), background var(--t-med), border-color var(--t-med), opacity var(--t-med);
@@ -67,7 +66,7 @@
 .st-post.is-right { border-color: var(--sparkle); background: rgba(255, 226, 122, 0.45); }
 @keyframes st-pulse { 50% { transform: scale(1.18); } }
 
-.st-pad { position: absolute; z-index: 2; background: transparent; border-radius: 20px; cursor: pointer; }
+.st-pad { position: absolute; z-index: 4; background: transparent; border-radius: 20px; cursor: pointer; }
 .st-pad:focus-visible { outline: 4px solid var(--sparkle); }
 
 .st-pillow { position: absolute; transform: translate(-50%, -78%); z-index: 4; pointer-events: none; animation: st-drop 500ms var(--ease-bounce) both; }

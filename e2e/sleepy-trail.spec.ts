@@ -147,6 +147,8 @@ test("level 7: compare two trails and estimate on unmarked trails (estimate miss
   let missedEstimate = false;
   for (let i = 0; i < 8; i++) {
     const ex = await info(page);
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `overflow on ${ex.id}`).toBe(true);
     if (i === 0) {
       expect(ex.mode).toBe("compare");
       await page.screenshot({ path: `test-results/screens/${info_.project.name}-sleepy-trail-06-compare.png` });

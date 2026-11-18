@@ -8,7 +8,7 @@ import type { BoardProps } from "../../game/boards";
 import { FracGlyph, LANDMARK_NAMES, Landmark, Pillow } from "./art";
 import { fracWords, postOf } from "./fractions";
 import { FINE, type Item, itemOf } from "./generator";
-import { jumpLandings, layoutTrail, pointAt, ticksAt, type TrailLayout } from "./logic";
+import { critterAnchor, jumpLandings, layoutTrail, pointAt, ticksAt, type TrailLayout } from "./logic";
 import { type Who, trailStore, useTrail } from "./store";
 import "./sleepy-trail.css";
 
@@ -211,7 +211,7 @@ export function TrailBoard({ st, act, alongIndex, busy }: BoardProps) {
   }, [busy]);
 
   // ---- geometry ----
-  const layoutPosts = it.mode === "estimate" ? 8 : it.mode === "compare" ? Math.max(it.d, it.d2!) : it.P;
+  const layoutPosts = it.mode === "estimate" ? 4 : it.mode === "compare" ? Math.max(it.d, it.d2!) : it.P;
   const lay = layoutTrail(w || 900, h || 400, it.M, layoutPosts, who.length);
   const ready = w > 0 && h > 0;
 
@@ -364,12 +364,12 @@ export function TrailBoard({ st, act, alongIndex, busy }: BoardProps) {
 
           {/* whole numbers: label + landmark (Mossy Rock, Big Tree, Far Hill, Cloud Peak) */}
           {who.map((c, lane) =>
-            Array.from({ length: it.M + 1 }, (_, m) => {
+            lane !== who.length - 1 ? null : Array.from({ length: it.M + 1 }, (_, m) => {
               const p = pointAt(lay, m, lane);
-              const style = lay.vertical ? { left: p.x - lay.hit / 2 - 8, top: p.y } : { left: p.x, top: p.y + lay.hit / 2 + 2 };
+              const style = lay.vertical ? { left: p.x + lay.hit / 2 + 6, top: p.y } : { left: p.x, top: p.y + lay.hit / 2 + 2 };
               return (
-                <span key={`${c}${m}`} className="st-whole" style={style} data-testid={m === 0 && lane === 0 ? "trail-start" : undefined}>
-                  {(lay.vertical ? lane === 0 : lane === who.length - 1) && <span className="st-landmark" title={LANDMARK_NAMES[m]}><Landmark m={m} /></span>}
+                <span key={`${c}${m}`} className="st-whole" style={style} data-testid={m === 0 ? "trail-start" : undefined}>
+                  {lay.landmark > 0 && <span className="st-landmark" title={LANDMARK_NAMES[m]}><Landmark m={m} /></span>}
                   <b className="st-num">{m}</b>
                 </span>
               );
@@ -449,7 +449,7 @@ export function TrailBoard({ st, act, alongIndex, busy }: BoardProps) {
 
           {/* pillow on the spot once solved */}
           {solvedView && who.slice(0, 1).map((c) => {
-            const p = pointAt(lay, shownAt(c), who.indexOf(c));
+            const p = critterAnchor(lay, pointAt(lay, shownAt(c), who.indexOf(c)));
             return (
               <span key="pillow" className="st-pillow" style={{ left: p.x, top: p.y, width: lay.critter * 1.15 }} data-testid="pillow">
                 <Pillow glow />
@@ -461,7 +461,7 @@ export function TrailBoard({ st, act, alongIndex, busy }: BoardProps) {
           {/* the critters */}
           {who.map((c, lane) => {
             const u = shownAt(c);
-            const p = pointAt(lay, u, lane);
+            const p = critterAnchor(lay, pointAt(lay, u, lane));
             const tpu = ticksPerUnit(it, c);
             const k = mine ? trail.pos[c] : 0;
             const movable = canMove(st, c);

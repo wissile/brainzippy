@@ -132,26 +132,65 @@ export const MIN_SPACING = 48;
  */
 export function layoutTrail(w: number, h: number, M: number, posts: number, laneCount = 1): TrailLayout {
   const n = Math.max(1, M * posts);
-  const hPad = Math.max(36, Math.min(80, w * 0.07));
+  const clamp = (lo: number, v: number, hi: number) => Math.max(lo, Math.min(hi, v));
+  // horizontal: the critter stands ON the trail, so the end padding must fit half a critter
+  const hLane = h / laneCount;
+  let hCritter = clamp(52, hLane * (laneCount > 1 ? 0.4 : 0.34), 130);
+  let hPad = Math.max(36, Math.min(80, w * 0.07));
+  hCritter = Math.min(hCritter, Math.max(64, ((w - 2 * hPad) / n) * 1.7));
+  hPad = Math.max(hPad, hCritter / 2 + 4);
   const hSpacing = (w - 2 * hPad) / n;
-  const vPad = Math.max(40, Math.min(70, h * 0.08));
+  // vertical: the critter stands BESIDE the trail (left), centred on its spot
+  const vLane = w / laneCount;
+  let vCritter = clamp(52, vLane * (laneCount > 1 ? 0.3 : 0.32), 120);
+  let vPad = Math.max(40, Math.min(70, h * 0.08));
+  vCritter = Math.min(vCritter, Math.max(60, ((h - 2 * vPad) / n) * 1.7));
+  vPad = Math.max(vPad, vCritter * 0.62 + 4);
   const vSpacing = (h - 2 * vPad) / n;
+
   const vertical = hSpacing < MIN_SPACING && vSpacing > hSpacing;
   const spacing = vertical ? vSpacing : hSpacing;
   const unit = spacing * posts;
-  const hit = Math.round(Math.max(44, Math.min(64, spacing * 0.92)));
-  const cross = vertical ? w : h;
-  const laneSize = cross / laneCount;
-  const critter = Math.round(Math.max(52, Math.min(vertical ? laneSize * 0.42 : laneSize * (laneCount > 1 ? 0.4 : 0.34), 130)));
-  const landmark = Math.round(Math.max(40, Math.min(80, (vertical ? w * 0.16 : laneSize * 0.2))));
-  const lanes = Array.from({ length: laneCount }, (_, i) => {
-    if (vertical) return laneSize * i + laneSize * (laneCount > 1 ? 0.6 : 0.58);
-    // horizontal: room above for the critter and jump arcs, below for the number (+ landmark on the last lane)
-    const below = hit / 2 + 36 + (i === laneCount - 1 ? landmark : 0);
-    const above = critter * 1.1 + 18;
-    return laneSize * i + Math.max(above, Math.min(laneSize - below, laneSize * 0.52));
-  });
+  // stacked lanes on short screens use smaller (still ≥ 44 px) post targets so the lanes fit
+  const hit = Math.round(Math.max(44, Math.min(64, spacing * 0.92, vertical ? 64 : h / (laneCount * 2.4))));
+  const laneSize = vertical ? vLane : hLane;
+  let critter = Math.round(vertical ? vCritter : hCritter);
+  let landmark = Math.round(clamp(40, vertical ? w * 0.14 : laneSize * 0.2, 80));
+  let lanes: number[];
+  if (vertical) {
+    // per lane: the critter on the left; numbers (+ landmarks) right of the last lane only
+    const place = () => Array.from({ length: laneCount }, (_, i) => {
+      const left = critter + hit / 2 + 8;
+      const right = i === laneCount - 1 ? hit / 2 + 40 + landmark : hit / 2 + 6;
+      return laneSize * i + Math.max(left, Math.min(laneSize - right, laneSize * 0.55));
+    });
+    lanes = place();
+    if (lanes[laneCount - 1]! + hit / 2 + 40 + landmark > w) {
+      landmark = 0; // narrow: numbers only
+      lanes = place();
+    }
+  } else {
+    // stacked lanes, each with room above for its critter and jump arcs; numbers (+ landmarks) under the last lane.
+    // Short screens shrink the critters, then drop the landmarks, so nothing spills out of the board.
+    let below = hit / 2 + 34 + landmark;
+    const per = () => Math.max(critter * 1.1 + 14, hit + 8);
+    if (laneCount * per() + below > h) critter = Math.max(40, Math.round(((h - below) / laneCount - 14) / 1.1));
+    if (laneCount * per() + below > h) {
+      landmark = 0;
+      below = hit / 2 + 34;
+      critter = Math.max(40, Math.min(Math.round(hCritter), Math.round(((h - below) / laneCount - 14) / 1.1)));
+    }
+    const step = laneCount > 1 ? Math.max(per(), Math.min((h - below - per()) / (laneCount - 1), per() * 1.6)) : 0;
+    const total = per() + step * (laneCount - 1) + below;
+    const top = Math.max(0, (h - total) * (laneCount > 1 ? 0.5 : 0.55));
+    lanes = Array.from({ length: laneCount }, (_, i) => top + per() + step * i);
+  }
   return { vertical, unit, spacing, hit, critter, landmark, start: vertical ? h - vPad : hPad, lanes, w, h };
+}
+
+/** Where a critter's feet go for trail point p: on the trail (horizontal) or just left of it (vertical). */
+export function critterAnchor(lay: TrailLayout, p: { x: number; y: number }): { x: number; y: number } {
+  return lay.vertical ? { x: p.x - lay.hit / 2 - 6 - lay.critter / 2, y: p.y + lay.critter * 0.5 } : p;
 }
 
 /** Screen point of trail position t (in units) on a lane. */
