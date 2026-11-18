@@ -544,6 +544,7 @@ function SortBoard({ st, alongIndex, busy }: BoardProps) {
                         style={{ width: binCell, height: binCell, marginTop: j >= cols ? -Math.min(over, binCell * 0.3) : 0 }}
                         data-testid="sorted"
                         data-value={it.id}
+                        tabIndex={selected ? -1 : 0}
                         data-ss-drag={it.id}
                         aria-disabled={!act2 || ok}
                         aria-label={`${describeShape(shapeOf(it))}, in the ${n} sides jar.${ok ? "" : " Press to take it out"}`}

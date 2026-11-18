@@ -251,10 +251,10 @@ export function ShapeSquisherSticker() {
     <svg viewBox="0 0 240 240" className="sticker-art" role="img" aria-label="Shape Squisher sticker: Gloop squished into a square, with a triangle, a circle and a hexagon">
       <circle cx="120" cy="120" r="112" fill="#fff" stroke={INK} strokeWidth="6" />
       <circle cx="120" cy="120" r="98" fill="#DFF8F4" />
-      <g transform="translate(26 44) scale(0.52)"><JellyShape spec={parseShape("tri-eq~-12~100~92~0")!} /></g>
-      <g transform="translate(160 40) scale(0.46)"><JellyShape spec={parseShape("circle~0~100~92~1")!} /></g>
-      <g transform="translate(166 110) scale(0.44)"><JellyShape spec={parseShape("hexagon~10~100~92~2")!} /></g>
-      <g transform="translate(62 62) scale(1.08)"><GloopShape spec={sq} state="celebrating" /></g>
+      <svg x="34" y="52" width="62" height="62" overflow="visible"><JellyShape spec={parseShape("tri-eq~-12~100~92~0")!} /></svg>
+      <svg x="148" y="44" width="48" height="48" overflow="visible"><JellyShape spec={parseShape("circle~0~100~92~1")!} /></svg>
+      <svg x="152" y="100" width="52" height="52" overflow="visible"><JellyShape spec={parseShape("hexagon~10~100~92~2")!} /></svg>
+      <svg x="66" y="62" width="100" height="100" overflow="visible"><GloopShape spec={sq} state="celebrating" /></svg>
       <path id="ss-sticker-arc" d="M43.7 167.7 A90 90 0 0 0 196.3 167.7" fill="none" />
       <text fontFamily="'Baloo 2', sans-serif" fontWeight="800" fontSize="20" fill={INK} letterSpacing="1.5">
         <textPath href="#ss-sticker-arc" startOffset="50%" textAnchor="middle">SHAPE SQUISHER</textPath>

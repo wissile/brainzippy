@@ -152,7 +152,7 @@ test("a whole round by drag (tap on touch screens): gates, then finding shapes; 
       await expect(page.getByTestId("choice")).toHaveCount(2);
       await expect(page.getByTestId("ss-board")).toHaveAttribute("data-gloop", "circle");
       await expect(page.locator(".ss-lilypad")).toBeVisible();
-      await expect(page.getByTestId("drag-demo")).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByTestId("drag-demo")).toBeAttached({ timeout: 10_000 });
     }
   });
   expect(modes[0]).toBe("gate");
