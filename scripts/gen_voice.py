@@ -96,7 +96,9 @@ def main() -> None:
         if os.path.exists(dest) and not args.force:
             continue
         spoken = render(text, vars, data)
-        samples, sr = kokoro.create(spoken, voice=args.voice, speed=args.speed, lang=lang)
+        # a line may ask for its own speed (e.g. slowed words for rhyme hints); default = --speed
+        speed = float(data["lines"][line_id].get("speed", args.speed))
+        samples, sr = kokoro.create(spoken, voice=args.voice, speed=speed, lang=lang)
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
             sf.write(tmp.name, samples, sr)
             # trim leading/trailing silence, normalise loudness for consistent levels across clips
