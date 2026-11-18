@@ -91,6 +91,8 @@ a:focus-visible, .play:focus-visible { outline: 3px solid #fff; box-shadow: 0 0 
 .pill-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.6rem; }
 .pill-list a { display: inline-block; padding: 0.55rem 1.1rem; border: 3px solid var(--ink); border-radius: 999px; background: #fff; font-weight: 700; text-decoration: none; color: var(--ink); }
 .text-link { font-weight: 700; }
+/* Stand-alone links children may tap: a 44px-tall target (WCAG 2.5.8 asks for 24px; we aim higher). */
+.tap-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0 0.25rem; margin: 0 -0.25rem; }
 
 /* cards */
 .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); gap: 1.2rem; margin-bottom: 1.2rem; }

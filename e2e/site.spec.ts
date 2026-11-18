@@ -23,6 +23,10 @@ test.describe("public site", () => {
     expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize()!.height);
     expect(box.height).toBeGreaterThanOrEqual(64);
     await expect(page.getByRole("heading", { name: "What is BrainZippy?" })).toBeVisible();
+    // stand-alone links children may tap are at least 44px tall
+    for (const link of [page.getByRole("link", { name: "Grown-ups, start here" }), page.locator(".game-card a.text-link").first()]) {
+      expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    }
     await expect(page.locator("main a[href='/games/counting-adventure']").first()).toBeVisible();
     await ctx.close();
   });

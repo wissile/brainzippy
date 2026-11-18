@@ -19,7 +19,7 @@ export function Landing({ agePaths, subjectPaths }: { agePaths: readonly { path:
             <h1>Story-based learning games for kids</h1>
             <p className="lead">Rhyme, count, share and solve your way around Monster Island with the Critter Crew. Spoken instructions, gentle hints, no ads.</p>
             <PlayLink big label="Play" />
-            <p className="hero-note">No account needed. For ages {SITE.agesNow.min}–{SITE.agesNow.max}. <a href="#grown-ups">Grown-ups, start here</a></p>
+            <p className="hero-note">No account needed. For ages {SITE.agesNow.min}–{SITE.agesNow.max}. <a className="tap-link" href="#grown-ups">Grown-ups, start here</a></p>
           </div>
           <div className="hero-art" aria-hidden="true">
             <Critter c="zuzu" size={110} className="hero-side" />

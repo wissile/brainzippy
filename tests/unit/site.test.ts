@@ -87,6 +87,22 @@ describe("prerendered public pages", () => {
     expect(publicFile(og.replace(SITE.origin, ""))).toBe(true);
   });
 
+  it("home and games hub describe today's ages and subjects from the catalog", () => {
+    for (const path of ["/", "/games"]) {
+      const d = docs.find((x) => x.path === path)!.doc;
+      const text = `${d.title} ${d.querySelector('meta[name="description"]')!.getAttribute("content")}`;
+      expect(text, path).toContain(`${AGES_NOW.min}–${AGES_NOW.max}`);
+      expect(text, path).toContain(SITE.subjectsPhrase);
+    }
+  });
+
+  it("stand-alone links on the landing page and game cards are 44px tap targets", () => {
+    const home = docs.find((d) => d.path === "/")!.doc;
+    expect(home.querySelector('.hero-note a[href="#grown-ups"]')?.classList.contains("tap-link")).toBe(true);
+    for (const a of home.querySelectorAll(".game-card .card-actions a.text-link")) expect(a.classList.contains("tap-link")).toBe(true);
+    expect(readFileSync(join(root, "src/site/site.css"), "utf8")).toMatch(/\.tap-link\s*\{[^}]*min-height:\s*44px/);
+  });
+
   it("titles and descriptions are unique across the site", () => {
     const titles = docs.map((d) => d.doc.title);
     const descs = docs.map((d) => d.doc.querySelector('meta[name="description"]')!.getAttribute("content"));

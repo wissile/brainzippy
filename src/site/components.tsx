@@ -33,7 +33,7 @@ export function GameCard({ game, headingLevel = 3 }: { game: SiteGame; headingLe
         <p className="meta">Ages {ages(game.ages)} · {game.skillIds.map((s) => SKILLS[s]?.name ?? s).join(", ")}</p>
         <p>{copy?.oneLine ?? game.learningObjective}</p>
         <p className="card-actions">
-          <a className="text-link" href={`/games/${game.id}`}>About this game</a>
+          <a className="text-link tap-link" href={`/games/${game.id}`}>About this game</a>
           <a className="play play-small" href={game.playPath}><PlayIcon /><span>Play</span></a>
         </p>
       </div>
