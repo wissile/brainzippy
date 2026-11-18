@@ -113,6 +113,8 @@ export interface TrailLayout {
   hit: number;
   /** critter width */
   critter: number;
+  /** landmark (Mossy Rock, Big Tree…) width */
+  landmark: number;
   /** trail start (t = 0) and per-lane cross-axis position */
   start: number;
   lanes: number[];
@@ -140,11 +142,16 @@ export function layoutTrail(w: number, h: number, M: number, posts: number, lane
   const hit = Math.round(Math.max(44, Math.min(64, spacing * 0.92)));
   const cross = vertical ? w : h;
   const laneSize = cross / laneCount;
-  const critter = Math.round(Math.max(52, Math.min(vertical ? laneSize * 0.42 : laneSize * 0.46, 130)));
-  const lanes = Array.from({ length: laneCount }, (_, i) =>
-    vertical ? laneSize * i + laneSize * 0.62 : laneSize * i + Math.min(laneSize - hit / 2 - 8, critter * 1.05 + 30),
-  );
-  return { vertical, unit, spacing, hit, critter, start: vertical ? h - vPad : hPad, lanes, w, h };
+  const critter = Math.round(Math.max(52, Math.min(vertical ? laneSize * 0.42 : laneSize * (laneCount > 1 ? 0.4 : 0.34), 130)));
+  const landmark = Math.round(Math.max(40, Math.min(80, (vertical ? w * 0.16 : laneSize * 0.2))));
+  const lanes = Array.from({ length: laneCount }, (_, i) => {
+    if (vertical) return laneSize * i + laneSize * (laneCount > 1 ? 0.6 : 0.58);
+    // horizontal: room above for the critter and jump arcs, below for the number (+ landmark on the last lane)
+    const below = hit / 2 + 36 + (i === laneCount - 1 ? landmark : 0);
+    const above = critter * 1.1 + 18;
+    return laneSize * i + Math.max(above, Math.min(laneSize - below, laneSize * 0.52));
+  });
+  return { vertical, unit, spacing, hit, critter, landmark, start: vertical ? h - vPad : hPad, lanes, w, h };
 }
 
 /** Screen point of trail position t (in units) on a lane. */

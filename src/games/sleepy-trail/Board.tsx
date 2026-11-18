@@ -303,7 +303,7 @@ export function TrailBoard({ st, act, alongIndex, busy }: BoardProps) {
       data-pos={mine ? trail.pos.rumble : 0}
       data-pos2={mine ? trail.pos.bobbo : 0}
       ref={ref}
-      style={{ "--hit": `${lay.hit}px`, "--critter": `${lay.critter}px` } as React.CSSProperties}
+      style={{ "--hit": `${lay.hit}px`, "--critter": `${lay.critter}px`, "--landmark": `${lay.landmark}px` } as React.CSSProperties}
     >
       {ready && (
         <>
@@ -450,7 +450,12 @@ export function TrailBoard({ st, act, alongIndex, busy }: BoardProps) {
           {/* pillow on the spot once solved */}
           {solvedView && who.slice(0, 1).map((c) => {
             const p = pointAt(lay, shownAt(c), who.indexOf(c));
-            return <span key="pillow" className="st-pillow" style={{ left: p.x, top: p.y, width: lay.critter * 0.9 }} data-testid="pillow"><Pillow glow /></span>;
+            return (
+              <span key="pillow" className="st-pillow" style={{ left: p.x, top: p.y, width: lay.critter * 1.15 }} data-testid="pillow">
+                <Pillow glow />
+                <span className="st-zzz" aria-hidden="true"><i>z</i><i>z</i><i>z</i></span>
+              </span>
+            );
           })}
 
           {/* the critters */}
