@@ -4,6 +4,7 @@ import { childOut, deleteChildrenStatements } from "../lib/children";
 import { getEntitlement } from "../lib/entitlements";
 import { err, json, readJson } from "../lib/http";
 import { clearCookie } from "../lib/session";
+import { billingExport, billingOnAccountDelete } from "./billing";
 import { isObj, onlyKeys } from "../lib/validation";
 
 interface ParentRow {
@@ -77,6 +78,7 @@ export const routes: Route[] = [
         friendships: friends?.results ?? [],
         challengesSent: challenges?.results ?? [],
         challengeResults: results?.results ?? [],
+        billing: await billingExport(c.env, s.parentId),
         note: "Friend entries show only the friend's monster name. Progress on a device that is not linked to an account is not included.",
       };
       return json(body, 200, { "content-disposition": 'attachment; filename="brainzippy-export.json"' });
@@ -92,7 +94,11 @@ export const routes: Route[] = [
       if (!isObj(body) || !onlyKeys(body, ["confirm"]) || body.confirm !== "delete") return err("confirmation_required", 400);
       const db = c.env.DB;
       const ids = (await db.prepare("SELECT id FROM children WHERE parent_id = ?").bind(s.parentId).all<{ id: string }>()).results.map((r) => r.id);
+      // Cancel any Stripe subscription first: a deleted account must never be charged again.
+      const billing = await billingOnAccountDelete(c, s.parentId).catch(() => null);
+      if (!billing) return err("billing_cancel_failed", 502);
       await db.batch([
+        ...billing,
         ...deleteChildrenStatements(db, ids),
         db.prepare("DELETE FROM sessions WHERE parent_id = ?").bind(s.parentId),
         db.prepare("DELETE FROM auth_tokens WHERE email = ?").bind(s.email),

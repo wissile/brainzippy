@@ -7,10 +7,12 @@ import { MapScreen } from "./MapScreen";
 import { AgeScreen, GamesScreen, GrownUpsScreen, HomeScreen } from "./screens";
 import { Onboarding } from "../onboarding/Onboarding";
 import { startAccountSync } from "../services/accountSync";
+import { PlayGate } from "../billing/PlayGate";
 
 // Parent area + friend challenges (lazy: never loaded during normal play).
 const ParentsApp = lazy(() => import("../account/ParentsApp"));
 const ChallengeScreen = lazy(() => import("../account/ChallengeScreen"));
+const PlanScreen = lazy(() => import("../billing/PlanScreen"));
 startAccountSync();
 
 // Worlds come from the content registry (src/content/packs/*); game code + art is lazy-loaded so the home screen stays light.
@@ -34,6 +36,7 @@ const TITLES: Record<string, string> = {
   "/hello": "Welcome — BrainZippy",
   "/map": "Monster Island — BrainZippy",
   "/parents": "Parents — BrainZippy",
+  "/plan": "Keep playing — BrainZippy",
 };
 
 function Router() {
@@ -52,6 +55,12 @@ function Router() {
     return (
       <Suspense fallback={<Loading />}>
         <ParentsApp />
+      </Suspense>
+    );
+  if (path === "/plan")
+    return (
+      <Suspense fallback={<Loading />}>
+        <PlanScreen />
       </Suspense>
     );
   const challenge = path.match(/^\/challenge\/([0-9a-f]{32})$/)?.[1];
@@ -73,7 +82,9 @@ function Router() {
   if (Game)
     return (
       <Suspense fallback={<Loading />}>
-        <Game key={game} />
+        <PlayGate key={game}>
+          <Game />
+        </PlayGate>
       </Suspense>
     );
   const m = path.match(/^\/play\/(ages-[0-9-]+)$/);

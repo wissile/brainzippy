@@ -84,7 +84,8 @@ export const FAQ: readonly FaqGroup[] = [
       },
       {
         q: "Is BrainZippy free?",
-        a: "Guest play is free to try today. We plan to offer a family subscription later; prices will be shown clearly to grown-ups before anything is charged, and children never see purchase prompts.",
+        a: "Every device gets 14 days of free play with no account or card. Then a grown-up can add a card for a 14-day free trial, after which the family plan costs $6.99 a month until you cancel. Cancel anytime from the parent page; children never see prices or purchase prompts.",
+        link: { href: "/pricing", label: "Pricing and renewal terms" },
       },
       {
         q: "How do I delete my child's progress?",
