@@ -40,7 +40,7 @@ export function renderLlms(pages: readonly Pick<PageDef, "path" | "title">[]): s
   for (const subject of SUBJECTS_NOW) {
     lines.push("", `### ${subject.title}`, "");
     for (const g of subject.games) {
-      const skills = g.skillIds.map((s) => SKILLS[s]?.name ?? s).join(", ");
+      const skills = g.skillIds.map((s, i) => { const n = SKILLS[s]?.name ?? s; return i === 0 ? n : n.charAt(0).toLowerCase() + n.slice(1); }).join(", ");
       lines.push(link(g.title, `/games/${g.id}`, `${g.gameType}, ages ${range(g.ages)}. ${skills}.`));
     }
   }

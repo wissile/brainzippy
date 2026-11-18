@@ -14,7 +14,7 @@ test.describe("public site", () => {
     const page = await ctx.newPage();
     const res = await page.goto("/");
     expect(res?.status()).toBe(200);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Story-based maths games for kids");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Story-based learning games for kids");
     const play = page.getByTestId("site-play");
     await expect(play).toBeVisible();
     await expect(play).toHaveAttribute("href", "/hello");
@@ -86,6 +86,29 @@ test.describe("public site", () => {
     const r = await request.get("/landing", { maxRedirects: 0 });
     expect(r.status()).toBe(301);
     expect(r.headers()["location"]).toMatch(/\/$/);
+  });
+
+  test("llms.txt is generated at build time and lists every game page in the sitemap", async ({ request }) => {
+    const res = await request.get("/llms.txt");
+    expect(res.status()).toBe(200);
+    const llms = await res.text();
+    expect(llms.startsWith("# BrainZippy\n")).toBe(true);
+    expect(llms).toContain("$6.99/month after a free trial");
+    const games = (await sitemapPaths(request)).filter((p) => p.startsWith("/games/"));
+    expect(games.length).toBeGreaterThan(0);
+    for (const g of games) expect(llms, g).toContain(`https://brainzippy.com${g})`);
+  });
+
+  test("subject and age pages list their games with working Play links", async ({ page, request }) => {
+    const hubs = (await sitemapPaths(request)).filter((p) => p.startsWith("/subjects/") || p.startsWith("/ages/"));
+    expect(hubs).toContain("/subjects/english");
+    for (const path of hubs) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      const plays = page.locator("main .game-card a.play");
+      expect(await plays.count(), `${path} lists games`).toBeGreaterThan(0);
+      for (const href of await plays.evaluateAll((as) => as.map((a) => a.getAttribute("href")))) expect(href).toMatch(/^\/play\/[a-z0-9-]+$/);
+    }
   });
 
   test("no content page overflows at 390×844", async ({ browser, request }) => {

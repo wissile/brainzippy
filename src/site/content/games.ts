@@ -232,7 +232,7 @@ export const GAME_COPY: Record<string, GameCopy> = {
       refs: ["bradley1983"],
     },
     guides: [],
-    screenshotAlt: "Hoot's Rhyme Lanterns: Hoot's lantern and a row of picture lanterns hanging in a night-time forest.",
+    screenshotAlt: "Hoot's Rhyme Lanterns: a cat lantern and a hat lantern hang in a night-time forest, with a bright pair of lanterns for yes and a sleepy lantern for no, and Hoot the owl asking whether they rhyme.",
   },
   "pattern-parade": {
     id: "pattern-parade",
@@ -283,7 +283,7 @@ export const GAME_COPY: Record<string, GameCopy> = {
       refs: ["rittlejohnson2017"],
     },
     guides: ["when-your-child-gets-it-wrong"],
-    screenshotAlt: "Puff's Pattern Parade: a row of parade marchers with a dashed gap, and Puff's cart of marchers to choose from.",
+    screenshotAlt: "Puff's Pattern Parade: parade floats in a star, heart, star, heart, star pattern with a dashed gap at the end, and a cart holding a star and a heart to choose from.",
   },
   "shape-squish": {
     id: "shape-squish",
@@ -332,7 +332,7 @@ export const GAME_COPY: Record<string, GameCopy> = {
       refs: ["clements1999shape", "ccss"],
     },
     guides: ["when-your-child-gets-it-wrong"],
-    screenshotAlt: "Gloop's Shape Squish: Gloop the jelly in a garden next to gates with shaped holes.",
+    screenshotAlt: "Gloop's Shape Squish: Gloop, squished into a circle, beside a square gate and a circle gate in Shape Garden, with a pointing hand showing how to drag Gloop.",
   },
   "sleepy-trail": {
     id: "sleepy-trail",
@@ -383,7 +383,7 @@ export const GAME_COPY: Record<string, GameCopy> = {
       refs: ["siegler2010", "ccss"],
     },
     guides: ["number-lines-for-kids", "when-your-child-gets-it-wrong"],
-    screenshotAlt: "Rumble's Sleepy Trail: Rumble on a trail from Mossy Rock to Big Tree, split into equal parts by posts, with a Nap here button.",
+    screenshotAlt: "Rumble's Sleepy Trail: Rumble at 0 on a trail to Big Tree at 1, split into two equal parts, with the puzzle “Find 1/2 of the trail!” and a Nap here button.",
   },
   "balance-island": {
     id: "balance-island",
@@ -432,6 +432,6 @@ export const GAME_COPY: Record<string, GameCopy> = {
       refs: ["knuth2006", "ccss"],
     },
     guides: [],
-    screenshotAlt: "Balance Scale Island: a balance scale with mystery bags and weights at Bobbo's night-market stall, with the matching equation written on a slate.",
+    screenshotAlt: "Balance Scale Island: a balance scale with a mystery bag and 3 kg on one pan and 7 kg on the other, the equation x + 3 = 7 on a slate, and four answer choices.",
   },
 };

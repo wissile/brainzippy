@@ -5,6 +5,7 @@
  *   node scripts/prerender-images.mjs                      OG cards + logo -> public/og/
  *   node scripts/prerender-images.mjs --shots <baseUrl>    also real game screenshots -> public/og/shots/
  *                                                          (baseUrl = a running `vite preview` of the built app)
+ *   ... --wait <ms>                                        settle time before each shot (default 2500)
  *   ... --only <id,id>                                     limit screenshots to these game ids (keeps the other
  *                                                          committed shots byte-identical)
  *
@@ -20,6 +21,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "public/og");
 const args = process.argv.slice(2);
 const shotsBase = args.includes("--shots") ? args[args.indexOf("--shots") + 1] : null;
+const settle = args.includes("--wait") ? Number(args[args.indexOf("--wait") + 1]) : 2500;
 const only = args.includes("--only") ? new Set(args[args.indexOf("--only") + 1].split(",")) : null;
 
 const font = (family, weight, file) =>
@@ -63,7 +65,7 @@ if (shotsBase) {
       await page.waitForTimeout(700);
     }
     await ready.waitFor({ timeout: 20_000 });
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(settle);
     const dest = join(outDir, "shots", `${g.id}.jpg`);
     mkdirSync(dirname(dest), { recursive: true });
     writeFileSync(dest, await page.screenshot({ type: "jpeg", quality: 78 }));
