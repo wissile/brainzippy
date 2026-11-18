@@ -33,9 +33,17 @@ export interface GameSkin {
   /** Cinematic story: intro before the first exercise, outro after the round, and short lines between exercises. */
   story?: { intro?: StoryBeat[]; outro?: StoryBeat[]; between?: Record<number, { line: string; vars?: Record<string, string | number> }> };
   /** A second character who pops in to explain the concept (first exercise) and on a first wrong answer. */
-  helper?: { Character: GameSkin["Mascot"]; name: string; explainLine: string; hintLine?: string };
+  helper?: {
+    Character: GameSkin["Mascot"]; name: string; explainLine: string; hintLine?: string;
+    /** Optional: pick the round-start explanation for the first exercise (e.g. by level). Falls back to explainLine. */
+    explainFor?: (ex: Exercise) => string | undefined;
+    /** Optional: pick the first-miss line from the miss itself (diagnose a misconception). Falls back to hintLine. */
+    hintFor?: (s: ExerciseState) => string | undefined;
+  };
   /** Game-specific praise lines (vars: n = answer). Default: counting praise. */
   praise?: string[];
+  /** Optional: praise lines for this exercise (e.g. by mode). Falls back to praise. */
+  praiseFor?: (ex: Exercise) => string[] | undefined;
   /** Map engine hint voice ids (e.g. "hint.countAlong", "hint.modelTap") to game-specific lines. */
   hintVoice?: Partial<Record<string, string>>;
   /** Worked-example steps for the count-along / model hints and what number to say at each step. */
@@ -227,7 +235,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
       if (t !== token.current) return;
       // a helper character explains the concept at the start of each round
       if (skin.helper && (stRef.current === s || stRef.current?.exercise.id === ex.id) && prog.results.length === 0 && stRef.current?.attempts === 0) {
-        await showHelper(skin.helper.explainLine, { ...ex.params, ...nVar(ex) });
+        await showHelper(skin.helper.explainFor?.(ex) ?? skin.helper.explainLine, { ...ex.params, ...nVar(ex) });
         if (t !== token.current) return;
       }
       setMascot("idle");
@@ -284,7 +292,8 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
       if (fb.correct) {
         setBurst((b) => b + 1);
         window.setTimeout(() => t === token.current && audio.play("star"), 350);
-        const praise = skin.praise?.length ? skin.praise[(ex.seed + s.attempts) % skin.praise.length]! : fb.voice.id;
+        const praiseList = skin.praiseFor?.(ex) ?? skin.praise;
+        const praise = praiseList?.length ? praiseList[(ex.seed + s.attempts) % praiseList.length]! : fb.voice.id;
         await Promise.all([audio.speak(praise, vars), sleep(1700, t)]);
         if (t !== token.current) return;
         act({ type: "FEEDBACK_DONE" });
@@ -313,8 +322,9 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
       }
 
       // Wrong answer: gentle retry → hint(s). On the first miss a helper character may pop in to explain.
-      if (skin.helper?.hintLine && s.attempts === 1 && ex.interaction !== "make-set") {
-        await showHelper(skin.helper.hintLine, vars);
+      const helperHint = skin.helper && (skin.helper.hintFor?.(s) ?? skin.helper.hintLine);
+      if (helperHint && s.attempts === 1 && ex.interaction !== "make-set") {
+        await showHelper(helperHint, vars);
       } else {
         await Promise.all([audio.speak(skin.hintVoice?.[fb.voice.id] ?? fb.voice.id, vars), sleep(900, t)]);
       }
