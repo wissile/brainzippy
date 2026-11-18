@@ -1,0 +1,466 @@
+{
+  "_note": "Hoot's Rhyme Lanterns. rl.w.* = one whole-word clip per picture; rl.slow.* = the same word rendered slowly (speed is read by scripts/gen_voice.py) for the hint where Hoot says both words slowly.",
+  "lines": {
+    "rl.intro": {
+      "text": "Hoo-hoo! Will you help me light my rhyme lanterns?"
+    },
+    "rl.back": {
+      "text": "Welcome back! More lanterns are waiting for rhymes."
+    },
+    "rl.story.1": {
+      "text": "Deep in the forest, the sun is going down."
+    },
+    "rl.story.2": {
+      "text": "Tonight is Hoot's lantern party, but every lantern is dark!"
+    },
+    "rl.story.3": {
+      "text": "Hoot's lanterns only glow when rhyming words meet. Cat, hat!"
+    },
+    "rl.story.4": {
+      "text": "Hoo-hoo! Help me find words that rhyme, so the party can start!"
+    },
+    "rl.mid.1": {
+      "text": "Look! The forest path is starting to glow."
+    },
+    "rl.mid.2": {
+      "text": "Halfway there! The fireflies are coming to see."
+    },
+    "rl.mid.3": {
+      "text": "Just a few more lanterns to light!"
+    },
+    "rl.story.end1": {
+      "text": "Every lantern is glowing! The forest party can begin!"
+    },
+    "rl.story.end2": {
+      "text": "You listened to the ends of the words and found the rhymes."
+    },
+    "rl.story.end3": {
+      "text": "You earned a Brain Spark! Next time, the rhymes get trickier."
+    },
+    "rl.ask.yesno": {
+      "text": "Do they rhyme? Bright lanterns mean yes. A sleepy lantern means no."
+    },
+    "rl.ask.pick": {
+      "text": "Which picture rhymes with Hoot's lantern? Listen!"
+    },
+    "rl.ask.odd": {
+      "text": "Three of these rhyme. Which one does not? Listen!"
+    },
+    "rl.ask.chain": {
+      "text": "Find every picture that rhymes, and hang it on the string!"
+    },
+    "rl.yes": {
+      "text": "Yes, they rhyme!"
+    },
+    "rl.no": {
+      "text": "No, they don't rhyme."
+    },
+    "rl.slot": {
+      "text": "Pick a picture lantern to hang here."
+    },
+    "rl.basket": {
+      "text": "Pick the lantern that does not rhyme, and put it here."
+    },
+    "rl.idle": {
+      "text": "Tap a lantern to hear its word."
+    },
+    "rl.help.explain": {
+      "text": "Rhyming words sound the same at the end, like moon and spoon!"
+    },
+    "rl.help.hint": {
+      "text": "Say them slowly, and listen to the very end of each word."
+    },
+    "rl.hint.model": {
+      "text": "Let's listen slowly, all the way to the end."
+    },
+    "rl.hint.try": {
+      "text": "Now it's your turn. Try the shining one!"
+    },
+    "rl.retry": {
+      "text": "Hmm, let's listen to the ends again."
+    },
+    "rl.praise.1": {
+      "text": "You listened all the way to the end!"
+    },
+    "rl.praise.2": {
+      "text": "Careful listening! The lanterns are glowing."
+    },
+    "rl.praise.3": {
+      "text": "You heard the endings. Glow, glow, glow!"
+    },
+    "rl.praise.4": {
+      "text": "Your ears did the work. Lovely listening!"
+    },
+    "rl.w.cat": {
+      "text": "cat"
+    },
+    "rl.w.hat": {
+      "text": "hat"
+    },
+    "rl.w.bat": {
+      "text": "bat"
+    },
+    "rl.w.rat": {
+      "text": "rat"
+    },
+    "rl.w.fan": {
+      "text": "fan"
+    },
+    "rl.w.pan": {
+      "text": "pan"
+    },
+    "rl.w.van": {
+      "text": "van"
+    },
+    "rl.w.can": {
+      "text": "can"
+    },
+    "rl.w.dog": {
+      "text": "dog"
+    },
+    "rl.w.log": {
+      "text": "log"
+    },
+    "rl.w.frog": {
+      "text": "frog"
+    },
+    "rl.w.clock": {
+      "text": "clock"
+    },
+    "rl.w.sock": {
+      "text": "sock"
+    },
+    "rl.w.rock": {
+      "text": "rock"
+    },
+    "rl.w.lock": {
+      "text": "lock"
+    },
+    "rl.w.box": {
+      "text": "box"
+    },
+    "rl.w.fox": {
+      "text": "fox"
+    },
+    "rl.w.bug": {
+      "text": "bug"
+    },
+    "rl.w.rug": {
+      "text": "rug"
+    },
+    "rl.w.mug": {
+      "text": "mug"
+    },
+    "rl.w.jug": {
+      "text": "jug"
+    },
+    "rl.w.sun": {
+      "text": "sun"
+    },
+    "rl.w.bun": {
+      "text": "bun"
+    },
+    "rl.w.pig": {
+      "text": "pig"
+    },
+    "rl.w.wig": {
+      "text": "wig"
+    },
+    "rl.w.ring": {
+      "text": "ring"
+    },
+    "rl.w.king": {
+      "text": "king"
+    },
+    "rl.w.wing": {
+      "text": "wing"
+    },
+    "rl.w.swing": {
+      "text": "swing"
+    },
+    "rl.w.bed": {
+      "text": "bed"
+    },
+    "rl.w.sled": {
+      "text": "sled"
+    },
+    "rl.w.bell": {
+      "text": "bell"
+    },
+    "rl.w.shell": {
+      "text": "shell"
+    },
+    "rl.w.cake": {
+      "text": "cake"
+    },
+    "rl.w.snake": {
+      "text": "snake"
+    },
+    "rl.w.rake": {
+      "text": "rake"
+    },
+    "rl.w.lake": {
+      "text": "lake"
+    },
+    "rl.w.snail": {
+      "text": "snail"
+    },
+    "rl.w.nail": {
+      "text": "nail"
+    },
+    "rl.w.tail": {
+      "text": "tail"
+    },
+    "rl.w.boat": {
+      "text": "boat"
+    },
+    "rl.w.goat": {
+      "text": "goat"
+    },
+    "rl.w.coat": {
+      "text": "coat"
+    },
+    "rl.w.bee": {
+      "text": "bee"
+    },
+    "rl.w.tree": {
+      "text": "tree"
+    },
+    "rl.w.knee": {
+      "text": "knee"
+    },
+    "rl.w.moon": {
+      "text": "moon"
+    },
+    "rl.w.spoon": {
+      "text": "spoon"
+    },
+    "rl.w.car": {
+      "text": "car"
+    },
+    "rl.w.star": {
+      "text": "star"
+    },
+    "rl.w.jar": {
+      "text": "jar"
+    },
+    "rl.w.house": {
+      "text": "house"
+    },
+    "rl.w.mouse": {
+      "text": "mouse"
+    },
+    "rl.slow.cat": {
+      "text": "cat",
+      "speed": 0.6
+    },
+    "rl.slow.hat": {
+      "text": "hat",
+      "speed": 0.6
+    },
+    "rl.slow.bat": {
+      "text": "bat",
+      "speed": 0.6
+    },
+    "rl.slow.rat": {
+      "text": "rat",
+      "speed": 0.6
+    },
+    "rl.slow.fan": {
+      "text": "fan",
+      "speed": 0.6
+    },
+    "rl.slow.pan": {
+      "text": "pan",
+      "speed": 0.6
+    },
+    "rl.slow.van": {
+      "text": "van",
+      "speed": 0.6
+    },
+    "rl.slow.can": {
+      "text": "can",
+      "speed": 0.6
+    },
+    "rl.slow.dog": {
+      "text": "dog",
+      "speed": 0.6
+    },
+    "rl.slow.log": {
+      "text": "log",
+      "speed": 0.6
+    },
+    "rl.slow.frog": {
+      "text": "frog",
+      "speed": 0.6
+    },
+    "rl.slow.clock": {
+      "text": "clock",
+      "speed": 0.6
+    },
+    "rl.slow.sock": {
+      "text": "sock",
+      "speed": 0.6
+    },
+    "rl.slow.rock": {
+      "text": "rock",
+      "speed": 0.6
+    },
+    "rl.slow.lock": {
+      "text": "lock",
+      "speed": 0.6
+    },
+    "rl.slow.box": {
+      "text": "box",
+      "speed": 0.6
+    },
+    "rl.slow.fox": {
+      "text": "fox",
+      "speed": 0.6
+    },
+    "rl.slow.bug": {
+      "text": "bug",
+      "speed": 0.6
+    },
+    "rl.slow.rug": {
+      "text": "rug",
+      "speed": 0.6
+    },
+    "rl.slow.mug": {
+      "text": "mug",
+      "speed": 0.6
+    },
+    "rl.slow.jug": {
+      "text": "jug",
+      "speed": 0.6
+    },
+    "rl.slow.sun": {
+      "text": "sun",
+      "speed": 0.6
+    },
+    "rl.slow.bun": {
+      "text": "bun",
+      "speed": 0.6
+    },
+    "rl.slow.pig": {
+      "text": "pig",
+      "speed": 0.6
+    },
+    "rl.slow.wig": {
+      "text": "wig",
+      "speed": 0.6
+    },
+    "rl.slow.ring": {
+      "text": "ring",
+      "speed": 0.6
+    },
+    "rl.slow.king": {
+      "text": "king",
+      "speed": 0.6
+    },
+    "rl.slow.wing": {
+      "text": "wing",
+      "speed": 0.6
+    },
+    "rl.slow.swing": {
+      "text": "swing",
+      "speed": 0.6
+    },
+    "rl.slow.bed": {
+      "text": "bed",
+      "speed": 0.6
+    },
+    "rl.slow.sled": {
+      "text": "sled",
+      "speed": 0.6
+    },
+    "rl.slow.bell": {
+      "text": "bell",
+      "speed": 0.6
+    },
+    "rl.slow.shell": {
+      "text": "shell",
+      "speed": 0.6
+    },
+    "rl.slow.cake": {
+      "text": "cake",
+      "speed": 0.6
+    },
+    "rl.slow.snake": {
+      "text": "snake",
+      "speed": 0.6
+    },
+    "rl.slow.rake": {
+      "text": "rake",
+      "speed": 0.6
+    },
+    "rl.slow.lake": {
+      "text": "lake",
+      "speed": 0.6
+    },
+    "rl.slow.snail": {
+      "text": "snail",
+      "speed": 0.6
+    },
+    "rl.slow.nail": {
+      "text": "nail",
+      "speed": 0.6
+    },
+    "rl.slow.tail": {
+      "text": "tail",
+      "speed": 0.6
+    },
+    "rl.slow.boat": {
+      "text": "boat",
+      "speed": 0.6
+    },
+    "rl.slow.goat": {
+      "text": "goat",
+      "speed": 0.6
+    },
+    "rl.slow.coat": {
+      "text": "coat",
+      "speed": 0.6
+    },
+    "rl.slow.bee": {
+      "text": "bee",
+      "speed": 0.6
+    },
+    "rl.slow.tree": {
+      "text": "tree",
+      "speed": 0.6
+    },
+    "rl.slow.knee": {
+      "text": "knee",
+      "speed": 0.6
+    },
+    "rl.slow.moon": {
+      "text": "moon",
+      "speed": 0.6
+    },
+    "rl.slow.spoon": {
+      "text": "spoon",
+      "speed": 0.6
+    },
+    "rl.slow.car": {
+      "text": "car",
+      "speed": 0.6
+    },
+    "rl.slow.star": {
+      "text": "star",
+      "speed": 0.6
+    },
+    "rl.slow.jar": {
+      "text": "jar",
+      "speed": 0.6
+    },
+    "rl.slow.house": {
+      "text": "house",
+      "speed": 0.6
+    },
+    "rl.slow.mouse": {
+      "text": "mouse",
+      "speed": 0.6
+    }
+  }
+}
