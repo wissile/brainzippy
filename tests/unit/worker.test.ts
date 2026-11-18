@@ -24,7 +24,7 @@ describe("API worker: health + guest (unchanged behaviour)", () => {
   });
 
   it("creates a guest, stores and reads validated progress, deletes it", async () => {
-    const { env, count } = fakeEnv();
+    const { env, count } = fakeEnv({ GUEST_SYNC_ENABLED: "true" });
     const created = await handleApi(req("/api/guest", { method: "POST" }), env);
     expect(created.status).toBe(201);
     const { id } = (await created.json()) as { id: string };
@@ -38,7 +38,7 @@ describe("API worker: health + guest (unchanged behaviour)", () => {
   });
 
   it("rejects invalid bodies, bad ids, wrong content type and cross-site writes", async () => {
-    const { env } = fakeEnv();
+    const { env } = fakeEnv({ GUEST_SYNC_ENABLED: "true" });
     const { id } = (await (await handleApi(req("/api/guest", { method: "POST" }), env)).json()) as { id: string };
     const bad = await handleApi(req(`/api/guest/${id}/progress`, { method: "PUT", body: JSON.stringify({ v: 1, name: "x" }), headers: { "content-type": "application/json" } }), env);
     expect(bad.status).toBe(400);

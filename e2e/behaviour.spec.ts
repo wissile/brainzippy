@@ -162,19 +162,15 @@ test.describe("gameplay behaviour", () => {
     test.info().annotations.push({ type: "home-visible-ms (400kbps, 400ms RTT)", description: String(homeMs) });
   });
 
-  test("API: guest progress is synced anonymously after a round", async ({ request }) => {
+  test("API: guest progress writes are off while client sync is off (D-011)", async ({ request }) => {
     const health = await request.get("/api/health");
     expect(health.ok()).toBe(true);
-    const created = await request.post("/api/guest");
-    expect(created.status()).toBe(201);
-    const { id } = await created.json();
-    const put = await request.put(`/api/guest/${id}/progress`, { data: { v: 1, stickers: ["counting-champ"], roundsCompleted: 1, skills: {} } });
-    expect(put.ok()).toBe(true);
-    const bad = await request.put(`/api/guest/${id}/progress`, { data: { v: 1, stickers: [], roundsCompleted: 0, skills: {}, childName: "x" } });
-    expect(bad.status()).toBe(400);
+    // Writes are disabled unless GUEST_SYNC_ENABLED=true (worker/routes/guest.ts); the full contract is unit-tested.
+    expect((await request.post("/api/guest")).status()).toBe(404);
+    const id = "00000000-0000-4000-8000-000000000000";
+    expect((await request.put(`/api/guest/${id}/progress`, { data: { v: 1, stickers: [], roundsCompleted: 0, skills: {} } })).status()).toBe(404);
     const cross = await request.post("/api/guest", { headers: { origin: "https://evil.example" } });
     expect(cross.status()).toBe(403);
-    expect((await request.delete(`/api/guest/${id}`)).ok()).toBe(true);
     expect((await request.get(`/api/guest/${id}/progress`)).status()).toBe(404);
   });
 });

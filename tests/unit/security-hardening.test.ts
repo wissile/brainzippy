@@ -202,3 +202,26 @@ describe("capped body reads", () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe("guest endpoint (client sync off)", () => {
+  it("writes answer 404 unless GUEST_SYNC_ENABLED=true; GET/DELETE still work for existing rows", async () => {
+    const t = fakeEnv({ APP_ENV: "production" });
+    const o = "https://brainzippy.test";
+    expect((await handleApi(new Request(`${o}/api/guest`, { method: "POST" }), t.env)).status).toBe(404);
+    const id = crypto.randomUUID();
+    t.raw.prepare("INSERT INTO guest_sessions (id, created_at, updated_at, progress_json) VALUES (?, 1, 1, '{}')").run(id);
+    const put = await handleApi(new Request(`${o}/api/guest/${id}/progress`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ v: 1, stickers: [], roundsCompleted: 0, skills: {} }) }), t.env);
+    expect(put.status).toBe(404);
+    expect((await handleApi(new Request(`${o}/api/guest/${id}/progress`), t.env)).status).toBe(200);
+    expect((await handleApi(new Request(`${o}/api/guest/${id}`, { method: "DELETE" }), t.env)).status).toBe(200);
+    expect(t.count("guest_sessions")).toBe(0);
+  });
+
+  it("when enabled, guest creation is rate-limited per IP", async () => {
+    const t = fakeEnv({ APP_ENV: "production", GUEST_SYNC_ENABLED: "true", SIGNING_SECRET: "s".repeat(40) });
+    const statuses: number[] = [];
+    for (let i = 0; i < 21; i++) statuses.push((await handleApi(new Request("https://brainzippy.test/api/guest", { method: "POST", headers: { "cf-connecting-ip": "198.51.100.7" } }), t.env)).status);
+    expect(statuses.slice(0, 20).every((s) => s === 201)).toBe(true);
+    expect(statuses[20]).toBe(429);
+  });
+});

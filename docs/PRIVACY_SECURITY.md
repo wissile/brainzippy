@@ -18,7 +18,7 @@
 | Mute setting, coarse age band (e.g. "ages-3-5") | browser localStorage | no (the band also appears in the `/play/ages-3-5` URL path on navigation; coarse, low risk) | UX | until cleared |
 | Stickers, rounds completed, per-skill tallies | localStorage | no | progress | until cleared |
 | In-progress round snapshot | localStorage | no | refresh-safe resume | cleared at round end |
-| ~~Random guest UUID + progress JSON~~ | D1 `guest_sessions` | — | **Client sync is OFF** (D-011): the API and table exist and are tested, but guest play sends nothing until a parent-controlled restore path exists | purge cron (180 days) remains for safety |
+| ~~Random guest UUID + progress JSON~~ | D1 `guest_sessions` | — | **Client sync is OFF** (D-011): guest play sends nothing until a parent-controlled restore path exists, and since the 2026-11-18 security review the write endpoints (`POST /api/guest`, `PUT /api/guest/:id/progress`) answer 404 unless `GUEST_SYNC_ENABLED="true"` (then rate-limited per IP: 20 creates / 240 writes per hour). GET/DELETE remain so existing rows can be read or deleted | purge cron (180 days) remains for safety |
 Not collected: names, emails, birthdates, photos, voice, location, contacts, device fingerprints, ad IDs. No cookies. No analytics or third-party scripts; fonts self-hosted. Request IP addresses are processed by Cloudflare for delivery but not stored by the app. Workers invocation logs (which would retain request URLs) are disabled in `wrangler.jsonc`.
 
 ## Parent accounts (Phase 1, migration 0003) — data inventory
