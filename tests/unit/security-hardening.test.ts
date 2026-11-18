@@ -137,3 +137,34 @@ describe("legacy sign-up and magic-link confirmation pages", () => {
     expect(page).toContain("csrf@example.com");
   });
 });
+
+describe("per-IP rate-limit keys", () => {
+  it("IPv4 as is; IPv6 keyed on the /64 (all spellings of one prefix collapse); garbage passes through", async () => {
+    const { ipKey, clientIp } = await import("../../worker/lib/rateLimit");
+    expect(ipKey("203.0.113.9")).toBe("203.0.113.9");
+    const p = "2001:0db8:0001:0002::/64";
+    for (const ip of ["2001:db8:1:2::1", "2001:db8:1:2:ffff:ffff:ffff:ffff", "2001:0DB8:0001:0002:0:0:0:abcd", "[2001:db8:1:2::9]", "2001:db8:1:2::1%eth0", "2001:db8:1:2::192.0.2.1"]) expect(ipKey(ip)).toBe(p);
+    expect(ipKey("2001:db8:1:3::1")).not.toBe(p);
+    expect(ipKey("::1")).toBe("0000:0000:0000:0000::/64");
+    expect(ipKey("::")).toBe("0000:0000:0000:0000::/64");
+    expect(ipKey("fe80::")).toBe("fe80:0000:0000:0000::/64");
+    for (const bad of ["1:2:3:4:5:6:7:8:9", "1::2::3", "gggg::1", "2001:db8::1::"]) expect(ipKey(bad)).toBe(bad);
+    expect(clientIp(new Request("https://x.test", { headers: { "cf-connecting-ip": "2001:db8:1:2:aaaa::1" } }))).toBe(p);
+    expect(clientIp(new Request("https://x.test"))).toBe("local");
+  });
+
+  it("rotating addresses inside one IPv6 /64 hits the same limit", async () => {
+    const t = fakeEnv({ APP_ENV: "staging", RESEND_API_KEY: "re_test", SIGNING_SECRET: "s".repeat(40) });
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}"));
+    const statuses: number[] = [];
+    for (let i = 0; i < 11; i++) {
+      const r = await handleApi(
+        new Request("https://brainzippy.test/api/auth/magic-link", { method: "POST", headers: { origin: "https://brainzippy.test", "content-type": "application/json", "cf-connecting-ip": `2001:db8:77:1::${(i + 1).toString(16)}` }, body: JSON.stringify({ email: `v6-${i}@example.com`, consent: true, mode: "signup" }) }),
+        t.env,
+      );
+      statuses.push(r.status);
+    }
+    expect(statuses.slice(0, 10).every((s) => s === 202)).toBe(true);
+    expect(statuses[10]).toBe(429);
+  });
+});
