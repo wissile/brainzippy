@@ -45,6 +45,11 @@ export interface StripeApi {
   createCheckoutSession(p: CheckoutParams): Promise<{ id: string; url: string }>;
   createPortalSession(p: { customerId: string; returnUrl: string; cancelSubscriptionId?: string }): Promise<{ url: string }>;
   cancelSubscriptionNow(subscriptionId: string): Promise<void>;
+  /**
+   * Current state of a subscription (GET /v1/subscriptions/:id), or null if Stripe doesn't know it (404). Webhooks
+   * derive state from this rather than from the event payload, so out-of-order or late events can't apply stale data.
+   */
+  retrieveSubscription(subscriptionId: string): Promise<StripeObject | null>;
   /** Account deletion: removes the Customer (and its saved payment methods) from Stripe. 404 = already gone. */
   deleteCustomer(customerId: string): Promise<void>;
 }
@@ -81,11 +86,11 @@ export function encodeForm(obj: Record<string, unknown>, prefix = "", out = new 
 export function liveStripe(env: Env): StripeApi {
   const e = benv(env);
   const base = (e.STRIPE_API_BASE || "https://api.stripe.com").replace(/\/$/, "");
-  async function call<T>(method: "POST" | "DELETE", path: string, params: Record<string, unknown> = {}): Promise<T> {
+  async function call<T>(method: "GET" | "POST" | "DELETE", path: string, params: Record<string, unknown> = {}): Promise<T> {
     const res = await fetch(`${base}${path}`, {
       method,
-      headers: { authorization: `Bearer ${e.STRIPE_SECRET_KEY}`, "content-type": "application/x-www-form-urlencoded", "stripe-version": STRIPE_API_VERSION },
-      body: encodeForm(params).toString(),
+      headers: { authorization: `Bearer ${e.STRIPE_SECRET_KEY}`, "stripe-version": STRIPE_API_VERSION, ...(method === "GET" ? {} : { "content-type": "application/x-www-form-urlencoded" }) },
+      ...(method === "GET" ? {} : { body: encodeForm(params).toString() }),
     });
     const data = (await res.json().catch(() => ({}))) as Record<string, unknown> & { error?: { code?: string; type?: string } };
     if (!res.ok) throw new StripeError(res.status, data.error?.code ?? data.error?.type ?? "error");
@@ -125,6 +130,14 @@ export function liveStripe(env: Env): StripeApi {
         await call("DELETE", `/v1/subscriptions/${encodeURIComponent(id)}`);
       } catch (e) {
         if (e instanceof StripeError && e.status === 404) return; // already gone
+        throw e;
+      }
+    },
+    async retrieveSubscription(id) {
+      try {
+        return await call<StripeObject>("GET", `/v1/subscriptions/${encodeURIComponent(id)}`);
+      } catch (e) {
+        if (e instanceof StripeError && e.status === 404) return null;
         throw e;
       }
     },

@@ -6,7 +6,7 @@ import { err, esc, html, json, readCapped, readJson, redirect } from "../lib/htt
 import { allow, clientIp, type Limit } from "../lib/rateLimit";
 import { benv, StripeError, stripeMode } from "../lib/stripe";
 import { MAX_WEBHOOK_BYTES, processWebhook } from "../lib/stripeEvents";
-import { devSubscription, devWebhookRequest, stripeFor, verifyDevLink, webhookSecret } from "../lib/stripeFake";
+import { devSubscription, devWebhookRequest, rememberDevSubscription, stripeFor, stripeForWebhook, verifyDevLink, webhookSecret } from "../lib/stripeFake";
 import { isObj, onlyKeys } from "../lib/validation";
 import { hashAccessCode, normaliseAccessCode } from "../../src/billing/codes";
 import { CHECKOUT_SUBMIT_MESSAGE, fmtDate } from "../../src/billing/copy";
@@ -183,7 +183,7 @@ export const routes: Route[] = [
       // Byte-counted read that stops at the cap (Content-Length can be absent or wrong).
       const payload = await readCapped(req, MAX_WEBHOOK_BYTES);
       if (payload === undefined) return err("too_large", 413);
-      const r = await processWebhook(env, payload, req.headers.get("stripe-signature"), secret);
+      const r = await processWebhook(env, payload, req.headers.get("stripe-signature"), secret, Date.now(), stripeForWebhook(env, url));
       return json(r.body, r.status);
     },
   },
@@ -214,9 +214,10 @@ function devRoutes(): Route[] {
   const banner = '<p style="background:#fff4d6;border:2px dashed #c9a227;padding:8px;border-radius:10px">Development test page. No real card, no real Stripe.</p>';
   // Deliver through the real webhook processor so signature verification and idempotency run exactly as in production.
   const post = async (c: Ctx, type: string, object: Record<string, unknown>) => {
+    if (object.object === "subscription") rememberDevSubscription(object); // the fake's "Stripe side" now holds this state
     const req = await devWebhookRequest(c.url.origin, type, object);
     const secret = webhookSecret(c.env, c.url)!;
-    const r = await processWebhook(c.env, await req.text(), req.headers.get("stripe-signature"), secret);
+    const r = await processWebhook(c.env, await req.text(), req.headers.get("stripe-signature"), secret, Date.now(), stripeForWebhook(c.env, c.url));
     if (r.status !== 200) throw new Error(`dev webhook ${type} failed`);
   };
   return [
