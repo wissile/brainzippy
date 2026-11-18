@@ -13,6 +13,8 @@ import {
   describeSide,
   diff,
   equationOptions,
+  formatEq,
+  formatSide,
   isBalanced,
   isolatedSide,
   move,
@@ -57,7 +59,7 @@ const KIND_ONE: Record<Kind, string> = { x: "mystery bag", n: "1 kilogram weight
 export function Expr({ s }: { s: Side }) {
   const parts: React.ReactNode[] = [];
   if (s.x > 0) parts.push(<span key="x" className="bi-term">{s.x > 1 && s.x}<i className="bi-var">x</i></span>);
-  if (s.x > 0 && s.n > 0) parts.push(<span key="p" className="bi-op"> + </span>);
+  if (s.x > 0 && s.n > 0) parts.push(<span key="p" className="bi-plus"> + </span>);
   if (s.n > 0 || s.x === 0) parts.push(<span key="n" className="bi-term">{s.n}</span>);
   return <span className="bi-expr">{parts}</span>;
 }
@@ -497,18 +499,18 @@ export function BalanceBoard({ st, act: _act, alongIndex, busy }: BoardProps) {
               {visible.map((e, i) => {
                 const now = shownBalanced && e === lastLogged;
                 return (
-                  <li key={log.indexOf(e)} className={`bi-line ${now ? "is-now" : "is-past"} ${i === 0 && log.indexOf(e) > 0 ? "is-fade" : ""}`}>
+                  <li key={log.indexOf(e)} className={`bi-line ${now ? "is-now" : "is-past"} ${i === 0 && log.indexOf(e) > 0 ? "is-fade" : ""}`} data-testid="work-line" data-eq={formatEq(e.p)} data-note={e.note}>
                     <span className="bi-l"><Expr s={e.p.l} /></span>
-                    <span className="bi-rel">=</span>
+                    <span className="bi-rel"> = </span>
                     <span className="bi-r"><Expr s={e.p.r} /></span>
-                    <span className="bi-note">{e.note && <><b>{e.note}</b> both sides</>}</span>
+                    <span className="bi-note"> {e.note && <><b>{e.note}</b> both sides</>}</span>
                   </li>
                 );
               })}
               {!shownBalanced && (
-                <li className="bi-line is-tipped" data-testid="tipped">
+                <li className="bi-line is-tipped" data-testid="tipped" data-eq={`${formatSide(shown.l)} ≠ ${formatSide(shown.r)}`}>
                   <span className="bi-l"><Expr s={shown.l} /></span>
-                  <span className="bi-rel">≠</span>
+                  <span className="bi-rel"> ≠ </span>
                   <span className="bi-r"><Expr s={shown.r} /></span>
                   <span className="bi-note"><b>tipped</b> {diff(shown, X) > 0 ? "left" : "right"}</span>
                 </li>

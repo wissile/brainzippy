@@ -80,7 +80,7 @@
 .bi-line.is-check > * { color: #ffd2cb; font-size: 0.85em; }
 .bi-line.is-check .bi-note { font-size: 0.58em; }
 .bi-var { font-family: Georgia, "Times New Roman", serif; font-style: italic; font-weight: 700; padding: 0 0.04em; }
-.bi-op { color: #aebbe0; }
+.bi-plus { color: #aebbe0; }
 .bi-story-mini { margin: 0 0 4px; font-size: clamp(0.8rem, 1cqw + 0.55rem, 1rem); line-height: 1.25; color: #c9d4f2; }
 .is-celebrating .bi-line.is-now > .bi-l, .is-celebrating .bi-line.is-now > .bi-r { color: var(--bi-mint); }
 @keyframes bi-in { from { opacity: 0; transform: translateY(6px); } }
@@ -105,7 +105,7 @@
 .bi-scale {
   --tilt: 0deg; --f: 0;
   --arm: 33cqw;
-  --u: min(8.2cqw, 12.5cqh, 60px);
+  --u: min(10.5cqw, 15cqh, 78px);
   --dish: clamp(14px, 4.4cqw, 30px);
   --chip: clamp(24px, 5.5cqh, 36px);
   position: absolute; inset: 0; margin: 0 auto; max-width: 980px;
@@ -129,15 +129,15 @@
 }
 .bi-level-mark.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
-.bi-pan { position: absolute; top: 14%; height: 74%; width: 32cqw; z-index: 1; }
+.bi-pan { position: absolute; top: 14%; height: min(74%, 56cqw); width: 32cqw; z-index: 1; }
 .bi-pan-l { left: 17%; transform: translate(-50%, calc(var(--f) * var(--arm) * -1)); }
 .bi-pan-r { left: 83%; transform: translate(-50%, calc(var(--f) * var(--arm))); }
 .bi-chains { position: absolute; left: 4%; right: 4%; top: 0; bottom: calc(var(--chip) + var(--dish) * 0.7); pointer-events: none; }
 .bi-chains svg { width: 100%; height: 100%; display: block; }
-.bi-load { position: absolute; left: 4%; right: 4%; bottom: calc(var(--chip) + var(--dish) * 0.55); display: flex; flex-wrap: wrap-reverse; justify-content: center; align-items: flex-end; gap: 2px 4px; }
+.bi-load { position: absolute; left: 2%; right: 2%; bottom: calc(var(--chip) + var(--dish) * 0.55); display: flex; flex-wrap: nowrap; justify-content: center; align-items: flex-end; gap: 2px; }
 .bi-pile {
   position: relative; display: flex; flex-wrap: wrap-reverse; justify-content: center; align-items: flex-end; gap: 1px;
-  min-width: 44px; min-height: 44px; padding: 2px; border-radius: 12px; touch-action: none; cursor: grab;
+  flex: 0 1 auto; min-width: 44px; min-height: 44px; padding: 2px; border-radius: 12px; touch-action: none; cursor: grab;
   transition: transform var(--t-fast) var(--ease-bounce), background var(--t-med);
 }
 .bi-pile:hover { background: rgba(255, 255, 255, 0.08); }
@@ -146,8 +146,8 @@
 .bi-item { display: block; flex: none; filter: drop-shadow(0 3px 0 rgba(10, 14, 30, 0.3)); animation: bi-drop 360ms var(--ease-bounce) both; }
 .bi-item svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .bi-bag { width: var(--u); height: calc(var(--u) * 1.1); }
-.bi-five { width: calc(var(--u) * 0.4); height: calc(var(--u) * 0.9); }
-.bi-one { width: calc(var(--u) * 0.42); height: calc(var(--u) * 0.42); }
+.bi-five { width: calc(var(--u) * 0.44); height: calc(var(--u) * 0.99); }
+.bi-one { width: calc(var(--u) * 0.46); height: calc(var(--u) * 0.46); }
 @keyframes bi-drop { from { transform: translateY(-30%); opacity: 0; } }
 
 .bi-dish {
@@ -234,10 +234,11 @@
 /* ---------- small screens ---------- */
 @media (orientation: portrait) {
   .game.play-screen:has(.bi-stage) .tray { padding: 4px 0; }
-  .bi-answers { flex-wrap: wrap; row-gap: 10px; }
+  .bi-answers { flex-wrap: nowrap; gap: 6px; }
   .bi-ans-label { display: none; }
-  .bi-pill { min-width: 0; width: clamp(64px, 17vw, 120px); padding: 0 6px; height: clamp(58px, 8vh, 84px); }
-  .bi-pill .numeral { font-size: clamp(1.8rem, 6vw, 2.6rem); }
+  .bi-pill { min-width: 0; width: clamp(56px, 15vw, 130px); padding: 0 4px; height: clamp(58px, 8vh, 96px); border-radius: 18px; flex-direction: column; gap: 0; }
+  .bi-pill .numeral { font-size: clamp(1.6rem, 5.4vw, 2.8rem); }
+  .bi-kg { align-self: center; margin: 0; font-size: clamp(0.75rem, 2.4vw, 1.1rem); }
 }
 @media (max-height: 520px) and (orientation: landscape) {
   .game.play-screen:has(.bi-stage) {
