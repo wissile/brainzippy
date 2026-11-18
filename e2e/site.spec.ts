@@ -51,6 +51,8 @@ test.describe("public site", () => {
     await page.goto("/");
     await page.getByTestId("site-play").click();
     await expect(page).toHaveURL(/\/hello$/);
+    // A full page load needs a fresh user gesture to unlock audio, so the app shows its Start tap first.
+    await page.getByTestId("onb-begin").click({ force: true }); // breathing animation never settles
     await expect(page.getByTestId("onboarding")).toBeVisible();
   });
 
