@@ -73,7 +73,8 @@ export function ParadeBoard({ st, act, alongIndex, busy, progress }: BoardProps)
   const [areaRef, area] = useSize<HTMLDivElement>();
 
   const rows: 1 | 2 = parade.source ? 2 : 1;
-  const layout = useMemo(() => rowLayout(parade.row.length, area.w, area.h, rows, { minCell: 64, maxCell: 124, gap: 8 }), [parade.row.length, area.w, area.h, rows]);
+  // cell size from the free space inside the parade line (minus its padding + border)
+  const layout = useMemo(() => rowLayout(parade.row.length, area.w - 40, area.h - 36, rows, { minCell: 64, maxCell: 124, gap: 8 }) , [parade.row.length, area.w, area.h, rows]);
   const boxes = useMemo(() => chunks(parade), [parade]);
   const chunkOf = (i: number) => boxes.findIndex((b) => i >= b.start && i <= b.end);
   const modelKinds = st.model !== null ? kindsOf(ex, st.model) : [];
