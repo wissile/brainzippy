@@ -176,7 +176,12 @@ def compose(name: str, bpm: float, key: int, chords: list[list[int]], lead, scal
 
 
 def main() -> None:
+    import sys
+    only = set(sys.argv[1:])  # e.g. `python3 scripts/gen_music.py parade` renders just that track
     print("Composing music ->", os.path.abspath(OUT))
+    global compose
+    full = compose
+    compose = lambda name, *a, **k: (full(name, *a, **k) if not only or name in only else None)  # noqa: E731
     MAJ_PENT = [0, 2, 4, 7, 9, 12, 14, 16]
     MIN_PENT = [0, 3, 5, 7, 10, 12, 15, 17]
     I, V, vi, IV = [0, 4, 7], [7, 11, 14], [9, 12, 16], [5, 9, 12]
@@ -191,6 +196,8 @@ def main() -> None:
     compose("cave", 76, 57, [[0, 3, 7], [5, 8, 12], [3, 7, 10], [7, 10, 14]], celesta, MIN_PENT, 44, lead_rate=2, perc="soft", pad_gain=0.55, reverb=0.55)
     # Cookie Kitchen: cozy, swingy, plucked
     compose("kitchen", 100, 60, [I, vi, ii, V], lambda f, d: pluck(f, d, 0.8), MAJ_PENT, 55, lead_rate=2, perc="groove", swing=0.33)
+    # Pattern Parade: a light street march (plucked + marimba), quiet percussion so the drum/bell pattern sounds stay clear
+    compose("parade", 108, 62, [I, IV, V, I], lambda f, d: 0.5 * marimba(f, d) + 0.5 * pluck(f, d, 0.6), MAJ_PENT, 66, lead_rate=2, perc="soft", pad_gain=0.3)
 
 
 if __name__ == "__main__":

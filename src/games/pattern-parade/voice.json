@@ -1,0 +1,38 @@
+{
+  "objects": {
+    "parade": { "one": "marcher", "many": "marchers" }
+  },
+  "lines": {
+    "pp.ready": { "text": "Hi! I'm Puff! Will you help me line up my parade?" },
+    "pp.back": { "text": "Welcome back! The parade is waiting for you!" },
+    "pp.story.1": { "text": "Today is Puff's big parade on Monster Island!" },
+    "pp.story.2": { "text": "Puff lined everyone up in a pattern. Duck, frog, duck, frog!" },
+    "pp.story.3": { "text": "Then a big wind blew, and the marchers tumbled out of line!" },
+    "pp.story.4": { "text": "Help Puff fill every gap, so the parade can march!" },
+    "pp.story.mid1": { "text": "The parade starts to march. Boom, ding, boom, ding!" },
+    "pp.story.mid2": { "text": "Halfway down the street! Everyone is cheering." },
+    "pp.story.mid3": { "text": "The big stage is close. Keep the pattern going!" },
+    "pp.story.end1": { "text": "The parade marched all the way to the big stage!" },
+    "pp.story.end2": { "text": "You found the part that repeats, and kept the pattern going." },
+    "pp.story.end3": { "text": "Puff made you a Parade Star sticker!" },
+    "pp.prompt.tutorial": { "text": "Star, heart, star, heart, star. What comes next? Put it in the gap!" },
+    "pp.prompt.next": { "text": "What comes next in the parade?" },
+    "pp.prompt.next2": { "text": "What are the next two?" },
+    "pp.prompt.missing": { "text": "Who is missing from the parade?" },
+    "pp.prompt.translate": { "text": "Copy the pattern with {to}!", "vary": { "to": ["animals", "instruments"] } },
+    "pp.prompt.grow": { "text": "The towers grow! What comes next?" },
+    "pp.prompt.grow2": { "text": "The towers grow! What are the next two?" },
+    "pp.prompt.growMissing": { "text": "Which tower is missing?" },
+    "pp.help.explain": { "text": "Say the parade out loud from the start. Listen for what comes again!" },
+    "pp.help.hint": { "text": "I put a box around each part. Look at the boxes, then try again!" },
+    "pp.retry": { "text": "Hmm, look at the parade again from the start." },
+    "pp.hint.model": { "text": "Let's march along together. Say each one with me!" },
+    "pp.hint.modelTap": { "text": "Now put the glowing marchers in the gaps." },
+    "pp.idle": { "text": "Drag a marcher into the gap, or just tap one!" },
+    "pp.check": { "text": "All the gaps are full. Tap the check to march!" },
+    "pp.praise.1": { "text": "You found what repeats and kept the parade going!" },
+    "pp.praise.2": { "text": "You looked from the start and spotted the pattern!" },
+    "pp.praise.3": { "text": "You checked every part of the pattern. Hooray!" },
+    "pp.praise.4": { "text": "The parade marches on. You noticed what comes next!" }
+  }
+}
