@@ -60,6 +60,8 @@ Web Push works only after **Add to Home Screen**, on iOS or iPadOS 16.4 or later
 - Known test limits: headless Chromium has no push service, so the spec stubs `PushManager.subscribe`. It also refuses `showNotification`, so the spec records that call inside the real worker. Nothing has been tested on a real phone, and nothing on Safari or Firefox.
 
 ## Known gaps
-- "Delete all progress" doesn't yet unsubscribe reminders (the setting lives in `bz.push.v1`).
-- No rate limiting on `/api/push/*` (same open item as the other APIs).
+- ~~"Delete all progress" doesn't unsubscribe reminders~~ — fixed: it calls `disableReminders()` (`src/app/screens.tsx`), and so does "Delete account" (`src/account/Dashboard.tsx`).
+- ~~No rate limiting on `/api/push/*`~~ — fixed: subscribe/unsubscribe are limited to 30/hour per IP (IPv6 keyed on the /64), request bodies are read with a 2 KB byte-counted cap, and the cron sends to the most overdue subscriptions first (`ORDER BY last_sent`).
+- Subscriptions are per device and not linked to parent accounts, so deleting an account can only switch off the reminders on the device where it happens; others stop after the parent turns them off or after 180 days without a refresh.
+- **[LAWYER]** Whether the endpoint (+ timezone) is a COPPA "persistent identifier" is open (`docs/legal/COPPA_CHECKLIST.md` §4). Reminders stay off in production until then (`VAPID_PUBLIC_KEY` empty).
 - Other e2e specs that use `page.route` on `/audio/**` no longer intercept requests the service worker serves. Set `serviceWorkers: "block"` for the non-PWA specs in `playwright.config.ts`.

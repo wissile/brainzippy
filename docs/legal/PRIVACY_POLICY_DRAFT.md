@@ -30,6 +30,10 @@ Stored **only in your browser**: monster design and name, your child's first nam
 | Game progress: levels, stars, stickers, skills practised, the last 200 games (date, game, level, number of first-try answers, minutes) | Dashboard, points, streaks, daily summary | Contract |
 | Friend connections and challenge scores | Friends-only leaderboard and challenges you approve | Consent of both parents |
 | Rate-limit counters (keyed hashes of IP addresses or emails, not the raw values) | Prevent abuse | Legitimate interest (security) |
+| If you subscribe: your Stripe customer and subscription ids, plan status and dates, and when you agreed to the renewal terms. Your card and billing address are collected by **Stripe**, not us | Provide the paid plan, prove consent to auto-renewal | Contract; legal obligation (renewal consent) |
+
+### Daily reminders (optional, per device)
+If you turn on daily reminders on a device (behind the grown-up check), we store, for that device only: a random device id, the push address and keys your browser gives us, the hour you chose and your device's timezone, and the date of the last reminder. This is not linked to your account or your child and contains no names or emails. The reminder text we send is generic; your child's monster name is added on the device itself and never sent to us. **[LAWYER]** whether the push address is a "persistent identifier" and the notice/consent needed.
 
 ## 4. Friends and challenges
 Friends are added only by an invite that one parent sends and the other parent accepts; **both parents approve**. Friends can see only your child's **public name, monster picture, weekly points and challenge scores**. They never see the nickname, your email, age group or detailed progress. There is no messaging and no free text between families. You can remove a friend at any time. **[LAWYER]** whether this sharing is a "disclosure" under COPPA requiring a stronger consent method (see `COPPA_CHECKLIST.md`).
@@ -40,6 +44,8 @@ We send sign-in links when you ask for them. If you turn it on, we send a short 
 ## 6. Who processes data for us
 - **Cloudflare, Inc.** — hosting and database (Workers, D1). **[LAWYER]** DPA, sub-processors, international transfers.
 - **Resend** — sending emails (your email address and the email content). **[LAWYER]** DPA, transfers.
+- **Stripe** — payments, only if you subscribe (your email, card, billing address; our internal account id). Stripe is the one who sees your card. When you delete your account we delete your Stripe customer record, but **Stripe keeps records of past payments as the law requires** under its own privacy policy. **[LAWYER]** DPA, Stripe's controller/processor role, transfers.
+- **Browser push services** (Google, Mozilla, Apple or Microsoft, depending on the browser) — only if you turn on reminders: they receive the encrypted reminder and deliver it to your device. **[LAWYER]** whether these are processors or independent controllers.
 We do not sell or rent personal information and do not share it for advertising.
 
 ## 7. How long we keep data
@@ -51,6 +57,8 @@ We do not sell or rent personal information and do not share it for advertising.
 | Friend invites | Until used or 7 days |
 | Challenges | 14 days |
 | Abuse-prevention counters | 2 days |
+| Billing records (our copy) | Until you delete your account (renewal-consent records: **[LAWYER]** may need longer). Stripe's own payment records: per Stripe's policy and the law |
+| Daily-reminder subscription | Until you turn reminders off, or 180 days after the app last refreshed it |
 | Database recovery history | Deleted data can remain in our database provider's point-in-time recovery history for **up to 30 days**, then it is gone |
 
 ## 8. Your choices and rights

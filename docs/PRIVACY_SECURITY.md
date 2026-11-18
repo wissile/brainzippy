@@ -66,6 +66,17 @@ Not collected for accounts: child email, child password, birthdate, photo, voice
 
 Controls: webhook signature verified (HMAC-SHA256, ±5 min, constant-time), exactly-once processing; Checkout/portal URLs come only from Stripe responses; only the parent's email and our parent id go to Stripe (never child data); free-access codes ≥59 bits random, hashed, single claim per family, rate-limited (10/h per parent, 30/h per IP); no admin HTTP endpoint (owner CLI via wrangler); the development fake Stripe runs only with `APP_ENV=development`, no secret key, and a localhost request; account deletion cancels the subscription before deleting rows. Sub-processor to add to the privacy policy and DPA review: **Stripe**.
 
+### Daily reminders (Web Push, migration 0004) — data inventory and controls
+| Data | Where | Personal? | Purpose | Retention |
+|---|---|---|---|---|
+| Random device id (UUID minted on the device) | D1 `push_subscriptions.id` + browser `bz.push.v1` | pseudonymous | identify the subscription for unsubscribe | until unsubscribed / purged |
+| Push endpoint URL + `p256dh`/`auth` keys (issued by the browser's push service) | D1 `push_subscriptions` | **persistent identifier?** — unique per browser install; **[LAWYER]** (COPPA checklist §4) | deliver the reminder the parent turned on | until the parent turns reminders off, the push service reports 404/410, or **180 days** without the app refreshing it (hourly cron purge) |
+| Chosen local hour (08–19), IANA timezone, local date of the last send | D1 `push_subscriptions` | low (timezone ≈ coarse region) | send at the chosen local time, at most once a day, never 20:00–08:00 | as above |
+| Monster name for the notification text | browser cache `bz-local` (service worker) | could be a real name | personalise the notification on the device | on the device only; **never sent** to the server |
+| Reminder payload (generic text, no names) | sent to the push service (Google FCM, Mozilla, Apple, Microsoft WNS), encrypted end-to-end (RFC 8291) | no | delivery | push service's own retention; TTL expires before 20:00 local |
+
+Not stored: names, emails, IP addresses, account or child ids (subscriptions aren't linked to accounts). Controls: parent gate + explicit tap before the permission prompt; strict body schema (unknown keys rejected) read with a 2 KB byte-counted cap; endpoint allow-list (known push-service hosts only, no relay); 30 requests/hour per IP (IPv6 by /64); `VAPID_PUBLIC_KEY` empty = reminders off (production until legal sign-off). "Delete all progress on this device" and "Delete account" both unsubscribe the current device.
+
 ### Open items for review (accounts)
 1. **Verifiable parental consent (lawyer):** email + confirmation link ("email plus") is only permitted under COPPA for internal uses without disclosure. Friends/leaderboards make a child's monster name and points visible to another family: decide whether that is a "disclosure" requiring a stronger VPC method (e.g. card check via Stripe, signed form). See `docs/legal/COPPA_CHECKLIST.md`.
 2. Inactive-account retention period (proposed 24 months, with an email warning 30 days before deletion).
