@@ -1,2 +1,8 @@
+# BrainZippy. Public content pages are open to all crawlers, including AI search crawlers.
+# App screens (/hello, /map, /play/*) carry <meta name="robots" content="noindex"> instead of a
+# Disallow, so crawlers can see that instruction. The API is not for crawling.
 User-agent: *
 Allow: /
+Disallow: /api/
+
+Sitemap: https://brainzippy.com/sitemap.xml
