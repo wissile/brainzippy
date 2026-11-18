@@ -178,6 +178,7 @@ export function GamesScreen({ bandId }: { bandId: string }) {
 }
 
 export function GrownUpsScreen() {
+  const { navigate } = useApp();
   const [status, setStatus] = useState<"idle" | "gate" | "deleted" | "failed">("idle");
   const [answer, setAnswer] = useState("");
   // Parent gate: multiplication beyond the games' range (a speed bump for children, not a security boundary).
@@ -242,6 +243,8 @@ export function GrownUpsScreen() {
 
         <h2>Privacy</h2>
         <p>Guest play needs no account and there are no ads, chat, or third-party trackers. Your child's first name (optional), their monster and their progress are stored only in this browser and are never sent to us. The only thing that can be sent is <strong>your</strong> email, if you choose to add it in the grown-up step, with your consent. We never ask for photos or location.</p>
+        <h2>Parent account</h2>
+        <p>An optional parent account (email sign-in, no password) shows your child's progress, sets a daily game limit, saves progress across devices and lets you add friends by invite. <a href="/parents" data-testid="open-parents" onClick={(e) => { e.preventDefault(); navigate("/parents"); }}>Open the parent area</a></p>
         {status === "idle" && (
           <p><button type="button" className="pill-btn danger" data-testid="reset-progress" onClick={() => setStatus("gate")}>Delete all progress on this device</button></p>
         )}

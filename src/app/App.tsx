@@ -4,6 +4,12 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { MapScreen } from "./MapScreen";
 import { AgeScreen, GamesScreen, GrownUpsScreen, HomeScreen } from "./screens";
 import { Onboarding } from "../onboarding/Onboarding";
+import { startAccountSync } from "../services/accountSync";
+
+// Parent area + friend challenges (lazy: never loaded during normal play).
+const ParentsApp = lazy(() => import("../account/ParentsApp"));
+const ChallengeScreen = lazy(() => import("../account/ChallengeScreen"));
+startAccountSync();
 
 // Game code + art is lazy-loaded so the home screen stays light.
 const CountingAdventure = lazy(() => import("../games/counting-adventure/CountingAdventure"));
@@ -29,6 +35,7 @@ const TITLES: Record<string, string> = {
   "/grown-ups": "For grown-ups — BrainZippy",
   "/hello": "Welcome — BrainZippy",
   "/map": "Monster Island — BrainZippy",
+  "/parents": "Parents — BrainZippy",
 };
 
 function Router() {
@@ -42,6 +49,19 @@ function Router() {
   if (path === "/grown-ups") return <GrownUpsScreen />;
   if (path === "/hello") return <Onboarding />;
   if (path === "/map") return <MapScreen />;
+  if (path === "/parents" || path.startsWith("/parents/"))
+    return (
+      <Suspense fallback={<Loading />}>
+        <ParentsApp />
+      </Suspense>
+    );
+  const challenge = path.match(/^\/challenge\/([0-9a-f]{32})$/)?.[1];
+  if (challenge)
+    return (
+      <Suspense fallback={<Loading />}>
+        <ChallengeScreen token={challenge} />
+      </Suspense>
+    );
   if (path === "/studio" && Studio)
     return (
       <Suspense fallback={<Loading />}>
