@@ -20,6 +20,10 @@
       "one": "one eighth",
       "many": "one third"
     },
+    "st-c2-3-1-3": {
+      "one": "two thirds",
+      "many": "one third"
+    },
     "st-c2-3-2-8": {
       "one": "two thirds",
       "many": "two eighths"
@@ -55,10 +59,6 @@
     "st-c5-6-1-6": {
       "one": "five sixths",
       "many": "one sixth"
-    },
-    "st-c6-8-2-8": {
-      "one": "six eighths",
-      "many": "two eighths"
     },
     "st-c7-8-4-8": {
       "one": "seven eighths",
@@ -444,6 +444,7 @@
           "st-c1-3-2-3",
           "st-c1-6-1-2",
           "st-c1-8-1-3",
+          "st-c2-3-1-3",
           "st-c2-3-2-8",
           "st-c2-4-3-4",
           "st-c2-6-2-4",
@@ -453,7 +454,6 @@
           "st-c3-8-3-6",
           "st-c3-8-5-8",
           "st-c5-6-1-6",
-          "st-c6-8-2-8",
           "st-c7-8-4-8"
         ]
       }
@@ -643,6 +643,7 @@
           "st-c1-3-2-3",
           "st-c1-6-1-2",
           "st-c1-8-1-3",
+          "st-c2-3-1-3",
           "st-c2-3-2-8",
           "st-c2-4-3-4",
           "st-c2-6-2-4",
@@ -652,7 +653,6 @@
           "st-c3-8-3-6",
           "st-c3-8-5-8",
           "st-c5-6-1-6",
-          "st-c6-8-2-8",
           "st-c7-8-4-8",
           "st-f0-3",
           "st-f0-4",

@@ -64,14 +64,20 @@ interface LevelSpec {
   special?: (slot: number, key: number | string, rng: Rng) => Item | null;
 }
 
-// L7 compare pairs (Rumble a/d on his trail, Bobbo a2/d2 on his): same denominator, or same numerator. Never equal.
-const CMP_SAME_D: [number, number, number, number][] = [
-  [1, 3, 2, 3], [3, 4, 1, 4], [2, 4, 3, 4], [5, 6, 1, 6], [2, 6, 4, 6], [3, 8, 5, 8], [7, 8, 4, 8], [6, 8, 2, 8],
+// L7 compare pairs (Rumble a/d on his trail, Bobbo a2/d2 on his): even slots share the denominator, odd slots the
+// numerator. Never equal. Both options of a slot use the same Rumble trail, and neighbouring slots differ.
+type Pair = [number, number, number, number];
+const CMP_SLOTS: [Pair, Pair][] = [
+  [[3, 4, 1, 4], [2, 4, 3, 4]],
+  [[1, 3, 1, 6], [2, 3, 2, 8]],
+  [[5, 6, 1, 6], [2, 6, 4, 6]],
+  [[1, 8, 1, 3], [3, 8, 3, 6]],
+  [[1, 3, 2, 3], [2, 3, 1, 3]],
+  [[1, 6, 1, 2], [2, 6, 2, 4]],
+  [[3, 8, 5, 8], [7, 8, 4, 8]],
+  [[3, 4, 3, 8], [1, 2, 1, 4]],
 ];
-const CMP_SAME_A: [number, number, number, number][] = [
-  [1, 2, 1, 4], [1, 8, 1, 3], [1, 3, 1, 6], [1, 6, 1, 2], [2, 3, 2, 8], [2, 6, 2, 4], [3, 4, 3, 8], [3, 8, 3, 6],
-];
-const cmp = ([a, d, a2, d2]: [number, number, number, number]): Item => ({ mode: "compare", M: 1, P: d, a, d, a2, d2 });
+const cmp = ([a, d, a2, d2]: Pair): Item => ({ mode: "compare", M: 1, P: d, a, d, a2, d2 });
 
 // L6 equivalence: the trail's posts (P) differ from the target's denominator.
 const EQUIV: Item[] = [place(4, 1, 1, 8), place(3, 1, 1, 6), place(2, 1, 1, 8), place(3, 2, 1, 6), place(2, 1, 1, 4), place(4, 3, 1, 8), place(2, 1, 1, 6), place(4, 2, 1, 8)];
@@ -127,7 +133,7 @@ export const LEVELS: readonly LevelSpec[] = [
     note: "L7 compare: place Rumble and Bobbo on two equal trails, then say who walked farther",
     skill: SKILLS.compare,
     order: range(0, SLOTS - 1),
-    cands: (k) => [cmp(((k as number) % 2 === 0 ? CMP_SAME_D : CMP_SAME_A)[Math.floor((k as number) / 2) * 2]!), cmp(((k as number) % 2 === 0 ? CMP_SAME_D : CMP_SAME_A)[Math.floor((k as number) / 2) * 2 + 1]!)],
+    cands: (k) => CMP_SLOTS[k as number]!.map(cmp),
   },
   {
     note: "L8 estimate on an unmarked 0–1 trail, d ∈ {2,3,4,6,8}",
