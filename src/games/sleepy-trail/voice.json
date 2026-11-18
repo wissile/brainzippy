@@ -1,0 +1,729 @@
+{
+  "objects": {
+    "st-c1-2-1-4": {
+      "one": "one half",
+      "many": "one fourth"
+    },
+    "st-c1-3-1-6": {
+      "one": "one third",
+      "many": "one sixth"
+    },
+    "st-c1-3-2-3": {
+      "one": "one third",
+      "many": "two thirds"
+    },
+    "st-c1-6-1-2": {
+      "one": "one sixth",
+      "many": "one half"
+    },
+    "st-c1-8-1-3": {
+      "one": "one eighth",
+      "many": "one third"
+    },
+    "st-c2-3-2-8": {
+      "one": "two thirds",
+      "many": "two eighths"
+    },
+    "st-c2-4-3-4": {
+      "one": "two fourths",
+      "many": "three fourths"
+    },
+    "st-c2-6-2-4": {
+      "one": "two sixths",
+      "many": "two fourths"
+    },
+    "st-c2-6-4-6": {
+      "one": "two sixths",
+      "many": "four sixths"
+    },
+    "st-c3-4-1-4": {
+      "one": "three fourths",
+      "many": "one fourth"
+    },
+    "st-c3-4-3-8": {
+      "one": "three fourths",
+      "many": "three eighths"
+    },
+    "st-c3-8-3-6": {
+      "one": "three eighths",
+      "many": "three sixths"
+    },
+    "st-c3-8-5-8": {
+      "one": "three eighths",
+      "many": "five eighths"
+    },
+    "st-c5-6-1-6": {
+      "one": "five sixths",
+      "many": "one sixth"
+    },
+    "st-c6-8-2-8": {
+      "one": "six eighths",
+      "many": "two eighths"
+    },
+    "st-c7-8-4-8": {
+      "one": "seven eighths",
+      "many": "four eighths"
+    },
+    "st-f0-3": {
+      "one": "zero thirds",
+      "many": "zero thirds"
+    },
+    "st-f0-4": {
+      "one": "zero fourths",
+      "many": "zero fourths"
+    },
+    "st-f0-5": {
+      "one": "zero fifths",
+      "many": "zero fifths"
+    },
+    "st-f0-6": {
+      "one": "zero sixths",
+      "many": "zero sixths"
+    },
+    "st-f0-8": {
+      "one": "zero eighths",
+      "many": "zero eighths"
+    },
+    "st-f1-2": {
+      "one": "one half",
+      "many": "one half"
+    },
+    "st-f1-3": {
+      "one": "one third",
+      "many": "one third"
+    },
+    "st-f1-4": {
+      "one": "one fourth",
+      "many": "one fourth"
+    },
+    "st-f1-5": {
+      "one": "one fifth",
+      "many": "one fifth"
+    },
+    "st-f1-6": {
+      "one": "one sixth",
+      "many": "one sixth"
+    },
+    "st-f1-8": {
+      "one": "one eighth",
+      "many": "one eighth"
+    },
+    "st-f2-2": {
+      "one": "two halves",
+      "many": "two halves"
+    },
+    "st-f2-3": {
+      "one": "two thirds",
+      "many": "two thirds"
+    },
+    "st-f2-4": {
+      "one": "two fourths",
+      "many": "two fourths"
+    },
+    "st-f2-5": {
+      "one": "two fifths",
+      "many": "two fifths"
+    },
+    "st-f2-6": {
+      "one": "two sixths",
+      "many": "two sixths"
+    },
+    "st-f2-8": {
+      "one": "two eighths",
+      "many": "two eighths"
+    },
+    "st-f3-2": {
+      "one": "three halves",
+      "many": "three halves"
+    },
+    "st-f3-3": {
+      "one": "three thirds",
+      "many": "three thirds"
+    },
+    "st-f3-4": {
+      "one": "three fourths",
+      "many": "three fourths"
+    },
+    "st-f3-5": {
+      "one": "three fifths",
+      "many": "three fifths"
+    },
+    "st-f3-6": {
+      "one": "three sixths",
+      "many": "three sixths"
+    },
+    "st-f3-8": {
+      "one": "three eighths",
+      "many": "three eighths"
+    },
+    "st-f4-2": {
+      "one": "four halves",
+      "many": "four halves"
+    },
+    "st-f4-3": {
+      "one": "four thirds",
+      "many": "four thirds"
+    },
+    "st-f4-4": {
+      "one": "four fourths",
+      "many": "four fourths"
+    },
+    "st-f4-5": {
+      "one": "four fifths",
+      "many": "four fifths"
+    },
+    "st-f4-6": {
+      "one": "four sixths",
+      "many": "four sixths"
+    },
+    "st-f4-8": {
+      "one": "four eighths",
+      "many": "four eighths"
+    },
+    "st-f5-2": {
+      "one": "five halves",
+      "many": "five halves"
+    },
+    "st-f5-3": {
+      "one": "five thirds",
+      "many": "five thirds"
+    },
+    "st-f5-4": {
+      "one": "five fourths",
+      "many": "five fourths"
+    },
+    "st-f5-5": {
+      "one": "five fifths",
+      "many": "five fifths"
+    },
+    "st-f5-6": {
+      "one": "five sixths",
+      "many": "five sixths"
+    },
+    "st-f5-8": {
+      "one": "five eighths",
+      "many": "five eighths"
+    },
+    "st-f6-3": {
+      "one": "six thirds",
+      "many": "six thirds"
+    },
+    "st-f6-4": {
+      "one": "six fourths",
+      "many": "six fourths"
+    },
+    "st-f6-6": {
+      "one": "six sixths",
+      "many": "six sixths"
+    },
+    "st-f6-8": {
+      "one": "six eighths",
+      "many": "six eighths"
+    },
+    "st-f7-3": {
+      "one": "seven thirds",
+      "many": "seven thirds"
+    },
+    "st-f7-4": {
+      "one": "seven fourths",
+      "many": "seven fourths"
+    },
+    "st-f7-8": {
+      "one": "seven eighths",
+      "many": "seven eighths"
+    },
+    "st-f8-3": {
+      "one": "eight thirds",
+      "many": "eight thirds"
+    },
+    "st-f8-4": {
+      "one": "eight fourths",
+      "many": "eight fourths"
+    },
+    "st-f8-8": {
+      "one": "eight eighths",
+      "many": "eight eighths"
+    },
+    "st-f9-4": {
+      "one": "nine fourths",
+      "many": "nine fourths"
+    },
+    "st-f10-4": {
+      "one": "ten fourths",
+      "many": "ten fourths"
+    },
+    "st-f11-4": {
+      "one": "eleven fourths",
+      "many": "eleven fourths"
+    },
+    "st-n1-3": {
+      "one": "one third",
+      "many": "one third"
+    },
+    "st-n1-4": {
+      "one": "one fourth",
+      "many": "one fourth"
+    },
+    "st-n1-6": {
+      "one": "one sixth",
+      "many": "one sixth"
+    },
+    "st-n1-8": {
+      "one": "one eighth",
+      "many": "one eighth"
+    },
+    "st-n2-3": {
+      "one": "two thirds",
+      "many": "two thirds"
+    },
+    "st-n2-4": {
+      "one": "two fourths",
+      "many": "two fourths"
+    },
+    "st-n2-6": {
+      "one": "two sixths",
+      "many": "two sixths"
+    },
+    "st-n2-8": {
+      "one": "two eighths",
+      "many": "two eighths"
+    },
+    "st-n3-4": {
+      "one": "three fourths",
+      "many": "three fourths"
+    },
+    "st-n3-6": {
+      "one": "three sixths",
+      "many": "three sixths"
+    },
+    "st-n3-8": {
+      "one": "three eighths",
+      "many": "three eighths"
+    },
+    "st-n4-6": {
+      "one": "four sixths",
+      "many": "four sixths"
+    },
+    "st-n4-8": {
+      "one": "four eighths",
+      "many": "four eighths"
+    },
+    "st-n5-6": {
+      "one": "five sixths",
+      "many": "five sixths"
+    },
+    "st-n5-8": {
+      "one": "five eighths",
+      "many": "five eighths"
+    },
+    "st-n6-8": {
+      "one": "six eighths",
+      "many": "six eighths"
+    },
+    "st-n7-8": {
+      "one": "seven eighths",
+      "many": "seven eighths"
+    }
+  },
+  "lines": {
+    "st.story.1": {
+      "text": "Rumble loves naps. Big, long, cozy naps."
+    },
+    "st.story.2": {
+      "text": "His map shows nap spots on the Sleepy Trail, from Mossy Rock to Big Tree."
+    },
+    "st.story.3": {
+      "text": "But the spots are fractions of the trail! One half, one third…"
+    },
+    "st.story.4": {
+      "text": "Help Rumble put a pillow on every nap spot."
+    },
+    "st.story.mid1": {
+      "text": "Two pillows down. Rumble yawns."
+    },
+    "st.story.mid2": {
+      "text": "Halfway through the pillows!"
+    },
+    "st.story.mid3": {
+      "text": "The sun is setting. Two more spots!"
+    },
+    "st.story.end1": {
+      "text": "Every pillow is on its spot."
+    },
+    "st.story.end2": {
+      "text": "You counted equal jumps from zero. That's how fractions work!"
+    },
+    "st.story.end3": {
+      "text": "Rumble is snoring. Here's your Trail Marker!"
+    },
+    "st.intro": {
+      "text": "Rumble is sleepy. Will you help him find his nap spots?"
+    },
+    "st.back": {
+      "text": "Welcome back! Rumble has more nap spots to find."
+    },
+    "st.help.start": {
+      "text": "A fraction is a spot on the trail. Split the trail into equal parts first."
+    },
+    "st.help.bottom": {
+      "text": "The bottom number: how many equal parts in one whole."
+    },
+    "st.help.top": {
+      "text": "The top number: how many parts we walk from zero."
+    },
+    "st.help.beyond": {
+      "text": "After Big Tree, the trail keeps going. Four fourths is one whole!"
+    },
+    "st.help.same": {
+      "text": "One half and four eighths land on the very same spot."
+    },
+    "st.help.compare": {
+      "text": "Walk both trails. Whoever is closer to Big Tree walked farther."
+    },
+    "st.help.estimate": {
+      "text": "No posts now. Find one half first, then guess the rest."
+    },
+    "st.prompt.place": {
+      "text": "Find {one} of the trail!",
+      "vary": {
+        "kind": [
+          "st-f0-3",
+          "st-f0-4",
+          "st-f0-5",
+          "st-f0-6",
+          "st-f0-8",
+          "st-f1-2",
+          "st-f1-3",
+          "st-f1-4",
+          "st-f1-5",
+          "st-f1-6",
+          "st-f1-8",
+          "st-f2-2",
+          "st-f2-3",
+          "st-f2-4",
+          "st-f2-5",
+          "st-f2-6",
+          "st-f2-8",
+          "st-f3-2",
+          "st-f3-3",
+          "st-f3-4",
+          "st-f3-5",
+          "st-f3-6",
+          "st-f3-8",
+          "st-f4-2",
+          "st-f4-3",
+          "st-f4-4",
+          "st-f4-5",
+          "st-f4-6",
+          "st-f4-8",
+          "st-f5-3",
+          "st-f5-4",
+          "st-f5-5",
+          "st-f5-6",
+          "st-f5-8",
+          "st-f6-3",
+          "st-f6-4",
+          "st-f6-6",
+          "st-f6-8",
+          "st-f7-4",
+          "st-f7-8",
+          "st-f8-4",
+          "st-f8-8"
+        ]
+      }
+    },
+    "st.prompt.name": {
+      "text": "Where is Rumble? Pick the fraction."
+    },
+    "st.prompt.compare": {
+      "text": "Put Rumble on {one} and Bobbo on {many}. Who walked farther?",
+      "vary": {
+        "kind": [
+          "st-c1-2-1-4",
+          "st-c1-3-1-6",
+          "st-c1-3-2-3",
+          "st-c1-6-1-2",
+          "st-c1-8-1-3",
+          "st-c2-3-2-8",
+          "st-c2-4-3-4",
+          "st-c2-6-2-4",
+          "st-c2-6-4-6",
+          "st-c3-4-1-4",
+          "st-c3-4-3-8",
+          "st-c3-8-3-6",
+          "st-c3-8-5-8",
+          "st-c5-6-1-6",
+          "st-c6-8-2-8",
+          "st-c7-8-4-8"
+        ]
+      }
+    },
+    "st.prompt.estimate": {
+      "text": "No posts! Guess where {one} is.",
+      "vary": {
+        "kind": [
+          "st-f1-2",
+          "st-f1-3",
+          "st-f1-4",
+          "st-f1-6",
+          "st-f1-8",
+          "st-f2-3",
+          "st-f2-4",
+          "st-f2-6",
+          "st-f2-8",
+          "st-f3-2",
+          "st-f3-4",
+          "st-f3-6",
+          "st-f3-8",
+          "st-f4-3",
+          "st-f4-6",
+          "st-f4-8",
+          "st-f5-2",
+          "st-f5-3",
+          "st-f5-4",
+          "st-f5-6",
+          "st-f5-8",
+          "st-f6-4",
+          "st-f6-8",
+          "st-f7-3",
+          "st-f7-4",
+          "st-f7-8",
+          "st-f8-3",
+          "st-f9-4",
+          "st-f10-4",
+          "st-f11-4"
+        ]
+      }
+    },
+    "st.praise.1": {
+      "text": "{one}! You counted equal jumps.",
+      "vary": {
+        "kind": [
+          "st-f0-3",
+          "st-f0-4",
+          "st-f0-5",
+          "st-f0-6",
+          "st-f0-8",
+          "st-f1-2",
+          "st-f1-3",
+          "st-f1-4",
+          "st-f1-5",
+          "st-f1-6",
+          "st-f1-8",
+          "st-f2-2",
+          "st-f2-3",
+          "st-f2-4",
+          "st-f2-5",
+          "st-f2-6",
+          "st-f2-8",
+          "st-f3-2",
+          "st-f3-3",
+          "st-f3-4",
+          "st-f3-5",
+          "st-f3-6",
+          "st-f3-8",
+          "st-f4-2",
+          "st-f4-3",
+          "st-f4-4",
+          "st-f4-5",
+          "st-f4-6",
+          "st-f4-8",
+          "st-f5-3",
+          "st-f5-4",
+          "st-f5-5",
+          "st-f5-6",
+          "st-f5-8",
+          "st-f6-3",
+          "st-f6-4",
+          "st-f6-6",
+          "st-f6-8",
+          "st-f7-4",
+          "st-f7-8",
+          "st-f8-4",
+          "st-f8-8"
+        ]
+      }
+    },
+    "st.praise.2": {
+      "text": "You used the bottom number to split the trail."
+    },
+    "st.praise.3": {
+      "text": "Same spot, different name. Nice noticing!"
+    },
+    "st.praise.4": {
+      "text": "Great estimate! The halfway mark helps you guess."
+    },
+    "st.praise.5": {
+      "text": "You placed both and compared. Careful thinking!"
+    },
+    "st.praise.6": {
+      "text": "{one}! You counted the jumps to Rumble.",
+      "vary": {
+        "kind": [
+          "st-n1-3",
+          "st-n1-4",
+          "st-n1-6",
+          "st-n1-8",
+          "st-n2-3",
+          "st-n2-4",
+          "st-n2-6",
+          "st-n2-8",
+          "st-n3-4",
+          "st-n3-6",
+          "st-n3-8",
+          "st-n4-6",
+          "st-n4-8",
+          "st-n5-6",
+          "st-n5-8",
+          "st-n6-8",
+          "st-n7-8"
+        ]
+      }
+    },
+    "st.retry.1": {
+      "text": "Almost. Let's look at the jumps."
+    },
+    "st.hint.jumps": {
+      "text": "Count the jumps, not the posts. Zero is where we start."
+    },
+    "st.hint.parts": {
+      "text": "The bottom number tells how many equal parts make one whole trail."
+    },
+    "st.hint.topbottom": {
+      "text": "The top number says how many jumps. The bottom says how big each jump is."
+    },
+    "st.hint.bigger": {
+      "text": "More parts means each part is smaller."
+    },
+    "st.hint.closer": {
+      "text": "Look where they stopped. Who is closer to Big Tree?"
+    },
+    "st.hint.high": {
+      "text": "A little too far! Here's one half to help you."
+    },
+    "st.hint.low": {
+      "text": "Not quite far enough! Here's one half to help you."
+    },
+    "st.hint.size.d2": {
+      "text": "These posts make smaller parts. Find where one half ends first."
+    },
+    "st.hint.size.d3": {
+      "text": "These posts make smaller parts. Find where one third ends first."
+    },
+    "st.hint.size.d4": {
+      "text": "These posts make smaller parts. Find where one fourth ends first."
+    },
+    "st.hint.general.d2": {
+      "text": "Each jump is one half. How many jumps from zero?"
+    },
+    "st.hint.general.d3": {
+      "text": "Each jump is one third. How many jumps from zero?"
+    },
+    "st.hint.general.d4": {
+      "text": "Each jump is one fourth. How many jumps from zero?"
+    },
+    "st.hint.general.d5": {
+      "text": "Each jump is one fifth. How many jumps from zero?"
+    },
+    "st.hint.general.d6": {
+      "text": "Each jump is one sixth. How many jumps from zero?"
+    },
+    "st.hint.general.d8": {
+      "text": "Each jump is one eighth. How many jumps from zero?"
+    },
+    "st.hint.model": {
+      "text": "Watch Rumble walk the jumps from zero."
+    },
+    "st.hint.modelTap": {
+      "text": "Rumble is on {one}. Tap the glowing button!",
+      "vary": {
+        "kind": [
+          "st-c1-2-1-4",
+          "st-c1-3-1-6",
+          "st-c1-3-2-3",
+          "st-c1-6-1-2",
+          "st-c1-8-1-3",
+          "st-c2-3-2-8",
+          "st-c2-4-3-4",
+          "st-c2-6-2-4",
+          "st-c2-6-4-6",
+          "st-c3-4-1-4",
+          "st-c3-4-3-8",
+          "st-c3-8-3-6",
+          "st-c3-8-5-8",
+          "st-c5-6-1-6",
+          "st-c6-8-2-8",
+          "st-c7-8-4-8",
+          "st-f0-3",
+          "st-f0-4",
+          "st-f0-5",
+          "st-f0-6",
+          "st-f0-8",
+          "st-f1-2",
+          "st-f1-3",
+          "st-f1-4",
+          "st-f1-5",
+          "st-f1-6",
+          "st-f1-8",
+          "st-f2-2",
+          "st-f2-3",
+          "st-f2-4",
+          "st-f2-5",
+          "st-f2-6",
+          "st-f2-8",
+          "st-f3-2",
+          "st-f3-3",
+          "st-f3-4",
+          "st-f3-5",
+          "st-f3-6",
+          "st-f3-8",
+          "st-f4-2",
+          "st-f4-3",
+          "st-f4-4",
+          "st-f4-5",
+          "st-f4-6",
+          "st-f4-8",
+          "st-f5-2",
+          "st-f5-3",
+          "st-f5-4",
+          "st-f5-5",
+          "st-f5-6",
+          "st-f5-8",
+          "st-f6-3",
+          "st-f6-4",
+          "st-f6-6",
+          "st-f6-8",
+          "st-f7-3",
+          "st-f7-4",
+          "st-f7-8",
+          "st-f8-3",
+          "st-f8-4",
+          "st-f8-8",
+          "st-f9-4",
+          "st-f10-4",
+          "st-f11-4",
+          "st-n1-3",
+          "st-n1-4",
+          "st-n1-6",
+          "st-n1-8",
+          "st-n2-3",
+          "st-n2-4",
+          "st-n2-6",
+          "st-n2-8",
+          "st-n3-4",
+          "st-n3-6",
+          "st-n3-8",
+          "st-n4-6",
+          "st-n4-8",
+          "st-n5-6",
+          "st-n5-8",
+          "st-n6-8",
+          "st-n7-8"
+        ]
+      }
+    },
+    "st.idle": {
+      "text": "Count the jumps from zero. Each jump is one equal part!"
+    }
+  }
+}
