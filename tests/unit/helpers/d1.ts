@@ -88,7 +88,7 @@ export function createD1(opts: { upTo?: string } = {}) {
 
 export function fakeEnv(extra: Partial<Omit<Env, "APP_ENV">> & { APP_ENV?: string } = {}, opts: { upTo?: string } = {}) {
   const { D1, raw, apply } = createD1(opts);
-  const env = { DB: D1, APP_ENV: "development", ASSETS: { fetch: async () => new Response("asset") }, ...extra } as unknown as Env;
+  const env = { DB: D1, APP_ENV: "development", FRIENDS_ENABLED: "true", ASSETS: { fetch: async () => new Response("asset") }, ...extra } as unknown as Env;
   const count = (table: string) => (raw.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get() as { n: number }).n;
   return { env, raw, apply, count };
 }

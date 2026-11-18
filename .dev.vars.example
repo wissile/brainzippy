@@ -4,6 +4,8 @@
 # Even with APP_ENV=development, development behaviour (on-screen magic links, dev signing secret, fake Stripe,
 # per-IP rate-limit bypass) only runs for requests to localhost / 127.0.0.1 (worker/lib/config.ts).
 APP_ENV="development"
+# Friends, leaderboard and challenges (off in production until legal sign-off; docs/legal/COPPA_CHECKLIST.md).
+FRIENDS_ENABLED="true"
 # Optional in development. Without RESEND_API_KEY, magic links are logged to the console and shown on screen.
 # RESEND_API_KEY="re_..."
 # SIGNING_SECRET="<at least 32 random characters>"   (needed to try the daily digest cron locally: cron jobs never use the dev secret)

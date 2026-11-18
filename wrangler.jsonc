@@ -30,11 +30,13 @@
   // Top level is production-safe on purpose: if a deploy ever falls back to the top level, nothing development-only
   // turns on. Local development sets APP_ENV=development in the gitignored .dev.vars (copy .dev.vars.example), and
   // the Worker additionally requires a localhost request before any development behaviour runs (worker/lib/config.ts).
-  "vars": { "APP_ENV": "production", "STRIPE_PRICE_ID": "", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
+  // FRIENDS_ENABLED: friends, leaderboard and challenges. "false" here and in production until a lawyer decides on
+  // verifiable parental consent (docs/legal/COPPA_CHECKLIST.md); "true" in staging and in .dev.vars.
+  "vars": { "APP_ENV": "production", "FRIENDS_ENABLED": "false", "STRIPE_PRICE_ID": "", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
   "env": {
     "staging": {
       "name": "brainzippy-staging",
-      "vars": { "APP_ENV": "staging", "STRIPE_PRICE_ID": "", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
+      "vars": { "APP_ENV": "staging", "FRIENDS_ENABLED": "true", "STRIPE_PRICE_ID": "", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
       // Staging is served on <name>.<account>.workers.dev; set APP_ORIGIN to that URL once known (docs/DEPLOY.md).
       "workers_dev": true,
       "d1_databases": [
@@ -54,6 +56,7 @@
       "routes": [{ "pattern": "brainzippy.com", "custom_domain": true }],
       "vars": {
         "APP_ENV": "production",
+        "FRIENDS_ENABLED": "false",
         "APP_ORIGIN": "https://brainzippy.com",
         "EMAIL_FROM": "BrainZippy <hello@brainzippy.com>",
         "STRIPE_PRICE_ID": "",

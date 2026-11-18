@@ -1,3 +1,4 @@
+import { friendsEnabled } from "./lib/config";
 import { err } from "./lib/http";
 import { getSession, type Session } from "./lib/session";
 
@@ -26,7 +27,11 @@ export interface Route {
   handler: (c: Ctx) => Promise<Response> | Response;
   /** Allow cross-origin POSTs (only for token-authenticated endpoints such as RFC 8058 one-click unsubscribe). */
   crossOrigin?: boolean;
+  /** Feature-flagged route: answers 404 (as if it didn't exist) unless the flag is on. "friends" = FRIENDS_ENABLED. */
+  feature?: "friends";
 }
+
+export const featureOn = (env: Env, feature: Route["feature"]): boolean => feature === undefined || (feature === "friends" && friendsEnabled(env));
 
 interface Compiled extends Route {
   re: RegExp;
@@ -65,6 +70,7 @@ export function createRouter(routes: readonly Route[]) {
     for (const r of compiled) {
       const m = url.pathname.match(r.re);
       if (!m) continue;
+      if (!featureOn(env, r.feature)) continue; // disabled features are indistinguishable from missing routes
       pathMatched = true;
       if (r.method !== method) continue;
       if (method !== "GET" && !r.crossOrigin && !originAllowed(req)) return err("forbidden", 403);

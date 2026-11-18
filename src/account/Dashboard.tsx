@@ -29,7 +29,7 @@ export function Dashboard({ me, refresh, onSignedOut }: { me: Me; refresh: () =>
       </p>
       <DeviceLink me={me} linked={linked} onLink={doLink} onCreated={doLink} atLimit={atLimit} onUnlink={() => (unlinkDevice(), setLinked(null))} />
       {me.children.map((c) => (
-        <ChildCard key={c.id} child={c} linked={linked === c.id} refresh={refresh} onDeleted={() => linked === c.id && (unlinkDevice(), setLinked(null))} />
+        <ChildCard key={c.id} child={c} social={me.features?.friends === true} linked={linked === c.id} refresh={refresh} onDeleted={() => linked === c.id && (unlinkDevice(), setLinked(null))} />
       ))}
       {!atLimit && <AddChild onAdded={refresh} />}
       <BillingCard initial={me.entitlement} />
@@ -174,7 +174,7 @@ function AddChild({ onAdded }: { onAdded: () => Promise<void> }) {
 }
 
 /* ---------------- one child ---------------- */
-function ChildCard({ child, linked, refresh, onDeleted }: { child: ChildOut; linked: boolean; refresh: () => Promise<void>; onDeleted: () => void }) {
+function ChildCard({ child, social, linked, refresh, onDeleted }: { child: ChildOut; social: boolean; linked: boolean; refresh: () => Promise<void>; onDeleted: () => void }) {
   const p = child.progress;
   const week = weekSummary(p.history, today());
   const streak = currentStreak(p.history, today());
@@ -256,8 +256,8 @@ function ChildCard({ child, linked, refresh, onDeleted }: { child: ChildOut; lin
 
       <Settings child={child} linked={linked} />
       <Nickname child={child} refresh={refresh} />
-      <Friends child={child} />
-      <Challenges child={child} />
+      {social && <Friends child={child} />}
+      {social && <Challenges child={child} />}
 
       <div className="pa-section">
         <h3>Delete this profile</h3>

@@ -1,6 +1,7 @@
 import type { Route } from "../router";
 import { requireParent, type ChildRow } from "../lib/auth";
 import { childOut, deleteChildrenStatements } from "../lib/children";
+import { friendsEnabled } from "../lib/config";
 import { getEntitlement } from "../lib/entitlements";
 import { err, json, readJson } from "../lib/http";
 import { clearCookie } from "../lib/session";
@@ -34,6 +35,7 @@ export const routes: Route[] = [
         parent: { email: parent.email, digestOptIn: parent.digest_opt_in === 1, createdAt: parent.created_at },
         children: (kids?.results as ChildRow[]).map(childOut),
         entitlement: await getEntitlement(c.env, { parentId: s.parentId }),
+        features: { friends: friendsEnabled(c.env) },
       });
     },
   },

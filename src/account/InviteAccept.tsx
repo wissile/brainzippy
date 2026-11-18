@@ -10,9 +10,13 @@ export function InviteAccept({ code, me, onDone }: { code: string; me: Me; onDon
   const [status, setStatus] = useState<"idle" | "busy" | "done" | "error">("idle");
   const [error, setError] = useState("");
 
+  const enabled = me.features?.friends === true;
   useEffect(() => {
+    if (!enabled) return;
     void api.peekInvite(code).then((r) => setFrom(r.ok ? (r.ownChild ? "own" : r.from) : null));
-  }, [code]);
+  }, [code, enabled]);
+
+  if (!enabled) return <InviteMessage title="Friends aren't available yet" text="Friends, leaderboards and challenges are switched off for now." onDone={onDone} />;
 
   if (from === "loading") return <p className="pa-muted">Loading the invite…</p>;
   if (from === null) return <InviteMessage title="This invite has expired" text="Invites work once and last 7 days. Ask the other parent for a new one." onDone={onDone} />;

@@ -53,7 +53,7 @@ async function eligibleChildren(c: Ctx, parentId: string, fromChild: string) {
   ).results;
 }
 
-export const routes: Route[] = [
+const featureRoutes: Route[] = [
   {
     method: "POST",
     path: "/api/challenges",
@@ -166,3 +166,6 @@ export const routes: Route[] = [
     },
   },
 ];
+
+/** Behind FRIENDS_ENABLED (off in production until a lawyer decides on verifiable parental consent). */
+export const routes: Route[] = featureRoutes.map((r) => ({ ...r, feature: "friends" }));

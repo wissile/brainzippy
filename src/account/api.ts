@@ -37,6 +37,8 @@ export interface Me {
   parent: { email: string; digestOptIn: boolean; createdAt: number };
   children: ChildOut[];
   entitlement: Entitlement;
+  /** Server feature flags. `friends` covers friends, leaderboard and challenges (FRIENDS_ENABLED). */
+  features?: { friends: boolean };
 }
 export interface Friend {
   id: string;

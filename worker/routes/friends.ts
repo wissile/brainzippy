@@ -56,7 +56,7 @@ const statusFor = (f: FriendRow, childId: string) => {
   return mineApproved ? "waiting-for-them" : "needs-your-approval";
 };
 
-export const routes: Route[] = [
+const featureRoutes: Route[] = [
   {
     method: "POST",
     path: "/api/children/:id/invites",
@@ -202,3 +202,6 @@ export const routes: Route[] = [
     },
   },
 ];
+
+/** Behind FRIENDS_ENABLED (off in production until a lawyer decides on verifiable parental consent). */
+export const routes: Route[] = featureRoutes.map((r) => ({ ...r, feature: "friends" }));
