@@ -272,6 +272,8 @@ class AudioEngine {
 
   stopVoice() {
     this.speakToken++;
+    // clear the interrupted line's caption (e.g. a skipped story line must not linger over the game)
+    this.emit(false, "");
     try {
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
     } catch {

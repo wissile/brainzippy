@@ -243,9 +243,9 @@
 }
 @media (max-height: 520px) and (orientation: landscape) {
   .game.play-screen:has(.bi-stage) {
-    grid-template-areas: "top top top" "prompt prompt prompt" "mascot board tray";
-    grid-template-columns: clamp(76px, 11vw, 120px) minmax(0, 1fr) auto;
-    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas: "back prompt status sound" "mascot board tray tray";
+    grid-template-columns: clamp(76px, 11vw, 120px) minmax(0, 1fr) auto auto;
+    grid-template-rows: auto minmax(0, 1fr);
   }
   .game.play-screen:has(.bi-stage) .tray { align-self: center; padding: 0; }
   .game.play-screen:has(.bi-stage) .prompt-pill { min-height: 48px; }

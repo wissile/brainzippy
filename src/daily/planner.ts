@@ -18,7 +18,8 @@ import { UNLOCK_COUNT, isDue, isMastered, masteryLevel } from "./memory";
  *  P5 stretch    the most recently played world that can still level up, played one difficulty step higher
  *                (the round steps back down automatically if it's too much). K ≥ 3 only.
  *  P6 order      review first if any, then alternate learning / review, stretch last before the pick (D6).
- *  P7 fill       empty slots repeat unlocked worlds, at most MAX_PER_WORLD rounds each while alternatives exist (D7).
+ *  P7 fill       empty slots repeat unlocked worlds, at most MAX_PER_WORLD rounds per world (pick included) whenever
+ *                enough unlocked worlds exist, adding the fewest unplayed ones needed; otherwise repeats spread evenly (D5, D7).
  *  P8 pick       the last slot (K ≥ 2) is the child's choice between two worlds (agency, D6); the first option is
  *                never the world just played, and with only one other world the previous one is the second option.
  *  P9 variety    two consecutive slots never use the same world when it can be avoided (D5).
@@ -72,15 +73,13 @@ export const roundSeed = (day: LocalDate, worldId: string, nth: number): number 
 /** A fingerprint of the registry's world ids: when it changes (new worlds shipped), today's plan is redone. */
 export const registryFingerprint = (worlds: readonly { id: string }[]): number => hashSeed("worlds", ...worlds.map((w) => w.id).sort());
 
-export function planDay(input: PlanInput): PlanStop[] {
-  const K = Math.max(1, Math.floor(input.limit));
-  const { day, band, levels, log } = input;
+/** P1 + P2: the worlds a day may use. Shared by the planner and its property tests. */
+function worldPools(input: PlanInput) {
+  const { band, levels, log } = input;
   const all = [...input.worlds].sort(byId);
-  if (all.length === 0) return [];
   const skillById = new Map(input.skills.map((s) => [s.id, s]));
   const mem = log.skills;
   const played = (w: PlannerWorld) => levels[w.id] !== undefined || log.seen[w.id] !== undefined;
-  const lastSeen = (w: PlannerWorld) => log.seen[w.id] ?? "";
   const assumedByAge = (skillId: string) => {
     const s = skillById.get(skillId);
     return !!s && s.ages[1] <= band[0];
@@ -88,7 +87,7 @@ export function planDay(input: PlanInput): PlanStop[] {
 
   // P1 eligible by age (fallback: closest worlds, so older/younger children never get an empty day)
   let eligible = all.filter((w) => w.ages[0] <= band[1] + 1 && w.ages[1] >= band[0] - 1);
-  if (eligible.length === 0) {
+  if (eligible.length === 0 && all.length) {
     const dist = (w: PlannerWorld) => Math.abs(mid(w.ages) - mid(band));
     const best = Math.min(...all.map(dist));
     eligible = all.filter((w) => dist(w) === best);
@@ -108,6 +107,21 @@ export function planDay(input: PlanInput): PlanStop[] {
     open = roots.length ? roots : eligible;
   }
   const belowBand = (w: PlannerWorld) => w.skills.every(assumedByAge);
+  return { all, mem, played, eligible, open, belowBand };
+}
+
+/** The unlocked worlds a day may use (`open`) and those the child already knows (`familiar`: played or below band). */
+export function dayWorlds(input: PlanInput): { open: string[]; familiar: string[] } {
+  const { open, played, belowBand } = worldPools(input);
+  return { open: open.map((w) => w.id), familiar: open.filter((w) => played(w) || belowBand(w)).map((w) => w.id) };
+}
+
+export function planDay(input: PlanInput): PlanStop[] {
+  const K = Math.max(1, Math.floor(input.limit));
+  const { day, band, levels, log } = input;
+  const { all, mem, played, eligible, open, belowBand } = worldPools(input);
+  if (all.length === 0) return [];
+  const lastSeen = (w: PlannerWorld) => log.seen[w.id] ?? "";
   const complete = (w: PlannerWorld) => (levels[w.id] ?? 0) >= w.maxLevel && w.skills.every((s) => isMastered(mem[s]));
   const recent = (a: PlannerWorld, b: PlannerWorld) => (lastSeen(a) > lastSeen(b) ? -1 : lastSeen(a) < lastSeen(b) ? 1 : byId(a, b));
 
@@ -154,31 +168,100 @@ export function planDay(input: PlanInput): PlanStop[] {
   const lq = learning.filter((s) => s.world !== stretchWorld?.id || practising.length === 1);
   let turn: "r" | "l" = rq.length ? "r" : "l";
   while (core.length < room && (rq.length || lq.length)) {
-    const q = (turn === "r" && rq.length) || !lq.length ? rq : lq;
-    const s = q.shift()!;
-    if (fits(s)) push(s);
+    const first = (turn === "r" && rq.length) || !lq.length ? rq : lq;
+    // P9: take the queue's first stop in a different world from the last one (else the other queue's, else as is)
+    const other = first === rq ? lq : rq;
+    const last = core.at(-1)?.world;
+    const iFirst = first.findIndex((x) => x.world !== last);
+    const iOther = other.findIndex((x) => x.world !== last);
+    const [q, i] = iFirst >= 0 ? [first, iFirst] : iOther >= 0 ? [other, iOther] : [first, 0];
+    const s = q.splice(i, 1)[0]!;
+    // a stop in the world just played is left to P7 (it is already on today's trail; the fill may repeat it later)
+    if (fits(s) && s.world !== last) push(s);
     turn = turn === "r" ? "l" : "r";
   }
-  if (stretchWorld && coreLen >= 2 && core.length < coreLen) push({ world: stretchWorld.id, kind: "stretch" });
+  // the stretch never directly follows a round in the same world (P9); another levelling world may take its place
+  const stretchAt = [stretchWorld, ...practising.filter((w) => (levels[w.id] ?? 0) < w.maxLevel)].find(
+    (w) => w && w.id !== core.at(-1)?.world && fits({ world: w.id, kind: "stretch" }),
+  );
+  if (stretchWorld && stretchAt && coreLen >= 2 && core.length < coreLen) push({ world: stretchAt.id, kind: "stretch" });
 
-  // P7 fill: today's worlds first, then other unlocked worlds by recency, then below-band ones
+  // P7 fill: today's worlds first, then other played unlocked worlds by recency, then below-band ones. If those
+  // can't fill the remaining core slots at ≤ MAX_PER_WORLD rounds each, add the fewest further unlocked worlds
+  // needed (closest to the child's age first, shown as NEW) — also when the slots couldn't otherwise avoid two in a row:
+  // variety (D5) beats the new-world cap (D4) only then.
+  // When even every unlocked world can't fill the day, repeats are allowed and spread evenly (fewest rounds first).
   const used = [...new Set(core.map((s) => s.world))];
   const others = open.filter((w) => !used.includes(w.id) && played(w)).sort(recent).map((w) => w.id);
   const easy = open.filter((w) => !used.includes(w.id) && !others.includes(w.id) && belowBand(w)).map((w) => w.id);
   const pool = [...used, ...others, ...easy];
+  const extras = fresh.map((w) => w.id).filter((id) => !pool.includes(id));
+  const isExtra = new Set<string>();
+  // room each world has left today, also capped so the fill can avoid two in a row (≤ ceil(n/2) per world, ≤ floor(n/2)
+  // for the world just played)
+  const fillN = coreLen - core.length;
+  const cap = (id: string) => (id === core.at(-1)?.world ? Math.floor(fillN / 2) : Math.ceil(fillN / 2));
+  const roomFor = (id: string) => Math.min(cap(id), Math.max(0, MAX_PER_WORLD - (count.get(id) ?? 0)));
+  const short = () => pool.reduce((t, id) => t + roomFor(id), 0) < fillN;
+  while (short() && extras.length) {
+    const id = extras.shift()!;
+    pool.push(id);
+    isExtra.add(id);
+  }
   const fillPool = pool.length ? pool : open.map((w) => w.id);
-  const choose = (prev: string | undefined, avoid: readonly string[] = []) =>
-    fillPool.find((id) => id !== prev && !avoid.includes(id) && (count.get(id) ?? 0) < MAX_PER_WORLD) ??
-    fillPool.find((id) => id !== prev && !avoid.includes(id)) ??
-    fillPool.find((id) => id !== prev) ??
-    fillPool[0]!;
-  while (core.length < coreLen) push({ world: choose(core.at(-1)?.world), kind: "practice" });
+  // allocate: today's worlds first, then the rest of the pool, up to MAX_PER_WORLD each, capped so the slots can still
+  // be ordered without two in a row (≤ ceil(n/2) per world, ≤ floor(n/2) for the world just played); only if that
+  // can't fill the day, +1 to the world with the fewest rounds
+  const alloc = new Map<string, number>();
+  const total = (id: string) => (count.get(id) ?? 0) + (alloc.get(id) ?? 0);
+  let left = fillN;
+  for (const id of fillPool) {
+    const k = Math.min(left, Math.max(0, MAX_PER_WORLD - total(id)), cap(id));
+    if (k > 0) alloc.set(id, k);
+    left -= Math.max(0, k);
+  }
+  while (left > 0) {
+    const roomy = fillPool.filter((x) => (alloc.get(x) ?? 0) < cap(x));
+    const from = roomy.length ? roomy : fillPool;
+    const id = from.reduce((best, x) => (total(x) < total(best) ? x : best), from[0]!);
+    alloc.set(id, (alloc.get(id) ?? 0) + 1);
+    left--;
+  }
+  // arrange: the world with the most allocated slots left that isn't the one just played (pool order breaks ties)
+  while (core.length < coreLen) {
+    const prev = core.at(-1)?.world;
+    const avail = fillPool.filter((id) => (alloc.get(id) ?? 0) > 0);
+    const most = (ids: readonly string[]) => ids.reduce<string | undefined>((best, x) => (best === undefined || alloc.get(x)! > alloc.get(best)! ? x : best), undefined);
+    const id = most(avail.filter((x) => x !== prev)) ?? most(avail)!;
+    alloc.set(id, alloc.get(id)! - 1);
+    push({ world: id, kind: isExtra.has(id) && !core.some((s) => s.world === id) ? "new" : "practice" });
+  }
 
   // P9 variety: no two consecutive slots in the same world (slot 0 keeps its review)
   for (let i = 1; i < core.length; i++) {
     if (core[i]!.world !== core[i - 1]!.world) continue;
     const j = core.findIndex((s, k) => k > i && s.world !== core[i - 1]!.world && (k + 1 >= core.length || core[k + 1]!.world !== core[i]!.world));
     if (j > 0) [core[i], core[j]] = [core[j]!, core[i]!];
+  }
+  // P7 for the pick: if the only world with a round to spare is the one just played, move it earlier so the pick can offer it
+  // (or, on a day with too few worlds, if it has the fewest rounds)
+  const lastWorld = core.at(-1)?.world;
+  const othersMin = Math.min(...[...open.map((w) => w.id), ...fillPool].filter((id) => id !== lastWorld).map((id) => count.get(id) ?? 0));
+  if (pickSlot && lastWorld && othersMin >= MAX_PER_WORLD && othersMin > (count.get(lastWorld) ?? 0)) {
+    const noRepeats = (arr: readonly PlanStop[]) => arr.every((x, i) => i === 0 || x.world !== arr[i - 1]!.world);
+    for (let k = core.length - 2; k >= 1; k--) {
+      const trial = [...core];
+      [trial[k], trial[core.length - 1]] = [trial[core.length - 1]!, trial[k]!];
+      if (trial.at(-1)!.world !== lastWorld && noRepeats(trial)) {
+        core.splice(0, core.length, ...trial);
+        break;
+      }
+    }
+  }
+  // a world added for variety is NEW at its first stop and practice after (P9 may have reordered them)
+  for (const id of isExtra) {
+    let first = true;
+    for (const s of core) if (s.world === id) [s.kind, first] = [first ? "new" : "practice", false];
   }
 
   if (!pickSlot) return core;
@@ -188,11 +271,13 @@ export function planDay(input: PlanInput): PlanStop[] {
   const options: string[] = [];
   const ranked = [...leftovers, ...fillPool, ...open.map((w) => w.id)];
   // prefer worlds the child hasn't just played; the previous world may be the second option if nothing else is open
-  for (const id of [...ranked.filter((x) => x !== prev), ...ranked]) {
+  const fitsId = (id: string) => (count.get(id) ?? 0) < MAX_PER_WORLD;
+  const fewestFirst = (ids: string[]) => [...ids].sort((a, b) => (count.get(a) ?? 0) - (count.get(b) ?? 0)); // stable
+  for (const id of [...ranked.filter((x) => x !== prev && fitsId(x)), ...fewestFirst(ranked.filter((x) => x !== prev)), ...ranked]) {
     if (options.length === 2) break;
     if (!options.includes(id)) options.push(id);
   }
-  if (options.length === 0) return [...core, { world: choose(prev), kind: "practice" }];
+  if (options.length === 0) return [...core, { world: fillPool.find((id) => id !== prev) ?? fillPool[0]!, kind: "practice" }];
   if (options.length === 1) return [...core, { world: options[0]!, kind: "practice" }];
   return [...core, { world: options[0]!, kind: "pick", options }];
 }

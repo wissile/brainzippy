@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allWorlds, buildRegistry, checkRegistry, getWorld, registry, skillPrereqs, worldsBySubject, worldsForAge } from "../../src/content/registry";
+import { allWorlds, buildRegistry, checkRegistry, getWorld, joinAnd, liveSubjects, registry, skillPrereqs, worldsBySubject, worldsForAge } from "../../src/content/registry";
 import type { ContentPack } from "../../src/content/types";
 import { buildRound } from "../../src/engine/round";
 import { lintExercise } from "../../src/engine/validation";
@@ -46,6 +46,16 @@ describe("content registry integrity", () => {
 });
 
 describe("registry helpers", () => {
+  it("live subjects (grown-ups copy) are exactly the subjects with a playable world", () => {
+    const live = liveSubjects().map((s) => s.id);
+    expect(live).toEqual([...worldsBySubject().keys()]);
+    expect(live).toEqual(expect.arrayContaining(["math", "english"]));
+    expect(joinAnd([])).toBe("");
+    expect(joinAnd(["Maths"])).toBe("Maths");
+    expect(joinAnd(["Maths", "English"])).toBe("Maths and English");
+    expect(joinAnd(["A", "B", "C"])).toBe("A, B and C");
+  });
+
   it("worldsForAge uses inclusive age ranges (any number of worlds)", () => {
     // Property-based so new worlds from parallel agents never break this test.
     for (const age of [3, 4, 6, 9, 13]) {

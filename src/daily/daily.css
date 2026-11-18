@@ -41,10 +41,11 @@
 .stop-btn:active .stop-critter { transform: translateY(4px); box-shadow: 0 2px 0 var(--ink); }
 .stop-badge { position: absolute; top: -8px; right: -10px; min-width: 34px; height: 34px; padding: 0 6px; border-radius: var(--r-pill); display: grid; place-items: center; border: 3px solid var(--ink); font-family: var(--font-display); font-weight: 800; font-size: 0.8rem; pointer-events: none; }
 .stop-badge svg { width: 20px; height: 20px; }
-.stop-badge.done { background: var(--go-bottom); color: #fff; }
+/* contrast ≥ 4.5:1 for every badge glyph (ink 5.9:1 on green, 7.0:1 on pink, 7.0:1 on teal; sparkle 4.8:1 on deep zuzu) */
+.stop-badge.done { background: var(--go-bottom); color: var(--ink); }
 .stop-badge.new { background: var(--puff); color: var(--ink); }
-.stop-badge.stretch { background: var(--zuzu); color: var(--sparkle); }
-.stop-badge.review { background: var(--gloop); color: #fff; }
+.stop-badge.stretch { background: #5f43c0; color: var(--sparkle); }
+.stop-badge.review { background: var(--gloop); color: var(--ink); }
 .trail-stop .stop-name { margin-top: 6px; font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; background: #fff; border: 3px solid var(--ink); padding: 0 12px; border-radius: var(--r-pill); white-space: nowrap; pointer-events: none; }
 .trail.crowded .stop-name { display: none; }
 .daily-monster { z-index: 1; transition: left 1100ms var(--ease-out), top 1100ms var(--ease-out); }
@@ -71,7 +72,7 @@
 .explore-empty { font-weight: 700; }
 
 /* ---------- end of day ---------- */
-.eod { position: relative; height: 100dvh; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto minmax(0, 1fr); color: #fff; background: #1b1440; }
+.eod { position: relative; height: 100dvh; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto minmax(0, 1fr) auto; color: #fff; background: #1b1440; }
 .eod-bg { position: fixed; inset: 0; z-index: 0; }
 .eod-bg .bg { width: 100%; height: 100%; }
 .eod-top { position: relative; z-index: 2; grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: max(10px, env(safe-area-inset-top)) 14px 0; }
@@ -86,9 +87,11 @@
 .eod-monster.asleep .critter { transform: rotate(-6deg); transition: transform 600ms var(--ease-out); }
 .eod-bed { position: absolute; left: 6%; right: 6%; bottom: 2%; height: 16%; border-radius: 50%; background: #5e4ab8; border: 4px solid var(--ink); z-index: 0; }
 .eod-monster .zzz { z-index: 2; }
-.eod-panel { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: safe center; gap: 12px; padding: 8px 20px 90px; min-width: 0; min-height: 0; overflow-y: auto; }
+.eod-panel { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: safe center; gap: 12px; padding: 8px 20px; min-width: 0; min-height: 0; overflow: hidden; }
+.eod-panel > * { flex: none; }
 .eod-title { margin: 0; font-family: var(--font-display); font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.1; text-shadow: 0 3px 0 var(--ink); }
-.eod-recap { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+/* the recap shrinks (and scrolls inside itself on a very long day) so the teaser and "Come back tomorrow!" always show */
+.eod-panel > .eod-recap { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .eod-recap-item, .eod-teaser { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.95); color: var(--ink); border: 4px solid var(--ink); border-radius: var(--r-md); padding: 6px 14px 6px 6px; }
 .eod-teaser { background: linear-gradient(#fff6c8, #ffe27a); }
 .eod-critter { flex: none; width: 58px; height: 58px; display: grid; place-items: center; }
@@ -97,7 +100,9 @@
 .eod-recap-item b, .eod-teaser b { font-family: var(--font-display); font-size: 1.1rem; line-height: 1.2; }
 .eod-recap-item small, .eod-teaser small { font-size: 0.82rem; font-weight: 700; color: var(--ink-soft); }
 .eod-come-back { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; text-shadow: 0 2px 0 var(--ink); }
-.eod-caption { position: fixed; z-index: 5; bottom: 14px; left: 50%; transform: translateX(-50%); color: var(--ink); }
+.eod-caption-band { position: relative; z-index: 2; grid-column: 1 / -1; min-height: 64px; display: flex; align-items: center; justify-content: center; padding: 4px 12px max(8px, env(safe-area-inset-bottom)); }
+.eod-caption { color: var(--ink); max-width: min(640px, 100%); text-align: center; }
+.eod-caption::after { display: none; }
 
 /* ---------- small screens ---------- */
 @media (max-width: 760px) {
@@ -124,14 +129,25 @@
   .explore { top: calc(max(10px, env(safe-area-inset-top)) + 64px); bottom: 78px; }
   .eod-monster { width: min(170px, 36vh); }
   .eod-sky-arc { width: min(240px, 80%); }
-  .eod-panel { padding-bottom: 70px; gap: 8px; }
-  .eod-critter { width: 44px; height: 44px; }
+  .eod-panel { padding: 2px 16px; gap: 6px; }
+  .eod-title { font-size: 1.45rem; }
+  .eod-panel > .eod-recap { gap: 6px; }
+  .eod-recap-item, .eod-teaser { gap: 8px; padding: 3px 10px 3px 4px; border-width: 3px; }
+  .eod-critter { width: 38px; height: 38px; }
+  .eod-recap-item b, .eod-teaser b { font-size: 0.95rem; }
+  .eod-recap-item small, .eod-teaser small { font-size: 0.72rem; line-height: 1.2; }
+  .eod-come-back { font-size: 1.15rem; }
+  .eod-caption-band { min-height: 50px; padding-top: 2px; }
 }
 @media (orientation: portrait) {
-  /* portrait: one column; the whole scene scrolls if the recap is long */
-  .eod { height: auto; min-height: 100dvh; overflow: visible; grid-template-columns: 1fr; grid-template-rows: auto auto auto; }
-  .eod-panel { padding-top: 0; overflow: visible; }
-  .eod-monster { width: min(220px, 26vh, 56vw); }
+  /* portrait: one column that fits the screen (no page scroll): compact sky + monster, the recap shrinks first */
+  .eod { grid-template-columns: 1fr; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+  .eod-stage { padding: 0 8px; gap: 0; }
+  .eod-sky-arc { width: min(300px, 70%, 22vh); }
+  .eod-monster { width: min(220px, 20vh, 50vw); }
+  .eod-panel { padding: 4px 16px 0; gap: 8px; justify-content: flex-start; }
+  .eod-title { font-size: clamp(1.5rem, 6vw, 2.4rem); text-align: center; }
+  .eod-come-back { text-align: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {

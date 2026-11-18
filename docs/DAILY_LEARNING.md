@@ -26,11 +26,12 @@ Input: day, K, age band, registry worlds + skills, stored world levels, skill me
 | P4 learning | Practising worlds (most recently played first) plus at most **1** brand-new world (2 from band 9–11 up), closest to the child's age, placed right after the first practising world. |
 | P5 stretch | The most recently played world that can still level up; its round **starts one difficulty step higher** (GameRunner's in-round step-down still applies, so it's never stuck). Only when K ≥ 3. |
 | P6 order | Review first (a familiar start), then alternate learning / review, the stretch last before the pick. |
-| P7 fill | Empty slots repeat unlocked worlds — today's worlds first, then other played ones, then below-band ones — at most 2 rounds per world while alternatives exist. No extra brand-new worlds. |
+| P7 fill | Empty slots repeat unlocked worlds — today's worlds first, then other played ones, then below-band ones — at most **2 rounds per world for the whole day (the pick's first option counts)**. If those worlds can't fill the day at ≤2 each without two in a row, the fewest further unlocked worlds needed join (closest to the child's age first, badged NEW). Only when every unlocked world is already at 2 are repeats allowed, and then they are spread evenly (no world gets a 3rd round before every other has had its 3rd chance) and never back to back. Locked worlds (prerequisites unmet) are never used to add variety. |
 | P8 pick | Last slot (K ≥ 2): the child chooses between two worlds; the first option is never the world just played. |
-| P9 variety | No two consecutive stops in the same world when avoidable. |
+| P9 variety | No two consecutive stops in the same world when avoidable: a review and a practice stop in the same world don't sit back to back (the practice stop is dropped; the review round is practice too), and the stretch never directly follows its own world. |
 | P10 ties | World id, so plans are reproducible. |
 
+- **Variety vs. the new-world cap (D5 over D4, D-026).** D4 caps brand-new worlds at 1 a day (2 from 8). On a long day with few familiar worlds the cap and D5 ("≤2 per world, never two in a row") conflict; the planner then adds the minimum number of extra unlocked worlds, so a brand-new 3–5 child gets e.g. `NEW rhyme, NEW counting, rhyme, counting, pick(shape | rhyme)` at K=5 instead of four Rhyme Lanterns rounds in a row. With enough familiar worlds, D4 holds exactly. Repeats beyond 2 happen only when too few worlds are unlocked (e.g. ages 12–14 today have one world, Balance Island; a 3–5 child on day one has three for K=10) — the trail then simply climbs levels in those worlds. The rule is checked by a property test over ages 3–14 × K 3–10 × several days × synthetic histories (`tests/unit/daily-planner.test.ts`).
 - **D1 plan once:** the plan is computed at the first visit of the day (or the first round) and saved in `progress.daily.plan`. It is redone only if the daily limit or the registry's world list changes (fingerprint); stops already completed stay on the trail.
 - **Lighting stops:** a round started from a stop lights that stop; Explore/Again rounds light the first unlit stop of the same world, otherwise the earliest unlit stop, so the trail always shows *n of K*.
 - **Seeds:** the n-th round of a world on a day uses `seedForDay(day, worldId, n)` — new content every day, identical after a refresh, different for a repeat.
@@ -46,7 +47,7 @@ Input: day, K, age band, registry worlds + skills, stored world levels, skill me
 ## Example (K = 5, child 6–8)
 State: Bobbo's Breakfast mastered and due for review; Glow Cave Hops practising (level 1, played yesterday); Sky Balloon Race unlocked, never played.
 Plan: `[review Bobbo's Breakfast, practice Glow Cave Hops, NEW Sky Balloon Race, stretch Glow Cave Hops (starts one step harder), you choose: Sky Balloon Race or Bobbo's Breakfast]`.
-A brand-new 3–5 child today has one unlocked world, so the trail is five Bobbo's Breakfast rounds that climb a level each; Glow Cave Hops unlocks once counting reaches level 3. More worlds in the registry mean more variety automatically.
+A brand-new 3–5 child today has three unlocked worlds (Rhyme Lanterns, Counting Adventure, Shape Squish; Pattern Parade and Glow Cave Hops wait for counting): K=5 → `NEW Rhyme Lanterns, NEW Counting Adventure, Rhyme Lanterns, Counting Adventure, you choose: Shape Squish or Rhyme Lanterns`. More worlds in the registry mean more variety automatically.
 
 ## How to tune
 | Knob | Where |

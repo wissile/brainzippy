@@ -9,6 +9,7 @@ import { useApp } from "./AppContext";
 import { ReminderSettings } from "../pwa/ReminderSettings";
 import { disableReminders } from "../pwa/push";
 import { DailyLimitSetting } from "../daily/DailyLimitSetting";
+import { joinAnd, liveSubjects, registry } from "../content/registry";
 
 export const AGE_BANDS = [
   { id: "ages-3-5", label: "3–5", min: 3, max: 5, critter: "bobbo" },
@@ -206,7 +207,9 @@ export function GrownUpsScreen() {
     <main className="screen grownups">
       <div className="screen-top"><NavButton to="/" label="Home" /><h1 className="screen-title">For grown-ups</h1><span /></div>
       <article className="prose">
-        <p className="lead">BrainZippy turns early maths into short story adventures (reading, spelling and science worlds are on the way). Your child is the hero who brings back the lost Brain Sparks of Monster Island, with the Critter Crew as guides.</p>
+        <p className="lead" data-testid="grownups-lead">
+          BrainZippy turns learning into short story adventures: {registry.worlds.length} worlds so far in {joinAnd(liveSubjects().map((x) => x.title))}, with more subjects on the way. Your child is the hero who brings back the lost Brain Sparks of Monster Island, with the Critter Crew as guides.
+        </p>
 
         <h2>The goal</h2>
         <p>To help children aged 3–14 build real understanding and confidence through play they choose to come back to: one clear learning goal per game, no ads, no reading needed for the youngest players, and nothing that punishes mistakes.</p>

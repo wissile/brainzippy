@@ -34,7 +34,8 @@ function FloatArt({ shape }: { shape: "star" | "heart" | "moon" | "leaf" }) {
       <path d="M50 66 L50 58" stroke={INK} strokeWidth={S} />
       {shape === "star" && <path d={starPath(50, 36, 29, 13)} fill={c} stroke={INK} strokeWidth={S} strokeLinejoin="round" />}
       {shape === "heart" && <path d="M50 62 C22 44 14 30 22 18 C30 8 44 10 50 22 C56 10 70 8 78 18 C86 30 78 44 50 62 Z" fill={c} stroke={INK} strokeWidth={S} strokeLinejoin="round" />}
-      {shape === "moon" && <path d="M60 8 A28 28 0 1 0 60 64 A22 22 0 1 1 60 8 Z" fill={c} stroke={INK} strokeWidth={S} strokeLinejoin="round" />}
+      {/* crescent: outer arc (r 29.5) round the left, inner arc (r 30 ≥ half the 54-unit chord) back, so it stays a fat moon */}
+      {shape === "moon" && <path d="M66 9 A29.5 29.5 0 1 0 66 63 A30 30 0 0 1 66 9 Z" fill={c} stroke={INK} strokeWidth={S} strokeLinejoin="round" />}
       {shape === "leaf" && (
         <g>
           <path d="M50 6 C80 18 82 48 50 62 C18 48 20 18 50 6 Z" fill={c} stroke={INK} strokeWidth={S} strokeLinejoin="round" />

@@ -52,6 +52,15 @@ export function worldsBySubject(reg: Registry = registry): Map<string, World[]> 
   return out;
 }
 
+/** Subjects that have at least one playable world, in registry order (for copy that must not go stale). */
+export function liveSubjects(reg: Registry = registry): Subject[] {
+  const by = worldsBySubject(reg);
+  return reg.subjects.filter((s) => by.has(s.id));
+}
+
+/** "a", "a and b", "a, b and c". */
+export const joinAnd = (xs: readonly string[]): string => (xs.length <= 1 ? (xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}`);
+
 /** All prerequisites of a skill, transitively, in learn-first order (deepest first). Unknown ids are skipped. */
 export function skillPrereqs(skillId: string, reg: Registry = registry): string[] {
   const byId = new Map(reg.skills.map((s) => [s.id, s]));

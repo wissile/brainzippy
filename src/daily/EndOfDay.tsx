@@ -118,7 +118,10 @@ export function EndOfDay() {
         )}
         <p className="eod-come-back" data-testid="come-back">Come back tomorrow!</p>
       </section>
-      <SpeechBubble text={caption} tail="down" className="eod-caption" />
+      {/* the caption has its own band at the bottom, so it never covers a card */}
+      <div className="eod-caption-band">
+        <SpeechBubble text={caption} tail="down" className="eod-caption" />
+      </div>
     </main>
   );
 }

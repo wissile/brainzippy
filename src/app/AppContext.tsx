@@ -52,6 +52,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setSpeaking(s);
       window.clearTimeout(linger);
       if (s) setCaption(c);
+      else if (!c) setCaption(""); // speech was stopped (skip, leave, interrupt): clear at once
       // keep the caption on screen briefly after speech so slower readers (and muted players) can finish it
       else linger = window.setTimeout(() => setCaption(""), 1800);
     });
