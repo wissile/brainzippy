@@ -20,6 +20,7 @@ You are one of several agents building BrainZippy in parallel. The main agent (a
 
 ## Working rules for parallel agents
 - You work in your own git worktree. If `node_modules` is missing, run `ln -s /home/claude/brainzippy/node_modules node_modules` (add packages with `npm install <pkg>` only if truly needed and say so in your report).
+- **This machine has only 2 CPU cores.** Always wrap Playwright and production builds in the shared lock so agents queue instead of thrashing: `flock /tmp/bz-e2e.lock env PW_PORT=<port> npx playwright test <specs> --project=desktop`. Never run them without the lock.
 - Use your assigned port for Playwright: `PW_PORT=<port> npx playwright test <your specs> --project=desktop` (and `--project=phone` for layout work). Don't run the whole suite — the main agent does that after merging. Keep runs targeted; other agents share the CPU.
 - Only edit files you own (listed in your task). If you need a change in a shared file (e.g. `src/app/App.tsx`, `worker/index.ts`, `wrangler.jsonc`, `src/engine/*`), make the smallest possible edit and list it explicitly in your report.
 - Commit your work in your worktree with clear messages (end each message with the `Co-Authored-By` / `Claude-Session` lines below). Don't rebase or merge main.

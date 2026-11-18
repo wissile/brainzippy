@@ -6,6 +6,13 @@ Read `docs/agents/PHASE1_BRIEF.md` and `CLAUDE.md` first, then `docs/GAME_AUTHOR
 - `src/games/glow-cave-hops` — custom slide board.
 - `src/games/cookie-kitchen` — custom drag/tap board.
 
+## Engine contract (merged)
+- **Answers:** `Exercise.answer` kinds are `number | choice | sequence | set | match | numeric`. Boards submit with `act({ type: "SUBMIT", value })`. State fields: `hintStage`, `eliminated`, `model`, `lastAnswer`, `check.parts`.
+- **Generators:** `ExerciseGenerator`, `createRng`, `buildRound(game, { level, seed })`, and `progression.maxLevel` (levels 0..max, difficulty = level + 1).
+- **Default boards:** `OptionBoard` (choice/set) and `SequenceBoard` exist. `match` and `numeric` need a custom board.
+- **Registry:** create **your own pack folder** `src/content/packs/<world-id>/index.ts`. Reference existing subjects and topics; add only your own new topic and skill ids. Don't edit `core-math` or another agent's pack. If the registry rejects a duplicate subject id, don't redefine it — use the existing one.
+- **Curriculum spec:** your world's concept, and for some worlds a full spec, is in `docs/curriculum/<library>.md`. Follow it, and improve it where play-testing shows it's needed (say so).
+
 ## What "outstanding" means here
 
 - **A story with stakes.** Every world opens with a short cinematic `StoryPlayer` intro of 3–5 beats: a character with a small, concrete, kid-sized problem. Story beats between exercises keep it moving, and an outro resolves it.
