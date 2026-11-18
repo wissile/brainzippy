@@ -1,4 +1,5 @@
 import { MAX_PROGRESS_BYTES, parseGuestProgress } from "../src/engine/progressSchema";
+import { handlePush, sendDueReminders } from "./routes/push";
 
 /**
  * BrainZippy API Worker. Static assets (the SPA) are served by Workers Static Assets; only /api/* runs here.
@@ -134,6 +135,8 @@ export async function handleApi(req: Request, env: Env): Promise<Response> {
 
   if (method !== "GET" && !sameOrigin(req)) return json({ error: "forbidden" }, 403);
 
+  if (path.startsWith("/api/push/")) return handlePush(req, env);
+
   if (path === "/api/health" && method === "GET") {
     return json({ ok: true, env: env.APP_ENV });
   }
@@ -197,7 +200,8 @@ export default {
   },
 
   /** Daily retention purge (enable a cron trigger in wrangler.jsonc before launch). */
-  async scheduled(_event, env): Promise<void> {
+  async scheduled(event, env, ctx): Promise<void> {
+    if (event.cron === "0 * * * *") return ctx.waitUntil(sendDueReminders(env).then(() => undefined)); // hourly daily-reminder job
     await env.DB.prepare("DELETE FROM guest_sessions WHERE updated_at < ?").bind(Date.now() - RETENTION_MS).run();
     await env.DB.prepare("DELETE FROM parent_signups WHERE status = 'pending' AND created_at < ?").bind(Date.now() - PENDING_TTL_MS).run();
   },
