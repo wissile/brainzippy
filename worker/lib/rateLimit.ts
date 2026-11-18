@@ -1,5 +1,5 @@
 import { hmacHex, sha256Hex } from "./crypto";
-import { signingSecret } from "./config";
+import { isDev, signingSecret } from "./config";
 
 /**
  * Fixed-window rate limiter backed by D1 (one upsert per check). Exact across locations, works in local dev,
@@ -32,6 +32,8 @@ async function keyFor(env: Env, bucket: string, value: string): Promise<string> 
 
 /** Returns true when the request is allowed. Fails open on database errors so rate limiting never blocks sign-in outright. */
 export async function allow(env: Env, limit: Limit, value: string, now = Date.now()): Promise<boolean> {
+  // Per-IP limits are skipped in development: every local request comes from the same loopback address.
+  if (isDev(env) && limit.bucket.endsWith("-ip")) return true;
   const windowStart = Math.floor(now / (limit.windowSec * 1000)) * limit.windowSec * 1000;
   try {
     const row = await env.DB.prepare(

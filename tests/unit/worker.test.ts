@@ -196,6 +196,19 @@ describe("magic-link auth and sessions", () => {
     expect(JSON.stringify(t.raw.prepare("SELECT key FROM rate_limits").all())).not.toContain("r@example.com");
   });
 
+  it("rate-limits magic-link requests per IP outside development", async () => {
+    const t = fakeEnv({ APP_ENV: "staging", RESEND_API_KEY: "re_test" });
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}"));
+    const statuses = [];
+    for (let i = 0; i < 11; i++) {
+      const r = await handleApi(req("/api/auth/magic-link", { method: "POST", headers: { origin: ORIGIN, "content-type": "application/json", "cf-connecting-ip": "203.0.113.9" }, body: JSON.stringify({ email: `u${i}@example.com`, consent: true, mode: "signup" }) }), t.env);
+      statuses.push(r.status);
+    }
+    expect(statuses.slice(0, 10).every((s) => s === 202)).toBe(true);
+    expect(statuses[10]).toBe(429);
+    expect(JSON.stringify(t.raw.prepare("SELECT key FROM rate_limits").all())).not.toContain("203.0.113.9");
+  });
+
   it("enforces Origin on cookie-authenticated writes, and logout ends the session", async () => {
     const t = fakeEnv();
     const cookie = await signIn(t, "o@example.com");
@@ -385,7 +398,8 @@ describe("export, delete, unsubscribe", () => {
     const { unsubscribeUrl } = await import("../../worker/routes/unsubscribe");
     const url = (await unsubscribeUrl(t.env, new URL(ORIGIN), id))!;
     const path = new URL(url).pathname + new URL(url).search;
-    expect((await handleApi(req(path.replace(/s=[0-9a-f]/, "s=0")), t.env)).status).toBe(400);
+    const tampered = path.replace(/s=([0-9a-f])/, (_m, ch: string) => `s=${ch === "0" ? "1" : "0"}`);
+    expect((await handleApi(req(tampered), t.env)).status).toBe(400);
     const page = await handleApi(req(path), t.env);
     expect(await page.text()).toContain("Unsubscribe");
     expect(t.raw.prepare("SELECT digest_opt_in FROM parents").get()).toEqual({ digest_opt_in: 1 }); // GET changes nothing

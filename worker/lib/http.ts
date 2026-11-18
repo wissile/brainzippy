@@ -26,6 +26,9 @@ export function html(body: string, status = 200, extra: HeadersInit = {}): Respo
     ...SECURITY_HEADERS,
     "content-type": "text/html; charset=utf-8",
     "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",
+    // "no-referrer" would make browsers send `Origin: null` on this page's same-origin form POSTs (rejected by the
+    // origin check). "same-origin" sends the referrer only to us; these pages load nothing external.
+    "referrer-policy": "same-origin",
   });
   new Headers(extra).forEach((v, k) => headers.append(k, v));
   const page = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BrainZippy</title>
