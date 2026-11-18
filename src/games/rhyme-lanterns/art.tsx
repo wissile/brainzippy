@@ -183,10 +183,10 @@ export function LanternString({ count = 5, lit = 0, words = [] as string[] }: { 
     <svg viewBox="0 0 1000 300" aria-hidden="true" className="rl-string">
       <path d={`M0 30 Q500 ${180} 1000 30`} fill="none" stroke="#FFF6DA" strokeWidth="5" opacity="0.85" />
       {xs.map((x, i) => (
-        <g key={i} transform={`translate(${x - 60} ${sag(x) - 4}) scale(1)`}>
+        <svg key={i} x={x - 52} y={sag(x) - 4} width="104" height="130" viewBox="0 0 120 150" overflow="visible">
           {i < lit && <circle cx="60" cy="74" r="80" fill="#FFE27A" opacity="0.22" />}
           <Lantern word={words[i]} paper={PAPER[i % PAPER.length]} lit={i < lit} />
-        </g>
+        </svg>
       ))}
     </svg>
   );
@@ -219,9 +219,9 @@ export function LanternKeeperSticker() {
       ))}
       <path d="M160 42 Q134 50 134 74 Q136 98 162 102 Q146 90 146 72 Q146 54 160 42 Z" fill="#FFF6D0" stroke={INK} strokeWidth="4" />
       <circle cx="116" cy="140" r="70" fill="url(#rl-st-glow)" />
-      <g transform="translate(72 74) scale(0.74)">
+      <svg x="74" y="64" width="92" height="115" viewBox="0 0 120 150" overflow="visible">
         <Lantern word="star" paper="#FF9F43" lit hoot />
-      </g>
+      </svg>
       <path d="M40 196 Q120 170 200 196 L200 210 Q120 232 40 210 Z" fill="#6BCB77" stroke={INK} strokeWidth="5" strokeLinejoin="round" />
     </svg>
   );

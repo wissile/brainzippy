@@ -27,7 +27,7 @@
 
 /* lantern size: fits its row (count per row --nr) and two rows of height; never below the 64px tap floor */
 .rl-item, .rl-hoot, .rl-slot, .rl-cand {
-  --lw: clamp(64px, min(31cqh, calc((94cqw - (var(--nr) - 1) * 2.5cqw) / var(--nr))), 150px);
+  --lw: clamp(64px, min(31cqh, calc((94cqw - (var(--nr) - 1) * 2.5cqw) / var(--nr))), 180px);
   position: relative; width: var(--lw); flex: none; touch-action: none; border-radius: 30px;
 }
 .rl-slot, .rl-hoot { touch-action: manipulation; }
@@ -127,10 +127,10 @@
   .game.play-screen:has(.rl-stage) .rl-stage { padding-bottom: 15vh; }
 }
 @container (orientation: portrait) {
-  .rl-item, .rl-hoot, .rl-slot, .rl-cand { --lw: clamp(64px, min(25cqh, calc((94cqw - (var(--nr) - 1) * 2.5cqw) / var(--nr))), 150px); }
+  .rl-item, .rl-hoot, .rl-slot, .rl-cand { --lw: clamp(64px, min(25cqh, calc((94cqw - (var(--nr) - 1) * 2.5cqw) / var(--nr))), 180px); }
   .rl-shelf { --nr: min(var(--count), 3); }
   .mode-odd .rl-line { --nr: min(var(--line), 2); flex-wrap: wrap; row-gap: 3cqh; }
-  .mode-odd .rl-item, .mode-odd .rl-slot { --lw: clamp(64px, min(24cqh, 38cqw), 150px); }
+  .mode-odd .rl-item, .mode-odd .rl-slot { --lw: clamp(64px, min(24cqh, 38cqw), 180px); }
   .rl-yn { flex-direction: row; }
   .rl-yn-btn { width: clamp(112px, 40cqw, 230px); }
 }
