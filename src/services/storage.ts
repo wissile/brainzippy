@@ -56,9 +56,24 @@ export interface LocalState {
   serverId: string | null;
   progress: GuestProgress;
   round: RoundSnapshot | null;
+  /** Parent setting: completed rounds per local day before play pauses until tomorrow (src/daily/settings.ts). */
+  dailyLimit: number;
 }
 
-const defaults = (): LocalState => ({ profile: emptyProfile(), music: true, muted: false, ageBand: null, serverId: null, progress: emptyProgress(), round: null });
+export const DAILY_LIMIT = { min: 3, max: 10, default: 5 } as const;
+export const clampDailyLimit = (n: unknown): number =>
+  typeof n === "number" && Number.isFinite(n) ? Math.max(DAILY_LIMIT.min, Math.min(DAILY_LIMIT.max, Math.round(n))) : DAILY_LIMIT.default;
+
+const defaults = (): LocalState => ({ profile: emptyProfile(), music: true, muted: false, ageBand: null, serverId: null, progress: emptyProgress(), round: null, dailyLimit: DAILY_LIMIT.default });
+
+/** A corrupted daily log must never wipe the rest of the progress: retry without it. */
+function parseStoredProgress(x: unknown): GuestProgress | null {
+  const p = parseGuestProgress(x);
+  if (p || !x || typeof x !== "object" || !("daily" in x)) return p;
+  const rest: Record<string, unknown> = { ...(x as Record<string, unknown>) };
+  delete rest.daily;
+  return parseGuestProgress(rest);
+}
 let memory: LocalState | null = null;
 
 export function loadState(): LocalState {
@@ -74,8 +89,9 @@ export function loadState(): LocalState {
         muted: o.muted === true,
         ageBand: typeof o.ageBand === "string" ? o.ageBand : null,
         serverId: typeof o.serverId === "string" ? o.serverId : null,
-        progress: parseGuestProgress(o.progress) ?? emptyProgress(),
+        progress: parseStoredProgress(o.progress) ?? emptyProgress(),
         round: parseRoundSnapshot(o.round),
+        dailyLimit: clampDailyLimit(o.dailyLimit),
       };
       return memory;
     }

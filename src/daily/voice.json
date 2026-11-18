@@ -1,0 +1,22 @@
+{
+  "lines": {
+    "daily.map.first": { "text": "This is Monster Island! Follow today's glowing trail to find lost sparks!" },
+    "daily.map.hello": { "text": "Here's today's adventure! Tap the glowing stop to begin." },
+    "daily.map.next": { "text": "Great going! Let's walk to the next stop." },
+    "daily.map.last": { "text": "One more stop to finish today's adventure!" },
+    "daily.map.pick": { "text": "Last stop! You choose. Which adventure would you like?" },
+    "daily.map.newday": { "text": "Good morning! A brand-new trail is ready for today." },
+    "daily.explore.hello": { "text": "Pick any adventure you like! Each one counts on today's trail." },
+    "daily.end.title": { "text": "That's today's adventure! You kept trying, and you learned so much." },
+    "daily.end.yawn": { "text": "Yaaawn! All that learning makes monsters sleepy." },
+    "daily.end.recap": { "text": "Here's what you did today." },
+    "daily.end.tomorrow": { "text": "Come back tomorrow, when the sun comes up. Sleep tight!" },
+    "daily.teaser.new": { "text": "Tomorrow, a brand-new adventure is waiting for you!" },
+    "daily.teaser.more": { "text": "Tomorrow, your friends have more adventures for you!" },
+    "daily.recap.other": { "text": "You tried a great adventure!" },
+    "daily.recap.counting-adventure": { "text": "You counted Bobbo's snacks, one by one!" },
+    "daily.recap.glow-cave-hops": { "text": "You hopped along the number line to add!" },
+    "daily.recap.sky-balloon-race": { "text": "You added numbers to fly the balloon!" },
+    "daily.recap.cookie-kitchen": { "text": "You shared cookies fairly, so every plate was the same!" }
+  }
+}

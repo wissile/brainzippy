@@ -14,8 +14,9 @@ interface Catalogue {
   lines: Record<string, VoiceLine>;
 }
 
-// Each game ships its own src/games/<id>/voice.json (no shared-file edits needed to add a game).
-const gameCatalogues = Object.values(import.meta.glob<Catalogue>("../games/*/voice.json", { eager: true, import: "default" }));
+// Each game ships its own src/games/<id>/voice.json, and each feature its own src/<feature>/voice.json
+// (e.g. src/daily/voice.json), so no shared-file edits are needed to add lines.
+const gameCatalogues = Object.values(import.meta.glob<Catalogue>(["../games/*/voice.json", "../*/voice.json"], { eager: true, import: "default" }));
 
 export const VOICE_LINES: Record<string, VoiceLine> = Object.assign({}, data.lines as Record<string, VoiceLine>, ...gameCatalogues.map((c) => c.lines));
 export const OBJECT_NAMES: Record<string, { one: string; many: string }> = Object.assign({}, data.objects, ...gameCatalogues.map((c) => c.objects ?? {}));

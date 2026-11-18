@@ -35,3 +35,12 @@ describe("round snapshot validation", () => {
     expect(parseRoundSnapshot("garbage")).toBeNull();
   });
 });
+
+describe("daily log in guest progress", () => {
+  const daily = { days: { "2026-11-18": [{ w: "counting-adventure", l: 0, ft: 6, n: 8 }] }, seen: {}, skills: {}, learned: 1 };
+  const base = { v: 1, stickers: [], roundsCompleted: 1, skills: {} };
+  it("is optional, validated, and a bad log rejects the payload (server side)", () => {
+    expect(parseGuestProgress({ ...base, daily })?.daily).toEqual(daily);
+    expect(parseGuestProgress({ ...base, daily: { ...daily, extra: 1 } })).toBeNull();
+  });
+});

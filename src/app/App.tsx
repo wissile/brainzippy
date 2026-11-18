@@ -6,6 +6,7 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { MapScreen } from "./MapScreen";
 import { AgeScreen, GamesScreen, GrownUpsScreen, HomeScreen } from "./screens";
 import { Onboarding } from "../onboarding/Onboarding";
+import { DailyGate } from "../daily/DailyGate";
 
 // Worlds come from the content registry (src/content/packs/*); game code + art is lazy-loaded so the home screen stays light.
 const lazyGames = new Map<string, React.LazyExoticComponent<React.ComponentType>>();
@@ -27,6 +28,7 @@ const TITLES: Record<string, string> = {
   "/grown-ups": "For grown-ups — BrainZippy",
   "/hello": "Welcome — BrainZippy",
   "/map": "Monster Island — BrainZippy",
+  "/explore": "Explore — BrainZippy",
 };
 
 function Router() {
@@ -41,6 +43,7 @@ function Router() {
   if (path === "/grown-ups") return <GrownUpsScreen />;
   if (path === "/hello") return <Onboarding />;
   if (path === "/map") return <MapScreen />;
+  if (path === "/explore") return <MapScreen view="explore" />;
   if (path === "/studio" && Studio)
     return (
       <Suspense fallback={<Loading />}>
@@ -52,9 +55,12 @@ function Router() {
   const Game = world ? gameComponent(world) : undefined;
   if (Game)
     return (
-      <Suspense fallback={<Loading />}>
-        <Game key={game} />
-      </Suspense>
+      // daily learning: logs rounds, seeds today's content, and shows "come back tomorrow" after the limit
+      <DailyGate key={game} worldId={game!}>
+        <Suspense fallback={<Loading />}>
+          <Game key={game} />
+        </Suspense>
+      </DailyGate>
     );
   const m = path.match(/^\/play\/(ages-[0-9-]+)$/);
   if (m?.[1]) return <GamesScreen bandId={m[1]} />;
