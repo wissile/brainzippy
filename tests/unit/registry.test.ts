@@ -47,7 +47,8 @@ describe("content registry integrity", () => {
 
 describe("registry helpers", () => {
   it("worldsForAge uses inclusive age ranges", () => {
-    expect(worldsForAge(4).map((w) => w.id)).toEqual(["counting-adventure"]);
+    expect(worldsForAge(4).filter((w) => w.subject === "math").map((w) => w.id)).toEqual(["counting-adventure"]);
+    expect(worldsForAge(3).map((w) => w.id)).toContain("rhyme-lanterns");
     expect(worldsForAge(6).map((w) => w.id).sort()).toEqual(["counting-adventure", "glow-cave-hops", "sky-balloon-race"]);
     expect(worldsForAge(9).map((w) => w.id)).toEqual(["cookie-kitchen"]);
     expect(worldsForAge(13)).toEqual([]);

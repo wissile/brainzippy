@@ -82,7 +82,7 @@ const pickDistractors = (spec: LevelSpec, target: string, rng: Rng): string[] =>
   });
 };
 
-export const generateRhymeLanterns: ExerciseGenerator = (level, rng, index) => {
+export const generateRhymeLanterns: ExerciseGenerator = (level, rng, index): Omit<Exercise, "difficulty"> => {
   const lv = Math.max(0, Math.min(RHYME_MAX_LEVEL, level));
   const spec = RHYME_LEVELS[lv]!;
   // Families are spread over the round by index (one bucket of families per index), so a band of 8 never
