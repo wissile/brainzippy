@@ -1,0 +1,34 @@
+{
+  "lines": {
+    "ss.story.1": { "text": "Gloop the jelly lives in a wobbly pond by Shape Garden." },
+    "ss.story.2": { "text": "Today is the Jelly Party, and all of Gloop's friends are inside!" },
+    "ss.story.3": { "text": "But every garden gate has a funny shaped hole. Bonk! Gloop can't fit." },
+    "ss.story.4": { "text": "Gloop can squish into any shape. Help Gloop find the right gates!" },
+    "ss.story.mid1": { "text": "Squelch! Gloop is through. The party music is getting louder!" },
+    "ss.story.mid2": { "text": "Halfway there! Gloop can smell the jelly cake." },
+    "ss.story.mid3": { "text": "Just a few more gates, and Gloop is at the party!" },
+    "ss.story.end1": { "text": "Squish, squelch, pop! Gloop made it to the Jelly Party!" },
+    "ss.story.end2": { "text": "You counted sides and corners, even when shapes were turned around." },
+    "ss.story.end3": { "text": "You earned the Shape Squisher sticker! Next time, trickier gates!" },
+    "ss.prompt.gate": {
+      "text": "Gloop is a {shape}! Find the {shape} gate.",
+      "vary": { "shape": ["circle", "square", "triangle", "rectangle", "hexagon"] }
+    },
+    "ss.prompt.find": { "text": "Find every {shape}!", "vary": { "shape": ["triangle", "square"] } },
+    "ss.prompt.sort": { "text": "Sort the shapes by their sides!" },
+    "ss.prompt.two": { "text": "Which two triangles make a square?" },
+    "ss.prompt.fill": { "text": "Fill the {shape} gate with jelly pieces!", "vary": { "shape": ["hexagon"] } },
+    "ss.prompt.twoWays": { "text": "Fill both {shape} gates, each a different way!", "vary": { "shape": ["square", "hexagon"] } },
+    "ss.help.explain": { "text": "Count the sides and corners. Turning a shape never changes it!" },
+    "ss.help.hint": { "text": "Let's trace the sides with my pencil and count them. One, two, three!" },
+    "ss.praise.1": { "text": "Squish! You checked the sides and corners." },
+    "ss.praise.2": { "text": "You looked carefully at every shape!" },
+    "ss.praise.3": { "text": "Wobble-tastic! You counted the sides." },
+    "ss.praise.4": { "text": "Squelch! You kept looking until it fit." },
+    "ss.hint.show": { "text": "Watch me trace the sides. Then you try!" },
+    "ss.hint.yourTurn": { "text": "Your turn! Press the glowing one." },
+    "ss.nofit": { "text": "Hmm, that piece doesn't fit there. Try another!" },
+    "ss.full": { "text": "No gaps! Press Squish when you're ready." },
+    "ss.idle": { "text": "Drag a shape, or tap it. Count its sides!" }
+  }
+}
