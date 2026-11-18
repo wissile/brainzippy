@@ -5,6 +5,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { absoluteUrl } from "./entity";
 import { Document } from "./layout";
+import { renderLlms } from "./llms";
 import { buildRoutes } from "./routes";
 import type { PageDef, RenderedPage, SiteAssets } from "./types";
 import siteCss from "./site.css?raw";
@@ -27,13 +28,14 @@ export function renderPage(page: PageDef, assets: SiteAssets): RenderedPage {
   return { path: page.path, file: fileFor(page.path), html, updated: page.updated };
 }
 
-export function renderSite(assets: SiteAssets): { pages: RenderedPage[]; sitemap: string } {
-  const pages = buildRoutes().map((p) => renderPage(p, assets));
+export function renderSite(assets: SiteAssets): { pages: RenderedPage[]; sitemap: string; llms: string } {
+  const defs = buildRoutes();
+  const pages = defs.map((p) => renderPage(p, assets));
   const sitemap =
     '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
     pages.map((p) => `  <url><loc>${absoluteUrl(p.path)}</loc><lastmod>${p.updated}</lastmod></url>`).join("\n") +
     "\n</urlset>\n";
-  return { pages, sitemap };
+  return { pages, sitemap, llms: renderLlms(defs) };
 }
 
 /** _redirects rules the prerendered site needs (merged with any public/_redirects by the prerender script). */

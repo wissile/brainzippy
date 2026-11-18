@@ -1,3 +1,8 @@
+import { LEVEL_RANGE } from "../catalog";
+import { SITE } from "../entity";
+
+const AGES = `${SITE.agesNow.min} to ${SITE.agesNow.max}`;
+
 /**
  * Frequently asked questions. Answers are plain text so the same words appear on the page and in
  * the FAQPage JSON-LD (which must match visible content). Keep every answer consistent with entity.ts.
@@ -19,22 +24,22 @@ export const FAQ: readonly FaqGroup[] = [
     items: [
       {
         q: "What is BrainZippy?",
-        a: "BrainZippy is a website of story-based learning games for children. The games available today teach early maths: counting, adding on a number line, adding within 20 and fair sharing. Each game is a short adventure on Monster Island with a friendly character who explains the idea.",
+        a: `${SITE.definition} Each game is a short adventure on Monster Island with a friendly character who explains the idea.`,
         link: { href: "/how-it-works", label: "How BrainZippy works" },
       },
       {
         q: "What ages is BrainZippy for?",
-        a: "Today's games are designed for children aged about 4 to 9. Every instruction is spoken aloud, so children don't need to read. We are building games for ages 3 to 14, and we will add them only when they are finished and tested.",
+        a: `Today's games are designed for children aged about ${AGES}. Every instruction is spoken aloud and captioned. We are building games for ages ${SITE.agesPlanned.min} to ${SITE.agesPlanned.max}, and we add them only when they are finished and tested.`,
         link: { href: "/ages/3-5", label: "Games for ages 3–5" },
       },
       {
         q: "Which subjects does BrainZippy cover?",
-        a: "Maths, for now. Reading, spelling, science and logic games are planned. We would rather publish one subject done well than many half-finished ones.",
-        link: { href: "/subjects/math", label: "Maths games" },
+        a: `Today: ${SITE.subjectsPhrase}. The maths games run from counting to fractions and equations; English starts with listening games about rhyme. Reading, spelling, science and logic games are planned. We would rather publish a few subjects done well than many half-finished ones.`,
+        link: { href: "/games", label: "All games by subject" },
       },
       {
         q: "Does my child need to be able to read?",
-        a: "No. Every instruction is spoken and also shown as a caption, number buttons show dot patterns as well as numerals, and each game starts with a character showing what to do.",
+        a: "Not for the games for younger children. Every instruction is spoken and also shown as a caption, answers are pictures, shapes or numbers, and each game starts with a character showing what to do. Games for older children use written fractions and equations, and the top level of Balance Scale Island has short written word stories.",
       },
       {
         q: "Does it work on tablets and phones?",
@@ -47,7 +52,7 @@ export const FAQ: readonly FaqGroup[] = [
     items: [
       {
         q: "How does BrainZippy decide what my child plays next?",
-        a: "Each game has four levels. Within a round of eight puzzles, two first-try answers in a row move to harder puzzles, and needing three tries moves back to easier ones. Each finished round starts the next round one level higher. The same published rules apply to every child.",
+        a: `Each game has between ${LEVEL_RANGE.min} and ${LEVEL_RANGE.max} levels. Within a round of eight puzzles, a few first-try answers in a row move to harder puzzles, and needing three tries moves back to easier ones. After a round where at least half the answers were right first time, the next round starts one level higher. Each day's short plan also mixes in review of earlier skills. The same published rules apply to every child.`,
         link: { href: "/how-it-works", label: "The difficulty rules" },
       },
       {
@@ -56,8 +61,8 @@ export const FAQ: readonly FaqGroup[] = [
         link: { href: "/guides/when-your-child-gets-it-wrong", label: "What to say when your child gets it wrong" },
       },
       {
-        q: "Is BrainZippy proven to improve maths?",
-        a: "Not yet, and we won't claim it is. The design is built on research about how children learn number, such as number-line board games, worked examples and praise for effort. BrainZippy itself has not been tested in a formal study. We plan to measure learning with families who opt in and publish what we find.",
+        q: "Is BrainZippy proven to improve learning?",
+        a: "Not yet, and we won't claim it is. The design is built on research about how children learn, such as number-line board games, worked examples and praise for effort. BrainZippy itself has not been tested in a formal study. We plan to measure learning with families who opt in and publish what we find.",
         link: { href: "/research", label: "The research behind BrainZippy" },
       },
       {
@@ -84,6 +89,7 @@ export const FAQ: readonly FaqGroup[] = [
       },
       {
         q: "Is BrainZippy free?",
+        // TODO(billing): align with SITE.priceLine (entity.ts) once Stripe billing is live.
         a: "Guest play is free to try today. We plan to offer a family subscription later; prices will be shown clearly to grown-ups before anything is charged, and children never see purchase prompts.",
       },
       {

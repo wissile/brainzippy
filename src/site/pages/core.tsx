@@ -1,4 +1,4 @@
-import { GAMES } from "../catalog";
+import { GAMES, LEVEL_RANGE, SUBJECTS_NOW } from "../catalog";
 import { Critter, GameCard, GuideCard, PageHead, RefList, Section, ages } from "../components";
 import { SKILLS } from "../content/curriculum";
 import { FAQ } from "../content/faq";
@@ -10,14 +10,14 @@ import { PlayLink } from "../layout";
 
 const C = ({ k }: { k: RefKey }) => <a className="cite" href={`#ref-${k}`}>({REFERENCES[k].short})</a>;
 
-export function Landing({ agePaths }: { agePaths: readonly { path: string; label: string }[] }) {
+export function Landing({ agePaths, subjectPaths }: { agePaths: readonly { path: string; label: string }[]; subjectPaths: readonly { path: string; label: string }[] }) {
   return (
     <>
       <section className="hero">
         <div className="wrap hero-grid">
           <div className="hero-copy">
-            <h1>Story-based maths games for kids</h1>
-            <p className="lead">Count, add and share your way around Monster Island with the Critter Crew. Spoken instructions, gentle hints, no ads.</p>
+            <h1>Story-based learning games for kids</h1>
+            <p className="lead">Rhyme, count, share and solve your way around Monster Island with the Critter Crew. Spoken instructions, gentle hints, no ads.</p>
             <PlayLink big label="Play" />
             <p className="hero-note">No account needed. For ages {SITE.agesNow.min}–{SITE.agesNow.max}. <a href="#grown-ups">Grown-ups, start here</a></p>
           </div>
@@ -37,30 +37,34 @@ export function Landing({ agePaths }: { agePaths: readonly { path: string; label
       </Section>
 
       <Section title="The games" className="tinted">
-        <div className="card-grid">
-          {GAMES.map((g) => <GameCard key={g.id} game={g} />)}
-        </div>
+        {SUBJECTS_NOW.map((sub) => (
+          <div key={sub.id}>
+            {SUBJECTS_NOW.length > 1 && <h3>{sub.title}</h3>}
+            <div className="card-grid">
+              {sub.games.map((g) => <GameCard key={g.id} game={g} headingLevel={SUBJECTS_NOW.length > 1 ? 4 : 3} />)}
+            </div>
+          </div>
+        ))}
         <p><a className="text-link" href="/games">Compare all games by age and skill</a></p>
       </Section>
 
       <Section title="How a game works">
         <ol className="steps">
-          <li><strong>A story sets up a problem.</strong> Bobbo has lost his breakfast; Gloop's cave has gone dark. The problem gives the maths a reason.</li>
-          <li><strong>Your child does the maths with their hands.</strong> They touch, slide, drag and share objects on screen, not just pick from a list.</li>
-          <li><strong>A helper explains the idea.</strong> “The last number you say tells how many.” “Each hop is plus one.”</li>
+          <li><strong>A story sets up a problem.</strong> Bobbo has lost his breakfast; Hoot's lanterns won't glow. The problem gives the learning a reason.</li>
+          <li><strong>Your child learns by doing.</strong> They touch, slide, drag and share objects on screen, not just pick from a list.</li>
+          <li><strong>A helper explains the idea.</strong> “The last number you say tells how many.” “Rhyming words sound the same at the end.”</li>
           <li><strong>Mistakes lead to help.</strong> A hint first, then a worked example, then your child finishes the problem.</li>
         </ol>
         <p><a className="text-link" href="/how-it-works">How BrainZippy works, including the exact difficulty rules</a></p>
       </Section>
 
       <Section title="Built on research, described honestly" className="tinted">
-        <p>Our designs follow well-studied ideas about how children learn number, such as straight numbered tracks, worked examples for beginners, and praise for effort rather than ability. BrainZippy itself hasn't been tested in a formal study yet, so we don't claim it's proven. <a href="/research">Read the research and what we do with it</a>.</p>
+        <p>Our designs follow well-studied ideas about how children learn, such as straight numbered tracks, worked examples for beginners, and praise for effort rather than ability. BrainZippy itself hasn't been tested in a formal study yet, so we don't claim it's proven. <a href="/research">Read the research and what we do with it</a>.</p>
       </Section>
 
-      <Section title="Find games by age">
+      <Section title="Find games by age and subject">
         <ul className="pill-list">
-          {agePaths.map((a) => <li key={a.path}><a href={a.path}>Ages {a.label}</a></li>)}
-          <li><a href="/subjects/math">Maths games</a></li>
+          {[...agePaths, ...subjectPaths].map((a) => <li key={a.path}><a href={a.path}>{a.label}</a></li>)}
         </ul>
       </Section>
 
@@ -74,6 +78,21 @@ export function Landing({ agePaths }: { agePaths: readonly { path: string; label
   );
 }
 
+const words = ["zero", "one", "two", "three", "four", "five"];
+/** "Two first-try answers in a row (three in Balance Scale Island)", from each game's progression rules. */
+function stepUpNote() {
+  const counts = GAMES.map((g) => g.stepUpAfter);
+  const usual = [...counts].sort((a, b) => counts.filter((c) => c === b).length - counts.filter((c) => c === a).length)[0] ?? 2;
+  const odd = GAMES.filter((g) => g.stepUpAfter !== usual);
+  const w = (n: number) => words[n] ?? String(n);
+  const base = `${w(usual).charAt(0).toUpperCase()}${w(usual).slice(1)} first-try answers in a row`;
+  return odd.length ? `${base} (${odd.map((g) => `${w(g.stepUpAfter)} in ${g.title}`).join(", ")})` : base;
+}
+function roundNote() {
+  const lens = [...new Set(GAMES.map((g) => g.roundLength))].sort((a, b) => a - b);
+  return lens.length === 1 ? `${lens[0]} puzzles` : `${lens[0]}–${lens.at(-1)} puzzles`;
+}
+
 export function HowItWorks() {
   return (
     <>
@@ -81,24 +100,24 @@ export function HowItWorks() {
       <Section title="From story to skill">
         <p>BrainZippy starts with a story. A storm has scattered the Brain Sparks of Monster Island, and your child is the friend who brings them back. Each game is one place on the island with one problem to solve, and every finished round returns a Brain Spark.</p>
         <ol className="steps">
-          <li><strong>The story sets up the problem.</strong> A short animated scene gives the maths a purpose: Bobbo needs his breakfast, the cookies must be shared fairly.</li>
+          <li><strong>The story sets up the problem.</strong> A short animated scene gives the learning a purpose: Bobbo needs his breakfast, the cookies must be shared fairly.</li>
           <li><strong>A demonstration comes first.</strong> The first puzzle in a new game shows what to do with a pointing hand. Then your child tries.</li>
-          <li><strong>Children act on objects.</strong> They touch snacks to count them, slide a cart along a number line, or deal cookies onto plates. The idea is something they do, not just words on a page.</li>
-          <li><strong>A helper names the idea.</strong> Hoot, Zuzu or Puff explains the trick in one sentence, such as “Start with the bigger number, then count on.”</li>
+          <li><strong>Children act on objects.</strong> They touch snacks to count them, slide a cart along a number line, move rhyming lanterns together or take weights off a balance scale. The idea is something they do, not just words on a page.</li>
+          <li><strong>A helper names the idea.</strong> A Critter Crew helper explains the trick in one sentence, such as “Start with the bigger number, then count on.”</li>
           <li><strong>Feedback helps.</strong> Right answers are celebrated and the idea is named. A wrong answer brings a hint; a second brings a worked example, and your child makes the final tap.</li>
         </ol>
       </Section>
       <Section title="How difficulty changes" className="tinted">
-        <p>Every game has several levels (between 6 and 10). These rules are the same for every child, so you can always tell why a puzzle got harder or easier:</p>
+        <p>Every game has several levels (between {LEVEL_RANGE.min} and {LEVEL_RANGE.max}). These rules are the same for every child, so you can always tell why a puzzle got harder or easier:</p>
         <table className="table">
           <thead><tr><th scope="col">When</th><th scope="col">What happens</th></tr></thead>
           <tbody>
             <tr><td>First time in a game</td><td>The first level, starting with a demonstration puzzle.</td></tr>
-            <tr><td>Two first-try answers in a row</td><td>The next puzzles in the round get a little harder.</td></tr>
+            <tr><td>{stepUpNote()}</td><td>The next puzzles in the round get a little harder.</td></tr>
             <tr><td>A puzzle needs three or more tries</td><td>The next puzzles in the round get a little easier.</td></tr>
             <tr><td>Right on the second try</td><td>The level stays the same and the streak starts again.</td></tr>
             <tr><td>Choosing the next puzzle</td><td>An unplayed puzzle at the current level, with a different kind of interaction from the last one where possible.</td></tr>
-            <tr><td>End of a round (8 puzzles)</td><td>A Brain Spark comes back. If at least half the puzzles were right first time, the next round starts one level higher; otherwise your child plays the same level again.</td></tr>
+            <tr><td>End of a round ({roundNote()})</td><td>A Brain Spark comes back. If at least half the puzzles were right first time, the next round starts one level higher; otherwise your child plays the same level again.</td></tr>
           </tbody>
         </table>
         <p>We never use answer speed to judge a child, and there are no countdown timers. Speed isn't the same as understanding.</p>
@@ -142,6 +161,34 @@ const PRINCIPLES: readonly { title: string; finding: string; design: string; str
     refs: ["siegler2008", "siegler2004"],
   },
   {
+    title: "Listening for rhyme before reading",
+    finding: "In a long-term study, preschoolers' skill at hearing rhyme and first sounds predicted their reading and spelling years later, and practice in sorting words by sound helped most when it was combined with letters.",
+    design: "Hoot's Rhyme Lanterns uses only pictures and spoken words, and its decoys share the first sound or the middle sound so children learn to listen to the end of the word.",
+    strength: "Classic longitudinal and training study; later research suggests rhyme is an early step and that working with individual sounds and letters matters more for reading itself.",
+    refs: ["bradley1983"],
+  },
+  {
+    title: "Spotting what repeats",
+    finding: "In a study that followed 517 children from low-income families from age 4 to 11, pattern knowledge in preschool was one of the stronger predictors of maths achievement in fifth grade.",
+    design: "Puff's Pattern Parade asks children to find the unit that repeats, then continue, complete, copy and grow patterns.",
+    strength: "Moderate: a large longitudinal study, but correlational, so it doesn't show that pattern practice causes later gains.",
+    refs: ["rittlejohnson2017"],
+  },
+  {
+    title: "Fractions as numbers on a line",
+    finding: "A practice guide from the US Institute of Education Sciences recommends number lines as a central way to show that fractions are numbers with a size.",
+    design: "In Rumble's Sleepy Trail every fraction is a spot on an evenly split trail, and children count equal jumps from zero.",
+    strength: "Expert panel recommendation that draws on the research available in 2010.",
+    refs: ["siegler2010"],
+  },
+  {
+    title: "The equals sign as a balance",
+    finding: "Middle school students who understood the equals sign as “both sides are the same amount” were more successful at solving equations, even after taking their maths scores into account.",
+    design: "Balance Scale Island turns each equation into a scale that tips when the sides differ, and writes every balanced step as algebra beside it.",
+    strength: "Moderate; correlational, with middle school students.",
+    refs: ["knuth2006"],
+  },
+  {
     title: "Active, engaged, meaningful, social",
     finding: "A review of the science of learning suggested that apps teach best when children are mentally active, engaged with the learning goal, making meaningful connections, and interacting socially.",
     design: "Every puzzle needs a decision with numbers; characters respond to what the child does; animation is there to explain or give feedback.",
@@ -179,7 +226,7 @@ const PRINCIPLES: readonly { title: string; finding: string; design: string; str
   {
     title: "Practice spread over days",
     finding: "Children aged 5 to 7 who had lessons spread across days generalised what they learned better a week later than children who had them all at once. Recalling earlier material also helps, though research with young children is still limited.",
-    design: "Rounds are short. Mastery across separate sessions and review puzzles at the start of a session are next on our roadmap.",
+    design: "Rounds are short and each day's plan is a handful of games. The plan mixes review of earlier skills with new material, and a skill only counts as mastered after success on more than one day.",
     strength: "Moderate for children; consistent with a large adult literature.",
     refs: ["vlach2012", "cepeda2006", "fazio2019"],
   },
@@ -243,7 +290,7 @@ export function ForParents() {
       <Section title="How to help at home">
         <ul>
           <li><strong>Play together sometimes.</strong> Ask your child to show you how a game works. Explaining is learning.</li>
-          <li><strong>Little and often.</strong> A few minutes most days works better than a long session once a week. See <a href="/guides/daily-learning-habit">building a daily learning habit</a>.</li>
+          <li><strong>Little and often.</strong> A few minutes most days works better than a long session once a week. BrainZippy's daily plan stops after a few games (5 by default; you can choose 3 to 10 on the grown-ups page). See <a href="/guides/daily-learning-habit">building a daily learning habit</a>.</li>
           <li><strong>Take it off-screen.</strong> Each game page has an activity to try with everyday objects.</li>
           <li><strong>Praise the effort.</strong> “You counted carefully” rather than “you're so clever”. See <a href="/guides/when-your-child-gets-it-wrong">what to say when your child gets it wrong</a>.</li>
         </ul>
@@ -259,9 +306,10 @@ export function ForParents() {
 
 export function ForTeachers() {
   const skills = [...new Set(GAMES.flatMap((g) => g.skillIds))];
+  const stdRefs = [...new Set(skills.flatMap((id) => SKILLS[id]?.standards.map((st) => st.ref) ?? []))];
   return (
     <>
-      <PageHead title="BrainZippy for teachers" lead="Short, ad-free maths games for early years and the first years of school, with spoken instructions, published difficulty rules and no student data collected." art="zuzu" />
+      <PageHead title="BrainZippy for teachers" lead={`Short, ad-free ${SITE.subjectsPhrase} games for ages ${SITE.agesNow.min} to ${SITE.agesNow.max}, with spoken instructions, published difficulty rules and no student data collected.`} art="zuzu" />
       <Section title="Using BrainZippy in class today">
         <ul>
           <li><strong>Guest mode only.</strong> Open BrainZippy in the browser on a classroom tablet or computer. No sign-up, no student accounts, no student data sent to us. Progress stays on that device.</li>
@@ -271,7 +319,7 @@ export function ForTeachers() {
         </ul>
       </Section>
       <Section title="Curriculum links (Common Core)" className="tinted">
-        <p>Our own mapping of each skill to the Common Core State Standards for Mathematics <a className="cite" href="#ref-ccss">(Common Core State Standards, 2010)</a>. “Builds toward” means the game practises an early form of the idea, not the full standard. This is not an official alignment review.</p>
+        <p>Our own mapping of each skill to the Common Core State Standards {stdRefs.map((k) => <C key={k} k={k} />)}. “Builds toward” means the game practises an early form or a part of the idea, not the full standard. This is not an official alignment review, and it has not yet been checked by an independent educator.</p>
         <table className="table">
           <thead><tr><th scope="col">Skill</th><th scope="col">Game</th><th scope="col">Standards</th></tr></thead>
           <tbody>
@@ -298,7 +346,7 @@ export function ForTeachers() {
         </ul>
       </Section>
       <Section title="References" className="tinted">
-        <RefList keys={["ccss"]} />
+        <RefList keys={stdRefs} />
       </Section>
     </>
   );
@@ -342,7 +390,7 @@ export function About() {
         </ul>
       </Section>
       <Section title="Where we are now">
-        <p>BrainZippy is in early access. Today there are {GAMES.length} maths games for ages {SITE.agesNow.min} to {SITE.agesNow.max}. We're working on more maths, then reading, spelling, science and logic, for ages {SITE.agesPlanned.min} to {SITE.agesPlanned.max}. We add a game only when it's finished and tested.</p>
+        <p>BrainZippy is in early access. Today there are {GAMES.length} games ({SUBJECTS_NOW.map((s) => `${s.games.length} ${s.title === "English" ? s.title : s.title.toLowerCase()}`).join(", ")}) for ages {SITE.agesNow.min} to {SITE.agesNow.max}. We're working on more maths and English, including reading and spelling, then science and logic, for ages {SITE.agesPlanned.min} to {SITE.agesPlanned.max}. We add a game only when it's finished and tested.</p>
         <p>Meet the Critter Crew: Bobbo, Zuzu, Gloop, Hoot, Rumble and Puff, the friends who guide children around Monster Island.</p>
         <div className="crew-row" aria-hidden="true">
           {(["bobbo", "zuzu", "gloop", "hoot", "rumble", "puff"] as const).map((c) => <Critter key={c} c={c} size={84} />)}

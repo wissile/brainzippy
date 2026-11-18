@@ -3,40 +3,71 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { LANDING_FILE, SITE_CSS, renderSite } from "../../src/site/build";
-import { GAMES } from "../../src/site/catalog";
-import { AGE_BANDS } from "../../src/site/content/curriculum";
+import { allWorlds } from "../../src/content";
+import { AGES_NOW, GAMES, overlapYears } from "../../src/site/catalog";
+import { AGE_BANDS, SKILLS, SUBJECTS } from "../../src/site/content/curriculum";
 import { FAQ } from "../../src/site/content/faq";
+import { GAME_COPY } from "../../src/site/content/games";
 import { GUIDES } from "../../src/site/content/guides";
+import { REFERENCES } from "../../src/site/content/references";
 import { SITE } from "../../src/site/entity";
 import { isAppRoute } from "../../src/site/routes";
 
 const root = join(__dirname, "../..");
 const ASSETS = { css: SITE_CSS, js: "/assets/site-test.js", preloadFont: "/assets/font-test.woff2" };
-const { pages, sitemap } = renderSite(ASSETS);
+const { pages, sitemap, llms } = renderSite(ASSETS);
 const docs = pages.map((p) => ({ ...p, doc: new DOMParser().parseFromString(p.html, "text/html") }));
 const paths = new Set(pages.map((p) => p.path));
 const publicFile = (url: string) => existsSync(join(root, "public", url));
 
 describe("prerendered public pages", () => {
-  it("builds the expected page set", () => {
-    expect(pages.length).toBeGreaterThanOrEqual(20);
+  // Data-driven: the expected page set is derived from the catalog, guides and editorial content, so adding a
+  // world (or its copy) never breaks these assertions; only a missing or extra page does.
+  const CORE = ["/", "/how-it-works", "/research", "/for-parents", "/for-teachers", "/faq", "/about", "/games", "/guides"];
+  const expectedSubjects = SUBJECTS.filter((s) => GAMES.some((g) => g.skillIds.some((id) => id.startsWith(s.skillPrefix)))).map((s) => `/subjects/${s.slug}`);
+  const expectedAges = AGE_BANDS.filter((b) => GAMES.some((g) => overlapYears(g.ages, b) >= 2)).map((b) => `/ages/${b.slug}`);
+
+  it("builds exactly the page set the data calls for", () => {
+    const expected = [...CORE, ...GAMES.map((g) => `/games/${g.id}`), ...expectedSubjects, ...expectedAges, ...GUIDES.map((g) => `/guides/${g.slug}`)];
     expect(paths.size).toBe(pages.length);
-    for (const p of ["/", "/how-it-works", "/research", "/for-parents", "/for-teachers", "/faq", "/about", "/games", "/guides", "/subjects/math"]) expect(paths).toContain(p);
-    for (const g of GAMES) expect(paths).toContain(`/games/${g.id}`);
+    expect([...paths].sort()).toEqual([...new Set(expected)].sort());
     expect(GUIDES.length).toBeGreaterThanOrEqual(6);
-    expect(GUIDES.length).toBeLessThanOrEqual(10);
-    for (const g of GUIDES) expect(paths).toContain(`/guides/${g.slug}`);
     expect(pages.find((p) => p.path === "/")?.file).toBe(LANDING_FILE);
   });
 
-  it("only creates age pages that have games (no thin pages)", () => {
+  it("publishes a world only once its editorial copy exists, and every copy matches its world", () => {
+    for (const w of allWorlds()) expect(GAMES.some((g) => g.id === w.id), w.id).toBe(w.id in GAME_COPY);
+    for (const g of GAMES) {
+      const c = GAME_COPY[g.id]!;
+      expect(c.id).toBe(g.id);
+      expect(c.subject, `${g.id} subject`).toBe(g.subject);
+      expect(c.levelNames, `${g.id} needs one level name per real level`).toHaveLength(g.levelCount);
+      expect(g.levels.map((l) => l.difficulty)).toEqual(Array.from({ length: g.levelCount }, (_, i) => i + 1));
+      expect(c.title, `${g.id} title names the game and its ages`).toContain(`${g.ages[0]}–${g.ages[1]}`);
+      expect(c.misconceptions.length, `${g.id} misconceptions`).toBeGreaterThanOrEqual(2);
+      expect(c.tips.length).toBeGreaterThanOrEqual(3);
+      for (const k of c.why.refs) expect(REFERENCES[k], `${g.id} cites ${k}`).toBeTruthy();
+      for (const slug of c.guides) expect(GUIDES.some((x) => x.slug === slug), `${g.id} links guide ${slug}`).toBe(true);
+      for (const id of g.skillIds) expect(SKILLS[id], `site skill entry for ${id}`).toBeTruthy();
+      expect(publicFile(`/og/shots/${g.id}.jpg`), `screenshot for ${g.id}`).toBe(true);
+      expect(publicFile(`/og/games/${g.id}.png`), `OG card for ${g.id}`).toBe(true);
+    }
+  });
+
+  it("only creates subject and age pages that have games and editorial content (no thin pages)", () => {
     const agePages = pages.filter((p) => p.path.startsWith("/ages/"));
     expect(agePages.length).toBeGreaterThan(0);
     for (const p of agePages) {
-      const band = AGE_BANDS.find((b) => `/ages/${b.slug}` === p.path)!;
-      expect(GAMES.some((g) => Math.min(g.ages[1], band.max) - Math.max(g.ages[0], band.min) + 1 >= 2)).toBe(true);
+      const band = AGE_BANDS.find((b) => `/ages/${b.slug}` === p.path);
+      expect(band, `${p.path} has editorial content`).toBeTruthy();
+      expect(GAMES.some((g) => overlapYears(g.ages, band!) >= 2)).toBe(true);
     }
-    expect(paths.has("/ages/12-14")).toBe(false);
+    for (const p of pages.filter((x) => x.path.startsWith("/subjects/") || x.path.startsWith("/ages/"))) {
+      const d = docs.find((x) => x.path === p.path)!.doc;
+      const words = (d.querySelector("main")?.textContent ?? "").split(/\s+/).length;
+      expect(words, `${p.path} is thin`).toBeGreaterThan(300);
+      expect(d.querySelectorAll("main .game-card").length, `${p.path} lists its games`).toBeGreaterThan(0);
+    }
   });
 
   it.each(docs.map((d) => [d.path, d] as const))("%s has unique title, description, canonical and one h1", (path, { doc }) => {
@@ -191,16 +222,24 @@ describe("sitemap, robots and llms.txt", () => {
     expect(robots).toContain("Sitemap: https://brainzippy.com/sitemap.xml");
   });
 
-  it("llms.txt states the same entity facts and links only to real pages", () => {
-    const llms = readFileSync(join(root, "public/llms.txt"), "utf8");
+  it("llms.txt is generated from the same facts and links only to real pages", () => {
+    expect(existsSync(join(root, "public/llms.txt")), "llms.txt is generated at build time; don't commit a static copy").toBe(false);
     expect(llms.startsWith(`# ${SITE.name}\n`)).toBe(true);
     expect(llms).toContain(SITE.definition);
-    expect(llms).toContain(`${SITE.agesNow.min}–${SITE.agesNow.max}`);
+    expect(SITE.agesNow).toEqual(AGES_NOW);
+    expect(llms).toContain(`ages ${SITE.agesNow.min}–${SITE.agesNow.max}`);
+    expect(llms).toContain(`ages ${SITE.agesPlanned.min}–${SITE.agesPlanned.max}`);
+    for (const s of SITE.subjectsNow) expect(llms).toContain(s);
+    expect(llms).toContain("$6.99/month after a free trial");
+    expect(llms).toMatch(/no ads/i);
+    expect(llms).toMatch(/guests? without an account/);
     const links = [...llms.matchAll(/https:\/\/brainzippy\.com(\/[^)\s]*)/g)].map((m) => m[1]!);
-    expect(links.length).toBeGreaterThan(10);
+    expect(links.length).toBeGreaterThan(GAMES.length + GUIDES.length);
     for (const l of links) expect(paths.has(l), `llms.txt links to missing page ${l}`).toBe(true);
     for (const g of GAMES) expect(llms).toContain(`/games/${g.id}`);
     for (const g of GUIDES) expect(llms).toContain(`/guides/${g.slug}`);
+    expect(llms).not.toMatch(/TODO|undefined|NaN/);
+    expect(llms.split("\n").length, "keep llms.txt concise").toBeLessThan(80);
   });
 
   it("the SPA shell is noindex and has no canonical", () => {

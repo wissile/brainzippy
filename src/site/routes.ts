@@ -4,7 +4,7 @@
  * exists only when it has games AND editorial content (no thin or placeholder pages).
  */
 import { createElement as h } from "react";
-import { GAMES } from "./catalog";
+import { AGES_NOW, GAMES, SUBJECTS_NOW } from "./catalog";
 import { AGE_BANDS, SKILLS, SUBJECTS } from "./content/curriculum";
 import { FAQ } from "./content/faq";
 import { GAME_COPY } from "./content/games";
@@ -32,7 +32,7 @@ function page(p: Omit<PageDef, "jsonLd"> & { jsonLd?: readonly object[] }): Page
   return { ...p, jsonLd: ld };
 }
 
-const CORE_UPDATED = "2026-11-17";
+const CORE_UPDATED = "2026-11-18";
 
 export function buildRoutes(): PageDef[] {
   const pages: PageDef[] = [];
@@ -40,16 +40,19 @@ export function buildRoutes(): PageDef[] {
   const ageBands = AGE_BANDS.map((band) => ({ band, main: gamesForBand(band, MAIN_OVERLAP), stretch: gamesForBand(band, 1).filter((g) => !gamesForBand(band, MAIN_OVERLAP).includes(g)) })).filter((b) => b.main.length > 0);
   const subjects = SUBJECTS.map((s) => ({ s, games: GAMES.filter((g) => g.skillIds.some((id) => id.startsWith(s.skillPrefix))) })).filter((x) => x.games.length > 0);
 
+  const ages = `${AGES_NOW.min}–${AGES_NOW.max}`;
+  const subjectWords = SITE.subjectsPhrase;
+  const subjectPaths = subjects.map(({ s }) => ({ path: `/subjects/${s.slug}`, label: `${s.name} games` }));
   pages.push(
     page({
       path: "/",
-      title: `${SITE.name}: story-based maths games for kids aged ${SITE.agesNow.min}–${SITE.agesNow.max}`,
-      description: "Story-based learning games for kids: counting, number lines, addition to 20 and fair sharing for ages 4–9. Spoken instructions, gentle hints, no ads, no account needed.",
+      title: `${SITE.name}: story-based learning games for kids aged ${ages}`,
+      description: `Story-based ${subjectWords} games for kids aged ${ages}, from counting and rhymes to fractions and equations. Spoken instructions, gentle hints, no ads.`,
       updated: CORE_UPDATED,
       breadcrumbs: [HOME],
       jsonLd: [organization(), website()],
       bodyClass: "home",
-      render: () => h(Landing, { agePaths: ageBands.map(({ band }) => ({ path: `/ages/${band.slug}`, label: band.label })) }),
+      render: () => h(Landing, { agePaths: ageBands.map(({ band }) => ({ path: `/ages/${band.slug}`, label: `Ages ${band.label}` })), subjectPaths }),
     }),
     page({
       path: "/how-it-works",
@@ -62,7 +65,7 @@ export function buildRoutes(): PageDef[] {
     page({
       path: "/research",
       title: "The research behind BrainZippy's learning games",
-      description: "The research BrainZippy is built on: counting, number-line games, worked examples, feedback, praise and spacing. What we do with it, and how strong the evidence is.",
+      description: "The research BrainZippy is built on, from counting, rhyme, patterns and number lines to worked examples, praise and spacing, and how strong the evidence is.",
       updated: CORE_UPDATED,
       breadcrumbs: crumbs({ name: "Research", path: "/research" }),
       render: () => h(Research),
@@ -70,15 +73,15 @@ export function buildRoutes(): PageDef[] {
     page({
       path: "/for-parents",
       title: "BrainZippy for parents: what kids learn, privacy and safety",
-      description: "What your child learns in each BrainZippy game, how guest play keeps their data on your device, no ads or chat, and simple ways to support maths at home.",
+      description: "What your child learns in each BrainZippy game, how guest play keeps their data on your device, no ads or chat, and simple ways to support learning at home.",
       updated: CORE_UPDATED,
       breadcrumbs: crumbs({ name: "For parents", path: "/for-parents" }),
       render: () => h(ForParents),
     }),
     page({
       path: "/for-teachers",
-      title: "BrainZippy for teachers: free maths games and Common Core links",
-      description: "Using BrainZippy's ad-free maths games in class: guest mode with no student data, spoken instructions, and how each game maps to Common Core standards K–3.",
+      title: "BrainZippy for teachers: ad-free learning games and Common Core links",
+      description: "Using BrainZippy's ad-free learning games in class: guest mode with no student data, spoken instructions, and how each game's skills map to Common Core standards.",
       updated: CORE_UPDATED,
       breadcrumbs: crumbs({ name: "For teachers", path: "/for-teachers" }),
       render: () => h(ForTeachers),
@@ -102,11 +105,11 @@ export function buildRoutes(): PageDef[] {
     }),
     page({
       path: "/games",
-      title: "All BrainZippy games: maths games for ages 4–9",
-      description: "Every BrainZippy game with ages and skills: Bobbo's Breakfast (counting), Glow Cave Hops (number line), Sky Balloon Race (addition to 20), Cookie Kitchen (fair sharing).",
+      title: `All BrainZippy games: ${subjectWords} games for ages ${ages}`,
+      description: `Every BrainZippy game in one place: ${GAMES.length} story games in ${subjectWords} for ages ${ages}, with the skills each one teaches and how its levels grow.`,
       updated: CORE_UPDATED,
       breadcrumbs: crumbs({ name: "Games", path: "/games" }),
-      render: () => h(GamesHub),
+      render: () => h(GamesHub, { subjects: SUBJECTS_NOW }),
     }),
   );
 
@@ -144,7 +147,7 @@ export function buildRoutes(): PageDef[] {
     page({
       path: "/guides",
       title: "Parent guides to early maths at home",
-      description: "Research-based guides for parents: teaching counting, subitizing, number lines, making ten, fair sharing, daily learning habits, screen time and responding to mistakes.",
+      description: "Parent guides built on research: teaching counting, subitizing, number lines, making ten, fair sharing, daily learning habits, screen time and handling mistakes.",
       updated: GUIDES.map((g) => g.updated).sort().at(-1) ?? CORE_UPDATED,
       breadcrumbs: crumbs({ name: "Guides", path: "/guides" }),
       render: () => h(GuidesHub),
