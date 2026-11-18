@@ -39,7 +39,7 @@ test("child plays a complete round from home to sticker, then plays again", asyn
   await expect(page.getByTestId("level-up")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Counting Champ" })).toBeVisible();
   await expect(page.getByTestId("reward-monster")).toBeVisible();
-  await expect(page.getByText("Ziggy is so proud of you!")).toBeVisible();
+  await expect(page.getByText("Ziggy saw you keep trying!")).toBeVisible();
   await shot("06-achievement");
 
   // layout sanity on the reward screen: action buttons are fully on-screen
@@ -115,6 +115,19 @@ test("speech captions never cover objects the child must count", async ({ page }
     const overlap = Math.max(0, Math.min(b.x + b.width, o.right) - Math.max(b.x, o.left)) * Math.max(0, Math.min(b.y + b.height, o.bottom) - Math.max(b.y, o.top));
     expect(overlap / (o.width * o.height)).toBeLessThan(0.05);
   }
+  // …nor the prompt: on small screens the caption replaces the pill's text (inside the pill, clear of Replay);
+  // on wide screens it sits beside the mascot, clear of the whole pill
+  const area = (o: { left: number; right: number; top: number; bottom: number }) =>
+    Math.max(0, Math.min(b.x + b.width, o.right) - Math.max(b.x, o.left)) * Math.max(0, Math.min(b.y + b.height, o.bottom) - Math.max(b.y, o.top));
+  const replay = await page.getByTestId("replay").evaluate((e) => e.getBoundingClientRect().toJSON());
+  expect(area(replay)).toBe(0);
+  const pill = await page.getByTestId("prompt").evaluate((e) => e.getBoundingClientRect().toJSON());
+  if (await bubble.evaluate((e) => e.classList.contains("prompt-caption"))) {
+    expect(b.x).toBeGreaterThanOrEqual(pill.left - 1);
+    expect(b.x + b.width).toBeLessThanOrEqual(pill.right + 1);
+    expect(b.y).toBeGreaterThanOrEqual(pill.top - 1);
+    expect(b.y + b.height).toBeLessThanOrEqual(pill.bottom + 1);
+  } else expect(area(pill)).toBe(0);
 });
 
 test("age tiles are announced as buttons", async ({ page }) => {

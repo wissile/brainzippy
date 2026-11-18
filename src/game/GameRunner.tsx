@@ -17,6 +17,7 @@ import { defaultAnswerBoard } from "./answer-boards";
 import { type BoardProps, ChoiceTray, CountField, DoneButton, MakeSetBoard } from "./boards";
 import { HelperOverlay, type StoryBeat, StoryPlayer } from "./story";
 import { RoundHooksContext } from "./roundHooks";
+import { CAPTION_IN_PROMPT_QUERY, captionLength, useMediaQuery } from "./useMediaQuery";
 
 export interface GameSkin {
   Background: () => React.JSX.Element;
@@ -106,6 +107,7 @@ const storedLevel = (game: GameDefinition) => clampLevel(loadState().progress.le
 
 export function GameRunner({ game, skin, seed }: GameRunnerProps) {
   const { navigate, caption, speaking, reducedMotion, unlockAudio } = useApp();
+  const captionInPrompt = useMediaQuery(CAPTION_IN_PROMPT_QUERY);
   const hooks = useContext(RoundHooksContext); // optional host hooks (daily learning): seed, stretch, completion
 
   // A saved round resumes only if its exercises can be rebuilt exactly (same game, level and seed).
@@ -465,6 +467,8 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
   const ex = st?.exercise;
   const doneCount = prog.results.length;
   const bubble = helper ? "" : caption; // while a helper talks, only the helper's bubble shows
+  // small screens: the caption (the mascot's or a helper's) replaces the prompt pill's text while it is spoken
+  const promptCaption = captionInPrompt ? caption : "";
 
   // ---------- render ----------
   if (stage === "story" && skin.story?.intro) {
@@ -522,7 +526,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
             )}
             <h2 className="reward-title">{game.achievement.title}</h2>
             <p className="level-up" data-testid="level-up">{leveledUp ? `Level up! Next time: Level ${level + 2}` : "Great practice! Let's play this level again."}</p>
-            <p className="reward-sub">{profile.monsterName ? `${profile.monsterName} is so proud of you!` : newSticker ? "New sticker!" : "Another great round!"}</p>
+            <p className="reward-sub">{profile.monsterName ? `${profile.monsterName} saw you keep trying!` : newSticker ? "New sticker!" : "Another great round!"}</p>
             <div className="reward-actions">
               {hooks.canPlayAgain?.() !== false && <button
                 type="button"
@@ -567,6 +571,17 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
     },
   };
   const AnswerBoard = ex.answer.kind === "number" ? null : defaultAnswerBoard(ex.answer.kind);
+  const helperEl = helper && skin.helper ? (
+    <HelperOverlay
+      key={helper.id}
+      Character={skin.helper.Character}
+      name={skin.helper.name}
+      line={helper.line}
+      vars={helper.vars}
+      onDone={() => finishHelper(helper.id)}
+      captionInPrompt={captionInPrompt}
+    />
+  ) : null;
   const showTray = skin.Tray ? <skin.Tray {...boardProps} /> : ex.interaction === "make-set" ? <DoneButton st={st} act={act} /> : ex.answer.kind === "number" ? <ChoiceTray st={st} act={act} /> : <div className="choice-tray placeholder" aria-hidden="true" />;
   const promptText =
     ex.prompt?.text ?? (ex.interaction === "make-set" ? `Put ${targetOf(ex)} in the basket!` : st.phase === "counting" ? "Tap each one to count!" : "How many?");
@@ -580,9 +595,14 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
         <AudioButtons />
       </div>
       <div className="prompt-row">
-        <div className="prompt-pill" data-testid="prompt">
+        <div className={`prompt-pill ${promptCaption ? "captioning" : ""}`} data-testid="prompt">
           <span className="prompt-icon" aria-hidden="true"><ObjectArt kind={ex.objectKind} /></span>
-          <span className="prompt-text">{promptText}</span>
+          <span className="prompt-text-cell">
+            <span className="prompt-text">{promptText}</span>
+            {promptCaption && (
+              <span className="prompt-caption" data-testid="speech-bubble" data-len={captionLength(promptCaption)} aria-hidden="true">{promptCaption}</span>
+            )}
+          </span>
           <button type="button" className="replay-btn" aria-label="Hear it again" data-testid="replay" onClick={replay}><IconReplay /></button>
         </div>
       </div>
@@ -599,21 +619,13 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
         {st.phase === "feedback" && st.feedback?.correct && !reducedMotion && <Burst seed={burst} key={burst} />}
       </section>
       <div className="mascot-slot">
-        <SpeechBubble text={bubble} tail="down" className="mascot-bubble" />
-        <Mascot state={helper ? "thinking" : mascot} talking={speaking && !helper} size="100%" />
+        {!captionInPrompt && <SpeechBubble text={bubble} tail="down" className="mascot-bubble" />}
+        {/* small screens: the helper steps into the mascot's spot (its words are in the prompt pill), so it covers nothing */}
+        {captionInPrompt && helperEl ? helperEl : <Mascot state={helper ? "thinking" : mascot} talking={speaking && !helper} size="100%" />}
       </div>
       <div className="tray">{showTray}</div>
       {pointer && <HandPointer pointer={pointer} reducedMotion={reducedMotion} />}
-      {helper && skin.helper && (
-        <HelperOverlay
-          key={helper.id}
-          Character={skin.helper.Character}
-          name={skin.helper.name}
-          line={helper.line}
-          vars={helper.vars}
-          onDone={() => finishHelper(helper.id)}
-        />
-      )}
+      {!captionInPrompt && helperEl}
     </main>
   );
 }

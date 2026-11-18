@@ -32,8 +32,8 @@ describe("voice lines", () => {
   });
 
   it("praise lines praise process, not ability", () => {
-    for (const id of ["correct.1", "correct.2", "correct.3", "correct.4"]) {
-      expect(VOICE_LINES[id]!.text.toLowerCase()).not.toMatch(/smart|genius|clever|brilliant/);
+    for (const id of ["correct.1", "correct.2", "correct.3", "correct.4", "monster.cheer"]) {
+      expect(VOICE_LINES[id]!.text.toLowerCase()).not.toMatch(/smart|genius|clever|brilliant|proud of you/);
     }
   });
 });

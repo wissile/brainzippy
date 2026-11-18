@@ -104,13 +104,15 @@ export function StoryPlayer({ beats, onDone, label = "Story", testId = "story" }
 
 /** A helper character slides in to explain a concept, then slides out. */
 export function HelperOverlay({
-  Character, name, line, vars, onDone,
+  Character, name, line, vars, onDone, captionInPrompt = false,
 }: {
   Character: (p: { state: MascotState; talking?: boolean; size?: number | string }) => React.JSX.Element;
   name: string;
   line: string;
   vars?: Record<string, string | number>;
   onDone: () => void;
+  /** The game shows the caption in its prompt pill (small screens): no bubble of its own, drawn in the mascot's spot. */
+  captionInPrompt?: boolean;
 }) {
   const { caption, speaking } = useApp();
   const [leaving, setLeaving] = useState(false);
@@ -129,8 +131,8 @@ export function HelperOverlay({
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <div className={`helper ${leaving ? "leaving" : ""}`} data-testid="helper" aria-label={`${name} explains`}>
-      <SpeechBubble text={caption} tail="right" className="helper-bubble" />
+    <div className={`helper ${captionInPrompt ? "inline" : ""} ${leaving ? "leaving" : ""}`} data-testid="helper" aria-label={`${name} explains`}>
+      {!captionInPrompt && <SpeechBubble text={caption} tail="right" className="helper-bubble" />}
       <div className="helper-char">
         <Character state={speaking ? "encouraging" : "greeting"} talking={speaking} size="100%" />
       </div>
