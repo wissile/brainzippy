@@ -192,12 +192,16 @@ export const routes: Route[] = [
 
 /* ---------------- account deletion + export hooks (used by worker/routes/me.ts) ---------------- */
 
-/** Cancels the Stripe subscription now and returns statements deleting billing rows. Throws when Stripe fails. */
+/** Cancels the Stripe subscription, deletes the Stripe Customer and returns statements deleting billing rows. Throws when Stripe fails. */
 export async function billingOnAccountDelete(c: Ctx, parentId: string): Promise<D1PreparedStatement[]> {
   const stripe = stripeFor(c.env, c.url);
-  return billingDeletionStatements(c.env, parentId, async (id) => {
+  const need = () => {
     if (!stripe) throw new Error("billing_not_configured");
-    await stripe.cancelSubscriptionNow(id);
+    return stripe;
+  };
+  return billingDeletionStatements(c.env, parentId, {
+    cancel: (id) => need().cancelSubscriptionNow(id),
+    deleteCustomer: (id) => need().deleteCustomer(id),
   });
 }
 export { billingExport };

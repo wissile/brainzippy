@@ -40,6 +40,9 @@ export function fakeStripe(url: URL): StripeApi {
     async cancelSubscriptionNow() {
       /* nothing to cancel: rows are deleted by the caller */
     },
+    async deleteCustomer() {
+      /* no customer exists outside our own rows, which the caller deletes */
+    },
   };
 }
 

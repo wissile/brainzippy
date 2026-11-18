@@ -105,12 +105,21 @@ export async function billingExport(env: Env, parentId: string) {
 }
 
 /**
- * Account deletion: cancel any Stripe subscription immediately (a deleted account must never be charged again),
- * then return the statements that delete our billing rows. Throws if Stripe can't be reached, so deletion stops.
+ * Account deletion: cancel any Stripe subscription immediately (a deleted account must never be charged again), then
+ * delete the Stripe Customer (removes saved payment methods; Stripe keeps its own legally required payment records,
+ * see docs/PRIVACY_SECURITY.md), then return the statements that delete our billing rows. Throws if Stripe can't be
+ * reached, so deletion stops and can be retried.
  */
-export async function billingDeletionStatements(env: Env, parentId: string, cancel: (subscriptionId: string) => Promise<void>): Promise<D1PreparedStatement[]> {
-  const row = await env.DB.prepare("SELECT stripe_subscription_id, sub_status FROM billing_accounts WHERE parent_id = ?").bind(parentId).first<{ stripe_subscription_id: string | null; sub_status: string | null }>();
-  if (row?.stripe_subscription_id && row.sub_status && !["canceled", "incomplete_expired"].includes(row.sub_status)) await cancel(row.stripe_subscription_id);
+export interface StripeDeletion {
+  cancel(subscriptionId: string): Promise<void>;
+  deleteCustomer(customerId: string): Promise<void>;
+}
+export async function billingDeletionStatements(env: Env, parentId: string, stripe: StripeDeletion): Promise<D1PreparedStatement[]> {
+  const row = await env.DB.prepare("SELECT stripe_customer_id, stripe_subscription_id, sub_status FROM billing_accounts WHERE parent_id = ?")
+    .bind(parentId)
+    .first<{ stripe_customer_id: string | null; stripe_subscription_id: string | null; sub_status: string | null }>();
+  if (row?.stripe_subscription_id && row.sub_status && !["canceled", "incomplete_expired"].includes(row.sub_status)) await stripe.cancel(row.stripe_subscription_id);
+  if (row?.stripe_customer_id) await stripe.deleteCustomer(row.stripe_customer_id);
   return [
     env.DB.prepare("DELETE FROM access_code_redemptions WHERE parent_id = ?").bind(parentId),
     env.DB.prepare("DELETE FROM billing_accounts WHERE parent_id = ?").bind(parentId),

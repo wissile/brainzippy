@@ -2,7 +2,7 @@ import { hmacHex, safeEqual } from "./crypto";
 import { isDev } from "./config";
 
 /**
- * Minimal Stripe REST client over fetch (no SDK): three calls, form-encoded, pinned API version.
+ * Minimal Stripe REST client over fetch (no SDK): a handful of calls, form-encoded, pinned API version.
  * Why not stripe-node: it does run on Workers (createFetchHttpClient + createSubtleCryptoProvider), but we need only
  * three endpoints and webhook verification; plain fetch keeps the bundle small and lets tests point STRIPE_API_BASE
  * at a stub. See docs/BILLING.md.
@@ -45,6 +45,8 @@ export interface StripeApi {
   createCheckoutSession(p: CheckoutParams): Promise<{ id: string; url: string }>;
   createPortalSession(p: { customerId: string; returnUrl: string; cancelSubscriptionId?: string }): Promise<{ url: string }>;
   cancelSubscriptionNow(subscriptionId: string): Promise<void>;
+  /** Account deletion: removes the Customer (and its saved payment methods) from Stripe. 404 = already gone. */
+  deleteCustomer(customerId: string): Promise<void>;
 }
 
 export class StripeError extends Error {
@@ -121,6 +123,14 @@ export function liveStripe(env: Env): StripeApi {
     async cancelSubscriptionNow(id) {
       try {
         await call("DELETE", `/v1/subscriptions/${encodeURIComponent(id)}`);
+      } catch (e) {
+        if (e instanceof StripeError && e.status === 404) return; // already gone
+        throw e;
+      }
+    },
+    async deleteCustomer(id) {
+      try {
+        await call("DELETE", `/v1/customers/${encodeURIComponent(id)}`);
       } catch (e) {
         if (e instanceof StripeError && e.status === 404) return; // already gone
         throw e;

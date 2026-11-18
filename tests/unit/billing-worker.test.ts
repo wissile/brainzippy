@@ -205,15 +205,34 @@ describe("checkout, portal, status", () => {
     expect((await call("/api/billing/status", { firstPlayAt: 1, extra: 1 })).status).toBe(400);
   });
 
-  it("account deletion cancels the live subscription first and removes billing rows", async () => {
+  it("account deletion cancels the live subscription first, then deletes the Stripe customer, and removes billing rows", async () => {
     const calls = stubStripe();
     const { call, raw, parentId, count } = await setup();
     raw.prepare("INSERT INTO billing_accounts (parent_id, stripe_customer_id, stripe_subscription_id, sub_status, created_at, updated_at) VALUES (?, 'cus_1', 'sub_1', 'active', 1, 1)").run(parentId);
     const res = await call("/api/me", { confirm: "delete" }, "DELETE");
     expect(res.status).toBe(200);
-    expect(calls.map((c) => `${c.method} ${new URL(c.url).pathname}`)).toEqual(["DELETE /v1/subscriptions/sub_1"]);
+    expect(calls.map((c) => `${c.method} ${new URL(c.url).pathname}`)).toEqual(["DELETE /v1/subscriptions/sub_1", "DELETE /v1/customers/cus_1"]);
     expect(count("billing_accounts")).toBe(0);
     expect(count("parents")).toBe(0);
+  });
+
+  it("account deletion deletes a Stripe customer with no live subscription; a 404 customer is fine; other errors stop deletion", async () => {
+    const calls = stubStripe();
+    const a = await setup();
+    a.raw.prepare("INSERT INTO billing_accounts (parent_id, stripe_customer_id, stripe_subscription_id, sub_status, created_at, updated_at) VALUES (?, 'cus_9', 'sub_9', 'canceled', 1, 1)").run(a.parentId);
+    expect((await a.call("/api/me", { confirm: "delete" }, "DELETE")).status).toBe(200);
+    expect(calls.map((c) => `${c.method} ${new URL(c.url).pathname}`)).toEqual(["DELETE /v1/customers/cus_9"]);
+
+    vi.stubGlobal("fetch", async () => new Response(JSON.stringify({ error: { code: "resource_missing" } }), { status: 404 }));
+    const b = await setup();
+    b.raw.prepare("INSERT INTO billing_accounts (parent_id, stripe_customer_id, created_at, updated_at) VALUES (?, 'cus_gone', 1, 1)").run(b.parentId);
+    expect((await b.call("/api/me", { confirm: "delete" }, "DELETE")).status).toBe(200);
+
+    vi.stubGlobal("fetch", async () => new Response("{}", { status: 500 }));
+    const c = await setup();
+    c.raw.prepare("INSERT INTO billing_accounts (parent_id, stripe_customer_id, created_at, updated_at) VALUES (?, 'cus_x', 1, 1)").run(c.parentId);
+    expect((await c.call("/api/me", { confirm: "delete" }, "DELETE")).status).toBe(502);
+    expect(c.count("parents")).toBe(1);
   });
 
   it("account deletion stops (502) if Stripe can't cancel the subscription", async () => {

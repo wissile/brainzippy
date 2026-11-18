@@ -10,6 +10,7 @@ import { DAILY_LIMIT_MAX, DAILY_LIMIT_MIN, MAX_CHILDREN, type ChildSettings } fr
 import { MonsterArt, shareLink, Toggle } from "./ui";
 import { PUBLIC_ADJECTIVES, PUBLIC_CREATURES, formatPublicName, splitPublicName } from "./publicName";
 import { BillingCard } from "../billing/ParentBilling";
+import { disableReminders, loadReminderSettings } from "../pwa/push";
 
 const today = () => localDay(Date.now());
 
@@ -618,6 +619,9 @@ function AccountCard({ me, refresh, onSignedOut }: { me: Me; refresh: () => Prom
       <section className="pa-card" role="status">
         <h2>Account deleted</h2>
         <p>Your account and your children's profiles have been deleted from our servers.</p>
+        <p className="pa-muted">
+          Daily reminders on this device are switched off. Reminders aren't linked to your account, so turn them off on any other device in its parent settings. If you subscribed, your plan was cancelled and your payment details were removed from Stripe; Stripe keeps its own records of past payments for as long as the law requires.
+        </p>
       </section>
     );
   return (
@@ -650,6 +654,8 @@ function AccountCard({ me, refresh, onSignedOut }: { me: Me; refresh: () => Prom
                   const r = await api.deleteAccount();
                   if (r.ok) {
                     unlinkDevice();
+                    // Push subscriptions belong to the device, not the account: switch this device's reminders off too.
+                    if (loadReminderSettings().enabled || loadReminderSettings().deviceId) void disableReminders().catch(() => undefined);
                     setDeleted(true);
                   }
                 }}
