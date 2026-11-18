@@ -32,11 +32,36 @@
     "staging": {
       "name": "brainzippy-staging",
       "vars": { "APP_ENV": "staging", "STRIPE_PRICE_ID": "", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
+      // Staging is served on <name>.<account>.workers.dev; set APP_ORIGIN to that URL once known (docs/DEPLOY.md).
+      "workers_dev": true,
       "d1_databases": [
         {
           "binding": "DB",
           "database_name": "brainzippy-db-staging",
           "database_id": "00000000-0000-0000-0000-000000000001",
+          "migrations_dir": "migrations"
+        }
+      ]
+    },
+    // Production: deployed ONLY by the manual "Deploy → production" workflow behind the owner-approved
+    // GitHub environment. Requires brainzippy.com to be an active Cloudflare zone (custom domain is created on deploy).
+    "production": {
+      "name": "brainzippy",
+      // www → apex is a Cloudflare Redirect Rule (docs/DEPLOY.md), so search engines see one canonical host.
+      "routes": [{ "pattern": "brainzippy.com", "custom_domain": true }],
+      "vars": {
+        "APP_ENV": "production",
+        "APP_ORIGIN": "https://brainzippy.com",
+        "EMAIL_FROM": "BrainZippy <hello@brainzippy.com>",
+        "STRIPE_PRICE_ID": "",
+        "VAPID_PUBLIC_KEY": "",
+        "VAPID_SUBJECT": "mailto:hello@brainzippy.com"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "brainzippy-db",
+          "database_id": "00000000-0000-0000-0000-000000000002",
           "migrations_dir": "migrations"
         }
       ]
