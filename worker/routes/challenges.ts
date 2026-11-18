@@ -67,7 +67,7 @@ export const routes: Route[] = [
       if (!isWorldId(worldId) || !world || !isInt(level, 0, world.maxLevel) || !isInt(seed, 0, 2_147_483_647) || !isInt(score, 0, MAX_SCORE)) return err("invalid_body", 400);
       const child = await ownChild(c, s, typeof body.childId === "string" ? body.childId : undefined);
       if (child instanceof Response) return child;
-      if (!(await allow(c.env, LIMITS.challengePerParent, s.parentId))) return err("rate_limited", 429);
+      if (!(await allow(c.env, LIMITS.challengePerParent, s.parentId, c.url))) return err("rate_limited", 429);
       const token = randomToken(16);
       const now = Date.now();
       await c.env.DB.prepare("INSERT INTO challenges (id, token_hash, from_child, world_id, level, seed, score, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")

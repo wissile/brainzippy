@@ -1,6 +1,11 @@
+# Local development only. Copy to .dev.vars (gitignored): `cp .dev.vars.example .dev.vars`.
+# `npm run dev` and `vite preview` (Playwright) read it; the build copies it to dist/<worker>/.dev.vars for preview only.
+# wrangler.jsonc's top level is APP_ENV=production, so without this file the Worker behaves like production.
+# Even with APP_ENV=development, development behaviour (on-screen magic links, dev signing secret, fake Stripe,
+# per-IP rate-limit bypass) only runs for requests to localhost / 127.0.0.1 (worker/lib/config.ts).
 APP_ENV="development"
 # Optional in development. Without RESEND_API_KEY, magic links are logged to the console and shown on screen.
 # RESEND_API_KEY="re_..."
-# SIGNING_SECRET="<at least 32 random characters>"
+# SIGNING_SECRET="<at least 32 random characters>"   (needed to try the daily digest cron locally: cron jobs never use the dev secret)
 # EMAIL_FROM="BrainZippy <hello@mail.brainzippy.com>"
 # APP_ORIGIN="https://brainzippy.com"

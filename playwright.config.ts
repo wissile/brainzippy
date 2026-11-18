@@ -15,7 +15,8 @@ export default defineConfig({
   workers: 2,
   reporter: [["list"], ["html", { open: "never" }]],
   use: { baseURL: `http://localhost:${PORT}`, serviceWorkers: "block", trace: "retain-on-failure", screenshot: "only-on-failure" },
-  webServer: { command: `npm run build && npx vite preview --port ${PORT} --strictPort`, url: `http://localhost:${PORT}/api/health`, reuseExistingServer: false, timeout: 180_000 },
+  // Development behaviour comes only from .dev.vars (wrangler.jsonc's top level is APP_ENV=production); create it from the example if missing.
+  webServer: { command: `(test -f .dev.vars || cp .dev.vars.example .dev.vars) && npm run build && npx vite preview --port ${PORT} --strictPort`, url: `http://localhost:${PORT}/api/health`, reuseExistingServer: false, timeout: 180_000 },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } } },
     { name: "phone", use: { ...devices["Pixel 7"] } },

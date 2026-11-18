@@ -66,7 +66,7 @@ export const routes: Route[] = [
       if (body.consent !== true) return err("consent_required", 400);
       const stripe = stripeFor(c.env, c.url);
       if (!stripe) return err("billing_not_configured", 503);
-      if (!(await allow(c.env, BILLING_LIMITS.checkoutPerParent, s.parentId))) return err("rate_limited", 429);
+      if (!(await allow(c.env, BILLING_LIMITS.checkoutPerParent, s.parentId, c.url))) return err("rate_limited", 429);
       const now = Date.now();
       const loaded = await loadBilling(c.env, s.parentId);
       if (!loaded) return err("unauthorized", 401);
@@ -109,7 +109,7 @@ export const routes: Route[] = [
       if (!body || (body.flow !== undefined && body.flow !== "cancel")) return err("invalid_body", 400);
       const stripe = stripeFor(c.env, c.url);
       if (!stripe) return err("billing_not_configured", 503);
-      if (!(await allow(c.env, BILLING_LIMITS.portalPerParent, s.parentId))) return err("rate_limited", 429);
+      if (!(await allow(c.env, BILLING_LIMITS.portalPerParent, s.parentId, c.url))) return err("rate_limited", 429);
       const loaded = await loadBilling(c.env, s.parentId);
       const customer = loaded?.row?.stripe_customer_id;
       if (!loaded || !customer) return err("no_billing_account", 404);
@@ -129,7 +129,7 @@ export const routes: Route[] = [
     async handler(c) {
       const s = await requireParent(c);
       if (s instanceof Response) return s;
-      if (!(await allow(c.env, BILLING_LIMITS.redeemPerParent, s.parentId)) || !(await allow(c.env, BILLING_LIMITS.redeemPerIp, clientIp(c.req)))) return err("rate_limited", 429);
+      if (!(await allow(c.env, BILLING_LIMITS.redeemPerParent, s.parentId, c.url)) || !(await allow(c.env, BILLING_LIMITS.redeemPerIp, clientIp(c.req), c.url))) return err("rate_limited", 429);
       const body = await readBody(c, ["code"]);
       if (!body) return err("invalid_body", 400);
       const code = normaliseAccessCode(body.code);

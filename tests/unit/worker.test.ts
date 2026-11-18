@@ -3,7 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { handleApi } from "../../worker/index";
 import { fakeEnv } from "./helpers/d1";
 
-const ORIGIN = "https://brainzippy.test";
+/**
+ * Development behaviour (dev magic links, dev signing secret, fake Stripe, per-IP bypass) only runs for localhost
+ * requests, so these tests use https://localhost (Secure cookie names still apply over https). The block
+ * "development mode is confined to localhost" checks that the same env on a real host behaves like production.
+ */
+const ORIGIN = "https://localhost";
 const req = (path: string, init: RequestInit = {}) => new Request(`${ORIGIN}${path}`, init);
 
 beforeEach(() => vi.spyOn(console, "log").mockImplementation(() => {}));

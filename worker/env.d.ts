@@ -13,4 +13,9 @@ interface Env {
   APP_ORIGIN?: string;
   /** Parents per digest run (1–90, default 25). Raise on Workers Paid. */
   DIGEST_BATCH?: string;
+  /** "true" turns on friends, leaderboard and challenges (var). Off at top level and in production until the
+   * verifiable-parental-consent question is decided by a lawyer (docs/legal/COPPA_CHECKLIST.md). */
+  FRIENDS_ENABLED?: string;
+  /** "true" re-enables anonymous guest progress writes (/api/guest). Off by default: client sync is off (D-011). */
+  GUEST_SYNC_ENABLED?: string;
 }

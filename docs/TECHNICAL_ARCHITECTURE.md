@@ -98,14 +98,14 @@ When `loadState().challenge` is set and its `gameId` matches the game being open
 ## Environments
 | Env | How | Data |
 |---|---|---|
-| Local | `npm run dev` (Worker + D1 in workerd; state in `.wrangler/`) — **verified**: guest row insert works after `db:migrate:local` | local SQLite |
+| Local | `cp .dev.vars.example .dev.vars` once (sets `APP_ENV=development`; the `wrangler.jsonc` top level is `production`), then `npm run dev` (Worker + D1 in workerd; state in `.wrangler/`). Development behaviour also requires a localhost request (`worker/lib/config.ts`) | local SQLite |
 | Preview | `wrangler versions upload --preview-alias <name>`; `preview_urls: false` keeps workers.dev previews off until Access protects them | staging DB |
 | Staging | `CLOUDFLARE_ENV=staging vite build && wrangler deploy` (env chosen at build time with the Vite plugin) | `brainzippy-db-staging` |
-| Production | Same with default env — **requires owner approval** | `brainzippy-db` |
+| Production | `CLOUDFLARE_ENV=production` build + `wrangler deploy` (manual workflow) — **requires owner approval**. An unset `CLOUDFLARE_ENV` falls back to the production-safe top level; an unknown name is an error (docs/DEPLOY.md) | `brainzippy-db` |
 
 Config hardening: `workers_dev: false`, `preview_urls: false`, invocation logs off, no `nodejs_compat` (unused), compatibility date 2026-11-01.
 
-Placeholders: both `database_id` values in `wrangler.jsonc` are zero UUIDs; replace after `wrangler d1 create`. Secrets (`wrangler secret put`, `.dev.vars` locally): `RESEND_API_KEY`, `SIGNING_SECRET` (≥32 random bytes). Vars: `EMAIL_FROM`, `APP_ORIGIN` (https origin for emailed links), `DIGEST_BATCH`. Development needs none (magic links are logged and shown on screen).
+Placeholders: both `database_id` values in `wrangler.jsonc` are zero UUIDs; replace after `wrangler d1 create`. Secrets (`wrangler secret put`, `.dev.vars` locally): `RESEND_API_KEY`, `SIGNING_SECRET` (≥32 random bytes). Vars: `EMAIL_FROM`, `APP_ORIGIN` (https origin for emailed links), `DIGEST_BATCH`. Local development needs none (magic links are logged and shown on screen), but only with `APP_ENV=development` from `.dev.vars` and a localhost request.
 
 ## Caching
 `public/_headers`: `/assets/*` (hashed) `max-age=31536000, immutable`; `/audio/*` 7 days; HTML default (revalidate). Worker responses set their own headers (`_headers` doesn't apply to them).

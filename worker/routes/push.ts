@@ -203,7 +203,7 @@ export async function sendDueReminders(env: PushEnv, now = new Date(), fetchImpl
 
 /** Router adapter: /api/push/* keeps its self-contained handler; state-changing calls are rate-limited per IP. */
 const limited = async (c: Ctx): Promise<Response> => {
-  if (!(await allow(c.env, LIMITS.pushPerIp, clientIp(c.req)))) return json({ error: "rate_limited" }, 429);
+  if (!(await allow(c.env, LIMITS.pushPerIp, clientIp(c.req), c.url))) return json({ error: "rate_limited" }, 429);
   return handlePush(c.req, c.env as unknown as PushEnv);
 };
 export const routes: Route[] = [

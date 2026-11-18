@@ -53,3 +53,8 @@ Two independent agents reviewed the code they did not write. All findings below 
 | Low | Short-landscape targets 44–48 px (QA 10) | Raised to 52–54 px (≥44 everywhere; 64 px aim not yet met on short landscape) |
 | Open | Missing `/audio/voice/*` paths return index.html (SPA fallback) | Harmless (decode fails soft); revisit when voice files land |
 Not verified by either reviewer: real screen readers (NVDA/VoiceOver), real devices, speech quality.
+
+## Security & child-privacy review fixes (2026-11-18)
+| ID | Decision | Why / evidence |
+|---|---|---|
+| S-1 | `wrangler.jsonc` top level is `APP_ENV="production"`; development only from gitignored `.dev.vars`; `isDev()` also requires a `localhost`/`127.0.0.1` request URL; cron code passes no URL and never gets dev behaviour | A deploy that falls back to the top level (unset `CLOUDFLARE_ENV`) must not enable dev links, the dev signing secret, fake Stripe or rate-limit bypasses. Unknown `CLOUDFLARE_ENV` is a hard error in wrangler 4.163.0 (verified locally; docs silent): https://developers.cloudflare.com/workers/vite-plugin/reference/cloudflare-environments/ · https://developers.cloudflare.com/workers/wrangler/system-environment-variables/ |

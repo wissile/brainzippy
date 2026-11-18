@@ -149,7 +149,7 @@ export const routes: Route[] = [
     async handler(c) {
       const s = await requireParent(c);
       if (s instanceof Response) return s;
-      if (!(await allow(c.env, LIMITS.writePerParent, s.parentId))) return err("rate_limited", 429);
+      if (!(await allow(c.env, LIMITS.writePerParent, s.parentId, c.url))) return err("rate_limited", 429);
       const child = await ownChild(c, s, c.params.id);
       if (child instanceof Response) return child;
       const body = await readJson(c.req, MAX_CHILD_PROGRESS_BYTES);

@@ -24,9 +24,9 @@ export const routes: Route[] = [
       if (body.consent !== true) return err("consent_required", 400);
       const email = normaliseEmail(body.email);
       if (!email) return err("invalid_email", 400);
-      const dev = isDev(env);
+      const dev = isDev(env, url);
       if (!dev && !env.RESEND_API_KEY) return err("email_delivery_not_configured", 503);
-      if (!(await allow(env, LIMITS.magicLinkPerIp, clientIp(req))) || !(await allow(env, LIMITS.magicLinkPerEmail, email))) return err("rate_limited", 429);
+      if (!(await allow(env, LIMITS.magicLinkPerIp, clientIp(req), url)) || !(await allow(env, LIMITS.magicLinkPerEmail, email, url))) return err("rate_limited", 429);
 
       const now = Date.now();
       const account = await env.DB.prepare("SELECT id FROM parents WHERE email = ?").bind(email).first<{ id: string }>();
@@ -47,6 +47,7 @@ export const routes: Route[] = [
       if (dev) return json({ ok: true, status: "pending", devVerifyUrl: verifyUrl }, 202);
       const sent = await sendEmail(
         env,
+        url,
         {
           to: email,
           subject: "Confirm your email for BrainZippy",

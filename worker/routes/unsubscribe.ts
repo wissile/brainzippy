@@ -13,7 +13,7 @@ import { isUuid } from "../lib/validation";
 const PURPOSE = "digest-unsubscribe";
 
 export async function unsubscribeUrl(env: Env, url: URL, parentId: string): Promise<string | null> {
-  const secret = signingSecret(env);
+  const secret = signingSecret(env, url);
   if (!secret) return null;
   const sig = await hmacHex(secret, `${PURPOSE}:${parentId}`);
   return `${appOrigin(env, url)}/api/unsubscribe?p=${parentId}&s=${sig}`;
@@ -22,7 +22,7 @@ export async function unsubscribeUrl(env: Env, url: URL, parentId: string): Prom
 async function verified(env: Env, url: URL): Promise<string | null> {
   const p = url.searchParams.get("p") ?? "";
   const sig = url.searchParams.get("s") ?? "";
-  const secret = signingSecret(env);
+  const secret = signingSecret(env, url);
   if (!secret || !isUuid(p)) return null;
   return (await verifyHmac(secret, `${PURPOSE}:${p}`, sig)) ? p : null;
 }

@@ -65,7 +65,7 @@ export const routes: Route[] = [
       if (s instanceof Response) return s;
       const child = await ownChild(c, s, c.params.id);
       if (child instanceof Response) return child;
-      if (!(await allow(c.env, LIMITS.invitePerParent, s.parentId))) return err("rate_limited", 429);
+      if (!(await allow(c.env, LIMITS.invitePerParent, s.parentId, c.url))) return err("rate_limited", 429);
       const code = inviteCode();
       const now = Date.now();
       await c.env.DB.batch([
@@ -84,7 +84,7 @@ export const routes: Route[] = [
     async handler(c) {
       const s = await requireParent(c);
       if (s instanceof Response) return s;
-      if (!(await allow(c.env, LIMITS.acceptPerIp, clientIp(c.req)))) return err("rate_limited", 429);
+      if (!(await allow(c.env, LIMITS.acceptPerIp, clientIp(c.req), c.url))) return err("rate_limited", 429);
       const code = normaliseInviteCode(c.params.code);
       if (!code) return err("not_found", 404);
       const row = await c.env.DB.prepare(
@@ -102,7 +102,7 @@ export const routes: Route[] = [
     async handler(c) {
       const s = await requireParent(c);
       if (s instanceof Response) return s;
-      if (!(await allow(c.env, LIMITS.acceptPerIp, clientIp(c.req)))) return err("rate_limited", 429);
+      if (!(await allow(c.env, LIMITS.acceptPerIp, clientIp(c.req), c.url))) return err("rate_limited", 429);
       const code = normaliseInviteCode(c.params.code);
       const body = await readJson(c.req);
       if (!code || !isObj(body) || !onlyKeys(body, ["childId"])) return err("invalid_body", 400);

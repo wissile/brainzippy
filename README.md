@@ -6,6 +6,7 @@ Friendly, ad-free learning games for children ages 3–14. First playable game: 
 Requirements: Node.js 22+.
 ```bash
 npm install
+cp .dev.vars.example .dev.vars   # first time only: local development settings (gitignored)
 npm run db:migrate:local   # first time only
 npm run dev                # open http://localhost:5173
 ```

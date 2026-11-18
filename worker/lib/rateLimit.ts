@@ -25,16 +25,19 @@ export const LIMITS = {
 
 export const clientIp = (req: Request) => req.headers.get("cf-connecting-ip") ?? "local";
 
-async function keyFor(env: Env, bucket: string, value: string): Promise<string> {
-  const secret = signingSecret(env);
+async function keyFor(env: Env, bucket: string, value: string, url: URL | null): Promise<string> {
+  const secret = signingSecret(env, url);
   const digest = secret ? await hmacHex(secret, `rl:${value}`) : await sha256Hex(`rl:${value}`);
   return `${bucket}:${digest.slice(0, 32)}`;
 }
 
-/** Returns true when the request is allowed. Fails open on database errors so rate limiting never blocks sign-in outright. */
-export async function allow(env: Env, limit: Limit, value: string, now = Date.now()): Promise<boolean> {
-  // Per-IP limits are skipped in development: every local request comes from the same loopback address.
-  if (isDev(env) && limit.bucket.endsWith("-ip")) return true;
+/**
+ * Returns true when the request is allowed. Fails open on database errors so rate limiting never blocks sign-in outright.
+ * `url` is the request URL (null for non-request callers); it decides whether the local-development bypass may apply.
+ */
+export async function allow(env: Env, limit: Limit, value: string, url: URL | null, now = Date.now()): Promise<boolean> {
+  // Per-IP limits are skipped in local development only: every local request comes from the same loopback address.
+  if (isDev(env, url) && limit.bucket.endsWith("-ip")) return true;
   const windowStart = Math.floor(now / (limit.windowSec * 1000)) * limit.windowSec * 1000;
   try {
     const row = await env.DB.prepare(
@@ -42,7 +45,7 @@ export async function allow(env: Env, limit: Limit, value: string, now = Date.no
        ON CONFLICT(key) DO UPDATE SET count = CASE WHEN window_start = ?2 THEN count + 1 ELSE 1 END, window_start = ?2
        RETURNING count`,
     )
-      .bind(await keyFor(env, limit.bucket, value), windowStart)
+      .bind(await keyFor(env, limit.bucket, value, url), windowStart)
       .first<{ count: number }>();
     return (row?.count ?? 0) <= limit.max;
   } catch {

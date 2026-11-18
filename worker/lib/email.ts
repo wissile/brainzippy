@@ -3,7 +3,7 @@ import { emailFrom, isDev } from "./config";
 /**
  * Email delivery through the Resend REST API (https://resend.com/docs/api-reference/emails/send-email).
  * - With RESEND_API_KEY: POST https://api.resend.com/emails (or /emails/batch for up to 100 messages).
- * - Development without a key: the message is logged to the console (link + subject only; no address) and not sent.
+ * - Local development (APP_ENV=development AND a localhost request) without a key: the message is logged to the console (link + subject only; no address) and not sent.
  * - Any other environment without a key: not sent, `{ ok: false, reason: "not_configured" }`.
  * Emails only ever go to parents. Recipient addresses are never logged.
  */
@@ -35,9 +35,10 @@ function devLog(m: EmailMessage) {
   console.log(`[dev email] ${m.subject}\n${m.text}`);
 }
 
-export async function sendEmail(env: Env, m: EmailMessage, idempotencyKey?: string): Promise<SendResult> {
+/** `url` is the request URL (null from cron jobs): the console fallback only runs for local development requests. */
+export async function sendEmail(env: Env, url: URL | null, m: EmailMessage, idempotencyKey?: string): Promise<SendResult> {
   if (!env.RESEND_API_KEY) {
-    if (isDev(env)) {
+    if (isDev(env, url)) {
       devLog(m);
       return { ok: true, mode: "dev-console" };
     }
@@ -56,11 +57,11 @@ export async function sendEmail(env: Env, m: EmailMessage, idempotencyKey?: stri
 }
 
 /** Up to 100 messages in one API call (one subrequest), used by the daily digest job. */
-export async function sendBatch(env: Env, messages: EmailMessage[], idempotencyKey?: string): Promise<SendResult> {
+export async function sendBatch(env: Env, url: URL | null, messages: EmailMessage[], idempotencyKey?: string): Promise<SendResult> {
   if (messages.length === 0) return { ok: true, mode: "sent" };
   if (messages.length > 100) throw new Error("batch too large");
   if (!env.RESEND_API_KEY) {
-    if (isDev(env)) {
+    if (isDev(env, url)) {
       messages.forEach(devLog);
       return { ok: true, mode: "dev-console" };
     }

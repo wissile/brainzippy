@@ -33,12 +33,12 @@ export const routes: Route[] = [
       const email = normaliseEmail(body.email);
       if (!email) return err("invalid_email", 400);
       if (mode === "signup" && body.consent !== true) return err("consent_required", 400);
-      if (!isDev(env) && !env.RESEND_API_KEY) return err("email_delivery_not_configured", 503);
-      if (!(await allow(env, LIMITS.magicLinkPerIp, clientIp(req))) || !(await allow(env, LIMITS.magicLinkPerEmail, email))) return err("rate_limited", 429);
+      if (!isDev(env, url) && !env.RESEND_API_KEY) return err("email_delivery_not_configured", 503);
+      if (!(await allow(env, LIMITS.magicLinkPerIp, clientIp(req), url)) || !(await allow(env, LIMITS.magicLinkPerEmail, email, url))) return err("rate_limited", 429);
 
       const now = Date.now();
       const parent = await env.DB.prepare("SELECT id FROM parents WHERE email = ?").bind(email).first<{ id: string }>();
-      if (!parent && mode === "signin") return json({ ok: true, ...(isDev(env) ? { devNote: "no_account" } : {}) }, 202);
+      if (!parent && mode === "signin") return json({ ok: true, ...(isDev(env, url) ? { devNote: "no_account" } : {}) }, 202);
 
       const purpose = parent ? "signin" : "signup";
       const token = randomToken();
@@ -47,7 +47,7 @@ export const routes: Route[] = [
         .bind(tokenHash, email, purpose, purpose === "signup" ? CONSENT_VERSION : null, now, now + MAGIC_LINK_TTL_MS)
         .run();
       const link = `${appOrigin(env, url)}/api/auth/verify?token=${token}`;
-      const sent = await sendEmail(env, { to: email, ...magicLinkEmail(link, purpose === "signup"), tags: [{ name: "kind", value: "magic-link" }] }, `ml-${tokenHash.slice(0, 40)}`);
+      const sent = await sendEmail(env, url, { to: email, ...magicLinkEmail(link, purpose === "signup"), tags: [{ name: "kind", value: "magic-link" }] }, `ml-${tokenHash.slice(0, 40)}`);
       if (!sent.ok) return err(sent.reason === "not_configured" ? "email_delivery_not_configured" : "email_failed", sent.reason === "not_configured" ? 503 : 502);
       return json({ ok: true, ...(sent.mode === "dev-console" ? { devLink: link } : {}) }, 202);
     },
@@ -74,7 +74,7 @@ export const routes: Route[] = [
     method: "POST",
     path: "/api/auth/verify",
     async handler({ req, env, url }) {
-      if (!(await allow(env, LIMITS.verifyPerIp, clientIp(req)))) return html("<h1>Too many attempts</h1><p>Please wait a few minutes and try again.</p>", 429);
+      if (!(await allow(env, LIMITS.verifyPerIp, clientIp(req), url))) return html("<h1>Too many attempts</h1><p>Please wait a few minutes and try again.</p>", 429);
       const form = await readForm(req);
       const token = form?.get("token") ?? "";
       if (!TOKEN_RE.test(token)) return expiredPage();

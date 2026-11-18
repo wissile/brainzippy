@@ -57,12 +57,10 @@ export class StripeError extends Error {
   }
 }
 
-const isLocalhost = (url: URL) => url.hostname === "localhost" || url.hostname === "127.0.0.1";
-
 export function stripeMode(env: Env, url: URL): "live" | "fake" | null {
   const e = benv(env);
   if (e.STRIPE_SECRET_KEY && e.STRIPE_PRICE_ID) return "live";
-  if (!e.STRIPE_SECRET_KEY && isDev(env) && isLocalhost(url)) return "fake";
+  if (!e.STRIPE_SECRET_KEY && isDev(env, url)) return "fake"; // isDev includes the localhost check
   return null;
 }
 

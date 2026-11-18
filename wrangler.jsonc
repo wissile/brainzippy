@@ -27,7 +27,10 @@
   // Secrets (wrangler secret put / .dev.vars): RESEND_API_KEY, SIGNING_SECRET, VAPID_PRIVATE_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET.
   // Billing vars: STRIPE_PRICE_ID (price_… for $6.99/month; empty = billing off), optional STRIPE_AUTOMATIC_TAX ("1"), STRIPE_API_BASE (tests only). See docs/BILLING.md.
   // Optional vars: EMAIL_FROM, APP_ORIGIN, DIGEST_BATCH. VAPID_PUBLIC_KEY from `node scripts/gen-vapid.mjs` (empty = reminders off).
-  "vars": { "APP_ENV": "development", "STRIPE_PRICE_ID": "", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
+  // Top level is production-safe on purpose: if a deploy ever falls back to the top level, nothing development-only
+  // turns on. Local development sets APP_ENV=development in the gitignored .dev.vars (copy .dev.vars.example), and
+  // the Worker additionally requires a localhost request before any development behaviour runs (worker/lib/config.ts).
+  "vars": { "APP_ENV": "production", "STRIPE_PRICE_ID": "", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
   "env": {
     "staging": {
       "name": "brainzippy-staging",

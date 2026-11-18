@@ -67,7 +67,8 @@ interface DigestChildRow {
 
 export async function dailyDigest(env: Env, now = Date.now()): Promise<{ considered: number; sent: number }> {
   const base = new URL(appOrigin(env, new URL("https://brainzippy.com")));
-  if (!signingSecret(env)) {
+  // Cron has no request: `base` is the public origin, so development fallbacks (dev secret, console email) never apply.
+  if (!signingSecret(env, base)) {
     console.warn("[digest] SIGNING_SECRET missing: not sending (every email needs a signed unsubscribe link)");
     return { considered: 0, sent: 0 };
   }
@@ -99,7 +100,7 @@ export async function dailyDigest(env: Env, now = Date.now()): Promise<{ conside
     });
   }
   const day = new Date(now).toISOString().slice(0, 10);
-  const result = await sendBatch(env, messages, `digest-${day}-${parents[0]!.id}`);
+  const result = await sendBatch(env, base, messages, `digest-${day}-${parents[0]!.id}`);
   if (!result.ok) {
     console.warn(`[digest] not sent: ${result.reason}`);
     return { considered: parents.length, sent: 0 };
