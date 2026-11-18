@@ -51,8 +51,9 @@ test("play up to the daily limit → end-of-day scene; Again is gone", async ({ 
   await page.waitForTimeout(1500);
   await page.screenshot({ path: `${SHOTS}/${info.project.name}-01-trail-2of3.png` });
 
-  // the next glowing stop starts the last round of the day
-  await press(page, '.trail-stop[data-state="next"] [data-testid^="stop-"]');
+  // the last round of the day: Explore plays count toward the limit too, so open a known world directly
+  // (today's trail is planned from every registered world; this test only needs a world it knows how to play)
+  await page.goto("/play/counting-adventure");
   await enterGame(page);
   for (let i = 0; i < 8; i++) {
     const id = await solve(page);
@@ -74,7 +75,7 @@ test("play up to the daily limit → end-of-day scene; Again is gone", async ({ 
   await expect(page.getByTestId("eod-monster")).toHaveAttribute("data-state", "sleeping", { timeout: 10_000 });
   await page.waitForTimeout(800);
   await page.screenshot({ path: `${SHOTS}/${info.project.name}-02-end-of-day.png` });
-  await noOverflow(page, '[data-testid="nav-home"], [data-testid="sound-toggle"]');
+  await noOverflow(page, '[data-testid="nav-back"], [data-testid="sound-toggle"]');
 });
 
 test("after the limit, /play URLs show the end-of-day scene; the next local day unlocks a new plan", async ({ page }, info) => {
@@ -125,7 +126,7 @@ for (const vp of [{ width: 390, height: 844 }, { width: 915, height: 412 }]) {
     await page.goto("/map");
     await expect(page.getByTestId("trail")).toHaveAttribute("data-stops", "10");
     await page.waitForTimeout(1500);
-    await noOverflow(page, '[data-testid^="stop-"], [data-testid="today-progress"], [data-testid="view-today"], [data-testid="view-explore"], [data-testid="nav-home"], [data-testid="sound-toggle"]');
+    await noOverflow(page, '[data-testid^="stop-"], [data-testid="today-progress"], [data-testid="view-today"], [data-testid="view-explore"], [data-testid="map-grown-ups"], [data-testid="sound-toggle"]');
     for (const b of await page.locator('[data-testid^="stop-"]').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()))) expect(Math.min(b.width, b.height)).toBeGreaterThanOrEqual(44);
     await page.screenshot({ path: `${SHOTS}/${vp.width}x${vp.height}-trail10.png` });
     await press(page, '[data-testid="view-explore"]');
@@ -142,7 +143,7 @@ for (const vp of [{ width: 390, height: 844 }, { width: 915, height: 412 }]) {
     await page.goto("/map");
     await expect(page.getByTestId("eod-monster")).toHaveAttribute("data-state", "sleeping", { timeout: 10_000 });
     await page.waitForTimeout(600);
-    await noOverflow(page, '[data-testid="nav-home"], [data-testid="sound-toggle"], .eod-title');
+    await noOverflow(page, '[data-testid="nav-back"], [data-testid="sound-toggle"], .eod-title');
     await page.screenshot({ path: `${SHOTS}/${vp.width}x${vp.height}-end-of-day.png`, fullPage: true });
   });
 }
@@ -175,10 +176,11 @@ test.describe("full page load onto the map (audio still locked)", () => {
     await start(page, { roundsToday: 2, muted: false });
     await page.goto("/map");
     const live = page.getByTestId("live-caption");
-    await expect(live).toContainText("One more stop");
+    await expect(live).not.toHaveText("", { timeout: 10_000 }); // captioned at once (wording depends on today's plan)
+    const line = (await live.textContent())!.trim();
     await expect(live).toHaveText("", { timeout: 15_000 });
     await page.mouse.click(640, 300); // first tap on empty island unlocks audio → the queued line plays
-    await expect(live).toContainText("One more stop", { timeout: 5_000 });
+    await expect(live).toContainText(line, { timeout: 5_000 });
   });
 
   test("the first tap is never swallowed: tapping a stop opens it", async ({ page }, info) => {

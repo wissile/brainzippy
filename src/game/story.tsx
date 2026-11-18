@@ -24,7 +24,7 @@ export interface StoryBeat {
 }
 
 export function StoryPlayer({ beats, onDone, label = "Story", testId = "story" }: { beats: StoryBeat[]; onDone: () => void; label?: string; testId?: string }) {
-  const { caption, speaking, audioReady, unlockAudio, reducedMotion } = useApp();
+  const { caption, speaking, audioReady, audioChecked, unlockAudio, reducedMotion } = useApp();
   const [i, setI] = useState(0);
   const [canSkip, setCanSkip] = useState(false);
   const token = useRef(0);
@@ -87,7 +87,8 @@ export function StoryPlayer({ beats, onDone, label = "Story", testId = "story" }
         {beats.map((_, k) => <i key={k} className={k <= i ? "on" : ""} />)}
       </div>
       {!audioReady ? (
-        <button type="button" className="big-play story-start" data-testid={`${testId}-begin`} aria-label="Start the story" onClick={(e) => { e.stopPropagation(); unlockAudio(); audio.play("tap"); }}>
+        // shown only once we know the browser needs a tap for sound, so it never flashes before auto-start
+        audioChecked && <button type="button" className="big-play story-start" data-testid={`${testId}-begin`} aria-label="Start the story" onClick={(e) => { e.stopPropagation(); unlockAudio(); audio.play("tap"); }}>
           <IconPlay />
         </button>
       ) : (
