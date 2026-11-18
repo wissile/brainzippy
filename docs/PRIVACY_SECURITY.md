@@ -87,7 +87,7 @@ Not stored: names, emails, IP addresses, account or child ids (subscriptions are
 ## Controls
 - Strict server-side schema (`progressSchema.ts`): unknown keys rejected, ids pattern-checked, sizes capped (8 KB body, 200 items).
 - Same-origin enforcement on writes; parameterised SQL; generic error bodies; `no-store` + `nosniff` on API responses.
-- CSP and security headers on static responses (`public/_headers`): `default-src 'self'`, no inline scripts, `frame-ancestors 'none'`, permissions policy denying camera/mic/geolocation.
+- CSP and security headers on static responses (`public/_headers`): `default-src 'self'`, `worker-src 'self'` (service worker), no inline scripts, `frame-ancestors 'none'`, permissions policy denying camera/mic/geolocation, `Strict-Transport-Security: max-age=63072000; includeSubDomains` (also on API responses), `Cross-Origin-Opener-Policy: same-origin`. `includeSubDomains` means every brainzippy.com subdomain must serve HTTPS; HSTS preload is **not** requested (owner decision, hard to undo).
 - Parent controls: mute; "Delete all progress on this device" behind a simple parent gate; if a server copy exists and its deletion fails, local data is kept and a retry is offered (no silent orphaning).
 - API responses: `content-security-policy: default-src 'none'`, HSTS, `nosniff`, `no-store`; request bodies capped by real byte count while streaming (8 KB).
 - Corrupted/old saved rounds are validated and dropped; a top-level error boundary offers "Start again".

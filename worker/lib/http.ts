@@ -6,7 +6,7 @@ export const SECURITY_HEADERS: Record<string, string> = {
   "referrer-policy": "no-referrer",
   "cross-origin-resource-policy": "same-origin",
   "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
-  "strict-transport-security": "max-age=31536000",
+  "strict-transport-security": "max-age=63072000; includeSubDomains",
 };
 
 export function json(body: unknown, status = 200, extra: HeadersInit = {}): Response {
