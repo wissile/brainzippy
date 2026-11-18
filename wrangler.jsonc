@@ -7,7 +7,8 @@
   // Invocation logs would retain request URLs (incl. guest ids) — keep them off for a children's product.
   "observability": { "enabled": true, "logs": { "invocation_logs": false } },
   "preview_urls": false,
-  "triggers": { "crons": ["17 3 * * *"] },
+  // 03:17 UTC daily retention purge; hourly at :00 = daily-reminder push job (worker/routes/push.ts)
+  "triggers": { "crons": ["17 3 * * *", "0 * * * *"] },
   "assets": {
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
@@ -22,11 +23,12 @@
       "migrations_dir": "migrations"
     }
   ],
-  "vars": { "APP_ENV": "development" },
+  // VAPID_PUBLIC_KEY: from `node scripts/gen-vapid.mjs` (empty = reminders off). VAPID_PRIVATE_KEY is a secret (wrangler secret put / .dev.vars).
+  "vars": { "APP_ENV": "development", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
   "env": {
     "staging": {
       "name": "brainzippy-staging",
-      "vars": { "APP_ENV": "staging" },
+      "vars": { "APP_ENV": "staging", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
       "d1_databases": [
         {
           "binding": "DB",

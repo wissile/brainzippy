@@ -9,9 +9,12 @@ import "./styles/app.css";
 import "./styles/characters.css";
 import "./styles/onboarding.css";
 import App from "./app/App";
+import { initPwa } from "./pwa";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />
   </StrictMode>,
 );
+
+initPwa();

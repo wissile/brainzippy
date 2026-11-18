@@ -1,0 +1,64 @@
+/* PWA UI: update toast + grown-ups reminder settings. Tokens from src/styles/tokens.css. */
+.bz-toast {
+  position: fixed;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 24px);
+  padding: 6px 6px 6px 16px;
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  box-shadow: 0 6px 0 rgba(43, 33, 64, 0.25);
+  font: 700 0.95rem/1.2 var(--font-body);
+  animation: bz-toast-in var(--t-med) var(--ease-out) both;
+}
+.bz-toast-btn {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  color: #fff;
+  background: linear-gradient(var(--pill-top), var(--pill-bottom));
+  box-shadow: 0 3px 0 var(--pill-shadow);
+  font-weight: 800;
+}
+.bz-toast-x {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  color: var(--ink-soft);
+}
+@keyframes bz-toast-in {
+  from { opacity: 0; transform: translate(-50%, 16px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bz-toast { animation: none; }
+}
+
+.bz-reminders .bz-reminder-panel {
+  background: rgba(255, 255, 255, 0.7);
+  border: 3px solid var(--ink);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+}
+.bz-reminders .bz-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 10px 0; }
+.bz-reminders label { font-weight: 700; }
+.bz-reminders select {
+  font: inherit;
+  min-height: 48px;
+  padding: 6px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  background: #fff;
+}
+.bz-reminders .bz-small { font-size: 0.95rem; color: var(--ink-soft); margin: 4px 0; }
+.bz-reminders .bz-status { font-weight: 700; }
+.bz-reminders .bz-note { background: var(--cream); border-radius: var(--r-sm); padding: 10px 12px; }
+.bz-reminders .pill-btn[disabled] { opacity: 0.6; cursor: progress; }
+.pill-btn.bz-quiet { background: #fff; color: var(--ink); box-shadow: 0 4px 0 rgba(43, 33, 64, 0.25); border: 3px solid var(--ink); }
