@@ -3,6 +3,7 @@ import type { ExerciseEvent, ExerciseState } from "../engine/session";
 import { OBJECT_NAMES, numberWord } from "../audio/voiceLines";
 import { layoutObjects } from "./layout";
 import { IconCheck } from "../ui/icons";
+import { targetOf, choicesOf } from "../engine/validation";
 
 /**
  * Interaction boards (rendering only). Each receives the pure exercise state and emits engine events.
@@ -54,14 +55,14 @@ export function CountField({ st, act, alongIndex, ObjectArt }: BoardProps) {
   const ex = st.exercise;
   const interactive = ex.interaction === "tap-count";
   const [fieldRef, aspect] = useAspect<HTMLDivElement>();
-  const { positions, cols, rows } = useMemo(() => layoutObjects(ex.target, ex.layout ?? "scatter", ex.seed, aspect), [ex, aspect]);
+  const { positions, cols, rows } = useMemo(() => layoutObjects(targetOf(ex), ex.layout ?? "scatter", ex.seed, aspect), [ex, aspect]);
   const [wiggle, setWiggle] = useState<number | null>(null);
 
   // Count-along order: the child's own tapping order if they counted, else left-to-right reading order.
   const order = useMemo(() => {
-    if (interactive && st.tapped.length === ex.target) return st.tapped;
+    if (interactive && st.tapped.length === targetOf(ex)) return st.tapped;
     return positions.map((p, i) => ({ i, p })).sort((a, b) => a.p.y - b.p.y || a.p.x - b.p.x).map((o) => o.i);
-  }, [interactive, st.tapped, ex.target, positions]);
+  }, [interactive, st.tapped, targetOf(ex), positions]);
 
   const lastTapped = st.tapped[st.tapped.length - 1];
   const highlightLast = st.activeHints.includes("highlight-last-count") && st.phase !== "feedback";
@@ -130,22 +131,22 @@ export function ChoiceTray({ st, act }: Pick<BoardProps, "st" | "act">) {
   const fb = st.feedback;
   return (
     <div className="choice-tray" role="group" aria-label="How many? Choose a number">
-      {(ex.choices ?? []).map((c, i) => {
-        const disabled = st.disabledChoices.includes(c) || st.phase !== "answering";
-        const isModel = st.modelChoice === c && st.phase === "answering";
+      {choicesOf(ex).map((c, i) => {
+        const disabled = st.eliminated.includes(c) || st.phase !== "answering";
+        const isModel = st.model === c && st.phase === "answering";
         const state =
-          st.phase === "feedback" && st.lastChoice === c ? (fb?.correct ? "is-right" : "is-wrong") : st.phase === "solved" && c === ex.target ? "is-right" : "";
+          st.phase === "feedback" && st.lastAnswer === c ? (fb?.correct ? "is-right" : "is-wrong") : st.phase === "solved" && c === targetOf(ex) ? "is-right" : "";
         return (
           <button
             key={c}
             type="button"
-            className={`choice ${state} ${isModel ? "is-model" : ""} ${st.disabledChoices.includes(c) ? "is-out" : ""}`}
+            className={`choice ${state} ${isModel ? "is-model" : ""} ${st.eliminated.includes(c) ? "is-out" : ""}`}
             style={{ animationDelay: `${i * 80}ms` }}
             data-testid="choice"
             data-value={c}
             aria-label={numberWord(c)}
             aria-disabled={disabled}
-            onClick={() => !disabled && act({ type: "CHOOSE", value: c })}
+            onClick={() => !disabled && act({ type: "SUBMIT", value: c })}
           >
             <span className="numeral">{c}</span>
             <Dots n={c} />
@@ -168,7 +169,7 @@ interface Drag {
 export function MakeSetBoard({ st, act, alongIndex, ObjectArt, Basket }: BoardProps) {
   // alongIndex highlights the basket item being counted during a modelled answer
   const ex = st.exercise;
-  const pool = ex.poolSize ?? ex.target;
+  const pool = ex.poolSize ?? targetOf(ex);
   const [pileRef, aspect] = useAspect<HTMLDivElement>();
   const { positions, cols, rows } = useMemo(() => layoutObjects(pool, "scatter", ex.seed, aspect), [pool, ex.seed, aspect]);
   const basketRef = useRef<HTMLDivElement>(null);
@@ -253,7 +254,7 @@ export function MakeSetBoard({ st, act, alongIndex, ObjectArt, Basket }: BoardPr
       <div className={`basket ${hot ? "hot" : ""}`} ref={basketRef} data-testid="basket" aria-label={`Bobbo's basket`} role="group">
         <Basket />
         <div className="basket-slots" role="list" aria-label="In the basket">
-          {showSlots && Array.from({ length: ex.target }, (_, i) => <span key={`s${i}`} className="slot" style={{ gridArea: `${Math.floor(i / 5) + 1} / ${(i % 5) + 1}` }} aria-hidden="true" />)}
+          {showSlots && Array.from({ length: targetOf(ex) }, (_, i) => <span key={`s${i}`} className="slot" style={{ gridArea: `${Math.floor(i / 5) + 1} / ${(i % 5) + 1}` }} aria-hidden="true" />)}
           {st.basket.map((idx, order) => (
             <span key={idx} role="listitem" className="basket-cell" style={{ gridArea: `${Math.floor(order / 5) + 1} / ${(order % 5) + 1}` }}>
               <button

@@ -14,6 +14,9 @@ export interface RoundSnapshot {
   progression: ProgressionState;
   currentId: string | null;
   savedAt: number;
+  /** Level and seed the round was built with (buildRound), so generated exercises rebuild exactly on resume. */
+  level?: number;
+  seed?: number;
 }
 
 /**
@@ -92,11 +95,13 @@ export function parseRoundSnapshot(input: unknown): RoundSnapshot | null {
   const r = input as Record<string, unknown>;
   const p = r.progression as Record<string, unknown> | undefined;
   if (r.v !== 1 || typeof r.gameId !== "string" || !(r.currentId === null || typeof r.currentId === "string")) return null;
-  if (!p || typeof p !== "object" || !isInt(p.difficulty, 1, 4) || !isInt(p.streak, 0, 100) || !isStrArr(p.played)) return null;
+  if (r.level !== undefined && !isInt(r.level, 0, 1000)) return null;
+  if (r.seed !== undefined && !isInt(r.seed, 0, 0xffffffff)) return null;
+  if (!p || typeof p !== "object" || !isInt(p.difficulty, 1, 1001) || !isInt(p.streak, 0, 100) || !isStrArr(p.played)) return null;
   if (!Array.isArray(p.results) || p.results.length > 100) return null;
   for (const x of p.results as unknown[]) {
     const e = x as Record<string, unknown>;
-    if (!e || typeof e.exerciseId !== "string" || typeof e.skillId !== "string" || !isInt(e.attempts, 1, 1000) || typeof e.firstTry !== "boolean" || !isInt(e.hintsShown, 0, 1000) || !isInt(e.difficulty, 1, 4)) return null;
+    if (!e || typeof e.exerciseId !== "string" || typeof e.skillId !== "string" || !isInt(e.attempts, 1, 1000) || typeof e.firstTry !== "boolean" || !isInt(e.hintsShown, 0, 1000) || !isInt(e.difficulty, 1, 1001)) return null;
   }
   return input as RoundSnapshot;
 }

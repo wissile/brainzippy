@@ -312,6 +312,15 @@
   "retry.1": {
    "text": "Hmm, let's try again!"
   },
+  "praise.1": {
+   "text": "Yes! You worked it out!"
+  },
+  "praise.2": {
+   "text": "That's right! You checked carefully!"
+  },
+  "hint.show": {
+   "text": "Let me show you. Watch!"
+  },
   "hint.lastNumber": {
    "text": "Almost! The last number we said tells how many."
   },

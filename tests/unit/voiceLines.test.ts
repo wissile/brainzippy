@@ -13,7 +13,8 @@ function sources(dir: string): string[] {
 describe("voice lines", () => {
   it("every voice-line id referenced in source exists in the catalogue", () => {
     const ids = new Set<string>();
-    for (const file of sources("src")) {
+    // src/content holds registry ids (subjects, topics, skills), not voice-line ids
+    for (const file of sources("src").filter((f) => !f.split(/[\\/]/).includes("content"))) {
       const text = readFileSync(file, "utf8");
       for (const m of text.matchAll(/(?:speak|voiceId\s*=|id:)\s*\(?\s*"([a-z]+\.[A-Za-z0-9.-]+)"/g)) ids.add(m[1]!);
     }

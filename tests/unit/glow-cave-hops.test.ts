@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { choicesOf, targetOf } from "../../src/engine/validation";
 import { VOICE_LINES, renderLine } from "../../src/audio/voiceLines";
 import { exerciseReducer, initExercise } from "../../src/engine/session";
 import { lintExercise, validateChoice } from "../../src/engine/validation";
@@ -28,10 +29,10 @@ describe("Glow Cave Hops content", () => {
   it("target = start + hops, stays on the line, and choices are every stop 0..max", () => {
     for (const e of exercises) {
       const { start, hops, max } = p(e);
-      expect(e.target, e.id).toBe(start + hops);
-      expect(e.target, e.id).toBeLessThanOrEqual(max);
+      expect(targetOf(e), e.id).toBe(start + hops);
+      expect(targetOf(e), e.id).toBeLessThanOrEqual(max);
       expect(start, e.id).toBeGreaterThanOrEqual(0);
-      expect(e.choices, e.id).toEqual(Array.from({ length: max + 1 }, (_, i) => i));
+      expect(choicesOf(e), e.id).toEqual(Array.from({ length: max + 1 }, (_, i) => i));
       expect(e.skillId).toBe("math.add.number-line");
       expect(e.interaction).toBe("choose");
     }
@@ -60,7 +61,7 @@ describe("Glow Cave Hops content", () => {
   });
 
   it("praise / model lines cover every target and stay under 150 variants each", () => {
-    const targets = [...new Set(exercises.map((e) => e.target))];
+    const targets = [...new Set(exercises.map((e) => targetOf(e)))];
     for (const id of ["gc.praise.1", "gc.praise.2", "gc.praise.3", "gc.hint.modelTap"]) {
       for (const t of targets) expect(VOICE_LINES[id]!.vary!.n, `${id} n=${t}`).toContain(t);
     }
@@ -76,11 +77,11 @@ describe("Glow Cave Hops content", () => {
     const e = exercises.find((x) => x.id === "gc-3-plus-4-to-10")!;
     expect(validateChoice(e, 7).correct).toBe(true);
     expect(validateChoice(e, 6).correct).toBe(false);
-    let s = exerciseReducer(initExercise(e), { type: "CHOOSE", value: 6 });
+    let s = exerciseReducer(initExercise(e), { type: "SUBMIT", value: 6 });
     s = exerciseReducer(s, { type: "FEEDBACK_DONE" });
-    expect(s.disabledChoices).toEqual([6]);
-    s = exerciseReducer(s, { type: "CHOOSE", value: 8 });
-    expect(s.modelChoice).toBe(7);
+    expect(s.eliminated).toEqual([6]);
+    s = exerciseReducer(s, { type: "SUBMIT", value: 8 });
+    expect(s.model).toBe(7);
     expect(s.feedback!.hints).toContain("count-along");
   });
 });

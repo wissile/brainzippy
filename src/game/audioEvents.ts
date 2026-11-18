@@ -27,6 +27,7 @@ export function soundForTransition(ev: ExerciseEvent, prev: ExerciseState, next:
     case "REMOVE_FROM_BASKET":
       audio.play("pickup");
       break;
+    case "SUBMIT":
     case "CHOOSE":
     case "SUBMIT_SET":
       audio.play("tap");

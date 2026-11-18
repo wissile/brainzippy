@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { choicesOf, targetOf } from "../../src/engine/validation";
 import { lintExercise, validateChoice } from "../../src/engine/validation";
 import { initialProgression, selectNextExercise } from "../../src/engine/progression";
 import { skyBalloonRace } from "../../src/games/sky-balloon-race/definition";
@@ -17,7 +18,7 @@ describe("Sky Balloon Race content", () => {
   it("params add up to the target and the prompt shows the sum", () => {
     for (const ex of exercises) {
       const { a, b } = addends(ex);
-      expect(a + b, ex.id).toBe(ex.target);
+      expect(a + b, ex.id).toBe(targetOf(ex));
       expect(a).toBeGreaterThan(0);
       expect(b).toBeGreaterThan(0);
       expect(ex.prompt?.text).toBe(`${a} + ${b} = ?`);
@@ -40,8 +41,8 @@ describe("Sky Balloon Race content", () => {
     for (const ex of exercises) {
       const { big, small } = addends(ex);
       const [lo, hi] = ex.difficulty === 1 ? [2, 5] : ex.difficulty === 2 ? [6, 10] : [11, 20];
-      expect(ex.target, ex.id).toBeGreaterThanOrEqual(lo);
-      expect(ex.target, ex.id).toBeLessThanOrEqual(hi);
+      expect(targetOf(ex), ex.id).toBeGreaterThanOrEqual(lo);
+      expect(targetOf(ex), ex.id).toBeLessThanOrEqual(hi);
       if (ex.difficulty === 3) expect(big, `${ex.id} should cross ten from a single digit`).toBeLessThan(10);
       expect(small).toBeGreaterThanOrEqual(1);
     }
@@ -49,18 +50,18 @@ describe("Sky Balloon Race content", () => {
 
   it("three choices: the target plus plausible near misses", () => {
     for (const ex of exercises) {
-      const choices = ex.choices!;
+      const choices = choicesOf(ex)!;
       expect(choices).toHaveLength(3);
-      expect(choices).toContain(ex.target);
+      expect(choices).toContain(targetOf(ex));
       for (const c of choices) {
-        expect(Math.abs(c - ex.target), ex.id).toBeLessThanOrEqual(2);
+        expect(Math.abs(c - targetOf(ex)), ex.id).toBeLessThanOrEqual(2);
         expect(c).toBeGreaterThanOrEqual(1);
         expect(c).toBeLessThanOrEqual(20);
       }
-      expect(validateChoice(ex, ex.target).correct).toBe(true);
+      expect(validateChoice(ex, targetOf(ex)).correct).toBe(true);
     }
     // the correct balloon is not always in the same place
-    const positions = new Set(exercises.map((e) => e.choices!.indexOf(e.target)));
+    const positions = new Set(exercises.map((e) => choicesOf(e)!.indexOf(targetOf(e))));
     expect(positions.size).toBe(3);
   });
 
@@ -78,7 +79,7 @@ describe("Sky Balloon Race worked example (count on)", () => {
     expect(Array.from({ length: countOnSteps(ex) }, (_, i) => countOnSay(ex, i))).toEqual([7, 8, 9, 10, 11, 12, 13]);
     const flipped = byId("sb-1p3"); // smaller number first: still start with the bigger one
     expect(Array.from({ length: countOnSteps(flipped) }, (_, i) => countOnSay(flipped, i))).toEqual([3, 4]);
-    for (const e of exercises) expect(countOnSay(e, countOnSteps(e) - 1)).toBe(e.target);
+    for (const e of exercises) expect(countOnSay(e, countOnSteps(e) - 1)).toBe(targetOf(e));
     expect(countOnSay(ex, 99)).toBeNull();
   });
 
@@ -99,7 +100,7 @@ describe("Sky Balloon Race worked example (count on)", () => {
 });
 
 describe("Sky Balloon Race voice lines", () => {
-  const targets = [...new Set(exercises.map((e) => e.target))].sort((x, y) => x - y);
+  const targets = [...new Set(exercises.map((e) => targetOf(e)))].sort((x, y) => x - y);
 
   it("every id is prefixed and every line is short enough for a young listener", () => {
     for (const [id, line] of Object.entries(lines)) {

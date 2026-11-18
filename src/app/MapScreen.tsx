@@ -1,23 +1,34 @@
 import { useEffect, useState } from "react";
 import { audio } from "../audio/AudioEngine";
 import { Bobbo } from "../characters/Bobbo";
-import { Gloop, Puff, Rumble } from "../characters/Crew";
+import { Gloop, Hoot, Puff, Rumble, Zuzu } from "../characters/Crew";
 import { DEFAULT_MONSTER, Monster } from "../characters/Monster";
+import { allWorlds } from "../content/registry";
 import { SparkTree } from "../game/scenes";
 import { loadState } from "../services/storage";
 import { AudioButtons, NavButton, SpeechBubble } from "../ui/controls";
 import { useApp } from "./AppContext";
 
 /** Monster Island: each world hides a lost Brain Spark. Winning a round brings one back and levels the game up. */
-const STOPS = [
-  { id: "counting-adventure", name: "Bobbo's Breakfast", ages: "4–6", x: 20, y: 72, critter: "bobbo" },
-  { id: "glow-cave-hops", name: "Glow Cave Hops", ages: "5–7", x: 26, y: 38, critter: "gloop" },
-  { id: "sky-balloon-race", name: "Sky Balloon Race", ages: "6–8", x: 76, y: 30, critter: "puff" },
-  { id: "cookie-kitchen", name: "Cookie Kitchen", ages: "7–9", x: 80, y: 70, critter: "rumble" },
-] as const;
+// Stops come from the content registry: every world with a `map` position (src/content/packs/*).
+const STOPS = allWorlds().flatMap((w) =>
+  w.map ? [{ id: w.id, name: w.title, ages: `${w.ages[0]}–${w.ages[1]}`, x: w.map.x, y: w.map.y, critter: w.characters[0] ?? "bobbo" }] : [],
+);
+/** Sparks per world shown on the tree (a world's first four level-ups light it). */
+const SPARKS_PER_WORLD = 4;
 
-const Critter = ({ c }: { c: (typeof STOPS)[number]["critter"] }) =>
-  c === "bobbo" ? <Bobbo state="idle" size="100%" /> : c === "gloop" ? <Gloop size="100%" /> : c === "puff" ? <Puff size="100%" /> : <Rumble size="100%" />;
+const CRITTERS: Record<string, (p: { size: string }) => React.JSX.Element> = {
+  bobbo: (p) => <Bobbo state="idle" {...p} />,
+  gloop: Gloop,
+  puff: Puff,
+  rumble: Rumble,
+  zuzu: Zuzu,
+  hoot: Hoot,
+};
+const Critter = ({ c }: { c: string }) => {
+  const C = CRITTERS[c] ?? CRITTERS.bobbo!;
+  return <C size="100%" />;
+};
 
 export function MapScreen() {
   const { navigate, caption } = useApp();
@@ -25,7 +36,8 @@ export function MapScreen() {
   const p = st.profile;
   const monster = p.monster ?? DEFAULT_MONSTER;
   const levels = st.progress.levels ?? {};
-  const sparks = STOPS.reduce((n, s) => n + Math.min(4, levels[s.id] ?? 0), 0);
+  const sparks = STOPS.reduce((n, s) => n + Math.min(SPARKS_PER_WORLD, levels[s.id] ?? 0), 0);
+  const sparkTotal = STOPS.length * SPARKS_PER_WORLD;
   const [going, setGoing] = useState<string | null>(null);
   const firstVisit = st.progress.roundsCompleted === 0;
 
@@ -40,7 +52,7 @@ export function MapScreen() {
     setGoing(id);
     window.setTimeout(() => navigate(`/play/${id}`), 700);
   };
-  const target = STOPS.find((s) => s.id === going) ?? STOPS[0];
+  const target = STOPS.find((s) => s.id === going) ?? STOPS[0] ?? { x: 50, y: 50 };
   const portrait = typeof window !== "undefined" && window.innerHeight > window.innerWidth;
 
   return (
@@ -55,8 +67,8 @@ export function MapScreen() {
         <g>{[[600, 700], [1050, 760], [560, 260]].map(([x, y]) => <g key={x}><rect x={x! - 8} y={y! - 10} width="16" height="60" rx="6" fill="#9A6234" /><circle cx={x} cy={y! - 30} r="46" fill="#4CB35E" /></g>)}</g>
       </svg>
       <div className="map-tree" aria-label={`${sparks} sparks brought back`} data-testid="spark-tree" data-sparks={sparks}>
-        <SparkTree lit={sparks / 16} />
-        <span className="spark-count">✦ {sparks} / 16</span>
+        <SparkTree lit={sparks / sparkTotal} />
+        <span className="spark-count">✦ {sparks} / {sparkTotal}</span>
       </div>
       <div className="map-top">
         <NavButton to="/" label="Home" />

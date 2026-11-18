@@ -1,15 +1,18 @@
 import { feedbackFor } from "./feedback";
-import type { Exercise, ExerciseResult, Feedback, HintAction } from "./types";
-import { validateChoice, validateSet } from "./validation";
+import type { AnswerKey, AnswerValue, Exercise, ExerciseResult, Feedback, HintAction, ValidationResult } from "./types";
+import { answerKeys, correctKeys, correctValue, isSubmittable, nudgeKey, targetOf, validateAnswer, validateSet } from "./validation";
 
 /**
  * Per-exercise state machine. Pure reducer: (state, event) -> state. No timers, no DOM, no audio.
  * The GameRunner turns `feedback` into sound/animation and dispatches FEEDBACK_DONE when presentation ends.
  *
  *   counting ──(all objects tapped)──▶ answering            (tap-count only)
- *   answering ──CHOOSE/SUBMIT──▶ feedback ──FEEDBACK_DONE──▶ answering (wrong) | solved (correct)
+ *   answering ──SUBMIT/SUBMIT_SET──▶ feedback ──FEEDBACK_DONE──▶ answering (wrong) | solved (correct)
  */
 export type ExercisePhase = "counting" | "answering" | "feedback" | "solved";
+
+/** 0 = no miss yet · 1 = nudged (after the first miss) · 2 = modelled answer showing. */
+export type HintStage = 0 | 1 | 2;
 
 export interface ExerciseState {
   exercise: Exercise;
@@ -19,20 +22,28 @@ export interface ExerciseState {
   tapped: number[];
   /** make-set: object indices currently in the basket. */
   basket: number[];
-  /** Choices disabled by hints. */
-  disabledChoices: number[];
-  /** Choice highlighted by the model-answer hint. */
-  modelChoice: number | null;
+  /** Where the feedback ladder is; boards render their own nudge/model from this. */
+  hintStage: HintStage;
+  /** Choices / option ids / piece ids greyed out by hints (cannot be submitted). */
+  eliminated: AnswerKey[];
+  /** The correct answer to show once the ladder reaches the modelled answer (hintStage 2); else null. */
+  model: AnswerValue | null;
+  /** The last submitted value (null before the first submission and for make-set). */
+  lastAnswer: AnswerValue | null;
+  /** Validation of the last submission, incl. per-part correctness for multi-part answers. */
+  check: ValidationResult | null;
   /** Hints active on the board (accumulate during the exercise). */
   activeHints: HintAction[];
   hintsShown: number;
   /** Last feedback produced; `seq` lets renderers react exactly once per submission. */
   feedback: (Feedback & { seq: number; correct: boolean }) | null;
-  lastChoice: number | null;
 }
 
 export type ExerciseEvent =
   | { type: "TAP_OBJECT"; index: number }
+  /** Submit an answer of any kind (number, option id, ordered ids, selected ids, item→target map, measured value). */
+  | { type: "SUBMIT"; value: AnswerValue }
+  /** @deprecated Same as SUBMIT with a number. Kept so older boards keep working. */
   | { type: "CHOOSE"; value: number }
   | { type: "ADD_TO_BASKET"; index: number }
   | { type: "REMOVE_FROM_BASKET"; index: number }
@@ -46,48 +57,68 @@ export function initExercise(exercise: Exercise): ExerciseState {
     attempts: 0,
     tapped: [],
     basket: [],
-    disabledChoices: [],
-    modelChoice: null,
+    hintStage: 0,
+    eliminated: [],
+    model: null,
+    lastAnswer: null,
+    check: null,
     activeHints: [],
     hintsShown: 0,
     feedback: null,
-    lastChoice: null,
   };
 }
 
 function objectCount(ex: Exercise): number {
-  return ex.interaction === "make-set" ? (ex.poolSize ?? ex.target) : ex.target;
+  const target = targetOf(ex);
+  return ex.interaction === "make-set" ? (ex.poolSize ?? target) : target;
 }
 
-function submit(state: ExerciseState, correct: boolean, fb: Feedback, choice: number | null): ExerciseState {
+/** Does the submission use anything a hint has greyed out? */
+function usesEliminated(value: AnswerValue, eliminated: readonly AnswerKey[]): boolean {
+  if (eliminated.length === 0) return false;
+  if (typeof value === "number" || typeof value === "string") return eliminated.includes(value);
+  if (Array.isArray(value)) return value.some((v: string) => eliminated.includes(v));
+  return false;
+}
+
+function submit(state: ExerciseState, check: ValidationResult, fb: Feedback, value: AnswerValue | null): ExerciseState {
+  const ex = state.exercise;
+  const correct = check.correct;
   const attempts = state.attempts + 1;
   const newHints = fb.hints.filter((h) => !state.activeHints.includes(h));
-  let disabledChoices = state.disabledChoices;
-  let modelChoice = state.modelChoice;
-  if (!correct && choice !== null && fb.hints.includes("eliminate-choice") && !disabledChoices.includes(choice)) {
-    disabledChoices = [...disabledChoices, choice];
-  }
+  let eliminated = state.eliminated;
+  let model = state.model;
   let basket = state.basket;
+  if (!correct && value !== null && fb.hints.includes("eliminate-choice")) {
+    const key = nudgeKey(ex.answer, value);
+    if (key !== null && !eliminated.includes(key)) eliminated = [...eliminated, key];
+  }
   if (!correct && fb.hints.includes("model-answer")) {
-    modelChoice = state.exercise.target;
-    disabledChoices = (state.exercise.choices ?? []).filter((c) => c !== state.exercise.target);
-    if (state.exercise.interaction === "make-set") {
-      const target = state.exercise.target;
+    model = correctValue(ex.answer);
+    const keep = correctKeys(ex.answer);
+    eliminated = answerKeys(ex.answer).filter((k) => !keep.includes(k));
+    if (ex.interaction === "make-set") {
+      const target = targetOf(ex);
       basket = basket.slice(0, target);
-      for (let i = 0; basket.length < target && i < objectCount(state.exercise); i++) if (!basket.includes(i)) basket = [...basket, i];
+      for (let i = 0; basket.length < target && i < objectCount(ex); i++) if (!basket.includes(i)) basket = [...basket, i];
     }
   }
+  const activeHints = [...state.activeHints, ...newHints];
+  const misses = state.hintsShown + (correct ? 0 : 1);
+  const hintStage: HintStage = activeHints.includes("model-answer") ? 2 : misses > 0 ? 1 : 0;
   return {
     ...state,
     phase: "feedback",
     attempts,
-    disabledChoices,
-    modelChoice,
+    eliminated,
+    model,
     basket,
-    activeHints: [...state.activeHints, ...newHints],
+    hintStage,
+    activeHints,
     hintsShown: state.hintsShown + (correct ? 0 : 1),
     feedback: { ...fb, seq: attempts, correct },
-    lastChoice: choice,
+    lastAnswer: value,
+    check,
   };
 }
 
@@ -98,14 +129,15 @@ export function exerciseReducer(state: ExerciseState, event: ExerciseEvent): Exe
       if (ex.interaction !== "tap-count" || state.phase !== "counting") return state;
       if (event.index < 0 || event.index >= objectCount(ex) || state.tapped.includes(event.index)) return state;
       const tapped = [...state.tapped, event.index];
-      return { ...state, tapped, phase: tapped.length === ex.target ? "answering" : "counting" };
+      return { ...state, tapped, phase: tapped.length === targetOf(ex) ? "answering" : "counting" };
     }
-    case "CHOOSE": {
+    case "CHOOSE":
+      return exerciseReducer(state, { type: "SUBMIT", value: event.value });
+    case "SUBMIT": {
       if (ex.interaction === "make-set" || state.phase !== "answering") return state;
-      if (state.disabledChoices.includes(event.value)) return state;
-      if (!(ex.choices ?? []).includes(event.value)) return state;
-      const result = validateChoice(ex, event.value);
-      return submit(state, result.correct, feedbackFor(ex, result, state.attempts + 1), event.value);
+      if (!isSubmittable(ex.answer, event.value) || usesEliminated(event.value, state.eliminated)) return state;
+      const check = validateAnswer(ex.answer, event.value);
+      return submit(state, check, feedbackFor(ex, check, state.attempts + 1), event.value);
     }
     case "ADD_TO_BASKET": {
       if (ex.interaction !== "make-set" || state.phase !== "answering") return state;
@@ -118,8 +150,8 @@ export function exerciseReducer(state: ExerciseState, event: ExerciseEvent): Exe
     }
     case "SUBMIT_SET": {
       if (ex.interaction !== "make-set" || state.phase !== "answering") return state;
-      const result = validateSet(ex, state.basket.length);
-      return submit(state, result.correct, feedbackFor(ex, result, state.attempts + 1), null);
+      const check = validateSet(ex, state.basket.length);
+      return submit(state, check, feedbackFor(ex, check, state.attempts + 1), null);
     }
     case "FEEDBACK_DONE": {
       if (state.phase !== "feedback" || !state.feedback) return state;

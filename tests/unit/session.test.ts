@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { type ExerciseState, exerciseReducer, initExercise, toResult } from "../../src/engine/session";
-import { countingAdventure } from "../../src/games/counting-adventure/definition";
+import { fixture } from "./fixtures";
 
-const ex = (id: string) => countingAdventure.exercises.find((e) => e.id === id)!;
+const ex = fixture;
 const run = (s: ExerciseState, ...events: Parameters<typeof exerciseReducer>[1][]) => events.reduce(exerciseReducer, s);
 
 describe("exercise state machine", () => {
@@ -19,32 +19,32 @@ describe("exercise state machine", () => {
 
   it("ignores answers while still counting and out-of-range taps", () => {
     const s0 = initExercise(ex("ca-tap-3-apple"));
-    expect(exerciseReducer(s0, { type: "CHOOSE", value: 3 })).toBe(s0);
+    expect(exerciseReducer(s0, { type: "SUBMIT", value: 3 })).toBe(s0);
     expect(exerciseReducer(s0, { type: "TAP_OBJECT", index: 9 })).toBe(s0);
   });
 
   it("first wrong answer: retry feedback, eliminates the choice, cardinality hint", () => {
     let s = run(initExercise(ex("ca-tap-3-apple")), { type: "TAP_OBJECT", index: 0 }, { type: "TAP_OBJECT", index: 1 }, { type: "TAP_OBJECT", index: 2 });
-    s = run(s, { type: "CHOOSE", value: 2 });
+    s = run(s, { type: "SUBMIT", value: 2 });
     expect(s.phase).toBe("feedback");
     expect(s.feedback).toMatchObject({ correct: false, mascot: "retry", sfx: "retry" });
-    expect(s.disabledChoices).toEqual([2]);
+    expect(s.eliminated).toEqual([2]);
     expect(s.activeHints).toContain("highlight-last-count");
     // input is locked during feedback
-    expect(exerciseReducer(s, { type: "CHOOSE", value: 3 })).toBe(s);
+    expect(exerciseReducer(s, { type: "SUBMIT", value: 3 })).toBe(s);
     s = run(s, { type: "FEEDBACK_DONE" });
     expect(s.phase).toBe("answering");
     // a disabled choice cannot be picked again
-    expect(exerciseReducer(s, { type: "CHOOSE", value: 2 })).toBe(s);
+    expect(exerciseReducer(s, { type: "SUBMIT", value: 2 })).toBe(s);
   });
 
   it("second wrong answer models the answer (errorless), then correct completes", () => {
     let s = initExercise(ex("ca-choose-5-apple"));
-    s = run(s, { type: "CHOOSE", value: 4 }, { type: "FEEDBACK_DONE" }, { type: "CHOOSE", value: 6 });
+    s = run(s, { type: "SUBMIT", value: 4 }, { type: "FEEDBACK_DONE" }, { type: "SUBMIT", value: 6 });
     expect(s.feedback?.hints).toContain("model-answer");
-    expect(s.modelChoice).toBe(5);
-    expect(s.disabledChoices.sort()).toEqual([4, 6]);
-    s = run(s, { type: "FEEDBACK_DONE" }, { type: "CHOOSE", value: 5 });
+    expect(s.model).toBe(5);
+    expect([...s.eliminated].sort()).toEqual([4, 6]);
+    s = run(s, { type: "FEEDBACK_DONE" }, { type: "SUBMIT", value: 5 });
     expect(s.feedback).toMatchObject({ correct: true, mascot: "celebrating" });
     s = run(s, { type: "FEEDBACK_DONE" });
     expect(s.phase).toBe("solved");
@@ -52,7 +52,7 @@ describe("exercise state machine", () => {
   });
 
   it("first-try correct records firstTry", () => {
-    const s = run(initExercise(ex("ca-choose-2-cookie")), { type: "CHOOSE", value: 2 }, { type: "FEEDBACK_DONE" });
+    const s = run(initExercise(ex("ca-choose-2-cookie")), { type: "SUBMIT", value: 2 }, { type: "FEEDBACK_DONE" });
     expect(toResult(s)).toMatchObject({ attempts: 1, firstTry: true, hintsShown: 0 });
   });
 
@@ -87,7 +87,7 @@ describe("exercise state machine", () => {
 
   it("retry is unlimited and never ends the exercise without success", () => {
     let s = initExercise(ex("ca-choose-2-cookie"));
-    s = run(s, { type: "CHOOSE", value: 1 }, { type: "FEEDBACK_DONE" }, { type: "CHOOSE", value: 3 }, { type: "FEEDBACK_DONE" });
+    s = run(s, { type: "SUBMIT", value: 1 }, { type: "FEEDBACK_DONE" }, { type: "SUBMIT", value: 3 }, { type: "FEEDBACK_DONE" });
     expect(s.phase).toBe("answering");
     expect(s.attempts).toBe(2);
   });

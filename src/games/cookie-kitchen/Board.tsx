@@ -11,6 +11,7 @@ import { BakingTray, CookieArt, PlateArt } from "./art";
 import { type Stacks, bestGrid, dealRoundRobin, emptyStacks, moveCookie, shareStatus, trayCookies } from "./sharing";
 import { fairStore } from "./store";
 import "./cookie-kitchen.css";
+import { targetOf, choicesOf } from "../../engine/validation";
 
 /**
  * Cookie Kitchen play board: Rumble's baking tray of cookies + a party table with one plate per friend.
@@ -77,7 +78,7 @@ const plural = (n: number) => `${n} ${n === 1 ? "cookie" : "cookies"}`;
 
 export function CookieBoard({ st, act, alongIndex }: BoardProps) {
   const ex = st.exercise;
-  const total = ex.params?.total ?? ex.target;
+  const total = ex.params?.total ?? targetOf(ex);
   const groups = ex.params?.groups ?? 1;
   const { speaking, reducedMotion } = useApp();
   const guests = useMemo(() => guestsFor(groups, ex.seed), [groups, ex.seed]);
@@ -316,7 +317,7 @@ export function CookieBoard({ st, act, alongIndex }: BoardProps) {
                 <div className="ck-guest" aria-hidden="true">
                   <div className="ck-guest-in">
                     <g.C state={k === 0 && wrong ? "retry" : guestState} />
-                    {k === 0 && wrong && <span className="ck-notfair">{status.each !== null ? `${st.lastChoice} each?` : "Not fair!"}</span>}
+                    {k === 0 && wrong && <span className="ck-notfair">{status.each !== null ? `${st.lastAnswer} each?` : "Not fair!"}</span>}
                   </div>
                 </div>
                 <button
@@ -385,23 +386,23 @@ export function ShareTray({ st, act }: BoardProps) {
   const fb = st.feedback;
   return (
     <div className="choice-tray ck-pills" role="group" aria-label="How many cookies on each plate? Choose one">
-      {(ex.choices ?? []).map((c, i) => {
-        const disabled = st.disabledChoices.includes(c) || st.phase !== "answering";
-        const isModel = st.modelChoice === c && st.phase === "answering";
+      {choicesOf(ex).map((c, i) => {
+        const disabled = st.eliminated.includes(c) || st.phase !== "answering";
+        const isModel = st.model === c && st.phase === "answering";
         const state =
-          st.phase === "feedback" && st.lastChoice === c ? (fb?.correct ? "is-right" : "is-wrong") : st.phase === "solved" && c === ex.target ? "is-right" : "";
+          st.phase === "feedback" && st.lastAnswer === c ? (fb?.correct ? "is-right" : "is-wrong") : st.phase === "solved" && c === targetOf(ex) ? "is-right" : "";
         const match = each === c && st.phase === "answering" && !isModel ? "ck-match" : "";
         return (
           <button
             key={c}
             type="button"
-            className={`choice ck-pill ${state} ${isModel ? "is-model" : ""} ${st.disabledChoices.includes(c) ? "is-out" : ""} ${match}`}
+            className={`choice ck-pill ${state} ${isModel ? "is-model" : ""} ${st.eliminated.includes(c) ? "is-out" : ""} ${match}`}
             style={{ animationDelay: `${i * 80}ms` }}
             data-testid="choice"
             data-value={c}
             aria-label={`${c} each`}
             aria-disabled={disabled}
-            onClick={() => !disabled && act({ type: "CHOOSE", value: c })}
+            onClick={() => !disabled && act({ type: "SUBMIT", value: c })}
           >
             <span className="numeral">{c}</span>
             <span className="ck-each">each</span>
