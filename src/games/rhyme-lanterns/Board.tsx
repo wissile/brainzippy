@@ -161,7 +161,7 @@ export function RhymeBoard({ st, act, alongIndex, busy: busyProp, progress }: Bo
   const drop = (id: string | null, zone: Zone) => {
     if (!canAct) return;
     busy();
-    if (zone === "yes" || zone === "no") return submit(zone);
+    if (zone === "yes" || zone === "no") return out(zone) ? undefined : submit(zone);
     if (!id || out(id)) return;
     if (L.mode === "pick" && zone === "slot") return submit(id);
     if (L.mode === "odd" && zone === "basket") return submit(id);
@@ -449,12 +449,15 @@ export function RhymeBoard({ st, act, alongIndex, busy: busyProp, progress }: Bo
         {hootLantern(null)}
         <button
           type="button"
-          className="rl-cand"
+          className={`rl-cand ${drag?.active && drag.id === b ? "is-dragging" : ""}`}
           data-testid="candidate"
           data-word={b}
-          aria-label={`Second lantern, ${b}. Press to hear it`}
+          aria-label={`Second lantern, ${b}. Press to hear it, or drag it onto yes or no`}
+          {...dragProps(b)}
           onFocus={onFocusSay(b)}
-          onClick={() => say(b)}
+          onClick={(e) => {
+            if (!clickGuard(e)) say(b);
+          }}
         >
           {lanternBody(b, PAPER[1]!, right[0] === "yes" && (solved || lit.includes(b)), false, solved && right[0] === "no" ? "is-sleepy" : "")}
         </button>
@@ -466,9 +469,10 @@ export function RhymeBoard({ st, act, alongIndex, busy: busyProp, progress }: Bo
           <button
             key={v}
             type="button"
-            className={`rl-yn-btn is-${v} ${out(v) ? "is-out" : ""} ${isModel(v) ? "is-model" : ""} ${trying === v ? (fb?.correct ? "is-right" : "is-wrong") : ""}`}
+            className={`rl-yn-btn is-${v} ${hot === v ? "is-hot" : ""} ${out(v) ? "is-out" : ""} ${isModel(v) ? "is-model" : ""} ${trying === v ? (fb?.correct ? "is-right" : "is-wrong") : ""}`}
             data-testid="choice"
             data-value={v}
+            data-rl-zone={v}
             aria-disabled={out(v) || !canAct}
             aria-label={v === "yes" ? `Yes, ${L.target} and ${b} rhyme` : `No, ${L.target} and ${b} do not rhyme`}
             onFocus={() => performance.now() - lastNavKey < 600 && void audio.speak(v === "yes" ? "rl.yes" : "rl.no")}
@@ -488,6 +492,7 @@ export function RhymeBoard({ st, act, alongIndex, busy: busyProp, progress }: Bo
         className={`rl-basket ${hot === "basket" ? "is-hot" : ""} ${selected ? "is-ready" : ""} ${inBasket && wrongNow ? "is-wrong" : ""}`}
         data-testid="basket"
         data-rl-zone="basket"
+        data-rl-idle
         aria-label={selected ? `Basket. Press to put the ${selected} lantern in it` : "Basket for the lantern that does not rhyme"}
         onClick={(e) => {
           if (!clickGuard(e)) tapZone("basket");
@@ -524,7 +529,7 @@ export function RhymeBoard({ st, act, alongIndex, busy: busyProp, progress }: Bo
       style={{ "--line": lineCount, "--count": L.words.length } as React.CSSProperties}
     >
       <p className="sr-only">{ex.a11yDescription}</p>
-      <div className="rl-line" {...(L.mode === "odd" ? { "data-rl-idle": true } : {})}>
+      <div className="rl-line">
         <svg className="rl-rope" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true">
           <path d="M0 2 Q50 22 100 2" />
         </svg>
