@@ -1,26 +1,27 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { currentDecision, onBillingChange, refreshEntitlement } from "../billing/client";
+import type { Entitlement } from "../billing/model";
 
 /**
- * Client entitlement hook. STUB for the billing agent: today it reads `entitlement` from GET /api/me when a parent
- * is signed in and otherwise reports "free". Shape mirrors worker/lib/entitlements.ts.
+ * Client entitlement hook. Answers synchronously from the device (never waits for the network: play must not block),
+ * then refreshes from POST /api/billing/status in the background when a parent is signed in on this device.
+ * Offline: the last server answer is cached; paid access keeps working for 7 days past its end date (OFFLINE_GRACE_MS).
+ * Shape mirrors worker/lib/entitlements.ts (src/billing/model.ts).
  */
-export type EntitlementStatus = "trial" | "active" | "free" | "needs-payment";
-export interface Entitlement {
-  status: EntitlementStatus;
-  trialEndsAt?: number;
-}
+export type { Entitlement, EntitlementSource, EntitlementStatus } from "../billing/model";
 
-export function useEntitlement(): { entitlement: Entitlement; loading: boolean } {
-  const [state, setState] = useState<{ entitlement: Entitlement; loading: boolean }>({ entitlement: { status: "free" }, loading: true });
-  useEffect(() => {
-    let live = true;
-    fetch("/api/me", { credentials: "same-origin" })
-      .then((r) => (r.ok ? (r.json() as Promise<{ entitlement?: Entitlement }>) : null))
-      .catch(() => null)
-      .then((d) => live && setState({ entitlement: d?.entitlement ?? { status: "free" }, loading: false }));
-    return () => {
-      live = false;
-    };
+export function useEntitlement(opts: { refresh?: boolean } = {}): { entitlement: Entitlement; playable: boolean; loading: boolean; refresh: () => Promise<void> } {
+  const [decision, setDecision] = useState(() => currentDecision());
+  const [loading, setLoading] = useState(opts.refresh !== false);
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    await refreshEntitlement();
+    setDecision(currentDecision());
+    setLoading(false);
   }, []);
-  return state;
+  useEffect(() => onBillingChange(() => setDecision(currentDecision())), []);
+  useEffect(() => {
+    if (opts.refresh !== false) void refresh();
+  }, [opts.refresh, refresh]);
+  return { entitlement: decision.entitlement, playable: decision.playable, loading, refresh };
 }

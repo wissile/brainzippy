@@ -28,8 +28,8 @@ export const SITE = {
     "Games can be played with touch, mouse or keyboard, with sound on or off.",
     "Wrong answers lead to hints and a worked example, never a penalty.",
   ],
-  /** Pricing is not published until billing is live. Keep null until then (see docs/SEO_STRATEGY.md). */
-  pricing: null as null | { amount: string; currency: string; period: string; trialDays: number },
+  /** Published price (docs/BILLING.md). Must match src/billing/model.ts PRICE (checked in tests/unit/billing-site.test.ts). */
+  pricing: { amount: "6.99", currency: "USD", period: "month", trialDays: 14, freePlayDays: 14 } as null | { amount: string; currency: string; period: string; trialDays: number; freePlayDays: number },
   logoPath: "/og/logo.png",
   defaultOgImage: "/og/default.png",
 } as const;

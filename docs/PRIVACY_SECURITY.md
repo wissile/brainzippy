@@ -52,13 +52,25 @@ Not collected for accounts: child email, child password, birthdate, photo, voice
 - Deletion: "Delete profile" and "Delete account" hard-delete rows explicitly (children, friendships, invites, challenges, results, sessions, tokens, legacy sign-ups) in one D1 batch. Copies persist only in D1 Time Travel (7 days on Free, 30 on Paid) — the policy says "up to 30 days".
 - Export: `GET /api/me/export` returns all account data as JSON (friend entries show only the friend's monster name).
 - Daily digest: opt-in per parent (off by default), parents only, only on days a child played, no images, text twin, `List-Unsubscribe` + `List-Unsubscribe-Post: List-Unsubscribe=One-Click`, unsubscribe page needs no sign-in. Not sent at all without `SIGNING_SECRET`.
-- Entitlements seam (`worker/lib/entitlements.ts`) is a stub returning `free`; billing UI stays behind the parent gate.
+- Entitlements (`worker/lib/entitlements.ts`) are Stripe-backed since migration 0005; see "Billing" below. Billing UI stays behind the parent gate.
+
+### Billing (migration 0005) — data inventory and controls
+| Data | Where | Personal? | Purpose | Retention |
+|---|---|---|---|---|
+| Stripe customer id, subscription id, status, trial/period/cancel dates, failed-payment time | D1 `billing_accounts` | pseudonymous (linked to the parent) | entitlement | deleted with the account |
+| Renewal-consent time + wording version | D1 `billing_accounts` | yes (parent) | proof of consent to auto-renewal (California ARL) | deleted with the account — **counsel: retention may need to be longer** |
+| Free-access code **hash**, kind, limits, owner note; redemptions (code id, parent id, time) | D1 `access_codes`, `access_code_redemptions` | redemptions pseudonymous | free access | codes until disabled; redemptions deleted with the account |
+| Processed webhook event ids | D1 `stripe_events` | no | idempotency | 30 days |
+| Device first-play time; last entitlement answer | browser localStorage `bz.billing` | no | 14-day free period, offline play | until site data is cleared (kept by "delete progress on this device" so the free period isn't restarted by it) |
+| Parent email, card, billing address | **Stripe** (processor) | yes (parent) | payment, receipts, tax | Stripe's retention; we never see card numbers |
+
+Controls: webhook signature verified (HMAC-SHA256, ±5 min, constant-time), exactly-once processing; Checkout/portal URLs come only from Stripe responses; only the parent's email and our parent id go to Stripe (never child data); free-access codes ≥59 bits random, hashed, single claim per family, rate-limited (10/h per parent, 30/h per IP); no admin HTTP endpoint (owner CLI via wrangler); the development fake Stripe runs only with `APP_ENV=development`, no secret key, and a localhost request; account deletion cancels the subscription before deleting rows. Sub-processor to add to the privacy policy and DPA review: **Stripe**.
 
 ### Open items for review (accounts)
 1. **Verifiable parental consent (lawyer):** email + confirmation link ("email plus") is only permitted under COPPA for internal uses without disclosure. Friends/leaderboards make a child's monster name and points visible to another family: decide whether that is a "disclosure" requiring a stronger VPC method (e.g. card check via Stripe, signed form). See `docs/legal/COPPA_CHECKLIST.md`.
 2. Inactive-account retention period (proposed 24 months, with an email warning 30 days before deletion).
 3. Session revocation UI ("sign out everywhere") and a per-parent session cap.
-4. DPA/sub-processor review: Cloudflare (hosting, D1), Resend (email).
+4. DPA/sub-processor review: Cloudflare (hosting, D1), Resend (email), Stripe (payments).
 5. Independent security review of `worker/**` and `src/account/**` before enabling accounts in production.
 
 ## Controls

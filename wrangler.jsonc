@@ -24,13 +24,14 @@
       "migrations_dir": "migrations"
     }
   ],
-  // Secrets (wrangler secret put / .dev.vars): RESEND_API_KEY, SIGNING_SECRET, VAPID_PRIVATE_KEY.
+  // Secrets (wrangler secret put / .dev.vars): RESEND_API_KEY, SIGNING_SECRET, VAPID_PRIVATE_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET.
+  // Billing vars: STRIPE_PRICE_ID (price_… for $6.99/month; empty = billing off), optional STRIPE_AUTOMATIC_TAX ("1"), STRIPE_API_BASE (tests only). See docs/BILLING.md.
   // Optional vars: EMAIL_FROM, APP_ORIGIN, DIGEST_BATCH. VAPID_PUBLIC_KEY from `node scripts/gen-vapid.mjs` (empty = reminders off).
-  "vars": { "APP_ENV": "development", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
+  "vars": { "APP_ENV": "development", "STRIPE_PRICE_ID": "", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
   "env": {
     "staging": {
       "name": "brainzippy-staging",
-      "vars": { "APP_ENV": "staging", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
+      "vars": { "APP_ENV": "staging", "STRIPE_PRICE_ID": "", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
       "d1_databases": [
         {
           "binding": "DB",
