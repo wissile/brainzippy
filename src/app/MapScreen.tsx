@@ -10,7 +10,8 @@ import { useSpeakWhenReady } from "../daily/useSpeakWhenReady";
 import { useToday } from "../daily/useToday";
 import type { DailyPlanStop } from "../engine/progressSchema";
 import { loadState } from "../services/storage";
-import { AudioButtons, NavButton, SpeechBubble } from "../ui/controls";
+import { AudioButtons, SpeechBubble } from "../ui/controls";
+import { IconLock } from "../ui/icons";
 import { useApp } from "./AppContext";
 import "../daily/daily.css";
 
@@ -152,7 +153,10 @@ function Island({ status, view }: { status: DailyStatus; view: "today" | "explor
       </svg>
 
       <div className="map-top daily-top">
-        <NavButton to="/" label="Home" />
+        {/* The map is the child's home; this corner is the way in for grown-ups (the page itself is parent-gated). */}
+        <button type="button" className="icon-btn" data-testid="map-grown-ups" aria-label="For grown-ups" onClick={() => navigate("/grown-ups")}>
+          <IconLock />
+        </button>
         <div className="map-hello">
           <span className="mini-monster" aria-hidden="true"><Monster config={monster} size={52} label="" /></span>
           <span className="map-hello-name">{p.kidName ? `Hi, ${p.kidName}!` : "Monster Island"}</span>

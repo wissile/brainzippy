@@ -83,7 +83,7 @@ export function EndOfDay() {
     <main className="eod" data-testid="end-of-day">
       <div className="eod-bg" aria-hidden="true"><NightBackground /></div>
       <div className="eod-top">
-        <NavButton to="/" label="Home" />
+        <NavButton to="/map" kind="back" label="Back to Monster Island" />
         <span />
         <AudioButtons />
       </div>
