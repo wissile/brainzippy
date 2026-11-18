@@ -21,8 +21,26 @@ Friend connections require approval from both parents. Only fixed, pre-written s
 ## 5. Acceptable use
 Do not: attempt to access other accounts or data; interfere with or overload the service; scrape, copy or reverse-engineer it except as allowed by law; use it to collect information about children; or misuse invites or challenges.
 
-## 6. Subscriptions **[LAWYER — to be completed with billing]**
-Planned model: 14 days of free play, then a parent may add a card for 14 more free days, then **$6.99/month** until cancelled. Free-access codes may be offered. Purchase screens are shown only to adults behind a grown-up check. Terms for renewal, cancellation, refunds, price changes, taxes and consumer cancellation rights (e.g. EU/UK 14-day withdrawal) must be written with the billing implementation.
+## 6. Subscriptions, free trials and cancellation **[LAWYER — review against ROSCA, state auto-renewal laws (e.g. California ARL as amended July 2025) and any non-US consumer law]**
+**6.1 Free play.** Each device gets 14 days of free play, counted from the first game on that device or from when your account was created, whichever is earlier once you sign in on that device. No card is needed.
+
+**6.2 Free trial with a card.** To keep playing, a parent may start the BrainZippy Family plan by adding a payment card through our payment processor, Stripe. Nothing is charged during the 14-day free trial. If you add a card before your free play days run out, the trial starts when they end. Each family may receive one free trial; if you have had one before, the first payment is taken when you subscribe.
+
+**6.3 Price and automatic renewal.** When the trial ends, your subscription **renews automatically every month** and your card is charged **$6.99 per month** (plus any applicable sales tax) on the same day each month, **until you cancel**. Before you enter a card we show these terms and ask you to agree to them by ticking a box; we record when you agreed and to which version. **[LAWYER]** confirm disclosure placement and record retention period.
+
+**6.4 Cancelling.** You can cancel at any time online from the parent page ("Cancel plan", then confirm), at least [24 hours] before the next renewal to avoid that charge **[LAWYER: decide cut-off; Stripe cancels at period end]**. If you cancel during the free trial you are not charged. If you cancel after a payment, the games stay available until the end of the month you have paid for, and you are not charged again. Deleting your account cancels the subscription immediately.
+
+**6.5 Failed payments.** If a payment fails, Stripe retries for about a week and the games stay available during that time. If payment still fails, the subscription ends and games pause until a parent restarts it.
+
+**6.6 Refunds.** **[OWNER/LAWYER — placeholder]** Proposed: payments are non-refundable except where required by law; we will consider refunds for a charge you didn't expect if you contact us within [14] days. Consumers in the EU/UK may have a 14-day right of withdrawal **[LAWYER]** (with the trial, decide how the right and any waiver apply).
+
+**6.7 Price changes.** We will tell you about any price change by email at least [30] days before it applies to you, and you can cancel before it does. **[LAWYER]** state-specific notice periods.
+
+**6.8 Free-access codes and promotions.** We may give free-access codes (free access for a set number of days or without end) and discount codes. Codes have no cash value, may have limits or expiry dates, and may not be sold. A family with a paid plan must cancel it before redeeming a free-access code.
+
+**6.9 Children.** Children are never shown prices or asked to buy anything. Only a parent or guardian may subscribe, after the grown-up check.
+
+**6.10 Annual reminder.** **[LAWYER]** California requires a yearly reminder of the renewal terms; we will send it by email to the account holder.
 
 ## 7. Content and intellectual property
 All games, characters, art, audio and text are owned by BrainZippy or its licensors. You receive a personal, non-transferable, revocable licence to use the service for your family's non-commercial use.
