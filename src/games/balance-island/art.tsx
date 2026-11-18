@@ -72,8 +72,8 @@ export function PanArt() {
   return (
     <svg viewBox="0 0 200 200" preserveAspectRatio="none" aria-hidden="true" className="bi-pan-art">
       <g stroke={INK} strokeWidth="2.6" strokeDasharray="7 4" opacity="0.9">
-        <path d="M100 4 L14 168" vectorEffect="non-scaling-stroke" />
-        <path d="M100 4 L186 168" vectorEffect="non-scaling-stroke" />
+        <path d="M100 2 L8 200" vectorEffect="non-scaling-stroke" />
+        <path d="M100 2 L192 200" vectorEffect="non-scaling-stroke" />
       </g>
     </svg>
   );
