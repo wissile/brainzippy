@@ -129,7 +129,7 @@
 }
 .bi-level-mark.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
-.bi-pan { position: absolute; top: 14%; height: min(74%, 56cqw); width: 32cqw; z-index: 1; }
+.bi-pan { position: absolute; top: 14%; height: 74%; width: 32cqw; z-index: 1; }
 .bi-pan-l { left: 17%; transform: translate(-50%, calc(var(--f) * var(--arm) * -1)); }
 .bi-pan-r { left: 83%; transform: translate(-50%, calc(var(--f) * var(--arm))); }
 .bi-chains { position: absolute; left: 4%; right: 4%; top: 0; bottom: calc(var(--chip) + var(--dish) * 0.7); pointer-events: none; }
@@ -145,7 +145,8 @@
 .bi-pile.is-lifted { transform: translateY(-8px); background: rgba(255, 255, 255, 0.14); box-shadow: 0 0 0 3px #fff; }
 .bi-item { display: block; flex: none; filter: drop-shadow(0 3px 0 rgba(10, 14, 30, 0.3)); animation: bi-drop 360ms var(--ease-bounce) both; }
 .bi-item svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.bi-bag { width: var(--u); height: calc(var(--u) * 1.1); }
+.bi-bags { --bw: min(var(--u), calc(24cqw / var(--cols, 1))); flex: none; width: calc(var(--cols, 1) * (var(--bw) + 1px) + 4px); }
+.bi-bag { width: var(--bw, var(--u)); height: calc(var(--bw, var(--u)) * 1.1); }
 .bi-five { width: calc(var(--u) * 0.44); height: calc(var(--u) * 0.99); }
 .bi-one { width: calc(var(--u) * 0.46); height: calc(var(--u) * 0.46); }
 @keyframes bi-drop { from { transform: translateY(-30%); opacity: 0; } }

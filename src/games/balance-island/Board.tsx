@@ -406,6 +406,7 @@ export function BalanceBoard({ st, act: _act, alongIndex, busy }: BoardProps) {
               className={`bi-pile bi-bags ${sel?.from === where && sel.kind === "x" ? "is-lifted" : ""}`}
               data-testid="pan-bags"
               data-side={where}
+              style={{ "--cols": s.x <= 1 ? 1 : s.x <= 4 ? 2 : 3 } as React.CSSProperties}
               data-count={s.x}
               aria-pressed={sel?.from === where && sel.kind === "x"}
               aria-disabled={!canAct}
