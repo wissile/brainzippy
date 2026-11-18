@@ -66,7 +66,8 @@ test.describe("public site", () => {
     await expect(page.getByTestId("site-play")).toHaveAttribute("href", "/map");
     await page.getByTestId("site-play").click();
     await expect(page.getByTestId("map")).toBeVisible();
-    await page.getByTestId("stop-counting-adventure").click({ force: true });
+    // today's trail may visit a world twice (new + practice), so take the next glowing stop
+    await page.locator('.trail-stop[data-state="next"] [data-testid^="stop-"]').first().click({ force: true });
     await enterGame(page);
     await expect(page.getByTestId("game-screen")).toBeVisible();
   });

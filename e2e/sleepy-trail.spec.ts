@@ -107,7 +107,8 @@ test("level 1: a full round by tap, keyboard and drag; diagnosed hint, then a mo
       const k = (ex.a * ex.P) / ex.d;
       await walk(page, "rumble", k + 1, "tap");
       await press(page, '[data-testid="choice"]');
-      await expect(page.getByTestId("helper")).toContainText("Count the jumps", { timeout: 15_000 });
+      // on small screens the helper has no bubble: its words show in the prompt pill (D-027); the live caption always carries them
+      await expect(page.getByTestId("live-caption")).toContainText("Count the jumps", { timeout: 15_000 });
       await shot("02-diagnosed-hint");
       await info(page);
       await posIs(page, "rumble", 0);
@@ -156,7 +157,8 @@ test("level 7: compare two trails and estimate on unmarked trails (estimate miss
     if (ex.mode === "estimate" && !missedEstimate) {
       missedEstimate = true;
       await press(page, '[data-testid="choice"]'); // Rumble still on 0: too low
-      await expect(page.getByTestId("helper")).toContainText("Not quite far enough", { timeout: 15_000 });
+      // on small screens the helper has no bubble: its words show in the prompt pill (D-027); the live caption always carries them
+      await expect(page.getByTestId("live-caption")).toContainText("Not quite far enough", { timeout: 15_000 });
       await info(page);
       await expect(page.getByTestId("half-mark").first()).toBeVisible();
       await page.screenshot({ path: `test-results/screens/${info_.project.name}-sleepy-trail-07-estimate-hint.png` });

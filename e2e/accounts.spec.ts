@@ -106,7 +106,7 @@ test("parent signs up with a dev magic link, saves this device's progress to a n
   await card.getByTestId("setting-music").uncheck();
   await expect(card.getByRole("status").filter({ hasText: "Saved" })).toBeVisible();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("bz.v1")!).account.settings?.dailyLimit)).toBe(7);
-  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("bz.v1")!).music)).toBe(false);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("bz.v1")!).music)).toBe(false);
 
   // sign out → back to the sign-in form; session gone
   await page.getByTestId("sign-out").click();
