@@ -46,6 +46,7 @@
 .stop-badge.stretch { background: var(--zuzu); color: var(--sparkle); }
 .stop-badge.review { background: var(--gloop); color: #fff; }
 .trail-stop .stop-name { margin-top: 6px; font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; background: #fff; border: 3px solid var(--ink); padding: 0 12px; border-radius: var(--r-pill); white-space: nowrap; pointer-events: none; }
+.trail.crowded .stop-name { display: none; }
 .daily-monster { z-index: 1; transition: left 1100ms var(--ease-out), top 1100ms var(--ease-out); }
 .daily-monster svg { width: 100px; height: auto; }
 .view-explore .map-caption, .view-today .map-caption { z-index: 4; }
@@ -70,11 +71,11 @@
 .explore-empty { font-weight: 700; }
 
 /* ---------- end of day ---------- */
-.eod { position: relative; min-height: 100dvh; height: 100dvh; overflow-x: hidden; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; color: #fff; background: #1b1440; }
+.eod { position: relative; height: 100dvh; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto minmax(0, 1fr); color: #fff; background: #1b1440; }
 .eod-bg { position: fixed; inset: 0; z-index: 0; }
 .eod-bg .bg { width: 100%; height: 100%; }
 .eod-top { position: relative; z-index: 2; grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: max(10px, env(safe-area-inset-top)) 14px 0; }
-.eod-stage { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px; min-width: 0; }
+.eod-stage { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px; min-width: 0; min-height: 0; overflow: hidden; }
 .eod-sky-arc { width: min(360px, 90%); height: auto; }
 .eod-moon { animation: eod-float 5s ease-in-out infinite; }
 @keyframes eod-float { 50% { transform: translateY(-4px); } }
@@ -85,7 +86,9 @@
 .eod-monster.asleep .critter { transform: rotate(-6deg); transition: transform 600ms var(--ease-out); }
 .eod-bed { position: absolute; left: 6%; right: 6%; bottom: 2%; height: 16%; border-radius: 50%; background: #5e4ab8; border: 4px solid var(--ink); z-index: 0; }
 .eod-monster .zzz { z-index: 2; }
-.eod-panel { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; gap: 12px; padding: 8px 20px 90px; min-width: 0; }
+.eod-panel { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; padding: 8px 20px 90px; min-width: 0; min-height: 0; overflow-y: auto; }
+.eod-panel > :first-child { margin-top: auto; }
+.eod-panel > :last-child { margin-bottom: auto; }
 .eod-title { margin: 0; font-family: var(--font-display); font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.1; text-shadow: 0 3px 0 var(--ink); }
 .eod-recap { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .eod-recap-item, .eod-teaser { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.95); color: var(--ink); border: 4px solid var(--ink); border-radius: var(--r-md); padding: 6px 14px 6px 6px; }
@@ -120,19 +123,21 @@
   .daily-monster svg { width: 66px; }
   .daily-monster .nameplate { display: none; }
   .trail-stop .stop-name { font-size: 0.85rem; margin-top: 2px; }
-  .explore { top: calc(max(10px, env(safe-area-inset-top)) + 64px); bottom: 64px; }
-  .eod-monster { width: min(180px, 40vh); }
+  .explore { top: calc(max(10px, env(safe-area-inset-top)) + 64px); bottom: 78px; }
+  .eod-monster { width: min(170px, 36vh); }
   .eod-sky-arc { width: min(240px, 80%); }
   .eod-panel { padding-bottom: 70px; gap: 8px; }
   .eod-critter { width: 44px; height: 44px; }
 }
 @media (orientation: portrait) {
-  .eod { grid-template-columns: 1fr; grid-template-rows: auto auto auto; }
-  .eod-panel { padding-top: 0; }
+  /* portrait: one column; the whole scene scrolls if the recap is long */
+  .eod { height: auto; min-height: 100dvh; overflow: visible; grid-template-columns: 1fr; grid-template-rows: auto auto auto; }
+  .eod-panel { padding-top: 0; overflow: visible; }
+  .eod-monster { width: min(220px, 26vh, 56vw); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .trail-stop.next .stop-critter, .eod-moon, .eod-monster.yawning .critter { animation: none !important; }
+  .trail-stop.next .stop-critter, .eod-moon, .eod-monster.yawning .critter, .eod .twinkle { animation: none !important; }
   .daily-monster, .eod-monster.asleep .critter { transition: none !important; }
 }
 

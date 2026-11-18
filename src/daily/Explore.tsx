@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useApp } from "../app/AppContext";
 import { audio } from "../audio/AudioEngine";
-import { getSubject, worldsBySubject } from "../content/registry";
+import { allWorlds, getSubject, worldsBySubject } from "../content/registry";
 import type { World } from "../content/types";
 import { loadState } from "../services/storage";
 import { Critter, hostOf } from "./critters";
@@ -34,7 +34,7 @@ export function Explore({ band }: { band: AgeRange }) {
   };
 
   return (
-    <section className="explore" data-testid="explore" aria-label="Explore all adventures">
+    <section className="explore" data-testid="explore" data-total={allWorlds().length} aria-label="Explore all adventures">
       <div className="explore-head">
         <h2>Explore</h2>
         <button

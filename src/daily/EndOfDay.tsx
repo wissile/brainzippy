@@ -4,7 +4,7 @@ import { audio } from "../audio/AudioEngine";
 import { VOICE_LINES, renderLine } from "../audio/voiceLines";
 import { DEFAULT_MONSTER, Monster } from "../characters/Monster";
 import { getSkill } from "../content/registry";
-import { Sky, Zzz } from "../game/scenes";
+import { Zzz } from "../game/scenes";
 import { loadState } from "../services/storage";
 import { AudioButtons, NavButton, SpeechBubble } from "../ui/controls";
 import { Critter, hostOf } from "./critters";
@@ -43,6 +43,21 @@ function MoonAndSun() {
   );
 }
 
+/** Night sky with twinkling stars and dark hills (the moon lives in the moon-and-sun picture). */
+function NightBackground() {
+  return (
+    <svg className="bg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+      <defs>
+        <linearGradient id="eod-night" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#1B1440" /><stop offset="0.6" stopColor="#2E2470" /><stop offset="1" stopColor="#4B3A8F" /></linearGradient>
+      </defs>
+      <rect width="1600" height="900" fill="url(#eod-night)" />
+      <g fill="#fff">{Array.from({ length: 44 }, (_, i) => <circle key={i} className="twinkle" cx={(i * 397) % 1600} cy={(i * 211) % 520} r={1.5 + (i % 3)} style={{ animationDelay: `${(i % 7) * 0.4}s` }} />)}</g>
+      <path d="M0 640 Q260 560 520 610 T1060 590 T1600 610 L1600 900 L0 900 Z" fill="#2F5E4A" />
+      <path d="M0 730 Q400 680 800 712 T1600 700 L1600 900 L0 900 Z" fill="#24503D" />
+    </svg>
+  );
+}
+
 /** "That's today's adventure!" — shown once today's limit is reached (map, and any /play URL). */
 export function EndOfDay() {
   const { caption, reducedMotion } = useApp();
@@ -73,7 +88,7 @@ export function EndOfDay() {
 
   return (
     <main className="screen eod" data-testid="end-of-day">
-      <div className="eod-bg" aria-hidden="true"><Sky time="night" hills /></div>
+      <div className="eod-bg" aria-hidden="true"><NightBackground /></div>
       <div className="eod-top">
         <NavButton to="/" label="Home" />
         <span />

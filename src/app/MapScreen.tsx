@@ -37,8 +37,9 @@ const KIND_LABEL: Record<DailyPlanStop["k"], string> = {
 export function trailPoints(n: number, portrait: boolean): { x: number; y: number }[] {
   return Array.from({ length: n }, (_, i) => {
     const t = n === 1 ? 0.5 : i / (n - 1);
+    // portrait: a serpentine over three columns, so neighbours never overlap even with 10 stops
     return portrait
-      ? { x: 50 + 26 * Math.sin(i * 1.15 + 0.4), y: 27 + 59 * t }
+      ? { x: [26, 50, 74, 50][i % 4]!, y: 27 + 59 * t }
       : { x: 9 + 82 * t, y: 58 + 18 * Math.sin(i * 1.05 + 0.5) };
   });
 }
@@ -132,7 +133,7 @@ function Island({ status, view }: { status: DailyStatus; view: "today" | "explor
 
   const target = pts[at] ?? { x: 50, y: 50 };
   const monsterPos = portrait
-    ? { left: `${target.x > 50 ? target.x - 24 : target.x + 24}%`, top: `${target.y + 4}%` }
+    ? { left: `${target.x > 50 ? 24 : target.x < 50 ? 76 : 84}%`, top: `${target.y + 4}%` } // the free side of the serpentine
     : { left: `${target.x}%`, top: `${target.y - 11}%` };
   const pathD = pts.map((q, i) => (i === 0 ? `M${q.x} ${q.y}` : `L${q.x} ${q.y}`)).join(" ");
   const litUpTo = lit.lastIndexOf(true);
@@ -183,7 +184,7 @@ function Island({ status, view }: { status: DailyStatus; view: "today" | "explor
       {view === "explore" ? (
         <Explore band={bandOf(st.ageBand)} />
       ) : (
-        <div className="map-stops trail" data-testid="trail" data-stops={stops.length}>
+        <div className={`map-stops trail ${stops.length > (portrait ? 5 : 7) ? "crowded" : ""}`} data-testid="trail" data-stops={stops.length}>
           <svg className="trail-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
             <path d={pathD} className="trail-line" vectorEffect="non-scaling-stroke" />
             {litUpTo >= 1 && <path d={litD} className="trail-line lit" vectorEffect="non-scaling-stroke" />}
