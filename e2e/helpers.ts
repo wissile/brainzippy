@@ -31,15 +31,18 @@ export async function press(page: Page, selector: string) {
 
 /** From the map/route into play: skip the game's story intro (or tap Start when resuming). */
 export async function enterGame(page: Page) {
+  // After a full page load the story may first ask for a tap to start sound ("<id>-begin"), then offer Skip.
+  const begin = page.locator('[data-testid="story-begin"]');
   const story = page.locator('[data-testid="story-skip"], [data-testid="start-game"]').first();
+  await begin.or(story).first().waitFor({ state: "visible", timeout: 20_000 });
+  if (await begin.isVisible()) await begin.click({ force: true });
   await story.waitFor({ state: "visible", timeout: 20_000 });
   await story.click({ force: true });
 }
 
+/** Opens a world directly (today's trail is planned from every world, so a given stop may not be on it). */
 export async function openGame(page: Page, id = "counting-adventure") {
-  await page.goto("/");
-  await press(page, '[data-testid="site-play"]');
-  await press(page, `[data-testid="stop-${id}"]`);
+  await page.goto(`/play/${id}`);
   await enterGame(page);
 }
 
