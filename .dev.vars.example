@@ -1,1 +1,6 @@
 APP_ENV="development"
+# Optional in development. Without RESEND_API_KEY, magic links are logged to the console and shown on screen.
+# RESEND_API_KEY="re_..."
+# SIGNING_SECRET="<at least 32 random characters>"
+# EMAIL_FROM="BrainZippy <hello@mail.brainzippy.com>"
+# APP_ORIGIN="https://brainzippy.com"

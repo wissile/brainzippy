@@ -14,8 +14,8 @@ export const JOBS: Record<string, Job> = {
 
 export const CRON_JOBS: Record<string, string[]> = {
   "17 3 * * *": ["purge"],
-  // 23:00, 23:20, 23:40 UTC (early evening in the Americas, late evening in Europe); each run sends one batch.
-  "0,20,40 23 * * *": ["daily-digest"],
+  // Every 10 min 23:00–23:50 UTC (early evening in the Americas, late evening in Europe); each run sends one batch.
+  "*/10 23 * * *": ["daily-digest"],
 };
 
 /** Runs every job for the cron; one failing job never stops the others. Returns the names that failed. */

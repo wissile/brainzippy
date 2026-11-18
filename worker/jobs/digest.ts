@@ -9,11 +9,20 @@ import { unsubscribeUrl } from "../routes/unsubscribe";
 
 /**
  * Daily progress email (opt-in per parent). Runs from Cron Triggers in the evening (UTC).
- * Each run handles up to BATCH parents with 3 D1 queries and 1 Resend batch call, which keeps it inside the Free plan's
+ * Each run handles up to digestBatch(env) parents with 3 D1 queries and 1 Resend batch call, which keeps it inside the Free plan's
  * 50 D1 queries and 50 subrequests per invocation; several runs per evening cover more parents (see wrangler.jsonc).
  * Parents whose children did not play in the last 24 hours get no email. Never sent to children.
  */
-export const BATCH = 90; // ≤ 100 bound parameters per D1 query; ≤ 100 emails per Resend batch
+/**
+ * Parents per run. Default 25 keeps one run well inside the Free plan's 10 ms CPU per Cron invocation (each parent's
+ * children's progress JSON is parsed). Set the DIGEST_BATCH var (max 90: ≤100 bound parameters per D1 query and
+ * ≤100 emails per Resend batch) higher on Workers Paid.
+ */
+export const DEFAULT_BATCH = 25;
+export const digestBatch = (env: Env) => {
+  const n = Number(env.DIGEST_BATCH ?? DEFAULT_BATCH);
+  return Number.isInteger(n) && n >= 1 && n <= 90 ? n : DEFAULT_BATCH;
+};
 const WINDOW_MS = 24 * 60 * 60 * 1000;
 const RESEND_GAP_MS = 20 * 60 * 60 * 1000;
 
@@ -66,7 +75,7 @@ export async function dailyDigest(env: Env, now = Date.now()): Promise<{ conside
   const parents = (
     await db
       .prepare("SELECT id, email FROM parents WHERE digest_opt_in = 1 AND (digest_last_sent_at IS NULL OR digest_last_sent_at < ?) ORDER BY id LIMIT ?")
-      .bind(now - RESEND_GAP_MS, BATCH)
+      .bind(now - RESEND_GAP_MS, digestBatch(env))
       .all<DigestParent>()
   ).results;
   if (parents.length === 0) return { considered: 0, sent: 0 };

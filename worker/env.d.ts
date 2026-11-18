@@ -11,4 +11,6 @@ interface Env {
   EMAIL_FROM?: string;
   /** Public origin used in emailed links, e.g. "https://brainzippy.com" (var). Defaults to the request origin. */
   APP_ORIGIN?: string;
+  /** Parents per digest run (1–90, default 25). Raise on Workers Paid. */
+  DIGEST_BATCH?: string;
 }

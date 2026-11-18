@@ -7,8 +7,9 @@
   // Invocation logs would retain request URLs (incl. guest ids) — keep them off for a children's product.
   "observability": { "enabled": true, "logs": { "invocation_logs": false } },
   "preview_urls": false,
-  // UTC. Each cron maps to named jobs in worker/jobs/index.ts (CRON_JOBS): 03:17 purge; 23:00/20/40 daily digest.
-  "triggers": { "crons": ["17 3 * * *", "0,20,40 23 * * *"] },
+  // UTC. Each cron maps to named jobs in worker/jobs/index.ts (CRON_JOBS): 03:17 purge; every 10 min in hour 23 daily digest.
+  // Free plan allows 5 Cron Triggers per account; this uses 2.
+  "triggers": { "crons": ["17 3 * * *", "*/10 23 * * *"] },
   "assets": {
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
@@ -23,7 +24,7 @@
       "migrations_dir": "migrations"
     }
   ],
-  // Secrets (wrangler secret put / .dev.vars): RESEND_API_KEY, SIGNING_SECRET. Optional vars: EMAIL_FROM, APP_ORIGIN.
+  // Secrets (wrangler secret put / .dev.vars): RESEND_API_KEY, SIGNING_SECRET. Optional vars: EMAIL_FROM, APP_ORIGIN, DIGEST_BATCH.
   "vars": { "APP_ENV": "development" },
   "env": {
     "staging": {
