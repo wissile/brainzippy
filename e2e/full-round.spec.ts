@@ -130,7 +130,10 @@ test("speech captions never cover objects the child must count", async ({ page }
   } else expect(area(pill)).toBe(0);
 });
 
-test("age tiles are announced as buttons", async ({ page }) => {
+test("legacy /play pickers open Explore", async ({ page }) => {
+  await seed(page, {});
   await page.goto("/play");
-  await expect(page.getByRole("button", { name: "Ages 3 to 5" })).toBeVisible();
+  await expect(page).toHaveURL(/\/explore$/);
+  await page.goto("/play/ages-3-5");
+  await expect(page).toHaveURL(/\/explore$/);
 });

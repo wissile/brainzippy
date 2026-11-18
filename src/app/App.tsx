@@ -5,7 +5,7 @@ import { AppProvider, useApp } from "./AppContext";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { MapScreen } from "./MapScreen";
 import { loadState } from "../services/storage";
-import { AgeScreen, GamesScreen, GrownUpsScreen } from "./screens";
+import { GrownUpsScreen } from "./screens";
 import { Onboarding } from "../onboarding/Onboarding";
 import { startAccountSync } from "../services/accountSync";
 import { PlayGate } from "../billing/PlayGate";
@@ -33,7 +33,6 @@ const Studio = import.meta.env.DEV ? lazy(() => import("../studio/Studio")) : nu
 
 const TITLES: Record<string, string> = {
   "/": "BrainZippy — Learning games for kids",
-  "/play": "Choose your age — BrainZippy",
   "/grown-ups": "For grown-ups — BrainZippy",
   "/hello": "Welcome — BrainZippy",
   "/map": "Monster Island — BrainZippy",
@@ -51,7 +50,8 @@ function Router() {
 
   // "/" is the prerendered landing page on a full load; inside the app it means "home" = map or first-run story.
   if (path === "/") return <RootRedirect />;
-  if (path === "/play") return <AgeScreen />;
+  // Legacy age/game pickers: Explore (all worlds by subject) and today's trail replaced them.
+  if (path === "/play" || /^\/play\/ages-[0-9-]+$/.test(path)) return <ExploreRedirect />;
   if (path === "/grown-ups") return <GrownUpsScreen />;
   if (path === "/hello") return <Onboarding />;
   if (path === "/map") return <MapScreen />;
@@ -96,9 +96,13 @@ function Router() {
         </PlayGate>
       </Suspense>
     );
-  const m = path.match(/^\/play\/(ages-[0-9-]+)$/);
-  if (m?.[1]) return <GamesScreen bandId={m[1]} />;
   return <RootRedirect />;
+}
+
+function ExploreRedirect() {
+  const { navigate } = useApp();
+  useEffect(() => navigate("/explore", { replace: true }), [navigate]);
+  return <Loading />;
 }
 
 /** In-app "/" and unknown paths: returning players go to Monster Island, new players to the first-run story. */

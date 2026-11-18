@@ -1,10 +1,6 @@
-import { useEffect, useState } from "react";
-import { audio } from "../audio/AudioEngine";
-import { Bobbo } from "../characters/Bobbo";
-import { Gloop, Hoot, Puff, Rumble, Zuzu } from "../characters/Crew";
-import { clearState, loadState, saveState } from "../services/storage";
-import { NavButton, SoundButton, SpeechBubble } from "../ui/controls";
-import { IconLock, IconPlay } from "../ui/icons";
+import { useState } from "react";
+import { clearState, loadState } from "../services/storage";
+import { NavButton } from "../ui/controls";
 import { useApp } from "./AppContext";
 import { ReminderSettings } from "../pwa/ReminderSettings";
 import { disableReminders } from "../pwa/push";
@@ -17,169 +13,6 @@ export const AGE_BANDS = [
   { id: "ages-9-11", label: "9–11", min: 9, max: 11, critter: "hoot" },
   { id: "ages-12-14", label: "12–14", min: 12, max: 14, critter: "rumble" },
 ] as const;
-
-function useSpeakOnEnter(id: string, enabled = true) {
-  const { audioReady } = useApp();
-  useEffect(() => {
-    if (!enabled || !audioReady) return;
-    const t = window.setTimeout(() => void audio.speak(id), 350);
-    return () => window.clearTimeout(t);
-  }, [id, audioReady, enabled]);
-}
-
-export function HomeScreen() {
-  const { navigate, unlockAudio } = useApp();
-  return (
-    <main className="screen home">
-      <div className="screen-top">
-        <span />
-        <SoundButton />
-      </div>
-      <h1 className="logo" aria-label="BrainZippy">
-        <span className="logo-brain">Brain</span>
-        <span className="logo-zippy">Zippy</span>
-        <svg className="logo-zap" viewBox="0 0 40 60" aria-hidden="true"><path d="M24 2 L6 34 H20 L14 58 L34 22 H20 Z" fill="#FFD43B" stroke="#2B2140" strokeWidth="4" strokeLinejoin="round" /></svg>
-      </h1>
-      <div className="home-crew" aria-hidden="true">
-        <Zuzu size={120} className="crew-a" />
-        <Bobbo state="greeting" size={170} className="crew-hero" />
-        <Gloop size={115} className="crew-b" />
-      </div>
-      <button
-        type="button"
-        className="big-play"
-        data-testid="home-play"
-        aria-label="Play"
-        onClick={() => {
-          unlockAudio();
-          audio.play("tap");
-          navigate(loadState().profile.step === "done" ? "/map" : "/hello");
-        }}
-      >
-        <IconPlay />
-        <span>Play</span>
-      </button>
-      <footer className="home-foot">
-        <a
-          href="/grown-ups"
-          onClick={(e) => {
-            e.preventDefault();
-            navigate("/grown-ups");
-          }}
-        >
-          For grown-ups
-        </a>
-      </footer>
-    </main>
-  );
-}
-
-const CRITTER = { zuzu: Zuzu, hoot: Hoot, rumble: Rumble, gloop: Gloop, puff: Puff } as const;
-
-export function AgeScreen() {
-  const { navigate, caption } = useApp();
-  useSpeakOnEnter("age.pick");
-  return (
-    <main className="screen ages">
-      <div className="screen-top">
-        <NavButton to="/" label="Home" />
-        <h1 className="screen-title">How old are you?</h1>
-        <SoundButton />
-      </div>
-      <div className="age-grid">
-        {AGE_BANDS.map((b, i) => {
-          const C = b.critter === "bobbo" ? null : CRITTER[b.critter];
-          return (
-            <button
-              key={b.id}
-              type="button"
-              className={`age-tile tile-${b.critter}`}
-              style={{ animationDelay: `${i * 70}ms` }}
-              data-testid={`age-${b.id}`}
-              aria-label={`Ages ${b.label.replace("–", " to ")}`}
-              onClick={() => {
-                audio.play("tap");
-                saveState({ ageBand: b.id });
-                navigate(`/play/${b.id}`);
-              }}
-            >
-              <span className="age-critter" aria-hidden="true">
-                {C ? <C size={100} /> : <Bobbo state="idle" size={110} />}
-              </span>
-              <span className="age-label" aria-hidden="true">{Array.from({ length: b.max - b.min + 1 }, (_, k) => <b key={k}>{b.min + k}</b>)}</span>
-            </button>
-          );
-        })}
-      </div>
-      <SpeechBubble text={caption} className="menu-caption" tail="down" />
-    </main>
-  );
-}
-
-export function GamesScreen({ bandId }: { bandId: string }) {
-  const { navigate, caption } = useApp();
-  const band = AGE_BANDS.find((b) => b.id === bandId);
-  const suitable = band ? band.min <= 6 && band.max >= 4 : false;
-  useSpeakOnEnter(suitable ? "games.pick" : "games.later", Boolean(band));
-
-  if (!band) {
-    return (
-      <main className="screen games">
-        <div className="screen-top"><NavButton to="/play" kind="back" label="Back" /><span /><SoundButton /></div>
-        <p className="empty-note">Let's pick your age first!</p>
-      </main>
-    );
-  }
-
-  return (
-    <main className="screen games">
-      <div className="screen-top">
-        <NavButton to="/play" kind="back" label="Back to ages" />
-        <h1 className="screen-title">Ages {band.label}</h1>
-        <SoundButton />
-      </div>
-      {suitable ? (
-        <div className="game-row">
-          <button
-            type="button"
-            className="game-tile featured"
-            data-testid="game-counting-adventure"
-            aria-label="Counting Adventure with Bobbo. Ages 4 to 6."
-            onClick={() => {
-              audio.play("tap");
-              navigate("/play/counting-adventure");
-            }}
-          >
-            <span className="game-art meadow-mini" aria-hidden="true">
-              <Bobbo state="idle" size={150} />
-              <span className="mini-apples"><i /><i /><i /></span>
-            </span>
-            <span className="game-name">Counting Adventure</span>
-            <span className="game-meta">Ages 4–6 · Counting to 10</span>
-            <span className="game-go" aria-hidden="true"><IconPlay /></span>
-          </button>
-          <div className="game-tile soon">
-            <span className="game-art" aria-hidden="true"><Zuzu size={110} /></span>
-            <span className="game-name">Letter Hunt</span>
-            <span className="soon-badge"><IconLock /> Soon</span>
-          </div>
-          <div className="game-tile soon">
-            <span className="game-art" aria-hidden="true"><Gloop size={105} /></span>
-            <span className="game-name">Shape Squish</span>
-            <span className="soon-badge"><IconLock /> Soon</span>
-          </div>
-        </div>
-      ) : (
-        <div className="later">
-          <Puff size={170} />
-          <p>New games for big kids are on the way!</p>
-          <button type="button" className="pill-btn" onClick={() => navigate("/play")}>Back</button>
-        </div>
-      )}
-      <SpeechBubble text={caption} className="menu-caption" tail="down" />
-    </main>
-  );
-}
 
 export function GrownUpsScreen() {
   const { navigate } = useApp();
@@ -223,7 +56,7 @@ export function GrownUpsScreen() {
         </ol>
 
         <h2>How the difficulty grows</h2>
-        <p>Each game has four levels. Within a round: two first-try answers in a row move to harder puzzles; needing three tries moves back to easier ones, so no child gets stuck. Every completed round starts the next round one level higher. The rules are the same for every child and are published here, so you always know why a puzzle got harder or easier.</p>
+        <p>Each game has several levels (6 to 10), and its puzzles are made fresh each day. Within a round, first-try answers make the next puzzles a little harder and puzzles that need several tries make them easier, so no child gets stuck. After a round where at least half the answers were right first time, the next round starts one level higher; otherwise your child plays the same level again. The rules are the same for every child and are published here, so you always know why a puzzle got harder or easier.</p>
 
         <DailyLimitSetting />
 
