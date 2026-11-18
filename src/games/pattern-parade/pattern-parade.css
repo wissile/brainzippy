@@ -91,7 +91,9 @@
   background: #c98444; border: 5px solid var(--pp-ink); box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.25), 0 6px 0 rgba(43, 33, 64, 0.25);
 }
 .pp-pick {
-  --size: clamp(64px, min(calc(var(--cell) * 0.95), 19vw), 104px);
+  /* sized from the viewport, never from --cell: the cart's height feeds the parade's cell size, so a cell-sized cart
+     made the layout oscillate (bigger cells → cart wraps → smaller cells → cart unwraps …) on phones */
+  --size: clamp(64px, min(9vw, 13vh), 104px);
   width: var(--size); height: var(--size); padding: 6px; border-radius: 22px; background: #fff8ec;
   border: 4px solid var(--cream); box-shadow: 0 6px 0 rgba(43, 33, 64, 0.3);
   touch-action: none; cursor: grab; -webkit-user-select: none; user-select: none;
