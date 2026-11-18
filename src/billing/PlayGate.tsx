@@ -40,8 +40,11 @@ export function PlayGate({ children }: { children: React.ReactNode }) {
   return playable ? <>{children}</> : <AskGrownUp />;
 }
 
+/** Same words as voice line paywall.askGrownUp (always shown, so muted players get it too). */
+const NAP_LINE = "Your monster is having a nap. Ask a grown-up to help you keep playing!";
+
 export function AskGrownUp() {
-  const { navigate, caption, audioReady } = useApp();
+  const { navigate, audioReady } = useApp();
   const st = loadState();
   const monster = { ...(st.profile.monster ?? DEFAULT_MONSTER), eyes: "sleepy" as const, mouth: "o" as const };
   useEffect(() => {
@@ -65,7 +68,7 @@ export function AskGrownUp() {
         </div>
         <div className="bz-nap-pillow" />
       </div>
-      <SpeechBubble text={caption || "Your monster is having a nap. Ask a grown-up to help you keep playing!"} className="bz-nap-bubble" tail="down" />
+      <SpeechBubble text={NAP_LINE} className="bz-nap-bubble" tail="down" />
       <button
         type="button"
         className="big-play bz-nap-go"

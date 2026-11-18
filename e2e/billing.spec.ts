@@ -20,13 +20,20 @@ async function passGate(page: Page) {
 
 async function signUp(page: Page, email: string) {
   await page.goto("/parents");
-  if (await page.getByTestId("pa-gate-answer").isVisible()) await passGate(page);
+  await maybeGate(page, page.getByTestId("pa-email"));
   await page.getByTestId("pa-email").fill(email);
   await page.getByTestId("pa-consent").check();
   await page.getByTestId("pa-send-link").click();
   await page.getByTestId("dev-magic-link").click();
   await page.getByTestId("verify-continue").click();
   await expect(page.getByTestId("pa-signed-in")).toContainText(email);
+}
+
+/** Pass the parent gate if it shows (lazy screens: wait until either the gate or the expected content is there). */
+async function maybeGate(page: Page, content: ReturnType<Page["getByTestId"]>) {
+  const gate = page.getByTestId("pa-gate-answer");
+  await expect(gate.or(content).first()).toBeVisible();
+  if (await gate.isVisible()) await passGate(page);
 }
 
 /** In-app navigation (keeps the page and its fake clock). */
@@ -37,7 +44,8 @@ async function spaGo(page: Page, path: string) {
   }, path);
 }
 
-const gameReady = (page: Page) => page.locator('[data-testid="story-skip"], [data-testid="start-game"]').first();
+/** The game (story intro, start button or board) is on screen instead of the ask-a-grown-up scene. */
+const gameReady = (page: Page) => page.locator('[data-testid="story-skip"], [data-testid="start-game"], [data-testid="game-screen"], [aria-label$=" story"]').first();
 
 async function noOverflow(page: Page) {
   const { sw, iw } = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: window.innerWidth }));
@@ -75,7 +83,7 @@ test("day 15 on a device: the child sees a sleepy-monster scene with no prices; 
   expect(box.height).toBeGreaterThanOrEqual(64);
   await page.screenshot({ path: info.outputPath("ask-grown-up.png") });
 
-  await go.click();
+  await go.click({ force: true }); // breathing animation never settles
   await expect(page.getByTestId("pa-gate-answer")).toBeVisible(); // grown-ups only
   expect(await page.locator("body").innerText()).not.toContain("6.99");
   await passGate(page);
@@ -104,7 +112,7 @@ test("parent gate → paywall → Checkout (fake Stripe) → webhook → Stripe 
   await page.clock.setSystemTime(t0 + 15 * DAY);
   await spaGo(page, GAME);
   await expect(page.getByTestId("ask-grown-up")).toBeVisible();
-  await page.getByTestId("ask-grown-up-go").click();
+  await page.getByTestId("ask-grown-up-go").click({ force: true });
   await expect(page.getByTestId("paywall-actions")).toBeVisible(); // gate already passed in this tab, signed in
   await page.getByTestId("billing-checkout").click();
   await expect(page.getByRole("alert")).toContainText("tick the box"); // explicit consent, never pre-ticked
@@ -117,7 +125,7 @@ test("parent gate → paywall → Checkout (fake Stripe) → webhook → Stripe 
   await page.getByTestId("dev-checkout-pay").click();
 
   await expect(page).toHaveURL(/\/parents\?billing=success$/);
-  if (await page.getByTestId("pa-gate-answer").isVisible()) await passGate(page);
+  await maybeGate(page, page.getByTestId("billing-status"));
   const status = page.getByTestId("billing-status");
   await expect(status).toHaveAttribute("data-source", "stripe");
   await expect(status).toHaveAttribute("data-status", "trial");
@@ -135,7 +143,7 @@ test("parent gate → paywall → Checkout (fake Stripe) → webhook → Stripe 
   await expect(page).toHaveURL(/\/api\/billing\/dev\/portal\?/);
   await page.getByTestId("dev-portal-cancel").click();
   await expect(page).toHaveURL(/\/parents\?billing=portal$/);
-  if (await page.getByTestId("pa-gate-answer").isVisible()) await passGate(page);
+  await maybeGate(page, page.getByTestId("billing-status"));
   await expect(page.getByTestId("billing-status")).toContainText("cancelled");
   await expect(page.getByTestId("billing-cancel")).toHaveCount(0);
   expect(errors).toEqual([]);
