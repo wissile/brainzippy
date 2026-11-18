@@ -1,0 +1,33 @@
+{
+  "lines": {
+    "bi.story.1": { "text": "Every evening, Balance Scale Island opens its night market by the harbour." },
+    "bi.story.2": { "text": "Bobbo runs the weighing stall. Tonight, the rain washed every label off his bags!" },
+    "bi.story.3": { "text": "The bags are sealed, so nobody can peek inside. Customers are waiting." },
+    "bi.story.4": { "text": "I'm Rumble. A level scale never lies. Let's find each weight, one fair step at a time." },
+    "bi.story.mid1": { "text": "The queue is shrinking. Labels are going back on!" },
+    "bi.story.mid2": { "text": "Halfway there. The harbour lanterns are lighting up." },
+    "bi.story.mid3": { "text": "Last few bags before the market closes." },
+    "bi.story.end1": { "text": "Every bag has its label back, and the night market is buzzing." },
+    "bi.story.end2": { "text": "You kept both sides equal every single time. That's how equations work." },
+    "bi.story.end3": { "text": "You earned the Balance Keeper badge. Tomorrow, the bags get trickier!" },
+    "bi.prompt.tutorial": { "text": "Take the same weight off both pans until the bag is on its own." },
+    "bi.prompt.one": { "text": "Keep the scale balanced. What does one bag weigh?" },
+    "bi.prompt.both": { "text": "Bags on both pans! What does one bag weigh?" },
+    "bi.prompt.story": { "text": "Read the story. Which equation matches it? Then solve it." },
+    "bi.story.matched": { "text": "That equation matches the story. Now solve it on the scale." },
+    "bi.story.retry": { "text": "Not quite. Check where each number in the story belongs." },
+    "bi.help.explain": { "text": "A balanced scale is an equation. Whatever you do to one pan, do to the other." },
+    "bi.help.hint": { "text": "Test it. Put that weight in every bag. Does the scale stay level? Try taking the same off both pans." },
+    "bi.tilt": { "text": "It tipped! Do the same to the other pan to level it." },
+    "bi.level": { "text": "Level again. Look at the new equation." },
+    "bi.alone": { "text": "One bag on its own! Now you can read what it weighs." },
+    "bi.idle": { "text": "Drag a weight off a pan, or use the buttons to change both sides at once." },
+    "bi.retry": { "text": "Not that one. Keep the scale level and try again." },
+    "bi.praise.1": { "text": "One bag weighs {n}. You kept both sides balanced!", "vary": { "n": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] } },
+    "bi.praise.2": { "text": "Yes, x is {n}. You undid each step carefully.", "vary": { "n": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] } },
+    "bi.praise.3": { "text": "{n} it is! Same on both sides, every time.", "vary": { "n": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] } },
+    "bi.praise.4": { "text": "Spot on. x equals {n}, and the scale stays level.", "vary": { "n": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] } },
+    "bi.hint.model": { "text": "Let's solve it together, doing the same to both pans each step." },
+    "bi.hint.modelTap": { "text": "One bag balances {n}. So x is {n}.", "vary": { "n": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] } }
+  }
+}
