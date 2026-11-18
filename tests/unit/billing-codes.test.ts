@@ -6,8 +6,8 @@ import * as cli from "../../scripts/access-code.mjs";
 import { createD1 } from "./helpers/d1";
 import { PRICE } from "../../src/billing/model";
 import { SITE } from "../../src/site/entity";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { renderLlms } from "../../src/site/llms";
+import { buildRoutes } from "../../src/site/routes";
 
 describe("access code normalisation + hashing", () => {
   it("normalises case, spaces and dashes; rejects too short/long or non-strings", () => {
@@ -70,7 +70,7 @@ describe("published price stays consistent", () => {
   it("site entity, llms.txt and the billing model agree", () => {
     expect(SITE.pricing?.amount).toBe((PRICE.cents / 100).toFixed(2));
     expect(SITE.pricing?.trialDays).toBe(14);
-    const llms = readFileSync(join(__dirname, "../../public/llms.txt"), "utf8");
+    const llms = renderLlms(buildRoutes()); // generated at build time (no static public/llms.txt)
     expect(llms).toContain(PRICE.display);
     expect(llms).toContain("https://brainzippy.com/pricing");
   });

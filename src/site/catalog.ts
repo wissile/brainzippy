@@ -34,6 +34,10 @@ export interface SiteGame {
   levelCount: number;
   levels: readonly SiteLevel[];
   roundLength: number;
+  /** First-try answers in a row that make the next puzzles in a round harder. */
+  stepUpAfter: number;
+  /** True when puzzles are generated fresh (seeded per day); false for hand-written puzzle sets. */
+  generated: boolean;
   playPath: string;
 }
 
@@ -80,6 +84,8 @@ export const GAMES: readonly SiteGame[] = allWorlds()
     levelCount: w.maxLevel + 1,
     levels: levelsOf(DEFS.get(w.id)!, w.maxLevel),
     roundLength: DEFS.get(w.id)!.progression.roundLength,
+    stepUpAfter: DEFS.get(w.id)!.progression.stepUpAfter,
+    generated: typeof DEFS.get(w.id)!.generate === "function",
     playPath: `/play/${w.id}`,
   }))
   .sort((a, b) => a.ages[0] - b.ages[0] || a.ages[1] - b.ages[1] || a.title.localeCompare(b.title));
@@ -90,3 +96,23 @@ export const gameById = (id: string) => GAMES.find((g) => g.id === id);
 export function overlapYears(ages: readonly [number, number], band: { min: number; max: number }): number {
   return Math.max(0, Math.min(ages[1], band.max) - Math.max(ages[0], band.min) + 1);
 }
+
+/** Ages covered by the published games today (derived, so it can never go stale). */
+export const AGES_NOW = { min: Math.min(...GAMES.map((g) => g.ages[0])), max: Math.max(...GAMES.map((g) => g.ages[1])) } as const;
+
+export interface SiteSubject {
+  id: string;
+  title: string;
+  games: readonly SiteGame[];
+}
+
+/** Subjects with at least one published game, most games first (ties: registry title). */
+export const SUBJECTS_NOW: readonly SiteSubject[] = [...new Set(GAMES.map((g) => g.subject))]
+  .map((id) => ({ id, title: registry.subjects.find((s) => s.id === id)?.title ?? id, games: GAMES.filter((g) => g.subject === id) }))
+  .sort((a, b) => b.games.length - a.games.length || a.title.localeCompare(b.title));
+
+/** Fewest and most levels across published games. */
+export const LEVEL_RANGE = { min: Math.min(...GAMES.map((g) => g.levelCount)), max: Math.max(...GAMES.map((g) => g.levelCount)) } as const;
+
+/** "a, b and c" */
+export const listJoin = (xs: readonly string[]) => (xs.length <= 1 ? (xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}`);

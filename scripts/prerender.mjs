@@ -5,6 +5,7 @@
  *   dist/client/landing.html            served at /   (via a _redirects 200 rewrite; index.html stays the SPA shell)
  *   dist/client/<path>.html             served at /<path> (Workers Static Assets html_handling: auto-trailing-slash)
  *   dist/client/sitemap.xml
+ *   dist/client/llms.txt                generated from the registry + editorial copy (src/site/llms.ts)
  *   dist/client/assets/site-<hash>.js   the only script on content pages
  *   dist/client/assets/<font>-<hash>.woff2
  *
@@ -51,7 +52,7 @@ const assets = {
   preloadFont: fontUrls[0].url,
 };
 
-const { pages, sitemap } = site.renderSite(assets);
+const { pages, sitemap, llms } = site.renderSite(assets);
 for (const p of pages) {
   const dest = join(out, p.file);
   if (existsSync(dest)) throw new Error(`prerender: ${p.file} already exists in the build (a public/ file would be shadowed)`);
@@ -59,6 +60,10 @@ for (const p of pages) {
   writeFileSync(dest, p.html);
 }
 writeFileSync(join(out, "sitemap.xml"), sitemap);
+for (const generated of ["llms.txt"]) {
+  if (existsSync(join(out, generated))) throw new Error(`prerender: ${generated} is generated; delete public/${generated}`);
+}
+writeFileSync(join(out, "llms.txt"), llms);
 
 // Merge our routing rules ahead of any rules copied from public/_redirects.
 const redirectsPath = join(out, "_redirects");
@@ -71,4 +76,4 @@ if (!/name="robots" content="noindex/.test(shell)) throw new Error("prerender: d
 
 const kb = (n) => (n / 1024).toFixed(1);
 const sizes = pages.map((p) => Buffer.byteLength(p.html));
-console.log(`prerender: ${pages.length} pages (HTML ${kb(Math.min(...sizes))}–${kb(Math.max(...sizes))} KB), sitemap.xml, _redirects, site js ${kb(Buffer.byteLength(site.SITE_JS))} KB`);
+console.log(`prerender: ${pages.length} pages (HTML ${kb(Math.min(...sizes))}–${kb(Math.max(...sizes))} KB), sitemap.xml, llms.txt, _redirects, site js ${kb(Buffer.byteLength(site.SITE_JS))} KB`);

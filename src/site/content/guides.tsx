@@ -88,7 +88,7 @@ export const GUIDES: readonly Guide[] = [
     short: "What is subitizing?",
     description: "Subitizing means knowing how many objects there are without counting. What it is, why it matters for early maths, and easy dice, finger and ten-frame games to try.",
     published: "2026-11-17",
-    updated: "2026-11-17",
+    updated: "2026-11-18",
     ages: "3–6",
     games: ["counting-adventure"],
     takeaways: [
@@ -109,7 +109,7 @@ export const GUIDES: readonly Guide[] = [
         <p>Conceptual subitizing is where counting starts to turn into adding. A child who sees seven in a ten frame as “a row of five and two more” is already thinking about how numbers are made.</p>
         <h2>Why it matters</h2>
         <p>Subitizing gives children a way to check their counting (“I counted four, and it looks like four”) and helps them understand that a number is a whole amount, not just the last word in a list. It also makes later strategies faster: a child who instantly sees five on one hand only needs to count on the extra fingers.</p>
-        <p>Counting and subitizing support each other. Counting gives children a reliable method for any amount, while subitizing gives them quick, structured pictures of small amounts <Cite k="gelman1978" />.</p>
+        <p>Counting and subitizing support each other. Counting gives children a reliable method for any amount, built on principles such as one number for each thing and the last number telling how many <Cite k="gelman1978" />. Subitizing gives them quick, structured pictures of small amounts <Cite k="clements1999" />.</p>
         <h2>Simple quick-look games</h2>
         <ul>
           <li><strong>Flash and hide.</strong> Show a few objects under your hand for two seconds, then cover them. “How many did you see?” Start with one to three.</li>
@@ -170,7 +170,7 @@ export const GUIDES: readonly Guide[] = [
     short: "The making ten strategy",
     description: "How the “make ten” strategy helps children add numbers like 8 + 5, why counting on comes first, and ten-frame and finger games to practise at home.",
     published: "2026-11-17",
-    updated: "2026-11-17",
+    updated: "2026-11-18",
     ages: "5–8",
     games: ["sky-balloon-race"],
     takeaways: [
@@ -206,7 +206,7 @@ export const GUIDES: readonly Guide[] = [
           <li><strong>Talk it through.</strong> “How did you work out 9 + 4?” Children who explain their strategy understand it better than children who just give answers.</li>
         </ul>
         <h2>How BrainZippy builds it</h2>
-        <p>In <a href="/games/sky-balloon-race">Sky Balloon Race</a>, sums start small, so counting on is easy to learn, then grow to sums from 6 to 10, then to sums that cross ten, and finally to teen numbers up to 20. If your child misses, Puff reminds them to start with the bigger number. After a second miss, the game shows a worked example in two ten frames: the bigger number fills in, then the rest are counted on, so your child sees the first ten fill before the count continues. Worked examples like this help beginners, and we step back once your child is getting answers right <Cite k="sweller2019" />.</p>
+        <p>In <a href="/games/sky-balloon-race">Sky Balloon Race</a>, sums start small, so counting on is easy to learn, then grow to sums from 6 to 10, then to sums that cross ten, and finally to teen numbers up to 20. If your child misses, Puff reminds them to start with the bigger number. After a second miss, the game shows a worked example in two ten frames: the bigger number fills in, then the rest are counted on, so your child sees the first ten fill before the count continues. Worked examples like this help beginners, though most of that research is with older students <Cite k="sweller2019" />. Your child only sees one after two misses, so the support fades away as they start getting answers right first time.</p>
       </>
     ),
   }),
@@ -260,7 +260,7 @@ export const GUIDES: readonly Guide[] = [
     short: "Building a daily learning habit",
     description: "Why little and often beats long sessions for young learners, what research on spacing and habits suggests, and practical tips for a five-to-ten-minute daily routine.",
     published: "2026-11-17",
-    updated: "2026-11-17",
+    updated: "2026-11-18",
     ages: "4–9",
     games: [],
     takeaways: [
@@ -287,7 +287,7 @@ export const GUIDES: readonly Guide[] = [
           <li><strong>Mix screen and real-world maths.</strong> Count stairs, share snacks, play board games. A game is one tool among many.</li>
         </ul>
         <h2>How BrainZippy supports a routine</h2>
-        <p>BrainZippy games are built around short rounds of eight puzzles. Within a round, puzzles get harder after two first-try answers and easier if your child needs three tries, and each finished round starts one level higher, so practice keeps moving without getting stuck. Stars and Brain Sparks mark progress, but there's no prize shop and nothing to buy with them, so the game itself stays the reason to play. We're building a gentle daily limit that grown-ups can adjust, so a session ends with “come back tomorrow” rather than endless play.</p>
+        <p>BrainZippy games are built around short rounds of eight puzzles. Within a round, puzzles get harder after a few first-try answers in a row and easier if your child needs three tries, and after a round with at least half the answers right first time, the next round starts one level higher, so practice keeps moving without getting stuck. Each day's plan is a short trail of games (5 by default; grown-ups can choose 3 to 10) that mixes new material with review of earlier skills, then ends with “come back tomorrow” rather than endless play. Stars and Brain Sparks mark progress, but there's no prize shop and nothing to buy with them, so the game itself stays the reason to play.</p>
       </>
     ),
   }),
@@ -297,7 +297,7 @@ export const GUIDES: readonly Guide[] = [
     short: "Screen time and learning games",
     description: "What the AAP and WHO recommend for young children's screen time, what makes a learning app worth the time, and how to fit games into a balanced day.",
     published: "2026-11-17",
-    updated: "2026-11-17",
+    updated: "2026-11-18",
     ages: "3–9",
     games: [],
     takeaways: [
@@ -333,7 +333,7 @@ export const GUIDES: readonly Guide[] = [
           <li><strong>Make a family media plan</strong> so everyone knows the rules, including the grown-ups.</li>
         </ul>
         <h2>How BrainZippy approaches screen time</h2>
-        <p>We designed BrainZippy around those four questions. Every game asks your child to make a decision with numbers. Scenes stay calm while your child is answering. There are no ads, no chat and no purchase prompts for children. Rounds are short, and a daily limit that grown-ups can adjust is on the way. We'd rather your child plays for ten good minutes and then goes outside.</p>
+        <p>We designed BrainZippy around those four questions. Every puzzle asks your child to make a real decision, about numbers, shapes or the sounds of words. Scenes stay calm while your child is answering. There are no ads, no chat and no purchase prompts for children. Rounds are short, and the daily plan ends after a few games (5 by default; grown-ups can choose 3 to 10). We'd rather your child plays for ten good minutes and then goes outside.</p>
       </>
     ),
   }),
@@ -343,7 +343,7 @@ export const GUIDES: readonly Guide[] = [
     short: "When your child gets it wrong",
     description: "How to respond to mistakes in ways that keep children trying: praising effort and strategy, giving hints before answers, and using worked examples.",
     published: "2026-11-17",
-    updated: "2026-11-17",
+    updated: "2026-11-18",
     ages: "3–9",
     games: ["counting-adventure", "glow-cave-hops", "sky-balloon-race", "cookie-kitchen"],
     takeaways: [
@@ -372,11 +372,11 @@ export const GUIDES: readonly Guide[] = [
           <li><strong>A worked example.</strong> Do it together, step by step, out loud.</li>
           <li><strong>Hand it back.</strong> Let your child give the final answer themselves.</li>
         </ol>
-        <p>Worked examples are especially helpful for beginners, who can get overloaded trying to work out a method and an answer at the same time. As children become more skilled, the benefit fades, and solving problems on their own works better <Cite k="sweller2019" />.</p>
+        <p>Worked examples are especially helpful for beginners, who can get overloaded trying to work out a method and an answer at the same time. As learners become more skilled, the benefit fades, and solving problems on their own works better <Cite k="sweller2019" />. Most of this research is with older students, so for young children treat it as a sensible guide, not a fixed rule.</p>
         <h2>What it can sound like</h2>
         <p>Your child counts six apples as seven. Instead of “No, it's six”, try: “Hmm, let's check together. Can you touch each one as you count?” They count again and touch one apple twice. “Oops, that one got two numbers. Let's move each apple to the side once we've counted it.” This time they get six. “You checked carefully and found it. Six!” The mistake became the lesson, and your child still found the answer.</p>
         <h2>Less feedback as skills grow</h2>
-        <p>Detailed feedback helps most when a skill is new. One study found that feedback helped children who didn't yet have a strategy, but could actually get in the way for children who already had one <Cite k="fyfe2015" />. As your child gets more confident, step back: a simple “yes” or “let's check that one” is often enough.</p>
+        <p>Detailed feedback helps most when a skill is new. One study with second and third graders found that feedback helped children who didn't yet have a strategy, but could actually get in the way for children who already had one <Cite k="fyfe2015" />. As your child gets more confident, step back: a simple “yes” or “let's check that one” is often enough.</p>
         <h2>Things to avoid</h2>
         <ul>
           <li>Sighing, rushing or finishing the problem for them.</li>

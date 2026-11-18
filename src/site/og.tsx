@@ -59,7 +59,7 @@ function Card({ title, tag, critters }: { title: string; tag: string; critters: 
 export function ogJobs(fontFace: string): OgJob[] {
   const jobs: OgJob[] = [];
   const card = (file: string, el: React.ReactNode) => jobs.push({ file, width: 1200, height: 630, html: doc(fontFace, el) });
-  card("default.png", <Card title="Story-based maths games for kids" tag={`Ages ${SITE.agesNow.min}–${SITE.agesNow.max} · No ads`} critters={[{ c: "zuzu", size: 150 }, { c: "bobbo", size: 250 }, { c: "gloop", size: 140 }]} />);
+  card("default.png", <Card title="Story-based learning games for kids" tag={`Ages ${SITE.agesNow.min}–${SITE.agesNow.max} · No ads`} critters={[{ c: "zuzu", size: 150 }, { c: "bobbo", size: 250 }, { c: "gloop", size: 140 }]} />);
   for (const g of GAMES) {
     const c = GAME_COPY[g.id];
     if (!c) continue;

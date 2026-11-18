@@ -22,9 +22,9 @@ export function Critter({ c, size = 120, className = "" }: { c: CritterId; size?
 
 export const ages = (a: readonly [number, number]) => `${a[0]}–${a[1]}`;
 
-export function GameCard({ game, headingLevel = 3 }: { game: SiteGame; headingLevel?: 2 | 3 }) {
+export function GameCard({ game, headingLevel = 3 }: { game: SiteGame; headingLevel?: 2 | 3 | 4 }) {
   const copy = GAME_COPY[game.id];
-  const H = headingLevel === 2 ? "h2" : "h3";
+  const H = headingLevel === 2 ? "h2" : headingLevel === 4 ? "h4" : "h3";
   return (
     <article className={`card game-card tint-${copy?.critter ?? "bobbo"}`}>
       <Critter c={copy?.critter ?? "bobbo"} size={96} />
@@ -33,7 +33,7 @@ export function GameCard({ game, headingLevel = 3 }: { game: SiteGame; headingLe
         <p className="meta">Ages {ages(game.ages)} · {game.skillIds.map((s) => SKILLS[s]?.name ?? s).join(", ")}</p>
         <p>{copy?.oneLine ?? game.learningObjective}</p>
         <p className="card-actions">
-          <a className="text-link" href={`/games/${game.id}`}>About this game</a>
+          <a className="text-link tap-link" href={`/games/${game.id}`}>About this game</a>
           <a className="play play-small" href={game.playPath}><PlayIcon /><span>Play</span></a>
         </p>
       </div>
