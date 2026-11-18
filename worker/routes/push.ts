@@ -1,5 +1,6 @@
 import { REMINDER_TITLE, type ReminderPayload, reminderBody, reminderVariant } from "../../src/pwa/reminderCopy";
 import type { Ctx, Route } from "../router";
+import { readCapped } from "../lib/http";
 import { LIMITS, allow, clientIp } from "../lib/rateLimit";
 import { type VapidKeys, b64urlDecode, sendWebPush } from "../lib/webpush";
 import { isAllowedHour, isValidTimeZone, selectDue } from "../lib/webpushSchedule";
@@ -76,9 +77,9 @@ function sameOrigin(req: Request): boolean {
 
 async function readBody(req: Request): Promise<Record<string, unknown> | undefined> {
   if (!(req.headers.get("content-type") ?? "").includes("application/json")) return undefined;
-  if (Number(req.headers.get("content-length") ?? "0") > MAX_BODY) return undefined;
-  const text = await new Response(req.body).text().catch(() => "");
-  if (text.length > MAX_BODY) return undefined;
+  // Byte-counted, aborts at MAX_BODY: never buffers an oversized or chunked body.
+  const text = await readCapped(req, MAX_BODY).catch(() => undefined);
+  if (text === undefined) return undefined;
   try {
     const v = JSON.parse(text) as unknown;
     return v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : undefined;

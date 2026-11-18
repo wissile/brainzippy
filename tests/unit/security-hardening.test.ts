@@ -168,3 +168,37 @@ describe("per-IP rate-limit keys", () => {
     expect(statuses[10]).toBe(429);
   });
 });
+
+describe("capped body reads", () => {
+  const chunked = (bytes: number, chunk = 1000) =>
+    new ReadableStream<Uint8Array>({
+      start(c) {
+        for (let sent = 0; sent < bytes; sent += chunk) c.enqueue(new TextEncoder().encode("x".repeat(Math.min(chunk, bytes - sent))));
+        c.close();
+      },
+    });
+  const streamReq = (url: string, bytes: number, headers: Record<string, string> = {}) =>
+    new Request(url, { method: "POST", body: chunked(bytes), headers: { "content-type": "application/json", ...headers }, duplex: "half" } as RequestInit);
+
+  it("readCapped counts real bytes, ignores a lying Content-Length and stops at the cap", async () => {
+    const { readCapped } = await import("../../worker/lib/http");
+    expect(await readCapped(streamReq("https://x.test/", 100), 100)).toHaveLength(100);
+    expect(await readCapped(streamReq("https://x.test/", 101), 100)).toBeUndefined();
+    expect(await readCapped(streamReq("https://x.test/", 5000, { "content-length": "10" }), 100)).toBeUndefined();
+    expect(await readCapped(new Request("https://x.test/", { method: "POST", body: "x".repeat(10), headers: { "content-length": "999999" } }), 100)).toBeUndefined();
+    expect(await readCapped(new Request("https://x.test/", { method: "POST" }), 100)).toBeUndefined();
+  });
+
+  it("Stripe webhook refuses an oversized chunked body (413) before verifying anything", async () => {
+    const t = fakeEnv({ STRIPE_WEBHOOK_SECRET: "whsec_x", STRIPE_SECRET_KEY: "sk_test_x" } as never);
+    const { MAX_WEBHOOK_BYTES } = await import("../../worker/lib/stripeEvents");
+    const res = await handleApi(streamReq("https://brainzippy.test/api/billing/webhook", MAX_WEBHOOK_BYTES + 1, { "stripe-signature": "t=1,v1=00" }), t.env);
+    expect(res.status).toBe(413);
+  });
+
+  it("push subscribe refuses a chunked body over 2 KB", async () => {
+    const t = fakeEnv({ VAPID_PUBLIC_KEY: "x", VAPID_PRIVATE_KEY: "y" } as never);
+    const res = await handleApi(streamReq("https://brainzippy.test/api/push/subscribe", 3000, { origin: "https://brainzippy.test" }), t.env);
+    expect(res.status).toBe(400);
+  });
+});

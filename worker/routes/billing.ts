@@ -2,7 +2,7 @@ import type { Ctx, Route } from "../router";
 import { requireParent } from "../lib/auth";
 import { appOrigin } from "../lib/config";
 import { billingDeletionStatements, billingExport, loadBilling, mergeTrialStart } from "../lib/entitlements";
-import { err, esc, html, json, readJson, redirect } from "../lib/http";
+import { err, esc, html, json, readCapped, readJson, redirect } from "../lib/http";
 import { allow, clientIp, type Limit } from "../lib/rateLimit";
 import { benv, StripeError, stripeMode } from "../lib/stripe";
 import { MAX_WEBHOOK_BYTES, processWebhook } from "../lib/stripeEvents";
@@ -180,9 +180,9 @@ export const routes: Route[] = [
     async handler({ req, env, url }) {
       const secret = webhookSecret(env, url);
       if (!secret) return err("billing_not_configured", 503);
-      if (Number(req.headers.get("content-length") ?? "0") > MAX_WEBHOOK_BYTES) return err("too_large", 413);
-      const payload = await req.text();
-      if (payload.length > MAX_WEBHOOK_BYTES) return err("too_large", 413);
+      // Byte-counted read that stops at the cap (Content-Length can be absent or wrong).
+      const payload = await readCapped(req, MAX_WEBHOOK_BYTES);
+      if (payload === undefined) return err("too_large", 413);
       const r = await processWebhook(env, payload, req.headers.get("stripe-signature"), secret);
       return json(r.body, r.status);
     },
