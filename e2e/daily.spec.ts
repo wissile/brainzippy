@@ -100,7 +100,7 @@ test("after the limit, /play URLs show the end-of-day scene; the next local day 
   await expect(page.locator('[data-testid="story"], [data-testid="start-game"]').first()).toBeVisible({ timeout: 20_000 });
 });
 
-test("Explore lists every world by subject; plays count toward today", async ({ page }, info) => {
+test("Explore lists every world by subject and opens one", async ({ page }, info) => {
   await start(page, { roundsToday: 1, limit: 5, ageBand: "ages-6-8" });
   await page.goto("/map");
   await press(page, '[data-testid="view-explore"]');
