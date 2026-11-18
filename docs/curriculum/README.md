@@ -33,6 +33,7 @@ Library (e.g. Maths)                      id: math
 ### IDs
 - Format `lib.topic.skill`, lowercase, kebab-case inside each segment. IDs are **permanent**: progress is keyed by them. Rename = new id + migration note.
 - Library ids: `ela` English · `math` Maths · `cs` Computer science · `pilot` Pilot ground school · `money` Money and financial literacy · `cyber` Digital safety · `sci` Science · `geo` Geography and cultures · `sel` Social and emotional skills · `engr` Engineering · `nature` Nature, oceans and environment.
+- In a library's skills table, prerequisites from the same library may drop the library prefix (`shape.name` = `math.shape.name`); cross-library prerequisites are always written in full.
 - Existing ids (`math.count.*`, `math.add.number-line`, `math.add.within-20`, `math.div.share-equally`) stay unchanged. The old candidate `literacy.letters.recognise` becomes `ela.letters.recognise`.
 
 ### Answer kinds (shared vocabulary for every world spec)

@@ -38,7 +38,7 @@ Ages 4–14. **Host:** Bobbo (counting, existing); topic hosts Gloop (shapes), P
 | `math.frac.compare` | compare fractions with the same numerator or denominator | 8–10 | frac.on-line | bigger denominator = bigger fraction | 1/4 vs 3/4 | 3/8 vs 3/5 | 3.NF.A.3d |
 | `math.frac.estimate` | place a fraction on an unmarked line within tolerance | 9–11 | frac.equivalent | ignores the size of 1 | 1/2 on 0–1 unmarked | 7/4 on 0–3 unmarked | 3.NF.A.2 |
 | `math.time.hour-half` | read and set times to the hour and half hour | 6–7 | count.cardinality | hour hand points exactly at the number at half past | set 3 o'clock | read half past 11 | 1.MD.B.3 |
-| `math.time.five-min` | read and set times to 5 minutes with a.m./p.m. | 7–8 | time.hour-half, mult (×5 skip count soft) | minute hand number read as minutes (the 2 means 2 minutes) | 4:15 | 10:55 p.m. from a scene clue | 2.MD.C.7 |
+| `math.time.five-min` | read and set times to 5 minutes with a.m./p.m. | 7–8 | time.hour-half, mult.arrays (soft) | minute hand number read as minutes (the 2 means 2 minutes) | 4:15 | 10:55 p.m. from a scene clue | 2.MD.C.7 |
 | `math.time.elapsed` | tell time to the minute and solve elapsed-time problems | 8–9 | time.five-min | subtracting times as decimals (2:50 − 1:40) | start 3:00, 20 min later | 9:47 → 11:15, how long? | 3.MD.A.1 |
 | `math.money.coins` | find the value of coins and bills and make an amount | 7–8 | add.within-100 | bigger coin = more value (nickel vs dime) | 3 pennies | make 87¢ with fewest coins | 2.MD.C.8 |
 | `math.geom.area-perimeter` | find area by unit squares and multiplication; distinguish perimeter | 8–10 | mult.arrays | area and perimeter swapped | count squares in a 2 × 3 room | room with area 24 and perimeter 20 | 3.MD.C.7, 3.MD.D.8 |
