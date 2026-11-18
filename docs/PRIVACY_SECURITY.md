@@ -95,7 +95,7 @@ Not stored: names, emails, IP addresses, account or child ids (subscriptions are
 - Test data only: automated tests use synthetic data; no real child data in development.
 
 ## Known gaps / next steps
-1. Rate limiting: account endpoints are rate-limited in the Worker (above). Guest endpoints (`/api/guest*`, sync OFF) still have none; add a free WAF rate-limiting rule on `/api/*` before launch.
+1. Rate limiting: account endpoints are rate-limited in the Worker (above). Guest writes (`/api/guest*`, sync OFF) are disabled (404) unless `GUEST_SYNC_ENABLED`, and rate-limited per IP if enabled; still add a free WAF rate-limiting rule on `/api/*` before launch.
 2. Restore path for server backup (parent-held recovery code behind a parent gate) — prerequisite for re-enabling sync.
 3. Stronger parent gate design (current arithmetic gate is a speed bump, not a security control).
 4. Privacy policy text and data-processing records drafted with counsel.
