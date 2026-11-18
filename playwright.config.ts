@@ -14,7 +14,7 @@ export default defineConfig({
   fullyParallel: false,
   workers: 2,
   reporter: [["list"], ["html", { open: "never" }]],
-  use: { baseURL: `http://localhost:${PORT}`, trace: "retain-on-failure", screenshot: "only-on-failure" },
+  use: { baseURL: `http://localhost:${PORT}`, serviceWorkers: "block", trace: "retain-on-failure", screenshot: "only-on-failure" },
   webServer: { command: `npm run build && npx vite preview --port ${PORT} --strictPort`, url: `http://localhost:${PORT}/api/health`, reuseExistingServer: false, timeout: 180_000 },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } } },

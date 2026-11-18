@@ -1,6 +1,9 @@
 import { type Page, expect, test } from "@playwright/test";
 import { collectErrors, enterGame, press, seed, solve, waitForNext } from "./helpers";
 
+/** These tests exercise the service worker; every other spec blocks it (playwright.config.ts). */
+test.use({ serviceWorkers: "allow" });
+
 /** Installable PWA, offline play, offline fallback and parent-controlled push reminders. Desktop Chromium. */
 test.beforeEach(({ browserName }, info) => {
   test.skip(browserName !== "chromium" || info.project.name !== "desktop", "service-worker specs run on desktop Chromium");

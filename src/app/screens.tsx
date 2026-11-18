@@ -7,6 +7,7 @@ import { NavButton, SoundButton, SpeechBubble } from "../ui/controls";
 import { IconLock, IconPlay } from "../ui/icons";
 import { useApp } from "./AppContext";
 import { ReminderSettings } from "../pwa/ReminderSettings";
+import { disableReminders } from "../pwa/push";
 
 export const AGE_BANDS = [
   { id: "ages-3-5", label: "3–5", min: 3, max: 5, critter: "bobbo" },
@@ -193,6 +194,8 @@ export function GrownUpsScreen() {
         return;
       }
     }
+    // Deleting progress also removes this device's reminder subscription (best effort; never blocks deletion).
+    await disableReminders().catch(() => undefined);
     clearState();
     setStatus("deleted");
   };
