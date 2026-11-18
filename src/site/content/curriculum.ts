@@ -14,7 +14,6 @@ export interface Standard {
 }
 
 export interface SkillInfo {
-  id: string;
   name: string;
   /** Plain-language objective a parent understands. */
   plain: string;
@@ -35,43 +34,36 @@ const std = (code: keyof typeof CC, fit: Standard["fit"] = "direct"): Standard =
 
 export const SKILLS: Record<string, SkillInfo> = {
   "math.count.one-to-one": {
-    id: "math.count.one-to-one",
     name: "One-to-one counting",
     plain: "Touch each object exactly once while saying one number for each.",
     standards: [std("K.CC.B.4a")],
   },
   "math.count.cardinality": {
-    id: "math.count.cardinality",
     name: "Knowing “how many”",
     plain: "Understand that the last number said when counting tells how many there are.",
     standards: [std("K.CC.B.4b"), std("K.CC.B.5")],
   },
   "math.count.subitize": {
-    id: "math.count.subitize",
     name: "Seeing amounts at a glance",
     plain: "Recognise 1 to 5 objects without counting, and use a ten frame to see 6 to 9.",
     standards: [std("K.CC.B.5", "foundation")],
   },
   "math.count.make-set": {
-    id: "math.count.make-set",
     name: "Counting out a set",
     plain: "Count out an asked-for number of objects from a bigger group, and stop at the right number.",
     standards: [std("K.CC.B.5")],
   },
   "math.add.number-line": {
-    id: "math.add.number-line",
     name: "Adding on a number line",
     plain: "See adding as moving forward on an evenly spaced number line: each hop is one more.",
     standards: [std("1.OA.C.5"), std("2.MD.B.6", "foundation")],
   },
   "math.add.within-20": {
-    id: "math.add.within-20",
     name: "Adding within 20",
     plain: "Add two numbers up to 20 by counting on from the bigger number and by making ten.",
     standards: [std("1.OA.C.5"), std("1.OA.C.6"), std("2.OA.B.2", "foundation")],
   },
   "math.div.share-equally": {
-    id: "math.div.share-equally",
     name: "Fair sharing (early division)",
     plain: "Share a number of things equally into groups by dealing one at a time, then say how many each group gets.",
     standards: [std("3.OA.A.2", "foundation")],
