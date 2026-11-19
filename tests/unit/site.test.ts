@@ -2,9 +2,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { LANDING_FILE, SITE_CSS, renderSite } from "../../src/site/build";
-import { allWorlds } from "../../src/content";
-import { AGES_NOW, GAMES, overlapYears } from "../../src/site/catalog";
+import { LANDING_FILE, REDIRECT_RULES, SITE_CSS, renderSite } from "../../src/site/build";
+import { allWorlds, isPlayable, registry } from "../../src/content";
+import { AGES_NOW, GAMES, LIBRARIES_NOW, overlapYears } from "../../src/site/catalog";
 import { AGE_BANDS, SKILLS, SUBJECTS } from "../../src/site/content/curriculum";
 import { FAQ } from "../../src/site/content/faq";
 import { GAME_COPY } from "../../src/site/content/games";
@@ -24,7 +24,8 @@ describe("prerendered public pages", () => {
   // Data-driven: the expected page set is derived from the catalog, guides and editorial content, so adding a
   // world (or its copy) never breaks these assertions; only a missing or extra page does.
   const CORE = ["/", "/how-it-works", "/research", "/for-parents", "/for-teachers", "/faq", "/pricing", "/about", "/games", "/guides"];
-  const expectedSubjects = SUBJECTS.filter((s) => GAMES.some((g) => g.skillIds.some((id) => id.startsWith(s.skillPrefix)))).map((s) => `/subjects/${s.slug}`);
+  // library pages: live libraries with published games and editorial copy (D-028)
+  const expectedSubjects = LIBRARIES_NOW.filter((l) => SUBJECTS.some((s) => s.slug === l.id)).map((l) => `/libraries/${l.id}`);
   const expectedAges = AGE_BANDS.filter((b) => GAMES.some((g) => overlapYears(g.ages, b) >= 2)).map((b) => `/ages/${b.slug}`);
 
   it("builds exactly the page set the data calls for", () => {
@@ -36,7 +37,7 @@ describe("prerendered public pages", () => {
   });
 
   it("publishes a world only once its editorial copy exists, and every copy matches its world", () => {
-    for (const w of allWorlds()) expect(GAMES.some((g) => g.id === w.id), w.id).toBe(w.id in GAME_COPY);
+    for (const w of allWorlds()) expect(GAMES.some((g) => g.id === w.id), w.id).toBe(w.id in GAME_COPY && isPlayable(w));
     for (const g of GAMES) {
       const c = GAME_COPY[g.id]!;
       expect(c.id).toBe(g.id);
@@ -62,7 +63,7 @@ describe("prerendered public pages", () => {
       expect(band, `${p.path} has editorial content`).toBeTruthy();
       expect(GAMES.some((g) => overlapYears(g.ages, band!) >= 2)).toBe(true);
     }
-    for (const p of pages.filter((x) => x.path.startsWith("/subjects/") || x.path.startsWith("/ages/"))) {
+    for (const p of pages.filter((x) => x.path.startsWith("/libraries/") || x.path.startsWith("/ages/"))) {
       const d = docs.find((x) => x.path === p.path)!.doc;
       const words = (d.querySelector("main")?.textContent ?? "").split(/\s+/).length;
       expect(words, `${p.path} is thin`).toBeGreaterThan(300);
@@ -219,6 +220,50 @@ describe("content quality", () => {
       const words = (d.querySelector(".prose")?.textContent ?? "").split(/\s+/).length;
       expect(words, `${g.slug} is thin`).toBeGreaterThan(450);
     }
+  });
+});
+
+describe("library pages (D-028)", () => {
+  const live = registry.libraries.filter((l) => l.status === "live");
+  const soon = registry.libraries.filter((l) => l.status === "coming-soon");
+
+  it("every live library with published games has a page at /libraries/<id>; coming-soon libraries have none", () => {
+    expect(live.length).toBeGreaterThan(0);
+    for (const l of LIBRARIES_NOW) {
+      expect(SUBJECTS.some((s) => s.slug === l.id), `editorial copy for live library ${l.id}`).toBe(true);
+      expect(paths.has(`/libraries/${l.id}`), l.id).toBe(true);
+    }
+    for (const l of soon) {
+      expect(paths.has(`/libraries/${l.id}`), l.id).toBe(false);
+      expect(LIBRARIES_NOW.some((x) => x.id === l.id), l.id).toBe(false);
+      expect(GAMES.some((g) => g.subject === l.id), `${l.id} games must not be published`).toBe(false);
+    }
+    expect([...paths].some((p) => p.startsWith("/subjects/"))).toBe(false);
+  });
+
+  it("a library page names its host and kid title from the registry", () => {
+    for (const l of LIBRARIES_NOW) {
+      const d = docs.find((x) => x.path === `/libraries/${l.id}`)!.doc;
+      const text = d.querySelector("main")!.textContent!;
+      expect(text).toContain(l.kidTitle);
+      expect(text).toContain(l.hostName);
+      for (const g of l.games) expect(d.querySelector(`main a[href="/games/${g.id}"]`), g.id).not.toBeNull();
+    }
+  });
+
+  it("old /subjects/* URLs redirect permanently to /libraries/*", () => {
+    expect(REDIRECT_RULES).toContain("/subjects/* /libraries/:splat 301");
+    // no internal link may still point at /subjects/
+    for (const { path, html } of pages) expect(html.includes('href="/subjects/'), path).toBe(false);
+  });
+
+  it("llms.txt lists live libraries only", () => {
+    for (const l of LIBRARIES_NOW) expect(llms).toContain(`### ${l.title}`);
+    for (const l of soon) {
+      expect(llms).not.toContain(`### ${l.title}`);
+      expect(llms).not.toContain(l.kidTitle);
+    }
+    expect(llms).not.toContain("/subjects/");
   });
 });
 

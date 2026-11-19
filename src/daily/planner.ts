@@ -24,11 +24,16 @@ import { UNLOCK_COUNT, isDue, isMastered, masteryLevel } from "./memory";
  *                never the world just played, and with only one other world the previous one is the second option.
  *  P9 variety    two consecutive slots never use the same world when it can be avoided (D5).
  *  P10 ties      broken by world id, so tests are reproducible (D9).
+ *  P11 libraries soft cap of LIB_CAP planned stops per library (D5, D-028): brand-new worlds come first from the
+ *                libraries with the fewest queued stops (P4), and a library over the cap hands its non-review stops to
+ *                unlocked worlds of libraries under the cap while any exist (familiar worlds first). The pick (P8)
+ *                offers two libraries when it can. Reviews are never displaced.
  */
 
 export type AgeRange = readonly [number, number];
 export interface PlannerWorld {
   id: string;
+  /** Library id (World.subject). */
   subject: string;
   skills: readonly string[];
   ages: AgeRange;
@@ -61,6 +66,8 @@ export interface PlanStop {
 }
 
 export const MAX_PER_WORLD = 2;
+/** P11: planned stops per library per day (soft: exceeded only when no other library has an unlocked world with room). */
+export const LIB_CAP = 2;
 export const newCap = (band: AgeRange): number => (band[0] >= 8 ? 2 : 1);
 export const reviewSlots = (due: number, limit: number): number => (due === 0 ? 0 : Math.min(due, Math.max(1, Math.floor(0.4 * limit))));
 
@@ -139,9 +146,16 @@ export function planDay(input: PlanInput): PlanStop[] {
 
   // P4 learning
   const practising = open.filter((w) => played(w) && !complete(w)).sort(recent);
+  // P11: a library's load = today's reviews + practising worlds in it; new worlds come from the least-loaded libraries first
+  const libLoad = new Map<string, number>();
+  for (const id of [...reviews.slice(0, R).map((r) => r.world), ...practising.map((w) => w.id)]) {
+    const lib = all.find((w) => w.id === id)?.subject ?? id;
+    libLoad.set(lib, (libLoad.get(lib) ?? 0) + 1);
+  }
+  const load = (w: PlannerWorld) => libLoad.get(w.subject) ?? 0;
   const fresh = open
     .filter((w) => !played(w) && !belowBand(w))
-    .sort((a, b) => Math.abs(mid(a.ages) - mid(band)) - Math.abs(mid(b.ages) - mid(band)) || a.ages[0] - b.ages[0] || byId(a, b));
+    .sort((a, b) => load(a) - load(b) || Math.abs(mid(a.ages) - mid(band)) - Math.abs(mid(b.ages) - mid(band)) || a.ages[0] - b.ages[0] || byId(a, b));
   const news = fresh.slice(0, newCap(band));
   // P5 stretch
   const stretchWorld = K >= 3 ? practising.find((w) => (levels[w.id] ?? 0) < w.maxLevel) : undefined;
@@ -237,6 +251,12 @@ export function planDay(input: PlanInput): PlanStop[] {
     push({ world: id, kind: isExtra.has(id) && !core.some((s) => s.world === id) ? "new" : "practice" });
   }
 
+  // P11 libraries: hand stops from a library over LIB_CAP to unlocked worlds of libraries under it
+  if (rebalanceLibraries(core, all, open, (w) => played(w) || belowBand(w), isExtra)) {
+    count.clear();
+    for (const s of core) count.set(s.world, (count.get(s.world) ?? 0) + 1);
+  }
+
   // P9 variety: no two consecutive slots in the same world (slot 0 keeps its review)
   for (let i = 1; i < core.length; i++) {
     if (core[i]!.world !== core[i - 1]!.world) continue;
@@ -273,13 +293,90 @@ export function planDay(input: PlanInput): PlanStop[] {
   // prefer worlds the child hasn't just played; the previous world may be the second option if nothing else is open
   const fitsId = (id: string) => (count.get(id) ?? 0) < MAX_PER_WORLD;
   const fewestFirst = (ids: string[]) => [...ids].sort((a, b) => (count.get(a) ?? 0) - (count.get(b) ?? 0)); // stable
-  for (const id of [...ranked.filter((x) => x !== prev && fitsId(x)), ...fewestFirst(ranked.filter((x) => x !== prev)), ...ranked]) {
+  const libOfId = (id: string) => all.find((w) => w.id === id)?.subject ?? id;
+  const order = [...ranked.filter((x) => x !== prev && fitsId(x)), ...fewestFirst(ranked.filter((x) => x !== prev)), ...ranked];
+  for (const id of order) {
+    if (options.length === 1) {
+      // P11: the second option comes from another library when one has a world with room (else as ranked)
+      const other = ranked.find((x) => x !== prev && fitsId(x) && x !== options[0] && libOfId(x) !== libOfId(options[0]!));
+      if (other) {
+        options.push(other);
+        break;
+      }
+    }
     if (options.length === 2) break;
     if (!options.includes(id)) options.push(id);
   }
   if (options.length === 0) return [...core, { world: fillPool.find((id) => id !== prev) ?? fillPool[0]!, kind: "practice" }];
   if (options.length === 1) return [...core, { world: options[0]!, kind: "practice" }];
   return [...core, { world: options[0]!, kind: "pick", options }];
+}
+
+/**
+ * P11: while a library has more than LIB_CAP stops in `core`, move one of its non-review stops (practice first, then
+ * new, then stretch; the world with most stops, latest slot first) to an unlocked world of a library under LIB_CAP
+ * that still has room (< MAX_PER_WORLD rounds): least-used library first, familiar worlds before new ones, then id.
+ * A replacement never sits next to the same world. Deterministic; mutates `core` and records new worlds in `isNew`.
+ */
+function rebalanceLibraries(core: PlanStop[], all: readonly PlannerWorld[], open: readonly PlannerWorld[], familiar: (w: PlannerWorld) => boolean, isNew: Set<string>): boolean {
+  let changed = false;
+  const libOf = new Map(all.map((w) => [w.id, w.subject]));
+  const lib = (id: string) => libOf.get(id) ?? `?${id}`;
+  const KIND_ORDER: Record<string, number> = { practice: 0, new: 1, stretch: 2 };
+  for (let guard = 0; guard < core.length * 2; guard++) {
+    const libCount = new Map<string, number>();
+    const worldCount = new Map<string, number>();
+    for (const s of core) {
+      libCount.set(lib(s.world), (libCount.get(lib(s.world)) ?? 0) + 1);
+      worldCount.set(s.world, (worldCount.get(s.world) ?? 0) + 1);
+    }
+    const over = [...libCount].filter(([, n]) => n > LIB_CAP).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).map(([l]) => l);
+    let moved = false;
+    for (const l of over) {
+      const cands = open
+        .filter((w) => w.subject !== l && (libCount.get(w.subject) ?? 0) < LIB_CAP && (worldCount.get(w.id) ?? 0) < MAX_PER_WORLD)
+        .sort((a, b) => (libCount.get(a.subject) ?? 0) - (libCount.get(b.subject) ?? 0) || Number(familiar(b)) - Number(familiar(a)) || byId(a, b));
+      const slots = core
+        .map((s, i) => ({ s, i }))
+        .filter(({ s }) => lib(s.world) === l && s.kind in KIND_ORDER)
+        .sort((a, b) => KIND_ORDER[a.s.kind]! - KIND_ORDER[b.s.kind]! || worldCount.get(b.s.world)! - worldCount.get(a.s.world)! || b.i - a.i);
+      for (const { i } of slots) {
+        for (const w of cands) {
+          const fam = familiar(w) || (worldCount.get(w.id) ?? 0) > 0;
+          const trial = [...core];
+          trial[i] = { world: w.id, kind: fam ? "practice" : "new" };
+          const fixed = arrangeNoRepeats(trial, adjacent(core));
+          if (!fixed) continue;
+          core.splice(0, core.length, ...fixed);
+          if (!familiar(w)) isNew.add(w.id);
+          moved = changed = true;
+          break;
+        }
+        if (moved) break;
+      }
+      if (moved) break;
+    }
+    if (!moved) break;
+  }
+  return changed;
+}
+
+/** Number of neighbouring stops in the same world. */
+const adjacent = (arr: readonly PlanStop[]): number => arr.reduce((n, s, i) => n + (i > 0 && s.world === arr[i - 1]!.world ? 1 : 0), 0);
+
+/**
+ * `arr` as is if it has at most `limit` same-world neighbours, else the first single swap (slot 0 stays put) that
+ * gets there; null if none does. Deterministic.
+ */
+function arrangeNoRepeats(arr: PlanStop[], limit: number): PlanStop[] | null {
+  if (adjacent(arr) === 0) return arr;
+  for (let a = 1; a < arr.length; a++)
+    for (let b = a + 1; b < arr.length; b++) {
+      const t = [...arr];
+      [t[a], t[b]] = [t[b]!, t[a]!];
+      if (adjacent(t) === 0) return t;
+    }
+  return adjacent(arr) <= limit ? arr : null;
 }
 
 /** Compact stored form of a plan stop. */

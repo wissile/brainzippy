@@ -101,24 +101,54 @@ test("after the limit, /play URLs show the end-of-day scene; the next local day 
   await expect(page.locator('[data-testid="story"], [data-testid="start-game"]').first()).toBeVisible({ timeout: 20_000 });
 });
 
-test("Explore lists every world by subject and opens one", async ({ page }, info) => {
+test("Explore shows library shelves: every live world reachable, coming-soon libraries are teasers only", async ({ page }, info) => {
   await start(page, { roundsToday: 1, limit: 5, ageBand: "ages-6-8" });
   await page.goto("/map");
   await press(page, '[data-testid="view-explore"]');
   await expect(page.getByTestId("explore")).toBeVisible();
   const total = Number(await page.getByTestId("explore").getAttribute("data-total"));
-  expect(total).toBeGreaterThanOrEqual(4);
+  expect(total).toBeGreaterThanOrEqual(9);
+  // live shelves with host + kid title; age filter first
+  await expect(page.getByTestId("shelf-math")).toBeVisible();
+  await expect(page.getByTestId("shelf-math").getByRole("heading", { level: 3 })).toHaveText("Number Hill");
   const forAge = await page.locator(".explore-card").count();
   expect(forAge).toBeGreaterThan(0);
+  expect(forAge).toBeLessThanOrEqual(total);
   await press(page, '[data-testid="explore-all-ages"]');
   await expect(page.locator(".explore-card")).toHaveCount(total);
-  for (const id of ["counting-adventure", "glow-cave-hops", "sky-balloon-race", "cookie-kitchen"]) await expect(page.getByTestId(`explore-${id}`)).toBeVisible();
+  await expect(page.getByTestId("shelf-english")).toBeVisible();
+  const ALL = ["counting-adventure", "glow-cave-hops", "sky-balloon-race", "cookie-kitchen", "pattern-parade", "shape-squish", "sleepy-trail", "balance-island", "rhyme-lanterns"];
+  for (const id of ALL) {
+    const card = page.getByTestId(`explore-${id}`);
+    await card.scrollIntoViewIfNeeded();
+    await expect(card, id).toBeVisible();
+    expect(await card.evaluate((el) => el.tagName)).toBe("BUTTON");
+  }
+  // every card sits on a shelf of its library; shelves are labelled regions with lists
+  for (const shelf of await page.locator(".lib-shelf").all()) {
+    const lib = await shelf.getAttribute("data-library");
+    for (const c of await shelf.locator(".explore-card").all()) expect(await c.getAttribute("data-library")).toBe(lib);
+    await expect(shelf).toHaveAttribute("aria-labelledby", /shelf-.+-title/);
+  }
+  // coming-soon libraries: shown as teasers, never as games
+  const teasers = page.locator('[data-testid^="teaser-"][data-status="coming-soon"]');
+  expect(await teasers.count()).toBeGreaterThanOrEqual(9);
+  await expect(page.locator('[data-testid="shelf-cs"], [data-testid="shelf-pilot"]')).toHaveCount(0);
+  expect(await page.locator('.lib-teasers [data-testid^="explore-"], .lib-teasers [data-testid="choice"]').count()).toBe(0);
+  const teaser = page.getByTestId("teaser-hear-cs");
+  await teaser.scrollIntoViewIfNeeded();
+  await expect(teaser).toHaveAccessibleName(/Code Garden with Toggle is still being built/);
+  await press(page, '[data-testid="teaser-hear-cs"]');
+  await page.waitForTimeout(400);
+  await expect(page).toHaveURL(/\/explore$/);
   await page.screenshot({ path: `${SHOTS}/${info.project.name}-04-explore.png` });
-  await press(page, '[data-testid="explore-cookie-kitchen"]');
+  // keyboard: a card is reachable and opens with Enter
+  await page.getByTestId("explore-cookie-kitchen").focus();
+  await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/play\/cookie-kitchen$/);
 });
 
-for (const vp of [{ width: 390, height: 844 }, { width: 915, height: 412 }]) {
+for (const vp of [{ width: 390, height: 844 }, { width: 915, height: 412 }, { width: 1024, height: 1366 }, { width: 1280, height: 800 }]) {
   test(`no overflow at ${vp.width}x${vp.height}: trail (10 stops), explore, end of day`, async ({ page }, info) => {
     test.skip(info.project.name !== "desktop");
     await page.setViewportSize(vp);
@@ -132,6 +162,12 @@ for (const vp of [{ width: 390, height: 844 }, { width: 915, height: 412 }]) {
     await press(page, '[data-testid="view-explore"]');
     await expect(page.getByTestId("explore")).toBeVisible();
     await noOverflow(page, '[data-testid="explore"], [data-testid="explore-all-ages"]');
+    // every shelf and teaser row stays inside the Explore panel (rows scroll sideways inside themselves)
+    await press(page, '[data-testid="explore-all-ages"]');
+    const panel = (await page.getByTestId("explore").boundingBox())!;
+    for (const b of await page.locator(".lib-shelf, .lib-teasers").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON())))
+      expect(b.left >= panel.x - 1 && b.right <= panel.x + panel.width + 1).toBe(true);
+    for (const b of await page.locator(".explore-card, .teaser-btn, .lib-host").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()))) expect(Math.min(b.width, b.height)).toBeGreaterThanOrEqual(44);
     await page.screenshot({ path: `${SHOTS}/${vp.width}x${vp.height}-explore.png` });
     // reach the limit by lowering it: the end of day must fit too
     await page.evaluate(() => {

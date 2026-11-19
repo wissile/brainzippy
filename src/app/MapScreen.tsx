@@ -17,8 +17,9 @@ import "../daily/daily.css";
 
 /**
  * Home: "Today's Adventure" on Monster Island. Today's plan (src/daily/planner.ts) is a trail of glowing stops;
- * the child's monster walks to the next one and each completed round lights a stop ("3 of 5"). Explore lists
- * every world by subject. When today's rounds are done, the end-of-day scene replaces the island until tomorrow.
+ * the child's monster walks to the next one and each completed round lights a stop ("3 of 5"). Explore shows the
+ * library shelves (src/daily/Explore.tsx, D-029). When today's rounds are done, the end-of-day scene replaces the
+ * island until tomorrow.
  */
 export function MapScreen({ view = "today" }: { view?: "today" | "explore" }) {
   const day = useToday();

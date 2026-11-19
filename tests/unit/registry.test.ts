@@ -46,9 +46,9 @@ describe("content registry integrity", () => {
 });
 
 describe("registry helpers", () => {
-  it("live subjects (grown-ups copy) are exactly the subjects with a playable world", () => {
+  it("live subjects (grown-ups copy) are exactly the live libraries with a world", () => {
     const live = liveSubjects().map((s) => s.id);
-    expect(live).toEqual([...worldsBySubject().keys()]);
+    expect(live).toEqual([...worldsBySubject().keys()].filter((id) => registry.libraries.find((l) => l.id === id)?.status === "live"));
     expect(live).toEqual(expect.arrayContaining(["math", "english"]));
     expect(joinAnd([])).toBe("");
     expect(joinAnd(["Maths"])).toBe("Maths");
@@ -89,7 +89,6 @@ describe("registry helpers", () => {
     const bad: ContentPack = {
       id: "bad",
       title: "Broken",
-      subjects: [{ id: "x", title: "X", description: "x" }],
       topics: [{ id: "x.t", subject: "nope", title: "T" }],
       skills: [
         { id: "x.a", title: "A", topic: "x.t", ages: [5, 6], prerequisites: ["x.b"], objective: "a" },
@@ -101,7 +100,8 @@ describe("registry helpers", () => {
     expect(problems).toEqual(
       expect.arrayContaining([
         `duplicate world id: ${world.id}`,
-        "topic x.t: unknown subject nope",
+        "topic x.t: unknown library nope",
+        `world ${world.id}: belongs to no library (unknown library x)`,
         expect.stringMatching(/^prerequisite cycle: x\.a → x\.b → x\.a|^prerequisite cycle: x\.b → x\.a → x\.b/),
         `world ${world.id}: unknown skill x.zzz`,
         `world ${world.id}: unknown character ghost`,

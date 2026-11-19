@@ -1,4 +1,4 @@
-import { allWorlds, getWorld, registry } from "../content/registry";
+import { getWorld, playableWorlds, registry } from "../content/registry";
 import type { World } from "../content/types";
 import type { DailyLog, DailyPlan, DailyPlanStop } from "../engine/progressSchema";
 import { emptyDailyLog } from "../engine/progressSchema";
@@ -35,7 +35,7 @@ function plannerInput(day: LocalDate, log: DailyLog, limit: number): PlanInput {
     day,
     limit,
     band: bandOf(st.ageBand),
-    worlds: allWorlds(),
+    worlds: playableWorlds(),
     skills: registry.skills,
     levels: st.progress.levels ?? {},
     log,
@@ -49,7 +49,7 @@ function plannerInput(day: LocalDate, log: DailyLog, limit: number): PlanInput {
 export function ensurePlan(day: LocalDate = today()): DailyPlan {
   const log = getLog();
   const limit = getDailySettings().limit;
-  const reg = registryFingerprint(allWorlds());
+  const reg = registryFingerprint(playableWorlds());
   const old = log.plan;
   if (old && old.day === day && old.k === limit && old.reg === reg) return old;
   const fresh = planDay(plannerInput(day, log, limit)).map(toStored);

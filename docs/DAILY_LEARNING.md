@@ -4,7 +4,7 @@ Owner goal: children come back every day, learn something new, advance a bit eac
 
 ## What the child sees
 1. **Home = Monster Island with today's trail** (`src/app/MapScreen.tsx`). K glowing stops (K = the daily limit). The child's monster walks to the next stop; finished stops turn gold with a tick; a pill shows **"3 of 5"**. Stop badges: *NEW* (new world), circular arrow (review), star (stretch), and the last stop shows two worlds to choose from. Tapping a stop opens the world with its story, as before.
-2. **Explore** (`/explore`, `src/daily/Explore.tsx`): every registry world grouped by subject in a scrolling grid. Default = worlds for the child's age band ±1 year; one button shows all ages. Explore rounds count toward today's limit.
+2. **Explore** (`/explore`, `src/daily/Explore.tsx`, D-029): one **shelf per live library** — host (tap to hear the library's pitch), library colour and kid title ("Number Hill", "Word Woods") — with its worlds on a sideways-scrolling row, so 11 libraries × 10+ worlds stay one shelf tall each. Libraries still being built follow as quiet "Still being built" tiles (host, kid title; tapping only speaks the pitch, never opens a game; no urgency copy). Default = worlds and libraries for the child's age band ±1 year; one button shows all ages. Shelves are labelled regions with lists; every card is a button. Explore rounds count toward today's limit.
 3. **Days-learning sparks**: a spark with the number of distinct days the child has played. It never resets or goes down, so missing a day costs nothing (curriculum D8: no streaks, no guilt).
 4. **End of day** (`src/daily/EndOfDay.tsx`), shown on the map and on any `/play/<id>` URL once the limit is reached: night sky, the monster yawns and falls asleep (sleeping state + Zzz), a recap of today's worlds in kid language with the skill names for grown-ups, a teaser for tomorrow, and a moon → sun picture with "Come back tomorrow!" (no countdown clock). Everything is voiced and captioned (`src/daily/voice.json`).
 
@@ -16,7 +16,7 @@ Owner goal: children come back every day, learn something new, advance a bit eac
 - Rollover while the app is open: `useToday()` re-checks the date at local midnight, every minute and when the tab becomes visible; the trail returns with a new plan.
 
 ### Planner (`src/daily/planner.ts`, pure)
-Input: day, K, age band, registry worlds + skills, stored world levels, skill memory, last-played dates. Output: K stops.
+Input: day, K, age band, the **playable** registry worlds (live libraries only) + skills, stored world levels, skill memory, last-played dates. Output: K stops. `PlannerWorld.subject` is the world's library id.
 
 | Rule | What it does |
 |---|---|
@@ -30,8 +30,10 @@ Input: day, K, age band, registry worlds + skills, stored world levels, skill me
 | P8 pick | Last slot (K ≥ 2): the child chooses between two worlds; the first option is never the world just played. |
 | P9 variety | No two consecutive stops in the same world when avoidable: a review and a practice stop in the same world don't sit back to back (the practice stop is dropped; the review round is practice too), and the stretch never directly follows its own world. |
 | P10 ties | World id, so plans are reproducible. |
+| P11 libraries | Soft cap of **2 planned stops per library** (`LIB_CAP`; the final pick is not counted). Brand-new worlds come first from the libraries with the fewest queued stops (reviews + practising worlds), then by age. If a library still has more than 2 stops, its non-review stops (practice first, then new, then stretch) are handed to unlocked worlds of libraries under the cap that have room (< 2 rounds): least-used library first, familiar worlds before new ones, then id; a single swap keeps neighbours different. The pick's second option comes from another library when one has room. Reviews are never displaced. The cap gives way only when no other library has an unlocked world with room (e.g. today, when only maths and English are live, a 3–5 child's long day). |
 
 - **Variety vs. the new-world cap (D5 over D4, D-026).** D4 caps brand-new worlds at 1 a day (2 from 8). On a long day with few familiar worlds the cap and D5 ("≤2 per world, never two in a row") conflict; the planner then adds the minimum number of extra unlocked worlds, so a brand-new 3–5 child gets e.g. `NEW rhyme, NEW counting, rhyme, counting, pick(shape | rhyme)` at K=5 instead of four Rhyme Lanterns rounds in a row. With enough familiar worlds, D4 holds exactly. Repeats beyond 2 happen only when too few worlds are unlocked (e.g. ages 12–14 today have one world, Balance Island; a 3–5 child on day one has three for K=10) — the trail then simply climbs levels in those worlds. The rule is checked by a property test over ages 3–14 × K 3–10 × several days × synthetic histories (`tests/unit/daily-planner.test.ts`).
+- **Libraries over a week (P11, D-029).** Because new worlds rotate through the least-loaded library and no library takes more than 2 planned stops while another has room, the trail draws on several libraries across a week. Property tests: every real-registry case above also checks P11, plus a synthetic 4-library and a lopsided (8 + 1 + 1 worlds) registry over ages × K 3–10 × histories, and a simulated week that must reach every library with ≤ 2 stops per library per day (`tests/unit/daily-planner.test.ts`). P11 may add a brand-new world beyond the D4 cap only when no familiar world of another library has room.
 - **D1 plan once:** the plan is computed at the first visit of the day (or the first round) and saved in `progress.daily.plan`. It is redone only if the daily limit or the registry's world list changes (fingerprint); stops already completed stay on the trail.
 - **Lighting stops:** a round started from a stop lights that stop; Explore/Again rounds light the first unlit stop of the same world, otherwise the earliest unlit stop, so the trail always shows *n of K*.
 - **Seeds:** the n-th round of a world on a day uses `seedForDay(day, worldId, n)` — new content every day, identical after a refresh, different for a repeat.
@@ -55,14 +57,14 @@ A brand-new 3–5 child today has three unlocked worlds (Rhyme Lanterns, Countin
 | Default / range of the limit | `DAILY_LIMIT` in `src/services/storage.ts` |
 | Mastery count, unlock count, review intervals, pass mark | `MASTERY_COUNT`, `UNLOCK_COUNT`, `REVIEW_DAYS`, `REVIEW_PASS` in `src/daily/memory.ts` |
 | Mastery level per world | `masteryLevel()` in `src/daily/memory.ts` |
-| New worlds per day, rounds per world, review share | `newCap`, `MAX_PER_WORLD`, `reviewSlots` in `src/daily/planner.ts` |
+| New worlds per day, rounds per world, stops per library, review share | `newCap`, `MAX_PER_WORLD`, `LIB_CAP`, `reviewSlots` in `src/daily/planner.ts` |
 | Kid-language recap for a world | add `daily.recap.<worldId>` to `src/daily/voice.json` (fallback: "You tried a great adventure!") and render the clip |
 
 Every change to these rules: update this file, add a `docs/DECISIONS.md` row, and keep `tests/unit/daily-*.test.ts` green.
 
 ## Tests
-- Unit: `tests/unit/daily-planner.test.ts` (determinism, K stops, mix, prerequisites, reviews, stretch, pick, variety, registry growth, seeds, real registry), `daily-memory.test.ts` (dates, M1/M2, S1–S3, log + schema), `daily-store.test.ts` (limit counting, rollover with a fake clock, re-plan, hooks, corrupt log).
-- E2E: `e2e/daily.spec.ts` (limit → end of day, `/play` lock, next day via `page.clock`, Explore, parent gate, no overflow at 390×844 and 915×412).
+- Unit: `tests/unit/daily-planner.test.ts` (determinism, K stops, mix, prerequisites, reviews, stretch, pick, variety, library cap P11 + week simulation, registry growth, seeds, real registry), `daily-memory.test.ts` (dates, M1/M2, S1–S3, log + schema), `daily-store.test.ts` (limit counting, rollover with a fake clock, re-plan, hooks, corrupt log).
+- E2E: `e2e/daily.spec.ts` (limit → end of day, `/play` lock, next day via `page.clock`, Explore shelves + teasers + keyboard, parent gate, no overflow at 390×844, 915×412, 1024×1366 and 1280×800).
 
 ## Open
 - Per-world kid recap lines exist only for the first four worlds; new worlds fall back to a generic line until their author adds one.

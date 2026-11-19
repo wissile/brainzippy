@@ -16,7 +16,7 @@ Engine background: `docs/GAME_ENGINE.md`. Decisions: D-023.
 | `src/games/<id>/story.tsx` | you | `StoryBeat[]` intro (≈4 beats), outro (≈3), `between` lines keyed by exercises done (2, 4, 6). |
 | `src/games/<id>/Board.tsx` + `<id>.css` | you | Custom board/tray if the default ones don't fit (§6). |
 | `src/games/<id>/<Name>.tsx` | you | `export default function <Name>() { return <GameRunner game={def} skin={skin} />; }` |
-| `src/content/packs/<pack>/index.ts` | pack owner | Subjects, topics, skills, characters, worlds (§9). A new library = a new pack folder; nothing else to register. |
+| `src/content/packs/<pack>/index.ts` | pack owner | Topics, skills, characters, worlds (§9) for an existing library. A new library = a new `library-<id>` pack folder (§12); nothing else to register. |
 | `tests/unit/<id>.test.ts` | you | §10 |
 | `e2e/<id>.spec.ts` | you | §10 |
 
@@ -32,8 +32,9 @@ validateAnswer(answer, value) · isSubmittable · correctValue · lintExercise(e
 initExercise · exerciseReducer · ExerciseState · ExerciseEvent · HintStage
 startDifficultyFor · levelAfterRound · selectNextExercise · applyResult · initialProgression
 // src/content
-getWorld(id) · allWorlds() · worldsForAge(age) · worldsBySubject() · skillPrereqs(skillId) · getSkill(id) · checkRegistry()
-types Subject, Topic, Skill, Character, World, ContentPack
+getWorld(id) · allWorlds() · playableWorlds() · getLibrary(id) · libraryOf(world) · isPlayable(world) · worldsByLibrary()
+worldsForAge(age) · worldsBySubject() · skillPrereqs(skillId) · getSkill(id) · checkRegistry() · packFolderProblems()
+types Library, LibraryTheme, LibraryStatus, Subject, Topic, Skill, Character, World, ContentPack
 // src/game
 GameRunner({ game, skin, seed? }) · GameSkin · BoardProps · OptionBoard · SequenceBoard
 ```
@@ -111,8 +112,7 @@ Original SVG only (no stock, emoji, fonts or CDNs). Reuse the Critter Crew (`Bob
 ## 9. Registry entry (`src/content/packs/<pack>/index.ts`, default export `ContentPack`)
 ```ts
 const pack: ContentPack = {
-  id: "english-core", title: "English (ages 4–8)",
-  subjects: [{ id: "english", title: "English", description: "…" }],
+  id: "english-core", title: "English (ages 4–8)",           // = folder name (checked); the `english` library lives in packs/library-english
   topics:   [{ id: "english.phonics", subject: "english", title: "Phonics" }],
   skills:   [{ id: "english.phonics.initial-sound", title: "First sounds", topic: "english.phonics", ages: [4, 6],
                prerequisites: [], objective: "Say and match the first sound of a spoken word." }],
@@ -131,7 +131,7 @@ const pack: ContentPack = {
 };
 export default pack;
 ```
-Packs hold metadata only (no eager game imports). `checkRegistry()` enforces: unique ids, known subject/topic/skill/character references, acyclic prerequisites, ages within 3–14, `maxLevel` matching the game, no "proven" claims.
+Packs hold metadata only (no eager game imports). `World.subject` is the **library id**. `checkRegistry()` enforces: unique ids, every world in a known library and inside its age range, topic ids prefixed by their library id, known topic/skill/character references, acyclic prerequisites, ages within 3–14, `maxLevel` matching the game, no "proven" claims. A world in a `coming-soon` library is registered but not playable from Explore, not planned and not published.
 
 ## 10. Required tests
 - `tests/unit/<id>.test.ts`: every authored exercise passes `lintExercise`; params ↔ answer maths; board-independent logic; voice `vary` covers every value your content can produce.
@@ -165,3 +165,27 @@ export const generateFirstSounds: ExerciseGenerator = (level, rng, index) => {
 // voice.json: "fs.prompt": { "text": "Which picture starts with {sound}?", "vary": { "sound": ["b", "s", "m"] } }
 // pack: one World entry pointing at the three files above.
 ```
+
+## 12. Add a new library (D-029)
+A **library** (e.g. Maths = "Number Hill" with Bobbo) is one folder: `src/content/packs/library-<id>/`. Adding one needs **zero central edits**: the registry globs the folder; Explore, the daily planner, the grown-ups copy, the sitemap and `llms.txt` read it from there.
+
+**1. Scaffold.**
+```
+node scripts/new-library.mjs music --title "Music" --kid-title "Song Garden" --host melo --host-name "Melo" \
+     --ages 4-9 --colour "#7C5CFF" [--pitch "Make music with Melo."] [--description "…"] [--world music-start] [--world-title "…"]
+```
+It writes `packs/library-music/index.ts` + `voice.json` and a playable placeholder world `src/games/music-start/` (definition, component, voice). The output passes `checkRegistry()` at once (`tests/unit/libraries.test.ts` runs the script into a temp folder and checks it). Library ids are short, lowercase, no dots (`cs`, `sci`): every topic and skill id starts with `<id>.` and progress is keyed by them, so ids are permanent.
+
+**2. Pack files.** `library-<id>/index.ts` declares exactly one `Library` (`libraries: [ … ]`); other packs may add topics, skills and worlds to it via `subject: "<id>"`. Fields: `id`, `title` (grown-ups), `kidTitle` (shelf), `host`, `theme`, `ages` (3–14; worlds must fit inside), `pitch` (≤ 12 words, kid-friendly, no urgency or FOMO), `description` (parent description, factual, no efficacy claims), `status`, `order`, optional `art` (island art key).
+
+**3. Host.** `host` is a character id. Existing Critter Crew ids are reused; a new host is declared in a characters pack (the nine library hosts live in `packs/library-hosts`) and drawn in `src/characters/library` (`LIBRARY_HOSTS`), following `docs/CHARACTER_SYSTEM.md` with creative-director review. Until its art lands, Explore shows a neutral egg in the library colour.
+
+**4. Theme.** `theme: { main, soft, deep, token? }` as `#rrggbb`. `main` = the host colour (shelf stripe, host ring), `soft` = card background tint, `deep` = text, which must reach ≥ 4.5:1 on white and on `soft` (checked). `token` names the `src/styles/tokens.css` colour `main` comes from, if any (checked). The shelf exposes them as `--lib-main`, `--lib-soft`, `--lib-deep`; the scaffold derives soft/deep from `--colour`.
+
+**5. First world.** Replace the placeholder with a real world (§1–§11, `docs/agents/GAMES_BRIEF.md`), or delete the placeholder and add the real one in its own pack. Then set `status: "live"`. A live library with no world fails `checkRegistry()`; a `coming-soon` library is a quiet teaser tile in Explore (tap = hear the pitch) and nothing else.
+
+**6. Voice.** `library-<id>/voice.json` holds `lib.<id>.pitch` (same words as `pitch`, checked). Render clips with `python3 scripts/gen_voice.py --model-dir <kokoro dir> --only lib.<id>` (plus the world's own lines); the clip-coverage test fails until you do.
+
+**7. Tests.** `npx tsc -b && npx vitest run` (registry, libraries, planner property tests, voice), then the world's e2e and `e2e/daily.spec.ts` (Explore shelves) under the lock.
+
+**8. Public site.** Nothing to register: once the library is `live` and has a published game (a world with copy in `src/site/content/games.ts`), it appears in `/games` and `llms.txt`. Its page `/libraries/<id>` appears automatically as soon as its editorial copy exists in `src/site/content/curriculum.ts` (`SUBJECTS`, `slug` = library id); without copy there is deliberately no page (no thin pages). Coming-soon libraries never get public pages. Old `/subjects/<id>` URLs redirect to `/libraries/<id>`.

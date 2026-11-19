@@ -76,8 +76,10 @@ def main() -> None:
     from kokoro_onnx import Kokoro  # noqa: PLC0415
 
     data = json.load(open(CATALOGUE))
-    # merge per-game catalogues (src/games/<id>/voice.json) and per-feature ones (src/<feature>/voice.json)
-    paths = glob.glob(os.path.join(ROOT, "src", "games", "*", "voice.json")) + glob.glob(os.path.join(ROOT, "src", "*", "voice.json"))
+    # merge per-game catalogues (src/games/<id>/voice.json), per-feature ones (src/<feature>/voice.json) and
+    # library packs' shelf pitches (src/content/packs/<pack>/voice.json, D-029)
+    paths = (glob.glob(os.path.join(ROOT, "src", "games", "*", "voice.json")) + glob.glob(os.path.join(ROOT, "src", "*", "voice.json"))
+             + glob.glob(os.path.join(ROOT, "src", "content", "packs", "*", "voice.json")))
     for path in sorted(paths):
         game = json.load(open(path))
         data["objects"].update(game.get("objects", {}))

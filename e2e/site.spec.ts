@@ -93,6 +93,17 @@ test.describe("public site", () => {
     expect(r.headers()["location"]).toMatch(/\/$/);
   });
 
+  test("old /subjects/* URLs redirect permanently to /libraries/*", async ({ request }) => {
+    for (const id of ["math", "english"]) {
+      const r = await request.get(`/subjects/${id}`, { maxRedirects: 0 });
+      expect(r.status(), id).toBe(301);
+      expect(r.headers()["location"]).toMatch(new RegExp(`/libraries/${id}$`));
+      const page = await request.get(`/libraries/${id}`);
+      expect(page.status()).toBe(200);
+      expect(await page.text()).toContain(`<link rel="canonical" href="https://brainzippy.com/libraries/${id}"`);
+    }
+  });
+
   test("llms.txt is generated at build time and lists every game page in the sitemap", async ({ request }) => {
     const res = await request.get("/llms.txt");
     expect(res.status()).toBe(200);
@@ -102,11 +113,18 @@ test.describe("public site", () => {
     const games = (await sitemapPaths(request)).filter((p) => p.startsWith("/games/"));
     expect(games.length).toBeGreaterThan(0);
     for (const g of games) expect(llms, g).toContain(`https://brainzippy.com${g})`);
+    expect(llms).toContain("https://brainzippy.com/libraries/math)");
+    for (const t of ["Computer science", "Pilot ground school", "Digital safety"]) expect(llms).not.toContain(`### ${t}`);
   });
 
-  test("subject and age pages list their games with working Play links", async ({ page, request }) => {
-    const hubs = (await sitemapPaths(request)).filter((p) => p.startsWith("/subjects/") || p.startsWith("/ages/"));
-    expect(hubs).toContain("/subjects/english");
+  test("library and age pages list their games with working Play links", async ({ page, request }) => {
+    const all = await sitemapPaths(request);
+    expect(all.some((p) => p.startsWith("/subjects/"))).toBe(false);
+    const hubs = all.filter((p) => p.startsWith("/libraries/") || p.startsWith("/ages/"));
+    expect(hubs).toContain("/libraries/english");
+    expect(hubs).toContain("/libraries/math");
+    // coming-soon libraries have no public page
+    for (const id of ["cs", "pilot", "money", "cyber", "sci", "geo", "sel", "engr", "nature"]) expect(hubs).not.toContain(`/libraries/${id}`);
     for (const path of hubs) {
       await page.goto(path);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
