@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { emptyDailyLog } from "../../src/engine/progressSchema";
 import { seedForDay } from "../../src/engine/rng";
-import { MAX_PER_WORLD, type AgeRange, type PlanInput, type PlanStop, type PlannerSkill, type PlannerWorld, dayWorlds, litStops, newCap, planDay, registryFingerprint, reviewSlots, roundSeed } from "../../src/daily/planner";
+import { LIB_CAP, MAX_PER_WORLD, type AgeRange, type PlanInput, type PlanStop, type PlannerSkill, type PlannerWorld, dayWorlds, litStops, newCap, planDay, registryFingerprint, reviewSlots, roundSeed } from "../../src/daily/planner";
 import { addDays } from "../../src/daily/date";
 import { isDue } from "../../src/daily/memory";
 import { createRng, hashSeed } from "../../src/engine/rng";
 import type { SkillMemory } from "../../src/engine/progressSchema";
-import { registry } from "../../src/content/registry";
+import { playableWorlds, registry } from "../../src/content/registry";
 
 // A synthetic library: a → b → c chain (maths), plus an independent reading world and an older one.
 const skills: PlannerSkill[] = [
@@ -149,6 +149,30 @@ describe("daily planner", () => {
 // ---------------------------------------------------------------- P7 variety + D1–D9 over the real registry
 const roundsOf = (plan: readonly PlanStop[], world: string) => plan.slice(0, -1).filter((s) => s.world === world).length + (plan.at(-1)?.world === world ? 1 : 0);
 
+/**
+ * P11 (library soft cap) as a checkable property. Returns a problem string or null. "Planned stops" = every stop but
+ * a final pick. A library may exceed LIB_CAP only if all its planned stops are reviews, or no other library has an
+ * unlocked world with room (library under LIB_CAP and world under MAX_PER_WORLD planned rounds).
+ */
+function libraryCapProblem(plan: readonly PlanStop[], input: PlanInput): string | null {
+  const libOf = new Map(input.worlds.map((w) => [w.id, w.subject]));
+  const planned = plan.at(-1)?.kind === "pick" ? plan.slice(0, -1) : plan;
+  const libCount = new Map<string, number>();
+  const worldCount = new Map<string, number>();
+  for (const s of planned) {
+    libCount.set(libOf.get(s.world)!, (libCount.get(libOf.get(s.world)!) ?? 0) + 1);
+    worldCount.set(s.world, (worldCount.get(s.world) ?? 0) + 1);
+  }
+  const { open } = dayWorlds(input);
+  for (const [lib, n] of libCount) {
+    if (n <= LIB_CAP) continue;
+    if (planned.filter((s) => libOf.get(s.world) === lib).every((s) => s.kind === "review")) continue;
+    const alt = open.find((w) => libOf.get(w) !== lib && (libCount.get(libOf.get(w)!) ?? 0) < LIB_CAP && (worldCount.get(w) ?? 0) < MAX_PER_WORLD);
+    if (alt) return `library ${lib} has ${n} stops while ${alt} (${libOf.get(alt)}) has room`;
+  }
+  return null;
+}
+
 describe("daily planner: variety (P7) on the real registry", () => {
   it("regression: ages 3–5, limit 10 never plays one world more than twice when enough worlds are unlocked", () => {
     // the QA case: counting + rhyme played, shape squish unlocked but unplayed
@@ -232,7 +256,12 @@ describe("daily planner: variety (P7) on the real registry", () => {
       // D4 learning: ≤ newCap brand-new worlds, unless the familiar worlds can't fill the core at ≤2 rounds each
       const news = new Set(plan.filter((s) => s.kind === "new").map((s) => s.world));
       for (const w of news) expect(familiar, ctx).not.toContain(w);
-      if (news.size > newCap(input.band)) expect(familiar.length * MAX_PER_WORLD < core.length || familiar.length < 2, ctx).toBe(true);
+      // (P11: a library over its cap may also hand a stop to a new world when no familiar world of another library has room)
+      const libOf = (w: string) => input.worlds.find((x) => x.id === w)!.subject;
+      const familiarLibFill = [...new Set(familiar.map(libOf))].reduce((t, l) => t + Math.min(LIB_CAP, MAX_PER_WORLD * familiar.filter((w) => libOf(w) === l).length), 0);
+      if (news.size > newCap(input.band)) expect(familiar.length * MAX_PER_WORLD < core.length || familiar.length < 2 || familiarLibFill < core.length, ctx).toBe(true);
+      // P11: ≤ LIB_CAP planned stops per library while another library has an unlocked world with room
+      expect(libraryCapProblem(plan, input), ctx).toBeNull();
       // P7 / D5: ≤ MAX_PER_WORLD rounds per world (the pick's first option counts) whenever enough worlds exist…
       const avail = [...new Set([...open, ...plan.map((s) => s.world)])]; // unlocked worlds + played worlds under review
       if (avail.length * MAX_PER_WORLD >= K) for (const w of avail) expect(roundsOf(plan, w), `${ctx} (${w})`).toBeLessThanOrEqual(MAX_PER_WORLD);
@@ -245,6 +274,115 @@ describe("daily planner: variety (P7) on the real registry", () => {
       // P9 / D5: no two consecutive stops in the same world when there is another world to use
       if (open.length >= 2) for (let i = 1; i < plan.length; i++) expect(plan[i]!.world === plan[i - 1]!.world, `${ctx} @${i}`).toBe(false);
     }
+  });
+});
+
+// ---------------------------------------------------------------- P11 library variety on a synthetic multi-library registry
+describe("daily planner: library variety (P11)", () => {
+  // 4 libraries × 4 worlds; inside each library a prerequisite chain s0 → s1 → s2 → s3 with rising ages
+  const LIBS = ["cs", "ela", "math", "sci"];
+  const libSkills: PlannerSkill[] = [];
+  const libWorlds: PlannerWorld[] = [];
+  for (const lib of LIBS)
+    for (let i = 0; i < 4; i++) {
+      libSkills.push({ id: `${lib}.s${i}`, ages: [4 + i, 6 + i], prerequisites: i ? [`${lib}.s${i - 1}`] : [] });
+      libWorlds.push({ id: `${lib}-w${i}`, subject: lib, skills: [`${lib}.s${i}`], ages: [4 + i, 6 + i], maxLevel: 5 });
+    }
+  const libsOf = (plan: readonly PlanStop[], input: PlanInput) => plan.map((s) => input.worlds.find((w) => w.id === s.world)!.subject);
+
+  const synthHistory = (seed: number, day: string, ws: readonly PlannerWorld[]): Pick<PlanInput, "levels" | "log"> => {
+    const rng = createRng(seed);
+    const levels: Record<string, number> = {};
+    const seen: Record<string, string> = {};
+    const mem: Record<string, SkillMemory> = {};
+    const stage = seed % 3;
+    for (const w of ws) {
+      if (stage === 0 || !rng.chance(stage === 1 ? 0.3 : 0.7)) continue;
+      levels[w.id] = rng.int(0, w.maxLevel);
+      seen[w.id] = addDays(day, -rng.int(1, 9));
+      for (const sk of w.skills) if (rng.chance(0.5)) mem[sk] = rng.chance(0.5) ? { q: 6, lq: 2, b: rng.int(1, 3), fails: 0, due: addDays(day, rng.int(-5, 5)), lw: w.id } : { q: rng.int(0, 5), lq: 0, b: 0, fails: 0 };
+    }
+    return { levels, log: { ...emptyDailyLog(), seen, skills: mem } };
+  };
+
+  // an unbalanced registry too: one big library and two one-world libraries (the soft cap must give way gracefully)
+  const lopsided: PlannerWorld[] = [
+    ...Array.from({ length: 8 }, (_, i) => ({ id: `big-${i}`, subject: "big", skills: [`big.s${i}`], ages: [5, 8] as const, maxLevel: 4 })),
+    { id: "solo-a", subject: "sa", skills: ["sa.s"], ages: [5, 8], maxLevel: 4 },
+    { id: "solo-b", subject: "sb", skills: ["sb.s"], ages: [5, 8], maxLevel: 4 },
+  ];
+  const lopsidedSkills: PlannerSkill[] = lopsided.flatMap((w) => w.skills.map((id) => ({ id, ages: [5, 8] as const, prerequisites: [] })));
+
+  const cases: { input: PlanInput; label: string }[] = [];
+  for (const [name, ws, sk] of [["four", libWorlds, libSkills], ["lopsided", lopsided, lopsidedSkills]] as const)
+    for (const band of [[3, 5], [6, 8], [9, 11], [5, 5], [7, 7]] as AgeRange[])
+      for (let limit = 3; limit <= 10; limit++)
+        for (const day of ["2026-11-18", "2027-03-09"])
+          for (let h = 0; h < 6; h++) {
+            const seed = hashSeed(name, band.join("-"), limit, day, h) * 3 + h;
+            cases.push({ input: { day, limit, band, worlds: ws, skills: sk, ...synthHistory(seed, day, ws) }, label: `${name} ${band} K=${limit} ${day} h${h}` });
+          }
+
+  it(`property: ≤ ${LIB_CAP} stops per library while another library has room, over ${cases.length} cases`, () => {
+    for (const { input, label } of cases) {
+      const plan = planDay(input);
+      const ctx = `${label}: ${plan.map((s) => `${s.kind}:${s.world}`).join(" ")}`;
+      expect(plan, ctx).toHaveLength(input.limit);
+      expect(libraryCapProblem(plan, input), ctx).toBeNull();
+      // deterministic and order-independent (D9)
+      expect(planDay({ ...input, worlds: [...input.worlds].reverse(), skills: [...input.skills].reverse() }), ctx).toEqual(plan);
+      // the other daily rules still hold: no back-to-back world, ≤ MAX_PER_WORLD rounds when enough worlds are open
+      const { open } = dayWorlds(input);
+      if (open.length >= 2) for (let i = 1; i < plan.length; i++) expect(plan[i]!.world === plan[i - 1]!.world, `${ctx} @${i}`).toBe(false);
+      const avail = [...new Set([...open, ...plan.map((s) => s.world)])];
+      if (avail.length * MAX_PER_WORLD >= input.limit) for (const w of avail) expect(roundsOf(plan, w), `${ctx} (${w})`).toBeLessThanOrEqual(MAX_PER_WORLD);
+      if (plan[0] && plan.some((s) => s.kind === "review")) expect(plan[0].kind, ctx).toBe("review");
+    }
+  });
+
+  it("the cap is soft: with only one library open, its worlds fill the whole day", () => {
+    const one = libWorlds.filter((w) => w.subject === "math");
+    const plan = planDay({ day: "2026-11-18", limit: 7, band: [6, 8], worlds: one, skills: libSkills, levels: {}, log: emptyDailyLog() });
+    expect(plan).toHaveLength(7);
+  });
+
+  it("a fresh child's first day already mixes libraries, and the pick offers two libraries", () => {
+    const input: PlanInput = { day: "2026-11-18", limit: 5, band: [6, 8], worlds: libWorlds, skills: libSkills, levels: {}, log: emptyDailyLog() };
+    const plan = planDay(input);
+    const libs = libsOf(plan.slice(0, -1), input);
+    for (const l of new Set(libs)) expect(libs.filter((x) => x === l).length).toBeLessThanOrEqual(LIB_CAP);
+    expect(new Set(libs).size).toBeGreaterThanOrEqual(2);
+    const pick = plan.at(-1)!;
+    expect(pick.kind).toBe("pick");
+    const pl = pick.options!.map((w) => libWorlds.find((x) => x.id === w)!.subject);
+    expect(new Set(pl).size).toBe(2);
+  });
+
+  it("over a simulated week the trail draws on every library, ≤ 2 stops per library each day", () => {
+    for (const band of [[5, 7], [6, 8], [8, 10]] as AgeRange[])
+      for (const K of [3, 5, 8]) {
+        const levels: Record<string, number> = {};
+        const seen: Record<string, string> = {};
+        const libsThisWeek = new Set<string>();
+        let day = "2026-11-16";
+        for (let d = 0; d < 7; d++, day = addDays(day, 1)) {
+          const input: PlanInput = { day, limit: K, band, worlds: libWorlds, skills: libSkills, levels: { ...levels }, log: { ...emptyDailyLog(), seen: { ...seen } } };
+          const plan = planDay(input);
+          const ctx = `${band} K=${K} day ${d}: ${plan.map((s) => s.world).join(" ")}`;
+          expect(libraryCapProblem(plan, input), ctx).toBeNull();
+          const planned = plan.at(-1)?.kind === "pick" ? plan.slice(0, -1) : plan;
+          const libs = libsOf(planned, input);
+          for (const l of new Set(libs)) expect(libs.filter((x) => x === l).length, ctx).toBeLessThanOrEqual(LIB_CAP);
+          // play the day: every stop, the pick alternating between its options
+          for (const s of plan) {
+            const w = s.options ? s.options[d % s.options.length]! : s.world;
+            levels[w] = levels[w] === undefined ? 0 : Math.min(5, levels[w]! + 1);
+            seen[w] = day;
+            libsThisWeek.add(libWorlds.find((x) => x.id === w)!.subject);
+          }
+        }
+        expect([...libsThisWeek].sort(), `${band} K=${K}`).toEqual(LIBS);
+      }
   });
 });
 
