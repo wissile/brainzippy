@@ -85,7 +85,7 @@ function Footer() {
             <li><a href="/research">Research</a></li>
             <li><a href="/guides">Parent guides</a></li>
             <li><a href="/games">All games</a></li>
-            <li><a href="/subjects/math">Maths games</a></li>
+            <li><a href="/libraries/math">Maths games</a></li>
           </ul>
         </nav>
       </div>

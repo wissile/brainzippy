@@ -2,8 +2,9 @@
  * The ONLY place the public site reads game data. Everything the site says about a game's ages, skills and
  * levels comes from the content registry (src/content) — the same metadata that routes and plans the games —
  * so public pages cannot drift from the product. New worlds appear here automatically when their pack lands.
+ * Only worlds of LIVE libraries are published (D-028); coming-soon libraries have no public pages at all.
  */
-import { allWorlds, registry } from "../content";
+import { playableWorlds, registry } from "../content";
 import { GAME_COPY } from "./content/games";
 import { asNumber, correctValue, generateBand } from "../engine";
 import type { Exercise, GameDefinition } from "../engine/types";
@@ -23,6 +24,7 @@ export interface SiteGame {
   /** Host character's display name. */
   mascot: string;
   ages: readonly [number, number];
+  /** Library id (= registry World.subject). */
   subject: string;
   skillIds: readonly string[];
   /** Factual description for grown-ups (registry `parentDescription`). */
@@ -63,13 +65,13 @@ function levelsOf(def: GameDefinition, maxLevel: number): SiteLevel[] {
 }
 
 // Prerender-only module (never shipped to the browser), so loading every definition up front is fine.
-const DEFS = new Map<string, GameDefinition>(await Promise.all(allWorlds().map(async (w) => [w.id, await w.loadDefinition()] as const)));
+const DEFS = new Map<string, GameDefinition>(await Promise.all(playableWorlds().map(async (w) => [w.id, await w.loadDefinition()] as const)));
 
 const characterName = (id: string | undefined) => registry.characters.find((c) => c.id === id)?.name ?? "Bobbo";
 
 /** Games in the order a child meets them (youngest first). */
 // A world gets public pages once its editorial copy exists (src/site/content/games.ts): no thin auto-generated pages.
-export const GAMES: readonly SiteGame[] = allWorlds()
+export const GAMES: readonly SiteGame[] = playableWorlds()
   .filter((w) => w.id in GAME_COPY)
   .map((w) => ({
     id: w.id,
@@ -100,16 +102,46 @@ export function overlapYears(ages: readonly [number, number], band: { min: numbe
 /** Ages covered by the published games today (derived, so it can never go stale). */
 export const AGES_NOW = { min: Math.min(...GAMES.map((g) => g.ages[0])), max: Math.max(...GAMES.map((g) => g.ages[1])) } as const;
 
-export interface SiteSubject {
+export interface SiteLibrary {
   id: string;
+  /** Grown-up title, e.g. "Maths". */
   title: string;
+  kidTitle: string;
+  /** Host character id and display name. */
+  host: string;
+  hostName: string;
+  /** Library parent description (registry). */
+  description: string;
+  pitch: string;
+  /** Planned age range of the whole library (the games available today may cover less). */
+  ages: readonly [number, number];
   games: readonly SiteGame[];
 }
+/** @deprecated Libraries replaced subjects (D-028); same shape plus library fields. */
+export type SiteSubject = SiteLibrary;
 
-/** Subjects with at least one published game, most games first (ties: registry title). */
-export const SUBJECTS_NOW: readonly SiteSubject[] = [...new Set(GAMES.map((g) => g.subject))]
-  .map((id) => ({ id, title: registry.subjects.find((s) => s.id === id)?.title ?? id, games: GAMES.filter((g) => g.subject === id) }))
+/** Live libraries with at least one published game, most games first (ties: registry title). Coming-soon libraries never appear. */
+export const LIBRARIES_NOW: readonly SiteLibrary[] = registry.libraries
+  .filter((l) => l.status === "live")
+  .map((l) => ({
+    id: l.id,
+    title: l.title,
+    kidTitle: l.kidTitle,
+    host: l.host,
+    hostName: registry.characters.find((c) => c.id === l.host)?.name ?? l.host,
+    description: l.description,
+    pitch: l.pitch,
+    ages: l.ages,
+    games: GAMES.filter((g) => g.subject === l.id),
+  }))
+  .filter((l) => l.games.length > 0)
   .sort((a, b) => b.games.length - a.games.length || a.title.localeCompare(b.title));
+
+/** @deprecated Use LIBRARIES_NOW. */
+export const SUBJECTS_NOW: readonly SiteSubject[] = LIBRARIES_NOW;
+
+/** Public URL of a library page. */
+export const libraryPath = (id: string) => `/libraries/${id}`;
 
 /** Fewest and most levels across published games. */
 export const LEVEL_RANGE = { min: Math.min(...GAMES.map((g) => g.levelCount)), max: Math.max(...GAMES.map((g) => g.levelCount)) } as const;

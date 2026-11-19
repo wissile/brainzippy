@@ -4,7 +4,7 @@
  * scripts/prerender.mjs. Convention only: Google Search ignores it (docs/SEO_STRATEGY.md); keep it short,
  * factual and free of efficacy claims.
  */
-import { GAMES, SUBJECTS_NOW, listJoin } from "./catalog";
+import { GAMES, LIBRARIES_NOW, libraryPath, listJoin } from "./catalog";
 import { SKILLS } from "./content/curriculum";
 import { GUIDES } from "./content/guides";
 import { SITE, absoluteUrl } from "./entity";
@@ -27,7 +27,7 @@ export function renderLlms(pages: readonly Pick<PageDef, "path" | "title">[]): s
     "",
     `- Name: ${SITE.name} (one word, capital B and Z). Website: ${absoluteUrl("/")}`,
     `- Ages: games available today are designed for ages ${SITE.agesNow.min}–${SITE.agesNow.max}. The product is being built for ages ${SITE.agesPlanned.min}–${SITE.agesPlanned.max}.`,
-    `- Subjects available today: ${listJoin(SITE.subjectsNow)}. Planned, not yet available: ${listJoin(SITE.subjectsPlanned.map((s) => s.toLowerCase()))}.`,
+    `- Learning libraries available today: ${listJoin(LIBRARIES_NOW.map((l) => l.title))}. Each library has a recurring host character and its own story games.`,
     "- Every instruction is spoken aloud and captioned, so young children do not need to read.",
     "- Wrong answers lead to a hint, then a worked example; there are no timers and answer speed is never used to judge a child.",
     "- Difficulty rules are published: first-try answers in a row make the next puzzles harder, needing three tries makes them easier, and a round with at least half the answers right first time moves up a level.",
@@ -37,9 +37,12 @@ export function renderLlms(pages: readonly Pick<PageDef, "path" | "title">[]): s
     "",
     "## Games",
   );
-  for (const subject of SUBJECTS_NOW) {
-    lines.push("", `### ${subject.title}`, "");
-    for (const g of subject.games) {
+  // live libraries only (D-028): coming-soon libraries are never listed
+  for (const library of LIBRARIES_NOW) {
+    lines.push("", `### ${library.title}`, "");
+    const page = link(`About the ${library.title} library`, libraryPath(library.id), `${library.description} Host: ${library.hostName}.`);
+    if (page) lines.push(page);
+    for (const g of library.games) {
       const skills = g.skillIds.map((s, i) => { const n = SKILLS[s]?.name ?? s; return i === 0 ? n : n.charAt(0).toLowerCase() + n.slice(1); }).join(", ");
       lines.push(link(g.title, `/games/${g.id}`, `${g.gameType}, ages ${range(g.ages)}. ${skills}.`));
     }
@@ -55,7 +58,7 @@ export function renderLlms(pages: readonly Pick<PageDef, "path" | "title">[]): s
     link("For teachers", "/for-teachers", "classroom use in guest mode, free-access codes for schools and Common Core links."),
     link("Pricing", "/pricing", "family plan, free play and trial, renewal and cancellation."),
     link("FAQ", "/faq"),
-    ...pages.filter((p) => p.path.startsWith("/subjects/") || p.path.startsWith("/ages/")).map((p) => link(p.title, p.path)),
+    ...pages.filter((p) => p.path.startsWith("/ages/")).map((p) => link(p.title, p.path)),
     "",
     "## Guides for parents",
     "",

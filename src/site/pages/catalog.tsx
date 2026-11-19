@@ -1,5 +1,5 @@
-import { GAMES, overlapYears, type SiteGame, type SiteSubject } from "../catalog";
-import { Critter, GameCard, GuideCard, PageHead, RefList, Section, ages } from "../components";
+import { GAMES, libraryPath, overlapYears, type SiteGame, type SiteLibrary } from "../catalog";
+import { Critter, type CritterId, GameCard, GuideCard, PageHead, RefList, Section, ages } from "../components";
 import { SKILLS, type AgeBandInfo, type SubjectInfo } from "../content/curriculum";
 import { GAME_COPY } from "../content/games";
 import { registry } from "../../content";
@@ -9,12 +9,14 @@ import { PlayIcon } from "../layout";
 
 export const screenshotPath = (id: string) => `/og/shots/${id}.jpg`;
 
-export function GamesHub({ subjects }: { subjects: readonly SiteSubject[] }) {
+/** `paged`: ids of libraries that have a public page (live + editorial copy), linked from their section. */
+export function GamesHub({ libraries, paged }: { libraries: readonly SiteLibrary[]; paged: readonly string[] }) {
   return (
     <>
       <PageHead title="All BrainZippy games" lead="Every game available today, with the ages it's designed for and the skills it teaches. Each one has several levels and adjusts to your child round by round." art="bobbo" />
-      {subjects.map((s) => (
+      {libraries.map((s) => (
         <Section key={s.id} title={`${s.title} games`}>
+          {paged.includes(s.id) && <p><a className="text-link" href={libraryPath(s.id)}>About the {s.title === "English" ? s.title : s.title.toLowerCase()} library</a></p>}
           <div className="card-grid">
             {s.games.map((g) => <GameCard key={g.id} game={g} />)}
           </div>
@@ -22,13 +24,13 @@ export function GamesHub({ subjects }: { subjects: readonly SiteSubject[] }) {
       ))}
       <Section title="At a glance" className="tinted">
         <table className="table">
-          <thead><tr><th scope="col">Game</th><th scope="col">Ages</th><th scope="col">Subject</th><th scope="col">Skills</th><th scope="col">Levels</th></tr></thead>
+          <thead><tr><th scope="col">Game</th><th scope="col">Ages</th><th scope="col">Library</th><th scope="col">Skills</th><th scope="col">Levels</th></tr></thead>
           <tbody>
             {GAMES.map((g) => (
               <tr key={g.id}>
                 <td><a href={`/games/${g.id}`}>{g.title}</a></td>
                 <td>{ages(g.ages)}</td>
-                <td>{subjects.find((s) => s.id === g.subject)?.title ?? g.subject}</td>
+                <td>{libraries.find((s) => s.id === g.subject)?.title ?? g.subject}</td>
                 <td>{g.skillIds.map((s) => SKILLS[s]?.name ?? s).join(", ")}</td>
                 <td>{g.levelCount} levels</td>
               </tr>
@@ -135,7 +137,14 @@ export function GamePage({ game }: { game: SiteGame }) {
   );
 }
 
-export function SubjectPage({ subject, games }: { subject: SubjectInfo; games: readonly SiteGame[] }) {
+const CREW: readonly CritterId[] = ["bobbo", "gloop", "puff", "rumble", "zuzu", "hoot"];
+
+/**
+ * A live library's public page (/libraries/<id>): registry facts (host, description, published games) plus the
+ * library's editorial copy (src/site/content/curriculum.ts SUBJECTS, keyed by library id). No copy → no page.
+ */
+export function LibraryPage({ library, copy: subject, games }: { library: SiteLibrary; copy: SubjectInfo; games: readonly SiteGame[] }) {
+  const host = CREW.find((c) => c === library.host);
   const skills = [...new Set(games.flatMap((g) => g.skillIds))];
   const strands = subject.strands.filter((st) => skills.some((id) => id.startsWith(st.skills)));
   const min = Math.min(...games.map((g) => g.ages[0]));
@@ -143,8 +152,9 @@ export function SubjectPage({ subject, games }: { subject: SubjectInfo; games: r
   const guides = GUIDES.filter((g) => g.games.some((id) => games.some((x) => x.id === id)));
   return (
     <>
-      <PageHead title={`${subject.name} games for kids`} lead={subject.intro} art="bobbo" />
+      <PageHead title={`${subject.name} games for kids`} lead={subject.intro} art={host ?? "bobbo"} />
       <Section title={`${subject.name} games available now`}>
+        <p>{library.description} In the app this library is called {library.kidTitle}, and {library.hostName} is your child's guide.</p>
         <p>{games.length === 1 ? "One game" : `${games.length} games`} today, for ages {min}–{max}. {subject.now}</p>
         <div className="card-grid">{games.map((g) => <GameCard key={g.id} game={g} />)}</div>
       </Section>

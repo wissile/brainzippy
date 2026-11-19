@@ -6,7 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { absoluteUrl } from "./entity";
 import { Document } from "./layout";
 import { renderLlms } from "./llms";
-import { buildRoutes } from "./routes";
+import { ROUTE_REDIRECTS, buildRoutes } from "./routes";
 import type { PageDef, RenderedPage, SiteAssets } from "./types";
 import siteCss from "./site.css?raw";
 import clientJs from "./client.js?raw";
@@ -43,4 +43,5 @@ export const REDIRECT_RULES = [
   "# Prerendered landing page: / serves landing.html; /landing must not be a duplicate URL.",
   "/landing / 301",
   "/ /landing 200",
+  ...ROUTE_REDIRECTS,
 ].join("\n");

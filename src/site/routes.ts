@@ -1,17 +1,18 @@
 /**
  * The public site map. Every indexable page is defined here and nowhere else; the prerenderer, the
- * sitemap and the tests all read this list. Subject and age pages are generated from data: a page
- * exists only when it has games AND editorial content (no thin or placeholder pages).
+ * sitemap and the tests all read this list. Library and age pages are generated from data: a page
+ * exists only when it has games AND editorial content (no thin or placeholder pages). Library pages exist
+ * only for LIVE libraries (D-028); the old /subjects/* URLs redirect to /libraries/*.
  */
 import { createElement as h } from "react";
-import { AGES_NOW, GAMES, SUBJECTS_NOW } from "./catalog";
+import { AGES_NOW, GAMES, LIBRARIES_NOW, libraryPath } from "./catalog";
 import { AGE_BANDS, SKILLS, SUBJECTS } from "./content/curriculum";
 import { FAQ } from "./content/faq";
 import { GAME_COPY } from "./content/games";
 import { GUIDES } from "./content/guides";
 import { SITE } from "./entity";
 import { About, FaqPage, ForParents, ForTeachers, HowItWorks, Landing, Research } from "./pages/core";
-import { AgePage, GamePage, GamesHub, SubjectPage, gamesForBand } from "./pages/catalog";
+import { AgePage, GamePage, GamesHub, LibraryPage, gamesForBand } from "./pages/catalog";
 import { GuidePage, GuidesHub } from "./pages/guides";
 import { PricingPage } from "./pages/pricing";
 import { article, breadcrumbList, faqPage, learningResource, organization, website } from "./seo";
@@ -35,15 +36,22 @@ function page(p: Omit<PageDef, "jsonLd"> & { jsonLd?: readonly object[] }): Page
 
 const CORE_UPDATED = "2026-11-18";
 
+/** _redirects rules owned by the site map: /subjects/<id> moved to /libraries/<id> (D-028). */
+export const ROUTE_REDIRECTS = ["# Subjects became libraries (D-028).", "/subjects/* /libraries/:splat 301"] as const;
+
 export function buildRoutes(): PageDef[] {
   const pages: PageDef[] = [];
 
   const ageBands = AGE_BANDS.map((band) => ({ band, main: gamesForBand(band, MAIN_OVERLAP), stretch: gamesForBand(band, 1).filter((g) => !gamesForBand(band, MAIN_OVERLAP).includes(g)) })).filter((b) => b.main.length > 0);
-  const subjects = SUBJECTS.map((s) => ({ s, games: GAMES.filter((g) => g.skillIds.some((id) => id.startsWith(s.skillPrefix))) })).filter((x) => x.games.length > 0);
+  // live libraries with published games AND editorial copy (keyed by library id) get a page
+  const libraries = LIBRARIES_NOW.flatMap((l) => {
+    const copy = SUBJECTS.find((s) => s.slug === l.id);
+    return copy ? [{ l, s: copy, games: l.games }] : [];
+  });
 
   const ages = `${AGES_NOW.min}–${AGES_NOW.max}`;
   const subjectWords = SITE.subjectsPhrase;
-  const subjectPaths = subjects.map(({ s }) => ({ path: `/subjects/${s.slug}`, label: `${s.name} games` }));
+  const subjectPaths = libraries.map(({ l, s }) => ({ path: libraryPath(l.id), label: `${s.name} games` }));
   pages.push(
     page({
       path: "/",
@@ -118,7 +126,7 @@ export function buildRoutes(): PageDef[] {
       description: `Every BrainZippy game in one place: ${GAMES.length} story games in ${subjectWords} for ages ${ages}, with the skills each one teaches and how its levels grow.`,
       updated: CORE_UPDATED,
       breadcrumbs: crumbs({ name: "Games", path: "/games" }),
-      render: () => h(GamesHub, { subjects: SUBJECTS_NOW }),
+      render: () => h(GamesHub, { libraries: LIBRARIES_NOW, paged: libraries.map(({ l }) => l.id) }),
     }),
   );
 
@@ -142,9 +150,9 @@ export function buildRoutes(): PageDef[] {
     );
   }
 
-  for (const { s, games } of subjects) {
-    const path = `/subjects/${s.slug}`;
-    pages.push(page({ path, title: s.title, description: s.description, updated: s.updated, breadcrumbs: crumbs({ name: `${s.name} games`, path }), render: () => h(SubjectPage, { subject: s, games }) }));
+  for (const { l, s, games } of libraries) {
+    const path = libraryPath(l.id);
+    pages.push(page({ path, title: s.title, description: s.description, updated: s.updated, breadcrumbs: crumbs({ name: `${s.name} games`, path }), render: () => h(LibraryPage, { library: l, copy: s, games }) }));
   }
 
   for (const { band, main, stretch } of ageBands) {
