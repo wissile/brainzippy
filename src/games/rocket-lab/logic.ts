@@ -104,6 +104,7 @@ export const TANK_CHOICES = [1, 2, 3] as const;
 /** Height bands (metres): 0 = under 100, 1 = 100–199, 2 = 200–399, 3 = 400 and up. */
 export const BAND_FLOORS = [0, 100, 200, 400] as const;
 export const BAND_LABELS = ["under 100 m", "100–199 m", "200–399 m", "400 m +"] as const;
+export const BAND_SHORT = ["< 100 m", "100–199 m", "200–399 m", "400 m +"] as const;
 export const BAND_NAMES = ["treetops", "hilltop", "clouds", "high sky"] as const;
 
 /**

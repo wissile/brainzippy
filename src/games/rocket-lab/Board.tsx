@@ -7,7 +7,7 @@ import { targetOf } from "../../engine/validation";
 import { CrateArt, EngineArt, FlameArt, MoonBackdrop, PadArt, PuffArt, RL, RocketArt, SpringScaleArt, TankArt } from "./art";
 import {
   BAND_FLOORS,
-  BAND_LABELS,
+  BAND_SHORT,
   ENGINE_COST,
   TANK_CHOICES,
   TANK_COST,
@@ -86,12 +86,12 @@ function useLab(exId: string): Lab {
 
 // ---------------------------------------------------------------- arrows
 
-function Arrow({ dir, value, scale, unit, hidden, compare, wins, pulse }: { dir: "up" | "down"; value: number; scale: number; unit: string; hidden?: boolean; compare?: boolean; wins?: "wins" | "equal" | null; pulse?: boolean }) {
+function Arrow({ dir, value, scale, unit, hidden, pulse }: { dir: "up" | "down"; value: number; scale: number; unit: string; hidden?: boolean; pulse?: boolean }) {
   const len = hidden ? 0.28 : Math.max(0, value / scale);
   const name = dir === "up" ? "push up" : "pull down";
   return (
     <div
-      className={`rl-arrow ${dir} ${hidden ? "is-hidden" : ""} ${compare ? "is-compare" : ""} ${pulse ? "is-pulse" : ""}`}
+      className={`rl-arrow ${dir} ${hidden ? "is-hidden" : ""} ${pulse ? "is-pulse" : ""}`}
       style={{ "--len": len } as React.CSSProperties}
       data-testid={dir === "up" ? "thrust-arrow" : "weight-arrow"}
       data-value={hidden ? "?" : value}
@@ -102,8 +102,27 @@ function Arrow({ dir, value, scale, unit, hidden, compare, wins, pulse }: { dir:
       <span className="rl-arrow-label">
         <small>{name}</small>
         <b>{hidden ? "?" : value}</b> {unit}
-        {wins && <em className="rl-wins">{wins === "wins" ? "wins" : "equal"}</em>}
       </span>
+    </div>
+  );
+}
+
+/** Model step: both forces drawn upward from one baseline, side by side, so the lengths can be compared. */
+function Compare({ thrust, weight, scale, unit }: { thrust: number; weight: number; scale: number; unit: string }) {
+  const bars = [
+    { key: "up", name: "push up", v: thrust },
+    { key: "down", name: "pull down", v: weight },
+  ];
+  return (
+    <div className="rl-compare" data-testid="compare" aria-hidden="true">
+      {bars.map((b) => {
+        const tag = thrust === weight ? "equal" : (b.key === "up") === thrust > weight ? "wins" : null;
+        return (
+          <div key={b.key} className={`rl-bar ${b.key}`} style={{ "--len": b.v / scale } as React.CSSProperties}>
+            <span className="rl-bar-label"><small>{b.name}</small><b>{b.v}</b> {unit}{tag && <em className="rl-wins">{tag}</em>}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -365,9 +384,11 @@ export function RocketBoard({ st, alongIndex, busy }: BoardProps) {
   const weightNow = s.mode === "cargo" ? s.w + lab.crates * s.c : s.mode === "mission" ? weightOf(s.m + lab.tanks * TANK_KG) : s.w;
   const hidden = weightHidden(s.mode) && !weighed && !celebrate && !(flight && flight.result.kind !== "launch");
   const flying = flight && !reducedMotion;
-  const compare = modelling && alongIndex >= 1;
-  const winsUp = compare ? (thrustNow > weightNow ? "wins" : thrustNow === weightNow ? "equal" : null) : null;
-  const winsDown = compare ? (weightNow > thrustNow ? "wins" : thrustNow === weightNow ? "equal" : null) : null;
+  const compareable = s.mode === "lift" || s.mode === "cargo" || s.mode === "engine" || s.mode === "engineKg" || s.mode === "moonEngine";
+  const compare = modelling && alongIndex >= 1 && compareable;
+  // the worked example compares the MODELLED build: the glowing engine, or the right number of crates
+  const cmpT = s.mode === "lift" || s.mode === "cargo" ? s.t : typeof st.model === "string" ? engineThrust(st.model) : thrustNow;
+  const cmpW = s.mode === "cargo" && typeof st.model === "number" ? s.w + st.model * s.c : s.w;
   const carrying = !!lab.carry || !!drag?.active;
   const carryToRocket = (lab.carry && lab.carry.from === "shelf") || (drag?.active && drag.carry.from === "shelf");
 
@@ -460,15 +481,17 @@ export function RocketBoard({ st, alongIndex, busy }: BoardProps) {
                   >
                     <RocketArt />
                   </button>
-                  {s.mode !== "mission" && (
-                    <div className={`rl-forces ${compare ? "is-compare" : ""}`}>
-                      {(thrustNow > 0 || s.mode === "lift") && thrustNow > 0 && <Arrow dir="up" value={thrustNow} scale={scale} unit={unit} compare={compare} wins={winsUp} pulse={pulse} />}
-                      <Arrow dir="down" value={weightNow} scale={scale} unit={unit} hidden={hidden} compare={compare} wins={winsDown} pulse={pulse} />
+                  {s.mode !== "mission" && !compare && (
+                    <div className="rl-forces">
+                      {thrustNow > 0 && <Arrow dir="up" value={thrustNow} scale={scale} unit={unit} pulse={pulse} />}
+                      <Arrow dir="down" value={weightNow} scale={scale} unit={unit} hidden={hidden} pulse={pulse} />
                     </div>
                   )}
+                  {compare && <Compare thrust={cmpT} weight={cmpW} scale={scale} unit={unit} />}
                   {(weighed || flightClass === "is-weigh") && s.mode !== "mission" && (
                     <div className="rl-hook" data-testid="spring-scale" aria-hidden="true">
-                      <SpringScaleArt stretch={weightNow / scale} reading={`${weightNow} ${unit}`} />
+                      <SpringScaleArt stretch={weightNow / scale} reading={String(weightNow)} />
+                      <span className="rl-hook-unit">{weightNow} {unit}</span>
                     </div>
                   )}
                 </div>
@@ -823,7 +846,7 @@ function Shelf({ s, lab, st, canAct, modelling, alongIndex, hot, startDrag, onSh
           <span className="rl-part-label">tank {TANK_KG} kg · 1 coin</span>
         </button>
         <table className="rl-plan" data-testid="plan">
-          <caption>Test-flight heights · cost in coins</caption>
+          <caption>Test flights: height reached · cost (c = coins)</caption>
           <thead>
             <tr><th scope="col">thrust</th>{TANK_CHOICES.map((n) => <th key={n} scope="col">{plural(n, "tank", "tanks")}</th>)}</tr>
           </thead>
@@ -838,8 +861,7 @@ function Shelf({ s, lab, st, canAct, modelling, alongIndex, hot, startDrag, onSh
                   const hl = modelling && ((alongIndex === 0 && reach) || (alongIndex >= 1 && model.includes(`thrust-${e}`) && model.includes(`tanks-${n}`)));
                   return (
                     <td key={n} className={`${now ? "is-now" : ""} ${hl ? "is-model" : ""} band-${c.band}`} data-band={c.band} data-cost={c.cost}>
-                      <span>{BAND_LABELS[c.band]}</span>
-                      <small>{c.cost} c</small>
+                      <span>{BAND_SHORT[c.band]}</span> <small>{c.cost}c</small>
                     </td>
                   );
                 })}
