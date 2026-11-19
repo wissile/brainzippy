@@ -74,7 +74,8 @@ describe("library registry integrity", () => {
         'library empty: a live library needs at least one world (or set status "coming-soon")',
       ]),
     );
-    expect(isPlayable({ subject: "cs" })).toBe(false);
+    expect(isPlayable({ subject: "pilot" })).toBe(false); // coming soon
+    expect(isPlayable({ subject: "cs" })).toBe(true); // live since Toggle's Garden Path
     expect(isPlayable({ subject: "math" })).toBe(true);
   });
 });

@@ -1,0 +1,171 @@
+{
+  "lines": {
+    "gp.ready": {
+      "text": "Beep! Hi, I'm Toggle! Will you help me plan a path to the berries?"
+    },
+    "gp.back": {
+      "text": "Welcome back! The berries are ripe and waiting."
+    },
+    "gp.story.intro1": {
+      "text": "This is Toggle. Toggle's tummy is rumbling."
+    },
+    "gp.story.intro2": {
+      "text": "The juiciest berries are on the other side of the garden."
+    },
+    "gp.story.intro3": {
+      "text": "Toggle can only move by following arrow cards, one step at a time."
+    },
+    "gp.story.intro4": {
+      "text": "Put the arrows in order, then press Go!"
+    },
+    "gp.story.between2": {
+      "text": "Munch! Toggle found a berry. More are growing!"
+    },
+    "gp.story.between4": {
+      "text": "Watch out for rocks. Toggle can't climb them."
+    },
+    "gp.story.between6": {
+      "text": "Toggle's tummy is nearly full. Just a few more!"
+    },
+    "gp.story.outro1": {
+      "text": "Toggle's tummy is full!"
+    },
+    "gp.story.outro2": {
+      "text": "You planned every step, and fixed the tricky ones."
+    },
+    "gp.story.outro3": {
+      "text": "Here's your Path Finder badge!"
+    },
+    "gp.prompt.tutorial": {
+      "text": "Tap the arrow card, then press Go!"
+    },
+    "gp.prompt.goal": {
+      "text": "Help Toggle reach the berries!"
+    },
+    "gp.prompt.via": {
+      "text": "Get the berry first, then go home."
+    },
+    "gp.prompt.debug": {
+      "text": "Ooh, a bug! One card is wrong. Can you fix it?"
+    },
+    "gp.prompt.repeat": {
+      "text": "Use a repeat card to save space."
+    },
+    "gp.prompt.stairs": {
+      "text": "Find the pattern. One repeat card can do it!"
+    },
+    "gp.prompt.debugLoop": {
+      "text": "The repeat card has a bug. Can you fix it?"
+    },
+    "gp.help.start": {
+      "text": "A program is a list of steps. Toggle does them in order."
+    },
+    "gp.help.step": {
+      "text": "One arrow means one step. Count the squares."
+    },
+    "gp.help.plan": {
+      "text": "Find the berry first. Then plan from the berry to home."
+    },
+    "gp.help.debug": {
+      "text": "Run it and watch. Fix the first step that goes wrong."
+    },
+    "gp.help.repeat": {
+      "text": "A repeat card does the same steps again. Repeat 3 means 3 times."
+    },
+    "gp.help.staircase": {
+      "text": "Look for a pattern: right, up, right, up. That's one repeat!"
+    },
+    "gp.help.dir": {
+      "text": "Look where the berries are. Which arrow points that way?"
+    },
+    "gp.help.tooFar": {
+      "text": "Toggle went too far! Count the squares, but not the one Toggle starts on."
+    },
+    "gp.help.short": {
+      "text": "Toggle needs more steps. Count the squares to the berries."
+    },
+    "gp.help.repeatCount": {
+      "text": "Count each time round with me: one time, two times, three times."
+    },
+    "gp.retry": {
+      "text": "Let's watch it step by step."
+    },
+    "gp.hint.model": {
+      "text": "Follow the footprints. Let's count the steps together."
+    },
+    "gp.hint.modelTap": {
+      "text": "Now tap the glowing cards, then press Go!"
+    },
+    "gp.idle": {
+      "text": "Add arrow cards, then press Go!"
+    },
+    "gp.praise.plan": {
+      "text": "You planned every step!"
+    },
+    "gp.praise.count": {
+      "text": "You counted the squares, one step at a time!"
+    },
+    "gp.praise.order": {
+      "text": "Step by step, in the right order. Beep!"
+    },
+    "gp.praise.via": {
+      "text": "Berry first, then home. What a plan!"
+    },
+    "gp.praise.debug": {
+      "text": "You found the bug and fixed it!"
+    },
+    "gp.praise.watch": {
+      "text": "You watched carefully and fixed the first wrong step!"
+    },
+    "gp.praise.repeat": {
+      "text": "One repeat card did all that work."
+    },
+    "gp.praise.pattern": {
+      "text": "You spotted the pattern!"
+    },
+    "gp.praise.loopFix": {
+      "text": "You fixed the repeat card. Beep beep!"
+    },
+    "gp.block.up": {
+      "text": "Up"
+    },
+    "gp.block.down": {
+      "text": "Down"
+    },
+    "gp.block.left": {
+      "text": "Left"
+    },
+    "gp.block.right": {
+      "text": "Right"
+    },
+    "gp.block.repeat": {
+      "text": "Repeat"
+    },
+    "gp.block.times": {
+      "text": "{n} times",
+      "vary": {
+        "n": [
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    },
+    "gp.block.full": {
+      "text": "The strip is full. Press Go, or tap a card to take it out."
+    },
+    "gp.run.go": {
+      "text": "Go, Toggle!"
+    },
+    "gp.run.bump": {
+      "text": "Bonk! A rock."
+    },
+    "gp.run.edge": {
+      "text": "That's the garden fence."
+    },
+    "gp.run.empty": {
+      "text": "Add a card first, so Toggle knows where to go."
+    }
+  }
+}
