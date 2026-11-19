@@ -24,7 +24,7 @@ describe("prerendered public pages", () => {
   // Data-driven: the expected page set is derived from the catalog, guides and editorial content, so adding a
   // world (or its copy) never breaks these assertions; only a missing or extra page does.
   const CORE = ["/", "/how-it-works", "/research", "/for-parents", "/for-teachers", "/faq", "/pricing", "/about", "/games", "/guides"];
-  // library pages: live libraries with published games and editorial copy (D-028)
+  // library pages: live libraries with published games and editorial copy (D-029)
   const expectedSubjects = LIBRARIES_NOW.filter((l) => SUBJECTS.some((s) => s.slug === l.id)).map((l) => `/libraries/${l.id}`);
   const expectedAges = AGE_BANDS.filter((b) => GAMES.some((g) => overlapYears(g.ages, b) >= 2)).map((b) => `/ages/${b.slug}`);
 
@@ -223,7 +223,7 @@ describe("content quality", () => {
   });
 });
 
-describe("library pages (D-028)", () => {
+describe("library pages (D-029)", () => {
   const live = registry.libraries.filter((l) => l.status === "live");
   const soon = registry.libraries.filter((l) => l.status === "coming-soon");
 

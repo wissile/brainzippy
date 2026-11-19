@@ -8,7 +8,7 @@ import type { ContentPack, Library } from "../../src/content/types";
 import { buildRound } from "../../src/engine/round";
 import { lintExercise } from "../../src/engine/validation";
 
-/** Library layer (D-028): every world belongs to a library; every library has a host, a theme and kid copy. */
+/** Library layer (D-029): every world belongs to a library; every library has a host, a theme and kid copy. */
 const ELEVEN = ["math", "english", "cs", "pilot", "money", "cyber", "sci", "geo", "sel", "engr", "nature"];
 
 describe("library registry integrity", () => {

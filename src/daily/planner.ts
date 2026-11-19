@@ -24,7 +24,7 @@ import { UNLOCK_COUNT, isDue, isMastered, masteryLevel } from "./memory";
  *                never the world just played, and with only one other world the previous one is the second option.
  *  P9 variety    two consecutive slots never use the same world when it can be avoided (D5).
  *  P10 ties      broken by world id, so tests are reproducible (D9).
- *  P11 libraries soft cap of LIB_CAP planned stops per library (D5, D-028): brand-new worlds come first from the
+ *  P11 libraries soft cap of LIB_CAP planned stops per library (D5, D-029): brand-new worlds come first from the
  *                libraries with the fewest queued stops (P4), and a library over the cap hands its non-review stops to
  *                unlocked worlds of libraries under the cap while any exist (familiar worlds first). The pick (P8)
  *                offers two libraries when it can. Reviews are never displaced.

@@ -2,7 +2,7 @@
  * The ONLY place the public site reads game data. Everything the site says about a game's ages, skills and
  * levels comes from the content registry (src/content) — the same metadata that routes and plans the games —
  * so public pages cannot drift from the product. New worlds appear here automatically when their pack lands.
- * Only worlds of LIVE libraries are published (D-028); coming-soon libraries have no public pages at all.
+ * Only worlds of LIVE libraries are published (D-029); coming-soon libraries have no public pages at all.
  */
 import { playableWorlds, registry } from "../content";
 import { GAME_COPY } from "./content/games";
@@ -117,7 +117,7 @@ export interface SiteLibrary {
   ages: readonly [number, number];
   games: readonly SiteGame[];
 }
-/** @deprecated Libraries replaced subjects (D-028); same shape plus library fields. */
+/** @deprecated Libraries replaced subjects (D-029); same shape plus library fields. */
 export type SiteSubject = SiteLibrary;
 
 /** Live libraries with at least one published game, most games first (ties: registry title). Coming-soon libraries never appear. */

@@ -2,7 +2,7 @@
  * The public site map. Every indexable page is defined here and nowhere else; the prerenderer, the
  * sitemap and the tests all read this list. Library and age pages are generated from data: a page
  * exists only when it has games AND editorial content (no thin or placeholder pages). Library pages exist
- * only for LIVE libraries (D-028); the old /subjects/* URLs redirect to /libraries/*.
+ * only for LIVE libraries (D-029); the old /subjects/* URLs redirect to /libraries/*.
  */
 import { createElement as h } from "react";
 import { AGES_NOW, GAMES, LIBRARIES_NOW, libraryPath } from "./catalog";
@@ -36,8 +36,8 @@ function page(p: Omit<PageDef, "jsonLd"> & { jsonLd?: readonly object[] }): Page
 
 const CORE_UPDATED = "2026-11-18";
 
-/** _redirects rules owned by the site map: /subjects/<id> moved to /libraries/<id> (D-028). */
-export const ROUTE_REDIRECTS = ["# Subjects became libraries (D-028).", "/subjects/* /libraries/:splat 301"] as const;
+/** _redirects rules owned by the site map: /subjects/<id> moved to /libraries/<id> (D-029). */
+export const ROUTE_REDIRECTS = ["# Subjects became libraries (D-029).", "/subjects/* /libraries/:splat 301"] as const;
 
 export function buildRoutes(): PageDef[] {
   const pages: PageDef[] = [];
