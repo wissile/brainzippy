@@ -132,7 +132,7 @@ test("Explore shows library shelves: every live world reachable, coming-soon lib
   }
   // coming-soon libraries: shown as teasers, never as games
   const teasers = page.locator('[data-testid^="teaser-"][data-status="coming-soon"]');
-  expect(await teasers.count()).toBeGreaterThanOrEqual(9);
+  expect(await teasers.count()).toBeGreaterThanOrEqual(8); // 11 libraries; math, english and sci are live
   await expect(page.locator('[data-testid="shelf-cs"], [data-testid="shelf-pilot"]')).toHaveCount(0);
   expect(await page.locator('.lib-teasers [data-testid^="explore-"], .lib-teasers [data-testid="choice"]').count()).toBe(0);
   const teaser = page.getByTestId("teaser-hear-cs");
