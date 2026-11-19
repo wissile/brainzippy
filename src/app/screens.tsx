@@ -5,7 +5,7 @@ import { useApp } from "./AppContext";
 import { ReminderSettings } from "../pwa/ReminderSettings";
 import { disableReminders } from "../pwa/push";
 import { DailyLimitSetting } from "../daily/DailyLimitSetting";
-import { joinAnd, liveSubjects, registry } from "../content/registry";
+import { joinAnd, liveSubjects, playableWorlds } from "../content/registry";
 
 export const AGE_BANDS = [
   { id: "ages-3-5", label: "3–5", min: 3, max: 5, critter: "bobbo" },
@@ -41,7 +41,7 @@ export function GrownUpsScreen() {
       <div className="screen-top"><NavButton to="/" label="Home" /><h1 className="screen-title">For grown-ups</h1><span /></div>
       <article className="prose">
         <p className="lead" data-testid="grownups-lead">
-          BrainZippy turns learning into short story adventures: {registry.worlds.length} worlds so far in {joinAnd(liveSubjects().map((x) => x.title))}, with more subjects on the way. Your child is the hero who brings back the lost Brain Sparks of Monster Island, with the Critter Crew as guides.
+          BrainZippy turns learning into short story adventures: {playableWorlds().length} worlds so far in {joinAnd(liveSubjects().map((x) => x.title))}, with more subjects on the way. Your child is the hero who brings back the lost Brain Sparks of Monster Island, with the Critter Crew as guides.
         </p>
 
         <h2>The goal</h2>

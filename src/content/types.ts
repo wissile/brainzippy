@@ -2,20 +2,63 @@ import type { ComponentType } from "react";
 import type { GameDefinition } from "../engine/types";
 
 /**
- * Content registry types. A content pack (src/content/packs/<pack>/index.ts) declares subjects, topics,
+ * Content registry types. A content pack (src/content/packs/<pack>/index.ts) declares libraries, topics,
  * skills, characters and worlds; the registry collects every pack with import.meta.glob, so a new library is
- * a new folder with no central edits. Pack files hold METADATA ONLY: game code, art and exercise data are
- * loaded lazily through `World.load` / `World.loadDefinition`.
+ * a new folder with no central edits (D-028). Pack files hold METADATA ONLY: game code, art and exercise data
+ * are loaded lazily through `World.load` / `World.loadDefinition`.
+ *
+ * Hierarchy: Library → Topic → Skill, practised in Worlds. A library is declared by exactly one pack folder,
+ * `packs/library-<id>/`; worlds (in that pack or any other) join it through `World.subject = <library id>`.
  */
 
 export type AgeRange = readonly [number, number];
 
 export interface Subject {
-  /** e.g. "math", "english", "computing", "aviation", "money", "cyber", "science" */
+  /** Permanent id, e.g. "math", "english", "cs", "sci". Topic, skill and progress ids are namespaced by it. */
   id: string;
+  /** Grown-up title: "Maths", "Computer science". */
   title: string;
-  /** One sentence for grown-ups / SEO hub pages. */
+  /** Parent description: 1–2 factual sentences for grown-ups and search engines. No efficacy claims (D-020). */
   description: string;
+}
+
+/** `live`: worlds are playable, planned and published. `coming-soon`: a gentle teaser only (no play, no public page). */
+export type LibraryStatus = "live" | "coming-soon";
+
+/**
+ * A library's colours, exposed to CSS as `--lib-main`, `--lib-soft` and `--lib-deep` on its shelf.
+ * Values are `#rrggbb` so they can be contrast-checked; `token` names the tokens.css colour `main` comes from.
+ */
+export interface LibraryTheme {
+  /** Accent: shelf band, host halo. Usually the host's colour. */
+  main: string;
+  /** Light tint behind the shelf's cards. */
+  soft: string;
+  /** Text and outline colour on white and on `soft` (≥ 4.5:1 contrast, checked). */
+  deep: string;
+  /** e.g. "--bobbo": src/styles/tokens.css custom property whose value equals `main` (checked when given). */
+  token?: string;
+}
+
+/**
+ * A learning library (D-028): a Subject plus everything the child-facing shelf, the planner and the public
+ * site need. `World.subject` and `Topic.subject` hold the library id, so existing ids and progress stay valid.
+ */
+export interface Library extends Subject {
+  /** What a child sees on the shelf: "Number Hill", "Code Garden". */
+  kidTitle: string;
+  /** Character id of the recurring host (declared by some pack). Referenced by id only; art lives in src/characters. */
+  host: string;
+  theme: LibraryTheme;
+  /** Ages the library is planned for (3–14). Its worlds must sit inside this range. */
+  ages: AgeRange;
+  /** Short kid pitch, said or read on the shelf: "Count, add and share with Bobbo." (≤ 12 words) */
+  pitch: string;
+  status: LibraryStatus;
+  /** Shelf order (ascending); ties by id. */
+  order: number;
+  /** Optional key of the library's island/map art (e.g. "island-number-hill"); unused keys fall back to the default. */
+  art?: string;
 }
 
 export interface Topic {
@@ -48,6 +91,7 @@ export interface Character {
 export interface World {
   /** = GameDefinition.id = the route /play/<id> = folder src/games/<id>. */
   id: string;
+  /** Library id (D-028; the field keeps its historical name). */
   subject: string;
   topic: string;
   skills: readonly string[];
@@ -74,10 +118,11 @@ export interface World {
 }
 
 export interface ContentPack {
-  /** Folder name, e.g. "core-math". */
+  /** Folder name, e.g. "core-math" (checked). */
   id: string;
   title: string;
-  subjects?: readonly Subject[];
+  /** Only in a `library-<id>` pack, and then exactly one library whose id is <id> (checked). */
+  libraries?: readonly Library[];
   topics?: readonly Topic[];
   skills?: readonly Skill[];
   characters?: readonly Character[];

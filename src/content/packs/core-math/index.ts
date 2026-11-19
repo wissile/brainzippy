@@ -1,13 +1,13 @@
 import type { ContentPack } from "../../types";
 
 /**
- * Core maths pack: the Critter Crew and the first four Monster Island worlds.
+ * Core maths pack: the Critter Crew and the first four Monster Island worlds. The `math` library itself is
+ * declared in packs/library-math.
  * Metadata only — game code/data load lazily. Skills mirror docs/CURRICULUM.md; characters docs/CHARACTER_SYSTEM.md.
  */
 const pack: ContentPack = {
   id: "core-math",
   title: "Core maths (ages 4–9)",
-  subjects: [{ id: "math", title: "Maths", description: "Number sense, counting, addition and early division through story games." }],
   topics: [
     { id: "math.counting", subject: "math", title: "Counting" },
     { id: "math.addition", subject: "math", title: "Addition" },

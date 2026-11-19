@@ -2,21 +2,14 @@ import type { ContentPack } from "../../types";
 
 /**
  * English library — first world: Hoot's Rhyme Lanterns (ages 3–5).
- * This pack DEFINES the `english` subject; later English worlds add their own packs and reuse it (and the
- * `english.phon` topic) without redefining them. Spec: docs/curriculum/english.md §2–3 (library id `ela`
+ * The `english` library is declared in packs/library-english; this pack adds the `english.phon` topic, which
+ * later English worlds reuse without redefining it. Spec: docs/curriculum/english.md §2–3 (library id `ela`
  * there; the registry subject id is `english`, so skill ids are `english.<topic>.<skill>`).
  * Metadata only — game code and data load lazily.
  */
 const pack: ContentPack = {
   id: "english-rhyme-lanterns",
   title: "English: Hoot's Rhyme Lanterns (ages 3–5)",
-  subjects: [
-    {
-      id: "english",
-      title: "English",
-      description: "Listening, phonics, reading, spelling and vocabulary through story games, starting with rhymes and sounds for pre-readers.",
-    },
-  ],
   topics: [
     { id: "english.phon", subject: "english", title: "Sounds in words", description: "Phonological awareness: hearing rhymes, syllables and first sounds in spoken words." },
   ],
