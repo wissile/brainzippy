@@ -1,0 +1,161 @@
+/* Library hosts (src/characters/library). The shared state motion (breathe, hop, nod, tilt, jump, sway, sleep)
+   comes from src/styles/characters.css via `.critter.state-*`; this file adds each host's signature motion.
+   Rules: transform/opacity only; no flashes > 3/s; retry is gentle (never shakes);
+   reduced motion holds a readable pose per state (bottom of file). Timing table: docs/ANIMATION_AUDIO.md. */
+
+.host .seg, .host .antenna, .host .bulb-glow, .host .scarf-tail, .host .tuft, .host .ear, .host .tail, .host .crest,
+.host .spark, .host .fog, .host .shell, .host .globe-land, .host .sticker, .host .stalk, .host .eyes, .host .claw,
+.host .stone-offer, .host .hat, .host .kelp, .host .bubble, .host .scroll, .host .satchel, .host .glint {
+  transform-box: fill-box;
+  transition: transform 220ms var(--ease-out), opacity 220ms var(--ease-out);
+}
+
+/* ---------- Toggle: blocks ripple like a wave; the idea bulb glows ---------- */
+.toggle .seg { transform-origin: 50% 100%; }
+.toggle .antenna { transform-origin: 0% 100%; }
+.toggle .bulb-glow { transform-origin: 50% 50%; opacity: 0.3; }
+.toggle.state-greeting .bulb-glow, .toggle.state-celebrating .bulb-glow, .toggle.state-encouraging .bulb-glow { opacity: 0.7; }
+.toggle.state-greeting .antenna { animation: host-antenna 0.9s ease-in-out infinite; }
+.toggle.state-thinking .bulb-glow { animation: bulb-think 1.8s ease-in-out infinite; }
+.toggle.state-celebrating .seg { animation: seg-wave 0.75s ease-in-out infinite; }
+.toggle.state-celebrating .seg-2 { animation-delay: 0.1s; }
+.toggle.state-celebrating .seg-1 { animation-delay: 0.2s; }
+.toggle.state-retry .seg-3, .toggle.state-retry .seg-2 { transform: translateY(3px) scale(1, 0.9); } /* blocks sit down in a neat row */
+
+/* ---------- Zephy: scarf streams; salute; wings fold on retry ---------- */
+.zephy .scarf-tail { transform-origin: 0% 50%; animation: scarf 1.6s ease-in-out infinite; }
+.zephy.state-celebrating .scarf-tail { animation-duration: 0.5s; }
+.zephy .tuft { transform-origin: 50% 100%; }
+.zephy.state-greeting .tuft, .zephy.state-celebrating .tuft { animation: host-antenna 0.8s ease-in-out infinite; }
+.zephy.state-thinking .wing-r { transform: rotate(-38deg); } /* taps her goggles */
+.zephy.state-encouraging .wing-r { transform: rotate(-20deg); }
+.zephy.state-retry .wing-l { transform: rotate(-16deg); }
+.zephy.state-retry .wing-r { transform: rotate(16deg); }
+.zephy.state-sleeping .wing-l { transform: rotate(-22deg); }
+.zephy.state-sleeping .wing-r { transform: rotate(22deg); }
+
+/* ---------- Budge: list wiggles when happy; scratches head on retry ---------- */
+.budge .scroll { transform-origin: 30% 100%; }
+.budge.state-celebrating .scroll { animation: host-antenna 0.75s ease-in-out infinite; }
+.budge.state-retry .arm-r { transform: rotate(-150deg); }
+.budge.state-encouraging .satchel { transform: rotate(-4deg); transform-origin: 80% 0%; }
+
+/* ---------- Fenn: the ears do the talking ---------- */
+.fenn .ear-l { transform-origin: 100% 100%; }
+.fenn .ear-r { transform-origin: 0% 100%; }
+.fenn .tail { transform-origin: 100% 100%; animation: tail-sway 3s ease-in-out infinite; }
+.fenn.state-thinking .ear-l { animation: ear-swivel-l 1.8s ease-in-out infinite; }
+.fenn.state-thinking .ear-r { animation: ear-swivel-r 1.8s ease-in-out infinite; }
+.fenn.state-celebrating .ear, .fenn.state-greeting .ear { animation: ear-spring 0.75s var(--ease-bounce) infinite; }
+.fenn.state-retry .ear-l { animation: ear-perk-l 2.4s ease-in-out infinite; transform: rotate(-14deg); }
+.fenn.state-retry .ear-r { animation: ear-perk-r 2.4s ease-in-out infinite; transform: rotate(14deg); }
+.fenn.state-sleeping .ear-l { transform: rotate(-24deg); }
+.fenn.state-sleeping .ear-r { transform: rotate(24deg); }
+.fenn .glint { opacity: 0.85; }
+.fenn.state-encouraging .glint { animation: glint 1.4s ease-in-out infinite; }
+
+/* ---------- Dabble: crest puffs and fans; goggles fog on retry ---------- */
+.dabble .crest { transform-origin: 50% 100%; }
+.dabble .tail { transform-origin: 0% 100%; animation: tail-sway 3.2s ease-in-out infinite; }
+.dabble.state-thinking .crest { transform: scale(1.1, 1.14); }
+.dabble.state-celebrating .crest { animation: crest-fan 0.75s var(--ease-bounce) infinite; }
+.dabble .spark { transform-origin: 50% 50%; animation: spark 0.9s ease-in-out infinite alternate; }
+.dabble .spark-2 { animation-delay: 0.3s; }
+.dabble .fog { animation: fog-clear 2.4s ease-in-out infinite; }
+
+/* ---------- Yonder: the globe spins; eyes duck and pop back ---------- */
+.yonder .stalk-l { transform-origin: 50% 100%; }
+.yonder .stalk-r { transform-origin: 50% 100%; }
+.yonder .eyes { transform-origin: 50% 100%; }
+.yonder .claw-l { transform-origin: 100% 100%; }
+.yonder .claw-r { transform-origin: 0% 100%; }
+.yonder.state-greeting .globe-land { animation: globe-spin 4s linear infinite; }
+.yonder.state-greeting .claw-r { animation: claw-wave 0.5s ease-in-out infinite alternate; }
+.yonder.state-celebrating .globe-land { animation: globe-spin 1.6s linear infinite; }
+.yonder.state-celebrating .sticker { transform-origin: 50% 50%; animation: spark 0.6s ease-in-out infinite alternate; }
+.yonder.state-thinking .stalk-l { transform: rotate(-10deg); }
+.yonder.state-thinking .stalk-r { transform: rotate(-4deg); }
+.yonder.state-encouraging .claw-r { transform: rotate(-20deg); }
+.yonder.state-retry .eyes { animation: duck 1.8s ease-in-out infinite; }
+.yonder.state-sleeping .stalk-l { transform: rotate(-12deg); }
+.yonder.state-sleeping .stalk-r { transform: rotate(10deg); }
+
+/* ---------- Snug: soft and slow; offers a calm stone ---------- */
+.snug .ear-l { transform-origin: 100% 100%; animation: ear-twitch-l 7s ease-in-out infinite; }
+.snug .ear-r { transform-origin: 0% 100%; }
+.snug.state-celebrating .critter-body { animation: soft-bounce 1s ease-in-out infinite; }
+.snug.state-celebrating .critter-shadow { animation: none; }
+.snug.state-encouraging .arm-r { transform: rotate(-40deg); }
+.snug.state-retry .critter-body { animation: none; transform: rotate(-5deg); } /* head tilt, kind smile */
+
+/* ---------- Brix: hat pops; tail measures ---------- */
+.brix .hat { transform-origin: 50% 100%; }
+.brix .tail { transform-origin: 0% 100%; }
+.brix.state-celebrating .hat { animation: hat-pop 0.75s cubic-bezier(0.3, 0, 0.3, 1) infinite; }
+.brix.state-thinking .tail { transform: rotate(-22deg); }
+.brix.state-retry .arm-r { animation: tap 0.8s ease-in-out infinite alternate; }
+.brix.state-greeting .hat { animation: hat-tip 0.9s ease-in-out infinite; }
+
+/* ---------- Ripple: bobs on the water (water stays still) ---------- */
+.ripple .kelp { transform-origin: 80% 20%; }
+.ripple.state-idle .critter-body { animation: float-bob 3s ease-in-out infinite; }
+.ripple.state-idle .kelp, .ripple.state-encouraging .kelp { animation: kelp-sway 3s ease-in-out infinite; }
+.ripple.state-celebrating .critter-body { animation: float-twirl 1.2s ease-in-out infinite; }
+.ripple.state-celebrating .critter-shadow { animation: none; }
+.ripple .bubble { transform-origin: 50% 50%; animation: bubble-rise 1.4s ease-out infinite; }
+.ripple .bubble-2 { animation-delay: 0.45s; }
+.ripple .bubble-3 { animation-delay: 0.9s; }
+.ripple.state-retry .critter-body { animation: float-bob 3.6s ease-in-out infinite; }
+.ripple.state-sleeping .critter-body { animation: float-bob 4s ease-in-out infinite; }
+
+@keyframes host-antenna { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(10deg); } }
+@keyframes bulb-think { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.75; } }
+@keyframes seg-wave { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-9px) scale(1.04, 0.98); } }
+@keyframes scarf { 0%, 100% { transform: rotate(0) scaleX(1); } 50% { transform: rotate(-6deg) scaleX(1.06); } }
+@keyframes tail-sway { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(5deg); } }
+@keyframes ear-swivel-l { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-12deg); } }
+@keyframes ear-swivel-r { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-8deg); } }
+@keyframes ear-spring { 0%, 100% { transform: scaleY(1); } 40% { transform: scaleY(1.1); } 70% { transform: scaleY(0.97); } }
+@keyframes ear-perk-l { 0%, 60%, 100% { transform: rotate(-14deg); } 80% { transform: rotate(-2deg); } }
+@keyframes ear-perk-r { 0%, 60%, 100% { transform: rotate(14deg); } 80% { transform: rotate(2deg); } }
+@keyframes glint { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+@keyframes crest-fan { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.18, 1.22); } }
+@keyframes spark { from { transform: scale(0.8) rotate(0); } to { transform: scale(1.15) rotate(20deg); } }
+@keyframes fog-clear { 0%, 30% { opacity: 0.75; } 70%, 100% { opacity: 0.2; } }
+@keyframes globe-spin { from { transform: translateX(0); } to { transform: translateX(-124px); } }
+@keyframes claw-wave { from { transform: rotate(0); } to { transform: rotate(-26deg); } }
+@keyframes duck { 0%, 100% { transform: translateY(0); } 35%, 55% { transform: translateY(14px) scaleY(0.85); } }
+@keyframes ear-twitch-l { 0%, 90%, 100% { transform: rotate(0); } 94% { transform: rotate(-10deg); } }
+@keyframes soft-bounce { 0%, 100% { transform: translateY(0) scale(1, 1); } 45% { transform: translateY(-10px) scale(0.98, 1.03); } 85% { transform: translateY(0) scale(1.03, 0.97); } }
+@keyframes hat-pop { 0%, 20%, 85%, 100% { transform: translateY(0) rotate(0); } 45% { transform: translateY(-18px) rotate(-6deg); } }
+@keyframes hat-tip { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-8deg) translateY(-3px); } }
+@keyframes tap { from { transform: rotate(-60deg); } to { transform: rotate(-80deg); } }
+@keyframes float-bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(4px) rotate(-2deg); } }
+@keyframes kelp-sway { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-4deg); } }
+@keyframes float-twirl { 0%, 100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-10px) rotate(6deg); } }
+@keyframes bubble-rise { 0% { transform: translateY(10px) scale(0.6); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-30px) scale(1); opacity: 0; } }
+
+/* Reduced motion: no loops, no travel. Each state keeps a held pose (arms, ears, crest, hat, bulb) + face. */
+@media (prefers-reduced-motion: reduce) {
+  .host .critter-body, .host .critter-shadow, .host .arm, .host .wing, .host .seg, .host .antenna, .host .bulb-glow,
+  .host .scarf-tail, .host .tuft, .host .ear, .host .tail, .host .crest, .host .spark, .host .fog, .host .globe-land,
+  .host .sticker, .host .eyes, .host .claw, .host .hat, .host .kelp, .host .bubble, .host .scroll, .host .glint {
+    animation: none !important;
+  }
+  .host.state-greeting .arm-r { transform: rotate(-130deg); }
+  .host.state-celebrating .critter-body { transform: translateY(-6px); }
+  .toggle.state-thinking .bulb-glow { opacity: 0.75; }
+  .toggle.state-celebrating .seg-2 { transform: translateY(-5px); }
+  .zephy.state-greeting .wing-r, .zephy.state-celebrating .wing-r { transform: rotate(-28deg); }
+  .zephy.state-celebrating .wing-l { transform: rotate(28deg); }
+  .fenn.state-celebrating .ear, .fenn.state-greeting .ear { transform: scaleY(1.06); }
+  .fenn.state-thinking .ear-l { transform: rotate(-10deg); }
+  .dabble.state-celebrating .crest { transform: scale(1.14, 1.18); }
+  .dabble .fog { opacity: 0.45; }
+  .yonder.state-greeting .claw-r { transform: rotate(-22deg); }
+  .yonder.state-retry .eyes { transform: translateY(6px); }
+  .brix.state-celebrating .hat { transform: translateY(-12px) rotate(-6deg); }
+  .brix.state-retry .arm-r { transform: rotate(-70deg); }
+  .ripple.state-celebrating .critter-body { transform: rotate(-5deg); }
+  .ripple .bubble { opacity: 1; }
+}
