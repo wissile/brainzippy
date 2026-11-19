@@ -117,7 +117,7 @@ test("Explore shows library shelves: every live world reachable, coming-soon lib
   await press(page, '[data-testid="explore-all-ages"]');
   await expect(page.locator(".explore-card")).toHaveCount(total);
   await expect(page.getByTestId("shelf-english")).toBeVisible();
-  const ALL = ["counting-adventure", "glow-cave-hops", "sky-balloon-race", "cookie-kitchen", "pattern-parade", "shape-squish", "sleepy-trail", "balance-island", "rhyme-lanterns"];
+  const ALL = ["counting-adventure", "glow-cave-hops", "sky-balloon-race", "cookie-kitchen", "pattern-parade", "shape-squish", "sleepy-trail", "balance-island", "rhyme-lanterns", "garden-path"];
   for (const id of ALL) {
     const card = page.getByTestId(`explore-${id}`);
     await card.scrollIntoViewIfNeeded();
@@ -132,13 +132,14 @@ test("Explore shows library shelves: every live world reachable, coming-soon lib
   }
   // coming-soon libraries: shown as teasers, never as games
   const teasers = page.locator('[data-testid^="teaser-"][data-status="coming-soon"]');
-  expect(await teasers.count()).toBeGreaterThanOrEqual(9);
-  await expect(page.locator('[data-testid="shelf-cs"], [data-testid="shelf-pilot"]')).toHaveCount(0);
+  expect(await teasers.count()).toBeGreaterThanOrEqual(8);
+  await expect(page.getByTestId("shelf-cs")).toBeVisible(); // live since Toggle's Garden Path
+  await expect(page.locator('[data-testid="shelf-pilot"], [data-testid="teaser-hear-cs"]')).toHaveCount(0);
   expect(await page.locator('.lib-teasers [data-testid^="explore-"], .lib-teasers [data-testid="choice"]').count()).toBe(0);
-  const teaser = page.getByTestId("teaser-hear-cs");
+  const teaser = page.getByTestId("teaser-hear-pilot");
   await teaser.scrollIntoViewIfNeeded();
-  await expect(teaser).toHaveAccessibleName(/Code Garden with Toggle is still being built/);
-  await press(page, '[data-testid="teaser-hear-cs"]');
+  await expect(teaser).toHaveAccessibleName(/Sky School with Zephy is still being built/);
+  await press(page, '[data-testid="teaser-hear-pilot"]');
   await page.waitForTimeout(400);
   await expect(page).toHaveURL(/\/explore$/);
   await page.screenshot({ path: `${SHOTS}/${info.project.name}-04-explore.png` });
