@@ -88,7 +88,7 @@ function finish(mode: Mode, b: Base): Omit<Exercise, "difficulty"> {
 export function payItem(price: number, tray: readonly Denom[], opts: { id: string; seed: number; tutorial?: boolean }): Omit<Exercise, "difficulty"> {
   const big = price > 20;
   const prompt = opts.tutorial
-    ? { line: "ls.prompt.tutorial", text: "A lemon costs 3¢. Put 3 pennies on the counter, then tap Pay!" }
+    ? { line: "ls.prompt.tutorial", text: "A lemon costs 3¢. Put 3 pennies on the counter!" }
     : price === 100
       ? { line: "ls.prompt.pay.dollar", text: "A big bag of lemons costs $1.00. Pay the farmer!" }
       : { line: big ? "ls.prompt.pay2" : "ls.prompt.pay1", vars: { c: price }, text: `${big ? "A bag of lemons" : "A lemon"} costs ${fmt(price)}. Pay the farmer!` };
@@ -154,8 +154,8 @@ export function revenueItem(cups: number, price: number, rng: Rng, opts: { id: s
     answer: { kind: "number", value: rev, choices: choices(rng, rev, [cups + price, offByOne]) },
     params: { cups, price },
     prompt: dollar
-      ? { line: "ls.prompt.revenue.dollar", vars: { n: cups }, text: `Serve ${cups} cups at $1 each. How much money came in?` }
-      : { line: "ls.prompt.revenue", vars: { n: cups, c: price }, text: `Serve ${cups} cups at ${fmt(price)} each. How much money came in?` },
+      ? { line: "ls.prompt.revenue.dollar", vars: { cups }, text: `Serve ${cups} cups at $1 each. How much money came in?` }
+      : { line: "ls.prompt.revenue", vars: { cups, c: price }, text: `Serve ${cups} cups at ${fmt(price)} each. How much money came in?` },
     a11yDescription: `${cups} customers are waiting. Each cup costs ${words(price)}. Serve every customer, then choose how much money came in.`,
   });
 }

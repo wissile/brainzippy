@@ -29,7 +29,7 @@
   position: relative; flex: 1; min-width: 0; min-height: 0; max-width: 1240px;
   container: ls / size;
   user-select: none; -webkit-user-select: none;
-  --btn: clamp(52px, 16cqw, 76px);
+  --btn: clamp(56px, 18.5cqw, 84px);
 }
 .ls-layout {
   position: absolute; inset: 0;
@@ -38,17 +38,25 @@
   grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-columns: minmax(0, 1fr);
 }
-@container ls (aspect-ratio > 1.3) {
-  .ls-stage { --btn: clamp(48px, min(9cqw, 24cqh), 78px); }
-  .ls-layout { grid-template-areas: "info scene source"; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) auto; grid-template-rows: minmax(0, 1fr); column-gap: 12px; }
-  .ls-info { align-self: center; }
-  .ls-source { flex-direction: column; justify-content: center; display: grid !important; grid-template-columns: repeat(2, auto); align-content: center; }
-  .ls-source.ls-pitcher-row, .ls-source.ls-slider-row { display: flex !important; grid-template-columns: none; }
-  .ls-slider-row { width: clamp(230px, 30cqw, 400px); }
-}
 .ls-info { grid-area: info; min-width: 0; min-height: 0; }
-.ls-scene { grid-area: scene; min-width: 0; min-height: 0; }
+.ls-scene { grid-area: scene; min-width: 0; min-height: 0; width: 100%; max-width: 760px; justify-self: center; align-self: center; height: min(100%, max(240px, 54cqw)); }
 .ls-source { grid-area: source; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; }
+@container ls (aspect-ratio > 1.3) {
+  .ls-stage { --btn: clamp(48px, min(8.5cqw, 22cqh), 80px); }
+  .ls-layout { grid-template-areas: "info scene" "source scene"; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); grid-template-rows: minmax(0, 1fr) auto; column-gap: 14px; row-gap: 10px; }
+  .ls-info { align-self: end; }
+  .ls-scene { height: 100%; max-width: none; }
+  .ls-source { align-self: start; align-content: flex-start; }
+}
+/* very wide and short (phone landscape): info · stand · till side by side; the till is a 2-column grid */
+@container ls (aspect-ratio > 2.3) {
+  .ls-stage { --btn: clamp(46px, 20cqh, 64px); }
+  .ls-layout { grid-template-areas: "info scene source"; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr) auto; grid-template-rows: minmax(0, 1fr); }
+  .ls-info { align-self: center; }
+  .ls-source { align-self: center; display: grid; grid-template-columns: repeat(2, auto); justify-items: center; gap: 5px; }
+  .ls-source.ls-pitcher-row, .ls-source.ls-slider-row { display: flex; }
+  .ls-slider-row { width: clamp(270px, 30cqw, 380px); }
+}
 
 /* ---------- cards (price tag, ledger, survey) ---------- */
 .ls-card {
@@ -99,15 +107,20 @@
 
 /* ---------- the stand ---------- */
 .ls-scene { position: relative; container: lsscene / size; --awn: clamp(26px, 15cqh, 64px); --front: clamp(34px, 24cqh, 92px); }
+.ls-scene::before {
+  content: ""; position: absolute; left: 3%; right: 3%; top: calc(var(--awn) * 0.5); bottom: var(--front);
+  background: linear-gradient(180deg, #fff6d6, #ffe9a8); border: 3px solid var(--ls-ink); border-bottom: 0; border-radius: 8px 8px 0 0;
+  box-shadow: inset 0 -14px 0 rgba(160, 101, 47, 0.18);
+}
 .ls-awning { position: absolute; left: 0; right: 0; top: 0; height: var(--awn); z-index: 2; filter: drop-shadow(0 4px 0 rgba(43, 33, 64, 0.2)); }
 .ls-awning-art { width: 100%; height: 100%; display: block; }
-.ls-post { position: absolute; top: calc(var(--awn) * 0.6); bottom: var(--front); width: clamp(8px, 2.4cqw, 16px); background: var(--ls-wood); border: 3px solid var(--ls-ink); border-radius: 6px; }
+.ls-post { z-index: 1; position: absolute; top: calc(var(--awn) * 0.6); bottom: var(--front); width: clamp(8px, 2.4cqw, 16px); background: var(--ls-wood); border: 3px solid var(--ls-ink); border-radius: 6px; }
 .ls-post.l { left: 4%; }
 .ls-post.r { right: 4%; }
-.ls-top { position: absolute; left: 4%; right: 4%; top: calc(var(--awn) + 2px); bottom: var(--front); display: flex; z-index: 1; }
+.ls-top { position: absolute; left: 7%; right: 7%; top: calc(var(--awn) + 2px); bottom: var(--front); display: flex; z-index: 1; }
 .ls-scene:has(.ls-side-char) .ls-top { left: calc(min(22cqw, 40cqh) + 2%); }
 .ls-front {
-  position: absolute; left: 1%; right: 1%; bottom: 0; height: var(--front);
+  z-index: 1; position: absolute; left: 1%; right: 1%; bottom: 0; height: var(--front);
   border: 4px solid var(--ls-ink); border-radius: 10px 10px 6px 6px;
   background: repeating-linear-gradient(90deg, var(--ls-wood) 0 34px, #c88a4c 34px 36px), var(--ls-wood);
   box-shadow: inset 0 6px 0 rgba(255, 255, 255, 0.25), 0 5px 0 rgba(43, 33, 64, 0.25);
@@ -126,7 +139,7 @@
 /* drop zone on the counter */
 .ls-drop {
   position: relative; flex: 1; min-width: 0; margin: 4px 2px 6px;
-  border-radius: 16px; border: 3px dashed rgba(43, 33, 64, 0.25); background: rgba(255, 255, 255, 0.35);
+  border-radius: 16px; border: 3px dashed rgba(160, 101, 47, 0.45); background: rgba(255, 255, 255, 0.5);
   display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 4px 6px 4px;
   transition: background var(--t-med), border-color var(--t-med), transform var(--t-fast);
 }
@@ -192,7 +205,7 @@
 
 /* ---------- customers ---------- */
 .ls-queue { flex-direction: row; align-items: flex-end; justify-content: center; gap: 0; padding: 4px 4px 2px; cursor: pointer; }
-.ls-customer { position: relative; flex: 0 1 min(18%, 70px); min-width: 0; max-width: 70px; transition: transform 300ms var(--ease-bounce), opacity var(--t-med); }
+.ls-customer { position: relative; flex: 0 1 18%; min-width: 0; max-width: min(120px, 34cqh); transition: transform 300ms var(--ease-bounce), opacity var(--t-med); }
 .ls-customer .critter { width: 100%; height: auto; display: block; }
 .ls-customer.is-next { transform: translateY(-6px) scale(1.08); }
 .ls-customer.is-served { opacity: 0.85; }
@@ -232,11 +245,14 @@
 .ls-pricesign { align-items: center; justify-content: center; gap: 6px; border-style: solid; border-color: transparent; background: transparent; }
 .ls-pricesign-board { display: flex; flex-direction: column; align-items: center; background: var(--ls-cream); border: 4px solid var(--ls-ink); border-radius: 16px; padding: 2px 18px; box-shadow: 0 5px 0 rgba(43, 33, 64, 0.3); transform: rotate(-2deg); }
 .ls-pricesign-label { font-weight: 800; font-size: 0.85rem; color: #6b5a3c; }
-.ls-pricesign-board b { font: 800 clamp(1.6rem, 14cqh, 3rem) / 1 var(--font-display); color: var(--ls-wood-dark); }
+.ls-pricesign-board b { font: 800 clamp(1.6rem, 16cqh, 4.4rem) / 1 var(--font-display); color: var(--ls-wood-dark); }
 .ls-pricesign-crowd { display: flex; align-items: center; gap: 4px; font-weight: 800; background: rgba(255, 255, 255, 0.85); border-radius: 999px; padding: 2px 10px; }
 .ls-crowd-cup { width: 18px; height: 22px; }
-.ls-slider-row { padding: 0 26px; }
-.ls-slider { position: relative; width: 100%; height: calc(max(44px, var(--btn) * 0.7) + 52px); touch-action: none; min-width: 220px; }
+.ls-cup-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 92%; max-height: 38%; overflow: hidden; }
+.ls-cup-grid > span { width: clamp(9px, 3.4cqh, 18px); animation: ls-pop 200ms var(--ease-out) both; }
+.ls-cup-grid svg { width: 100%; height: auto; display: block; }
+.ls-slider-row { padding: 0 32px; min-width: 270px; }
+.ls-slider { position: relative; width: 100%; height: calc(max(44px, var(--btn) * 0.7) + 52px); touch-action: none; min-width: 0; }
 .ls-slider-rail { position: absolute; left: 0; right: 0; top: 20px; height: 10px; border-radius: 5px; background: var(--ls-wood); border: 3px solid var(--ls-ink); }
 .ls-notch {
   position: absolute; left: var(--x); bottom: 0; transform: translateX(-50%);
@@ -272,8 +288,9 @@
 .ls-pay.is-wrong { animation: nudge 420ms ease-in-out; }
 .ls-pay.is-model { animation: model 1s ease-in-out infinite; box-shadow: 0 7px 0 var(--go-shadow), 0 0 0 8px rgba(255, 255, 255, 0.9); }
 .ls-choices.is-waiting .choice { opacity: 0.5; }
-.ls-money-card .numeral { font-size: clamp(1.5rem, 2.2vw + 0.7rem, 2.4rem); white-space: nowrap; }
-.ls-money-card { width: clamp(96px, 13vw, 160px); height: clamp(72px, 10vw, 100px); }
+.ls-money-card .numeral { font-size: clamp(1.25rem, 2.2vw + 0.6rem, 2.4rem); white-space: nowrap; -webkit-text-stroke-width: 2px; }
+.ls-money-card { width: clamp(70px, 20vw, 160px); height: clamp(68px, 10vw, 100px); border-width: 4px; }
+.ls-choices { gap: clamp(6px, 1.6vw, 18px); }
 
 /* ---------- celebration and feedback ---------- */
 .ls-stage.is-celebrating .ls-stack-item { animation: ls-hop 600ms var(--ease-bounce) both; animation-delay: calc(var(--i) * 60ms); }
@@ -298,6 +315,13 @@
 .ls-story-top { position: absolute; left: 10%; right: 10%; top: 20%; bottom: 34%; display: flex; justify-content: center; align-items: flex-end; }
 .ls-story-pitcher { width: 32%; display: block; }
 .ls-story-pitcher svg { width: 100%; height: auto; display: block; }
+
+/* short wide boards: compact cards (after the base card rules so they win) */
+@container ls (aspect-ratio > 2.3) {
+  .ls-card { font-size: clamp(0.72rem, 4.4cqh, 0.95rem); padding: 4px 8px; }
+  .ls-outcome { min-height: 44px; min-width: 60px; }
+  .ls-tag-price { font-size: clamp(1.4rem, 12cqh, 2.2rem); }
+}
 
 /* ---------- reduced motion ---------- */
 .ls-stage.still *, .ls-stage.still *::before, .ls-stage.still *::after { animation: none !important; transition: none !important; }

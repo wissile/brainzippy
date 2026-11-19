@@ -256,6 +256,17 @@ describe("Lemonade Stand voice and coaching", () => {
     for (const ex of [lemonadeTutorial, ...all()]) varsOk(ex.prompt!.line, ex.prompt!.vars as Record<string, number>);
   });
 
+  it("prompt vars never use the runner's own names (it adds n = answer and kind), so captions say the right numbers", () => {
+    for (const ex of all()) {
+      const vars = (ex.prompt!.vars ?? {}) as Record<string, number>;
+      expect(Object.keys(vars).filter((k) => k === "n" || k === "kind"), ex.id).toEqual([]);
+      if (modeOf(P(ex)) === "revenue") {
+        const shown = renderLine(ex.prompt!.line, { ...vars, kind: ex.objectKind, n: targetOf(ex) });
+        expect(shown, ex.id).toContain(`Serve ${P(ex).cups} cups`);
+      }
+    }
+  });
+
   it("running totals up to a dollar are covered", () => {
     for (let c = 1; c <= 99; c++) varsOk("ls.total", { c });
     expect(renderLine("ls.total", { c: 37 })).toBe("37 cents.");

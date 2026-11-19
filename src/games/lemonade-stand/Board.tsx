@@ -618,6 +618,7 @@ function PriceBoard({ st, alongIndex, busy = noop, progress = NO_PROGRESS }: Boa
         <StandScene progress={progress} className="ls-scene-price">
           <div className="ls-drop ls-pricesign" data-testid="price-sign">
             <span className="ls-pricesign-board"><span className="ls-pricesign-label">Price</span><b>{pick === null ? "?" : fmt(pick)}</b></span>
+            {shownCups !== null && <span className="ls-cup-grid" key={pick ?? 0} aria-hidden="true">{Array.from({ length: shownCups }, (_, i) => <span key={i} style={{ animationDelay: `${i * 8}ms` }}><CupArt /></span>)}</span>}
             <span className="ls-pricesign-crowd">{shownCups === null ? "Slide to try a price" : <><span className="ls-crowd-cup" aria-hidden="true"><CupArt /></span>{shownCups} cups sold</>}</span>
           </div>
         </StandScene>
