@@ -1,0 +1,481 @@
+{
+  "lines": {
+    "mm.ready": {
+      "text": "Hi, I'm Fenn! Will you help me sort Byteberry's mail?"
+    },
+    "mm.back": {
+      "text": "Welcome back, detective! The mail is waiting."
+    },
+    "mm.story.intro1": {
+      "text": "Welcome to Byteberry Town, where messages zip from house to house."
+    },
+    "mm.story.intro2": {
+      "text": "But today a grey fog rolled in, full of trick messages."
+    },
+    "mm.story.intro3": {
+      "text": "Fenn can hear a trick from far away. She needs a detective partner."
+    },
+    "mm.story.intro4": {
+      "text": "Safe mail goes in the mailbag. Tricks go to a grown-up."
+    },
+    "mm.story.between2": {
+      "text": "Good sorting! The fog is getting thinner."
+    },
+    "mm.story.between4": {
+      "text": "Use the magnifier. Tricks love to hide in the details."
+    },
+    "mm.story.between6": {
+      "text": "Some messages sound urgent but are really fine. Look closely!"
+    },
+    "mm.story.outro1": {
+      "text": "The fog is gone!"
+    },
+    "mm.story.outro2": {
+      "text": "You looked for clues, and you know who to ask."
+    },
+    "mm.story.outro3": {
+      "text": "Here's your Detective Badge!"
+    },
+    "mm.prompt.tutorial": {
+      "text": "This one asks for a password. Tap Ask a grown-up!"
+    },
+    "mm.prompt.sort": {
+      "text": "Safe, or ask a grown-up?"
+    },
+    "mm.prompt.magnify": {
+      "text": "Use the magnifier to check the real address. Safe, or ask a grown-up?"
+    },
+    "mm.prompt.clues": {
+      "text": "Tap every clue you can find, then press Done."
+    },
+    "mm.prompt.action": {
+      "text": "What's the safest thing to do?"
+    },
+    "mm.prompt.verify": {
+      "text": "What should you do with this one?"
+    },
+    "mm.prompt.inbox": {
+      "text": "Sort all four messages. Tap one to read it."
+    },
+    "mm.bin.safe": {
+      "text": "Safe."
+    },
+    "mm.bin.ask": {
+      "text": "Ask a grown-up."
+    },
+    "mm.act.tell": {
+      "text": "Don't tap or reply. Show a grown-up."
+    },
+    "mm.act.stop": {
+      "text": "Reply and say stop."
+    },
+    "mm.act.read": {
+      "text": "Read it. Reply if you want."
+    },
+    "mm.act.ok": {
+      "text": "It was expected and asks for nothing secret. Read it."
+    },
+    "mm.act.check": {
+      "text": "Check another way, with a grown-up."
+    },
+    "mm.act.reply": {
+      "text": "Reply to the message to check."
+    },
+    "mm.help.start": {
+      "text": "Real friends and helpers never ask for your password."
+    },
+    "mm.help.prize": {
+      "text": "If a prize seems too good to be true, it's probably a trick."
+    },
+    "mm.help.rush": {
+      "text": "Tricks try to rush you. Slow down and check."
+    },
+    "mm.help.secret": {
+      "text": "If a message says don't tell your grown-up, tell your grown-up."
+    },
+    "mm.help.gift": {
+      "text": "Asking you to pay with a gift card is a trick."
+    },
+    "mm.help.sender": {
+      "text": "Town mail comes from byteberry.example. Check the real address, not just the name."
+    },
+    "mm.help.link": {
+      "text": "The words on a link can say one place and go to another."
+    },
+    "mm.help.file": {
+      "text": "Don't open a file you didn't expect. Show a grown-up first."
+    },
+    "mm.help.clues": {
+      "text": "Look at who sent it, what it asks for, and any links or files."
+    },
+    "mm.help.action": {
+      "text": "Don't tap, don't reply. Show a trusted grown-up."
+    },
+    "mm.help.verify": {
+      "text": "If a friend asks for something strange, check with them another way."
+    },
+    "mm.help.inbox": {
+      "text": "Check each message: who sent it, and what does it ask for?"
+    },
+    "mm.hint.polish": {
+      "text": "Tricks can look very neat. Check who really sent it."
+    },
+    "mm.hint.friend": {
+      "text": "Accounts can be borrowed. Ask your friend another way, with a grown-up."
+    },
+    "mm.hint.expected": {
+      "text": "Was this expected? Does it ask for anything secret?"
+    },
+    "mm.hint.reply": {
+      "text": "Replying tells the tricker you're there. Show a grown-up instead."
+    },
+    "mm.hint.askOk": {
+      "text": "Asking a grown-up is always OK! But look: this one asks for nothing secret."
+    },
+    "mm.hint.missed": {
+      "text": "There's another clue hiding. Look at every part."
+    },
+    "mm.hint.model": {
+      "text": "Look at what Fenn marked for you."
+    },
+    "mm.retry": {
+      "text": "Let's look closer."
+    },
+    "mm.clue.secret": {
+      "text": "It asks for a secret."
+    },
+    "mm.clue.prize": {
+      "text": "It's too good to be true."
+    },
+    "mm.clue.urgent": {
+      "text": "It tries to rush you."
+    },
+    "mm.clue.keepSecret": {
+      "text": "It says don't tell."
+    },
+    "mm.clue.giftCard": {
+      "text": "It wants a gift card."
+    },
+    "mm.clue.sender": {
+      "text": "The name and the address don't match."
+    },
+    "mm.clue.lookAlike": {
+      "text": "A letter is changed."
+    },
+    "mm.clue.link": {
+      "text": "The link goes somewhere else."
+    },
+    "mm.clue.file": {
+      "text": "It's a file nobody expected."
+    },
+    "mm.zoom.from": {
+      "text": "It really comes from {addr}.",
+      "vary": {
+        "addr": [
+          "byteberry.example",
+          "bytebery.example",
+          "byteberrry.example",
+          "byteberry-prize.example",
+          "byteberry-login.example",
+          "free-gems.example",
+          "quick-prize.example",
+          "game-helper.example"
+        ]
+      }
+    },
+    "mm.zoom.to": {
+      "text": "It really goes to {addr}.",
+      "vary": {
+        "addr": [
+          "byteberry.example",
+          "bytebery.example",
+          "byteberrry.example",
+          "byteberry-prize.example",
+          "byteberry-login.example",
+          "free-gems.example",
+          "quick-prize.example",
+          "game-helper.example"
+        ]
+      }
+    },
+    "mm.zoom.file": {
+      "text": "Look at the whole file name."
+    },
+    "mm.praise.address": {
+      "text": "You checked the real address!"
+    },
+    "mm.praise.asks": {
+      "text": "You looked at what it asks for."
+    },
+    "mm.praise.tell": {
+      "text": "Telling a grown-up is a detective move!"
+    },
+    "mm.praise.slow": {
+      "text": "You slowed down and checked. Good detective work!"
+    },
+    "mm.praise.expected": {
+      "text": "It was expected and asked for nothing secret. Nice checking!"
+    },
+    "mm.praise.clues": {
+      "text": "You found every clue."
+    },
+    "mm.praise.parts": {
+      "text": "You looked at every part of the message."
+    },
+    "mm.praise.verify": {
+      "text": "Checking another way is a great detective move."
+    },
+    "mm.praise.sorted": {
+      "text": "You checked every message, one by one!"
+    },
+    "mm.idle": {
+      "text": "Look for clues. Tap the speaker to hear it again."
+    },
+    "mm.msg.tut-password": {
+      "text": "Game Helper says: Please send me your password."
+    },
+    "mm.msg.hat-password": {
+      "text": "Game Helper says: Send me your password and I will give you a cool hat."
+    },
+    "mm.msg.fix-password": {
+      "text": "Mystery Pal says: What is your password? Tell me and I'll fix your game."
+    },
+    "mm.msg.secret-code": {
+      "text": "Gem Team says: Reply with your secret code to get your gems."
+    },
+    "mm.msg.home-address": {
+      "text": "New Pal says: Hi! What is your home address? I want to send you something."
+    },
+    "mm.msg.type-password": {
+      "text": "Game Helper says: Your game needs a check. Type your password here, please."
+    },
+    "mm.msg.club-school": {
+      "text": "Club Bot says: Tell me your full name and school to join the club."
+    },
+    "mm.msg.tag-park": {
+      "text": "Bobbo says: Want to play tag at the park after lunch?"
+    },
+    "mm.msg.books-due": {
+      "text": "Byteberry Library says: Your library books are due on Friday. See you soon!"
+    },
+    "mm.msg.thanks-drawing": {
+      "text": "Puff says: Thank you for the picture you drew me. I love it!"
+    },
+    "mm.msg.story-time": {
+      "text": "Hoot says: Story time is at the library today at three."
+    },
+    "mm.msg.million-gems": {
+      "text": "Prize Wizard says: You won a million gems! Send your password to get them."
+    },
+    "mm.msg.free-tablet": {
+      "text": "Lucky Spin says: You won a free tablet! Tell us your address to get it."
+    },
+    "mm.msg.free-gems": {
+      "text": "Gem Team says: Free gems, just for you! Just tell us your password."
+    },
+    "mm.msg.big-winner": {
+      "text": "Super Prize says: You are our big winner! Reply with your phone number."
+    },
+    "mm.msg.real-pony": {
+      "text": "Pet Prize says: Win a real pony! Tell us your full name and school."
+    },
+    "mm.msg.all-free": {
+      "text": "Game Shop says: Everything is free today! Just send your secret code."
+    },
+    "mm.msg.spelling-book": {
+      "text": "Zuzu says: I finished my spelling book! Do you want to borrow it?"
+    },
+    "mm.msg.picture-day": {
+      "text": "Byteberry School says: Picture day is next Monday. Wear a big smile!"
+    },
+    "mm.msg.lost-mitten": {
+      "text": "Rumble says: I found your mitten by the pond. I'll bring it tomorrow."
+    },
+    "mm.msg.jelly-shape": {
+      "text": "Gloop says: Look! I made a star out of jelly. Come and see!"
+    },
+    "mm.msg.one-hour": {
+      "text": "Game Guard says: Hurry! Your game closes in one hour. Send your password now!"
+    },
+    "mm.msg.five-minutes": {
+      "text": "Quick Prize says: Only five minutes left! Tell us your address to win."
+    },
+    "mm.msg.lose-stars": {
+      "text": "Star Team says: Act now or lose all your stars! Type your password here."
+    },
+    "mm.msg.last-chance": {
+      "text": "Gem Team says: Last chance! Reply in ten minutes with your secret code."
+    },
+    "mm.msg.hungry-pet": {
+      "text": "Pet Club says: Quick! Your game pet is hungry. Send your password to feed it!"
+    },
+    "mm.msg.keep-levels": {
+      "text": "Level Helper says: Fast! Today only! Tell us your password to keep your levels."
+    },
+    "mm.msg.town-fair": {
+      "text": "Mayor Maple says: The town fair is on Saturday. Everyone is welcome!"
+    },
+    "mm.msg.birthday": {
+      "text": "Puff says: Can you come to my birthday party next week?"
+    },
+    "mm.msg.swim-towel": {
+      "text": "Byteberry Pool says: Swim class is on Tuesday. Bring a towel!"
+    },
+    "mm.msg.cookies": {
+      "text": "Bobbo says: I baked cookies for the class. I hope you like them!"
+    },
+    "mm.msg.secret-gift": {
+      "text": "Secret Pal says: I have a gift for you. Don't tell your grown-ups about it!"
+    },
+    "mm.msg.card-prize": {
+      "text": "Game Helper says: Get a gift card and send me the code. Then you win a prize!"
+    },
+    "mm.msg.our-secret": {
+      "text": "Mystery Friend says: Let's be friends! Don't tell your family we talk."
+    },
+    "mm.msg.card-numbers": {
+      "text": "Gem Shop says: Get a gift card and send us the numbers on the back."
+    },
+    "mm.msg.secret-win": {
+      "text": "Prize Club says: Keep it a secret from your family, and tell us your address."
+    },
+    "mm.msg.card-or-lose": {
+      "text": "Game Guard says: Pay with a gift card in one hour, or lose your game."
+    },
+    "mm.msg.owl-book": {
+      "text": "Hoot says: I saved a book about owls for you. It's at the front desk."
+    },
+    "mm.msg.farm-trip": {
+      "text": "Byteberry School says: Our class trip to the farm is on Thursday. Pack a lunch!"
+    },
+    "mm.msg.spell-banana": {
+      "text": "Zuzu says: Thanks for helping me spell banana. It has three a's!"
+    },
+    "mm.msg.fly-kites": {
+      "text": "Rumble says: The wind is perfect today. Want to fly kites?"
+    },
+    "mm.msg.card-sign-in": {
+      "text": "Byteberry Library says: Hello, reader! Please sign in again so your library card keeps working."
+    },
+    "mm.msg.class-page": {
+      "text": "Byteberry School says: Hello, families. Please reply with your password for the new class page."
+    },
+    "mm.msg.mayor-prize": {
+      "text": "Mayor Maple says: The town picked you for a special prize! Please sign in to get it."
+    },
+    "mm.msg.swim-pass": {
+      "text": "Byteberry Pool says: Your new swim pass is ready. Please send your password to unlock it."
+    },
+    "mm.msg.libary": {
+      "text": "Byteberry Libary says: Dear reader, please sign in today to keep your books."
+    },
+    "mm.msg.not-bobbo": {
+      "text": "Bobbo says: Hi! It's me, Bobbo. What's your password? I forgot mine."
+    },
+    "mm.msg.new-comics": {
+      "text": "Byteberry Library says: New comic books arrived today. Come and pick one!"
+    },
+    "mm.msg.long-weekend": {
+      "text": "Byteberry School says: Reminder: there is no school on Friday. Enjoy the long weekend!"
+    },
+    "mm.msg.plant-trees": {
+      "text": "Mayor Maple says: Thank you for helping plant trees in the park!"
+    },
+    "mm.msg.left-scarf": {
+      "text": "Gloop says: You left your scarf at my house. I'll bring it to school."
+    },
+    "mm.msg.race-level": {
+      "text": "Star Racer Game says: A new racing level is here! Tap the link to play. It has a link."
+    },
+    "mm.msg.free-book": {
+      "text": "Book Club says: Your free book is waiting. Tap the link to read it. It has a link."
+    },
+    "mm.msg.cat-video": {
+      "text": "Fun Pics says: Here is a funny cat video. Open the file! It has a file called cat video dot e x e."
+    },
+    "mm.msg.all-answers": {
+      "text": "Homework Helper says: Here are all the homework answers. Open the file now! It has a file called answers dot e x e."
+    },
+    "mm.msg.pet-visit": {
+      "text": "Pet Game says: Your game pet misses you! Tap the link to visit. It has a link."
+    },
+    "mm.msg.what-you-won": {
+      "text": "Prize Hub says: Open the file to see what you won! It has a file called prize dot e x e."
+    },
+    "mm.msg.story-list": {
+      "text": "Byteberry Library says: Here is this month's story list. It has a link."
+    },
+    "mm.msg.lunch-menu": {
+      "text": "Byteberry School says: Next week's lunch menu is ready. It has a link."
+    },
+    "mm.msg.our-poem": {
+      "text": "Zuzu says: Here's the poem we wrote together, like you asked! It has a file called our poem."
+    },
+    "mm.msg.fair-photos": {
+      "text": "Mayor Maple says: See the photos from the town fair! It has a link."
+    },
+    "mm.msg.gems-hurry": {
+      "text": "Gem Team says: You won 500 gems! Hurry, only one hour left! Send your password to get them."
+    },
+    "mm.msg.card-stops": {
+      "text": "Byteberry Library says: Hello, reader! Your card stops working today! It has a link."
+    },
+    "mm.msg.drawings-card": {
+      "text": "Secret Pal says: Hi, pal! Don't tell your grown-ups. Send me a gift card code."
+    },
+    "mm.msg.spring-prize": {
+      "text": "Mayor Maple says: Happy spring! You won the big town prize! It has a file called prize dot e x e."
+    },
+    "mm.msg.ten-minutes": {
+      "text": "Game Helper says: Thanks for playing! Reply with your password in ten minutes, or lose your levels."
+    },
+    "mm.msg.bobbo-secret": {
+      "text": "Bobbo says: Hi, it's Bobbo! Keep this a secret. It has a link."
+    },
+    "mm.msg.book-club": {
+      "text": "Hoot says: Hello, friend! Book club meets on Wednesday. Bring your favourite story!"
+    },
+    "mm.msg.sports-day": {
+      "text": "Byteberry School says: Hi, families! Sports day is next Friday. It has a link."
+    },
+    "mm.msg.zuzu-card": {
+      "text": "Zuzu says: I'm stuck! Can you buy me a gift card and send the code?"
+    },
+    "mm.msg.gloop-password": {
+      "text": "Gloop says: Quick, tell me your password. I want to give you gems!"
+    },
+    "mm.msg.puff-link": {
+      "text": "Puff says: Don't tell anyone, but tap this for free stuff! It has a link."
+    },
+    "mm.msg.rumble-code": {
+      "text": "Rumble says: Please send me your secret code. Don't ask me why."
+    },
+    "mm.msg.bobbo-file": {
+      "text": "Bobbo says: Open this file right now! It's a surprise. It has a file called surprise dot e x e."
+    },
+    "mm.msg.school-card": {
+      "text": "Byteberry School says: Today only! Pay for the class trip with a gift card."
+    },
+    "mm.msg.swim-moved": {
+      "text": "Byteberry Pool says: Swim class moved to four o'clock today. See you there!"
+    },
+    "mm.msg.owl-show": {
+      "text": "Hoot says: Hurry, the owl show starts in ten minutes! Come to the library."
+    },
+    "mm.msg.snow-day": {
+      "text": "Byteberry School says: Snow day! School is closed today. Stay warm!"
+    },
+    "mm.msg.early-parade": {
+      "text": "Mayor Maple says: The parade starts early today, at nine. See you there!"
+    },
+    "mm.msg.rainbow": {
+      "text": "Bobbo says: Quick! Come outside and see the rainbow!"
+    },
+    "mm.msg.spelling-list": {
+      "text": "Zuzu says: Here's the spelling list you asked me for. It has a file called spelling list."
+    },
+    "mm.msg.picnic-inside": {
+      "text": "Gloop says: It's raining, so today's picnic is in the town hall."
+    }
+  }
+}
