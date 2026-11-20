@@ -252,7 +252,7 @@ export function planDay(input: PlanInput): PlanStop[] {
   }
 
   // P11 libraries: hand stops from a library over LIB_CAP to unlocked worlds of libraries under it
-  if (rebalanceLibraries(core, all, open, (w) => played(w) || belowBand(w), isExtra)) {
+  if (rebalanceLibraries(core, all, open, (w) => played(w) || belowBand(w), isExtra, newCap(band))) {
     count.clear();
     for (const s of core) count.set(s.world, (count.get(s.world) ?? 0) + 1);
   }
@@ -318,7 +318,7 @@ export function planDay(input: PlanInput): PlanStop[] {
  * that still has room (< MAX_PER_WORLD rounds): least-used library first, familiar worlds before new ones, then id.
  * A replacement never sits next to the same world. Deterministic; mutates `core` and records new worlds in `isNew`.
  */
-function rebalanceLibraries(core: PlanStop[], all: readonly PlannerWorld[], open: readonly PlannerWorld[], familiar: (w: PlannerWorld) => boolean, isNew: Set<string>): boolean {
+function rebalanceLibraries(core: PlanStop[], all: readonly PlannerWorld[], open: readonly PlannerWorld[], familiar: (w: PlannerWorld) => boolean, isNew: Set<string>, cap = Infinity): boolean {
   let changed = false;
   const libOf = new Map(all.map((w) => [w.id, w.subject]));
   const lib = (id: string) => libOf.get(id) ?? `?${id}`;
@@ -341,7 +341,11 @@ function rebalanceLibraries(core: PlanStop[], all: readonly PlannerWorld[], open
         .filter(({ s }) => lib(s.world) === l && s.kind in KIND_ORDER)
         .sort((a, b) => KIND_ORDER[a.s.kind]! - KIND_ORDER[b.s.kind]! || worldCount.get(b.s.world)! - worldCount.get(a.s.world)! || b.i - a.i);
       for (const { i } of slots) {
-        for (const w of cands) {
+        // D4 over P11: at the new-world cap, a familiar world of another library goes before a brand-new one
+        const atCap = core.filter((s, j) => j !== i && s.kind === "new").length >= cap;
+        const isFresh = (w: PlannerWorld) => !familiar(w) && !(worldCount.get(w.id) ?? 0);
+        const order = atCap ? [...cands].sort((a, b) => Number(isFresh(a)) - Number(isFresh(b))) : cands;
+        for (const w of order) {
           const fam = familiar(w) || (worldCount.get(w.id) ?? 0) > 0;
           const trial = [...core];
           trial[i] = { world: w.id, kind: fam ? "practice" : "new" };
