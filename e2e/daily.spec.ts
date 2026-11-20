@@ -117,8 +117,10 @@ test("Explore shows library shelves: every live world reachable, coming-soon lib
   await press(page, '[data-testid="explore-all-ages"]');
   await expect(page.locator(".explore-card")).toHaveCount(total);
   await expect(page.getByTestId("shelf-english")).toBeVisible();
-  const ALL = ["counting-adventure", "glow-cave-hops", "sky-balloon-race", "cookie-kitchen", "pattern-parade", "shape-squish", "sleepy-trail", "balance-island", "rhyme-lanterns", "garden-path"];
-  for (const id of ALL) {
+  // every world card (data-driven: count = data-total) is a real button; a few known worlds as anchors
+  for (const c of await page.locator(".explore-card").all()) expect(await c.evaluate((el) => el.tagName)).toBe("BUTTON");
+  const ANCHORS = ["counting-adventure", "rhyme-lanterns", "balance-island", "garden-path", "lemonade-stand"];
+  for (const id of ANCHORS) {
     const card = page.getByTestId(`explore-${id}`);
     await card.scrollIntoViewIfNeeded();
     await expect(card, id).toBeVisible();
@@ -132,7 +134,8 @@ test("Explore shows library shelves: every live world reachable, coming-soon lib
   }
   // coming-soon libraries: shown as teasers, never as games
   const teasers = page.locator('[data-testid^="teaser-"][data-status="coming-soon"]');
-  expect(await teasers.count()).toBeGreaterThanOrEqual(8);
+  // all 11 libraries are on screen: live ones as shelves, the rest as teasers (no hard-coded count of either)
+  expect((await page.locator(".lib-shelf").count()) + (await teasers.count())).toBe(11);
   await expect(page.getByTestId("shelf-cs")).toBeVisible(); // live since Toggle's Garden Path
   await expect(page.locator('[data-testid="shelf-pilot"], [data-testid="teaser-hear-cs"]')).toHaveCount(0);
   expect(await page.locator('.lib-teasers [data-testid^="explore-"], .lib-teasers [data-testid="choice"]').count()).toBe(0);
