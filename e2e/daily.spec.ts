@@ -119,7 +119,7 @@ test("Explore shows library shelves: every live world reachable, coming-soon lib
   await expect(page.getByTestId("shelf-english")).toBeVisible();
   // every world card (data-driven: count = data-total) is a real button; a few known worlds as anchors
   for (const c of await page.locator(".explore-card").all()) expect(await c.evaluate((el) => el.tagName)).toBe("BUTTON");
-  const ANCHORS = ["counting-adventure", "rhyme-lanterns", "balance-island", "garden-path", "lemonade-stand"];
+  const ANCHORS = ["counting-adventure", "rhyme-lanterns", "balance-island", "garden-path", "lemonade-stand", "rocket-lab"];
   for (const id of ANCHORS) {
     const card = page.getByTestId(`explore-${id}`);
     await card.scrollIntoViewIfNeeded();

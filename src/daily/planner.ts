@@ -315,7 +315,7 @@ export function planDay(input: PlanInput): PlanStop[] {
 /**
  * P11: while a library has more than LIB_CAP stops in `core`, move one of its non-review stops (practice first, then
  * new, then stretch; the world with most stops, latest slot first) to an unlocked world of a library under LIB_CAP
- * that still has room (< MAX_PER_WORLD rounds): least-used library first, familiar worlds before new ones, then id.
+ * that still has room (< MAX_PER_WORLD rounds): familiar worlds before new ones (D4 new-world cap), then least-used library, then id.
  * A replacement never sits next to the same world. Deterministic; mutates `core` and records new worlds in `isNew`.
  */
 function rebalanceLibraries(core: PlanStop[], all: readonly PlannerWorld[], open: readonly PlannerWorld[], familiar: (w: PlannerWorld) => boolean, isNew: Set<string>): boolean {
@@ -335,7 +335,7 @@ function rebalanceLibraries(core: PlanStop[], all: readonly PlannerWorld[], open
     for (const l of over) {
       const cands = open
         .filter((w) => w.subject !== l && (libCount.get(w.subject) ?? 0) < LIB_CAP && (worldCount.get(w.id) ?? 0) < MAX_PER_WORLD)
-        .sort((a, b) => (libCount.get(a.subject) ?? 0) - (libCount.get(b.subject) ?? 0) || Number(familiar(b)) - Number(familiar(a)) || byId(a, b));
+        .sort((a, b) => Number(familiar(b)) - Number(familiar(a)) || (libCount.get(a.subject) ?? 0) - (libCount.get(b.subject) ?? 0) || byId(a, b));
       const slots = core
         .map((s, i) => ({ s, i }))
         .filter(({ s }) => lib(s.world) === l && s.kind in KIND_ORDER)
