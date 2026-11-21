@@ -137,14 +137,17 @@ test("Explore shows library shelves: every live world reachable, coming-soon lib
   // all 11 libraries are on screen: live ones as shelves, the rest as teasers (no hard-coded count of either)
   expect((await page.locator(".lib-shelf").count()) + (await teasers.count())).toBe(11);
   await expect(page.getByTestId("shelf-cs")).toBeVisible(); // live since Toggle's Garden Path
-  await expect(page.locator('[data-testid="shelf-pilot"], [data-testid="teaser-hear-cs"]')).toHaveCount(0);
+  await expect(page.getByTestId("teaser-hear-cs")).toHaveCount(0); // a live library is never also a teaser
   expect(await page.locator('.lib-teasers [data-testid^="explore-"], .lib-teasers [data-testid="choice"]').count()).toBe(0);
-  const teaser = page.getByTestId("teaser-hear-pilot");
-  await teaser.scrollIntoViewIfNeeded();
-  await expect(teaser).toHaveAccessibleName(/Sky School with Zephy is still being built/);
-  await press(page, '[data-testid="teaser-hear-pilot"]');
-  await page.waitForTimeout(400);
-  await expect(page).toHaveURL(/\/explore$/);
+  // whichever library is still being built: its teaser only speaks, never opens a game (skipped once all are live)
+  const hear = page.locator('[data-testid^="teaser-hear-"]').first();
+  if ((await hear.count()) > 0) {
+    await hear.scrollIntoViewIfNeeded();
+    await expect(hear).toHaveAccessibleName(/is still being built/);
+    await hear.click();
+    await page.waitForTimeout(400);
+    await expect(page).toHaveURL(/\/explore$/);
+  }
   await page.screenshot({ path: `${SHOTS}/${info.project.name}-04-explore.png` });
   // keyboard: a card is reachable and opens with Enter
   await page.getByTestId("explore-cookie-kitchen").focus();
