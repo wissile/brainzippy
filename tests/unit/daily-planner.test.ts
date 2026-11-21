@@ -178,7 +178,9 @@ describe("daily planner: variety (P7) on the real registry", () => {
     // the QA case: counting + rhyme played, shape squish unlocked but unplayed
     const levels = { "counting-adventure": 1, "rhyme-lanterns": 1 };
     const log = { ...emptyDailyLog(), seen: { "counting-adventure": "2026-11-17", "rhyme-lanterns": "2026-11-16" } };
-    const input: PlanInput = { day: "2026-11-18", limit: 10, band: [3, 5], worlds: registry.worlds, skills: registry.skills, levels, log };
+    // the QA case is about the preschool worlds; worlds that start at 6 (admitted by the ±1 age stretch) are left out
+    const preschool = registry.worlds.filter((w) => w.ages[0] <= 5);
+    const input: PlanInput = { day: "2026-11-18", limit: 10, band: [3, 5], worlds: preschool, skills: registry.skills, levels, log };
     const plan = planDay(input);
     expect(plan).toHaveLength(10);
     const { open } = dayWorlds(input);
