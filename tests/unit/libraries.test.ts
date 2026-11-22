@@ -74,7 +74,8 @@ describe("library registry integrity", () => {
         'library empty: a live library needs at least one world (or set status "coming-soon")',
       ]),
     );
-    expect(isPlayable({ subject: "geo" })).toBe(false); // coming soon
+    // playability follows status, whichever libraries are live today (no hard-coded coming-soon example)
+    for (const l of registry.libraries) expect(isPlayable({ subject: l.id }), l.id).toBe(l.status === "live");
     expect(isPlayable({ subject: "pilot" })).toBe(true); // live since Zephy's Sky Hoops
     expect(isPlayable({ subject: "cs" })).toBe(true); // live since Toggle's Garden Path
     expect(isPlayable({ subject: "math" })).toBe(true);
