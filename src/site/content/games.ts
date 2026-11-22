@@ -442,8 +442,8 @@ export const GAME_COPY: Record<string, GameCopy> = {
     critter: "toggle",
     helper: "Puff",
     updated: "2026-11-22",
-    title: "Toggle's Garden Path: a first coding game for ages 5–7",
-    description: "A coding game for ages 5–7 with no typing. Children build programs from arrow cards, watch Toggle run them step by step, fix the first wrong step and use repeat loops.",
+    title: "Toggle's Garden Path: a first coding game for ages 5–10",
+    description: "A coding game for ages 5–10, no typing. Children build programs from arrow cards, watch Toggle run them, fix the first wrong step, then use repeat loops.",
     oneLine: "Plan Toggle's path to the berries with arrow cards, press Go, and fix any step that goes wrong.",
     story: "Toggle the caterpillar's tummy is rumbling, and the juiciest berries are on the other side of the garden. Toggle can only move by following arrow cards, one step at a time, so your child plans the route. Rocks get in the way, berries have to be visited in the right order, and some programs need fixing. A finished round fills Toggle's tummy and earns the Path Finder badge.",
     howToPlay: [
