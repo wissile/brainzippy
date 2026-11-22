@@ -1,4 +1,4 @@
-import type { Route } from "../router";
+import { type Route, behind } from "../router";
 import { appOrigin, signingSecret } from "../lib/config";
 import { hmacHex, verifyHmac } from "../lib/crypto";
 import { esc, html } from "../lib/http";
@@ -9,6 +9,7 @@ import { isUuid } from "../lib/validation";
  * - GET shows a page with a single "Unsubscribe" button (so link prefetchers never change anything).
  * - POST unsubscribes. Mail providers send RFC 8058 one-click POSTs (body `List-Unsubscribe=One-Click`) cross-origin,
  *   so this route is exempt from the same-origin check; the signature is the authorisation.
+ * Behind accounts (D-030): the digest only exists for parent accounts, so with ACCOUNTS_ENABLED off this answers 404.
  */
 const PURPOSE = "digest-unsubscribe";
 
@@ -29,7 +30,7 @@ async function verified(env: Env, url: URL): Promise<string | null> {
 
 const invalid = () => html("<h1>Link not valid</h1><p>You can turn daily summaries off in the parent area instead.</p><p><a class=\"btn\" href=\"/parents\">Open the parent area</a></p>", 400);
 
-export const routes: Route[] = [
+export const routes: Route[] = behind("accounts", [
   {
     method: "GET",
     path: "/api/unsubscribe",
@@ -52,4 +53,4 @@ export const routes: Route[] = [
       return html("<h1>You're unsubscribed</h1><p>We won't send daily summaries any more. You can turn them back on in the parent area.</p>");
     },
   },
-];
+]);
