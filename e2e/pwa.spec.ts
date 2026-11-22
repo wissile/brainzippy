@@ -103,7 +103,15 @@ test("push reminders: permission is requested only after the grown-up's tap; sub
     };
   });
   const VAPID_PUBLIC = "BP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A8"; // RFC 8291 sample key (test only)
-  await page.route("**/api/push/key", (r) => r.fulfill({ json: { publicKey: VAPID_PUBLIC } }));
+  // Reminders are shown only when the deployment has push configured (/api/config push); local dev has no VAPID keys.
+  await page.route("**/api/config", (r) => r.fulfill({ json: { accounts: true, billing: true, friends: true, push: true } }));
+  let keyFetched = false;
+  await page.route("**/api/push/key", (r) => ((keyFetched = true), r.fulfill({ json: { publicKey: VAPID_PUBLIC } })));
+  let unsubscribed: Record<string, unknown> | null = null;
+  await page.route("**/api/push/unsubscribe", async (r) => {
+    unsubscribed = r.request().postDataJSON() as Record<string, unknown>;
+    await r.fulfill({ json: { ok: true } });
+  });
   let posted: Record<string, unknown> | null = null;
   await page.route("**/api/push/subscribe", async (r) => {
     posted = r.request().postDataJSON() as Record<string, unknown>;
@@ -123,6 +131,10 @@ test("push reminders: permission is requested only after the grown-up's tap; sub
   expect(await permCalls()).toBe(0);
   await page.getByTestId("reminder-gate-ok").click();
   await expect(page.getByTestId("reminder-panel")).toBeVisible();
+  // the server key is fetched as the panel opens, BEFORE any permission prompt; "Turn on" waits for it
+  await expect.poll(() => keyFetched).toBe(true);
+  await expect(page.getByTestId("reminder-on")).toBeEnabled();
+  expect(await permCalls()).toBe(0);
   await expect(page.getByTestId("reminder-tz")).toContainText(await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZone));
   // quiet hours: no option before 08:00 or from 20:00
   const hours = await page.getByTestId("reminder-hour").locator("option").evaluateAll((o) => o.map((x) => Number((x as HTMLOptionElement).value)));
@@ -146,6 +158,18 @@ test("push reminders: permission is requested only after the grown-up's tap; sub
   await expect
     .poll(() => page.evaluate(async () => (await (await caches.open("bz-local")).match("/__bz/prefs"))?.json() ?? null))
     .toEqual({ monsterName: "Ziggy" });
+
+  // "Delete all progress" also forgets reminders: the subscription, the device id and the cached monster name
+  const deviceId = String(body.id);
+  await page.getByTestId("reset-progress").click();
+  const gq = await page.locator('label[for="gate-answer"]').innerText();
+  const [, ga, gb] = gq.match(/(\d+) × (\d+)/)!;
+  await page.getByTestId("gate-answer").fill(String(Number(ga) * Number(gb)));
+  await page.getByTestId("gate-confirm").click();
+  await expect(page.getByTestId("reset-done")).toBeVisible();
+  expect(unsubscribed).toEqual({ id: deviceId });
+  const left = await page.evaluate(async () => ({ push: localStorage.getItem("bz.push.v1"), state: localStorage.getItem("bz.v1"), prefsCache: await caches.has("bz-local") }));
+  expect(left).toEqual({ push: null, state: null, prefsCache: false });
 });
 
 test("push message shows the reminder with the device-local monster name", async ({ page, context }) => {

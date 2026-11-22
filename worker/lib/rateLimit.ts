@@ -1,9 +1,11 @@
-import { hmacHex, sha256Hex } from "./crypto";
+import { hmacHex } from "./crypto";
 import { isDev, signingSecret } from "./config";
 
 /**
  * Fixed-window rate limiter backed by D1 (one upsert per check). Exact across locations, works in local dev,
- * and needs no extra binding. Keys are keyed hashes of the IP / email, so no raw IP or email is stored here.
+ * and needs no extra binding. Keys are HMACs (SIGNING_SECRET) of the IP / email, so no raw or plainly hashed IP or email
+ * is ever stored. Without the secret (outside local development) `allow` throws RateLimitUnavailable before touching
+ * D1 and the router answers 503: a route that needs rate limiting fails closed instead of storing a guessable key.
  * Edge-level flood protection (WAF rate-limiting rule) is a separate, recommended layer — see docs/DATABASE.md.
  */
 export interface Limit {
@@ -56,27 +58,41 @@ function expandIpv6(ip: string): string[] | null {
   return all.map((h) => h.padStart(4, "0"));
 }
 
-async function keyFor(env: Env, bucket: string, value: string, url: URL | null): Promise<string> {
-  const secret = signingSecret(env, url);
-  const digest = secret ? await hmacHex(secret, `rl:${value}`) : await sha256Hex(`rl:${value}`);
-  return `${bucket}:${digest.slice(0, 32)}`;
+/** Thrown when a route must rate-limit but no HMAC key exists (outside development without SIGNING_SECRET). The router maps it to 503. */
+export class RateLimitUnavailable extends Error {
+  constructor() {
+    super("rate limiting needs SIGNING_SECRET");
+    this.name = "RateLimitUnavailable";
+  }
 }
 
 /**
- * Returns true when the request is allowed. Fails open on database errors so rate limiting never blocks sign-in outright.
+ * HMAC-keyed only. There is deliberately no unkeyed fallback: an unsalted SHA-256 of an IPv4 address can be reversed by
+ * hashing all 2^32 addresses, so it is personal data in all but name.
+ */
+async function keyFor(env: Env, bucket: string, value: string, url: URL | null): Promise<string> {
+  const secret = signingSecret(env, url);
+  if (!secret) throw new RateLimitUnavailable();
+  return `${bucket}:${(await hmacHex(secret, `rl:${value}`)).slice(0, 32)}`;
+}
+
+/**
+ * Returns true when the request is allowed. Fails open on database errors so rate limiting never blocks sign-in outright,
+ * but fails CLOSED (throws RateLimitUnavailable, never writes a row) when there is no SIGNING_SECRET outside development.
  * `url` is the request URL (null for non-request callers); it decides whether the local-development bypass may apply.
  */
 export async function allow(env: Env, limit: Limit, value: string, url: URL | null, now = Date.now()): Promise<boolean> {
   // Per-IP limits are skipped in local development only: every local request comes from the same loopback address.
   if (isDev(env, url) && limit.bucket.endsWith("-ip")) return true;
   const windowStart = Math.floor(now / (limit.windowSec * 1000)) * limit.windowSec * 1000;
+  const key = await keyFor(env, limit.bucket, value, url); // outside the try: a missing secret must not fail open
   try {
     const row = await env.DB.prepare(
       `INSERT INTO rate_limits (key, window_start, count) VALUES (?1, ?2, 1)
        ON CONFLICT(key) DO UPDATE SET count = CASE WHEN window_start = ?2 THEN count + 1 ELSE 1 END, window_start = ?2
        RETURNING count`,
     )
-      .bind(await keyFor(env, limit.bucket, value, url), windowStart)
+      .bind(key, windowStart)
       .first<{ count: number }>();
     return (row?.count ?? 0) <= limit.max;
   } catch {

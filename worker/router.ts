@@ -1,5 +1,6 @@
 import { featureEnabled, type Feature } from "./lib/config";
 import { err } from "./lib/http";
+import { RateLimitUnavailable } from "./lib/rateLimit";
 import { getSession, type Session } from "./lib/session";
 
 /**
@@ -29,7 +30,8 @@ export interface Route {
   crossOrigin?: boolean;
   /**
    * Feature-flagged route: answers 404 (as if it didn't exist) unless the feature is on (worker/lib/config.ts):
-   * "accounts" = ACCOUNTS_ENABLED, "billing" = BILLING_ENABLED (+ accounts), "friends" = FRIENDS_ENABLED (+ accounts).
+   * "accounts" = ACCOUNTS_ENABLED, "billing" = BILLING_ENABLED (+ accounts), "friends" = FRIENDS_ENABLED (+ accounts),
+   * "push" = both VAPID keys configured. Checked before the handler runs, so a disabled route never rate-limits.
    */
   feature?: Feature;
 }
@@ -85,7 +87,14 @@ export function createRouter(routes: readonly Route[]) {
       const outHeaders = new Headers();
       let cached: Promise<Session | null> | undefined;
       const ctx: Ctx = { req, env, url, params, exec, outHeaders, session: () => (cached ??= getSession(req, env, outHeaders)) };
-      const res = await r.handler(ctx);
+      let res: Response;
+      try {
+        res = await r.handler(ctx);
+      } catch (e) {
+        // Rate limiting is required but impossible (no SIGNING_SECRET outside development): fail closed, store nothing.
+        if (e instanceof RateLimitUnavailable) return err("unavailable", 503);
+        throw e;
+      }
       if ([...outHeaders.keys()].length === 0) return res;
       const merged = new Response(res.body, res);
       outHeaders.forEach((v, k) => merged.headers.append(k, v));

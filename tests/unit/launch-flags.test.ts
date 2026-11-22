@@ -6,12 +6,15 @@
 import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { handleApi } from "../../worker/index";
+import * as routeModules from "../../worker/routes";
+import { allow, LIMITS, RateLimitUnavailable } from "../../worker/lib/rateLimit";
 import { CRON_JOBS, runScheduled } from "../../worker/jobs";
 import { accountsEnabled, billingEnabled, flagOn, friendsEnabled, publicConfig, pushEnabled } from "../../worker/lib/config";
 import { getEntitlement } from "../../worker/lib/entitlements";
 import { emptyChildProgress } from "../../src/account/schema";
 import { canPlay, DAY_MS, parseEntitlement } from "../../src/billing/model";
 import { fakeEnv } from "./helpers/d1";
+import { checkGuestFlags, stripJsonComments } from "../../scripts/check-guest-flags.mjs";
 import { importSite } from "./helpers/site";
 
 beforeEach(() => {
@@ -54,7 +57,7 @@ describe("flag parsing", () => {
     expect(flagOn("true")).toBe(true);
   });
 
-  it("billing and friends need accounts; push needs a VAPID public key", () => {
+  it("billing and friends need accounts; push needs both VAPID keys", () => {
     const env = (o: Record<string, string | undefined>) => fakeEnv({ ...OFF, ...o }).env;
     expect([accountsEnabled, billingEnabled, friendsEnabled].map((f) => f(env({})))).toEqual([false, false, false]);
     expect(billingEnabled(env({ BILLING_ENABLED: "true" }))).toBe(false);
@@ -63,7 +66,9 @@ describe("flag parsing", () => {
     expect(friendsEnabled(env({ ACCOUNTS_ENABLED: "true", FRIENDS_ENABLED: "true" }))).toBe(true);
     expect(pushEnabled(env({}))).toBe(false);
     expect(pushEnabled(env({ VAPID_PUBLIC_KEY: "  " }))).toBe(false);
-    expect(pushEnabled(env({ VAPID_PUBLIC_KEY: "BPub" }))).toBe(true);
+    expect(pushEnabled(env({ VAPID_PUBLIC_KEY: "BPub" }))).toBe(false); // private key secret missing
+    expect(pushEnabled(env({ VAPID_PRIVATE_KEY: "priv" }))).toBe(false);
+    expect(pushEnabled(env({ VAPID_PUBLIC_KEY: "BPub", VAPID_PRIVATE_KEY: "priv" }))).toBe(true);
   });
 
   it("wrangler.jsonc: top level and production are all off, staging all on", () => {
@@ -86,6 +91,32 @@ describe("flag parsing", () => {
   });
 });
 
+describe("deploy guard (scripts/check-guest-flags.mjs)", () => {
+  const wranglerJsonc = readFileSync(new URL("../../wrangler.jsonc", import.meta.url), "utf8");
+  const withProd = (vars: Record<string, unknown>) => {
+    const cfg = JSON.parse(stripJsonComments(wranglerJsonc)) as { env: { production: { vars: Record<string, unknown> } } };
+    cfg.env.production.vars = { ...cfg.env.production.vars, ...vars };
+    return `// comment\n${JSON.stringify(cfg)}`;
+  };
+  const built = (vars: Record<string, unknown>) => JSON.stringify({ vars: { ...OFF, ...vars } });
+
+  it("passes the repo's wrangler.jsonc (comments, and // inside strings like https://)", () => {
+    expect(stripJsonComments('{"a":"https://x" // c\n,/* b */"b":1}')).toBe('{"a":"https://x" \n,"b":1}');
+    expect(checkGuestFlags({ wranglerJsonc })).toEqual([]);
+    expect(checkGuestFlags({ wranglerJsonc, builtJson: built({}) })).toEqual([]);
+  });
+
+  it("fails on any production flag that is not exactly \"false\", in the source or the built config", () => {
+    for (const v of ["true", "TRUE", "", undefined, "0"]) {
+      for (const k of ["ACCOUNTS_ENABLED", "BILLING_ENABLED", "FRIENDS_ENABLED"]) {
+        expect(checkGuestFlags({ wranglerJsonc: withProd({ [k]: v }) }), `${k}=${v}`).toHaveLength(1);
+        expect(checkGuestFlags({ wranglerJsonc, builtJson: built({ [k]: v }) }), `built ${k}=${v}`).toHaveLength(1);
+      }
+    }
+    expect(() => checkGuestFlags({ wranglerJsonc: "{ not json" })).toThrow();
+  });
+});
+
 describe("GET /api/config", () => {
   it("returns exactly four booleans, cacheable for 5 minutes, with no cookie and no personal data", async () => {
     const t = fakeEnv(OFF);
@@ -99,7 +130,8 @@ describe("GET /api/config", () => {
 
   it("reflects the flags and their dependencies", async () => {
     const body = async (o: Record<string, string>) => (await (await handleApi(new Request(`${O}/api/config`), fakeEnv({ ...OFF, ...o }).env)).json()) as Record<string, boolean>;
-    expect(await body({ ACCOUNTS_ENABLED: "true", BILLING_ENABLED: "true", FRIENDS_ENABLED: "true", VAPID_PUBLIC_KEY: "BPub" })).toEqual({ accounts: true, billing: true, friends: true, push: true });
+    expect(await body({ ACCOUNTS_ENABLED: "true", BILLING_ENABLED: "true", FRIENDS_ENABLED: "true", VAPID_PUBLIC_KEY: "BPub", VAPID_PRIVATE_KEY: "priv" })).toEqual({ accounts: true, billing: true, friends: true, push: true });
+    expect(await body({ VAPID_PUBLIC_KEY: "BPub" })).toMatchObject({ push: false }); // public key alone is not enough
     expect(await body({ BILLING_ENABLED: "true", FRIENDS_ENABLED: "true" })).toEqual({ accounts: false, billing: false, friends: false, push: false });
     expect(await body({ ACCOUNTS_ENABLED: "true" })).toEqual({ accounts: true, billing: false, friends: false, push: false });
     expect(publicConfig(fakeEnv().env)).toEqual({ accounts: true, billing: true, friends: true, push: false });
@@ -159,6 +191,91 @@ describe("disabled routes answer 404, exactly like a missing route", () => {
     const { cookie } = await signedInParent(t);
     expect((await req(t, "GET", "/api/me", undefined, { cookie })).status).toBe(200);
     expect((await req(t, "POST", "/api/billing/status", {}, { cookie })).status).toBe(200);
+  });
+});
+
+describe("guest-only production writes nothing to D1 (no rate_limits rows, no IP traces)", () => {
+  // Exactly production: APP_ENV=production, three flags off, no secrets (no SIGNING_SECRET, no VAPID keys), real host.
+  const PROD = { APP_ENV: "production", ...OFF, VAPID_PUBLIC_KEY: "", VAPID_SUBJECT: "mailto:hello@brainzippy.com" };
+  const HOST = "https://brainzippy.com";
+  const ID = "11111111-1111-4111-8111-111111111111";
+  const TOKEN = "a".repeat(32);
+  const concrete = (path: string) => path.replace(/:([a-zA-Z]+)/g, (_m, k: string) => (k === "token" || k === "code" ? TOKEN : ID));
+  const ALL = Object.values(routeModules).flat();
+  const TABLES = ["rate_limits", "guest_sessions", "push_subscriptions", "parents", "auth_tokens", "parent_signups", "children"];
+
+  /** Every route of every module, with every method, as an anonymous visitor from a real IP. Records all SQL run. */
+  async function hitEverything(env: Record<string, string>) {
+    const t = fakeEnv(env);
+    const sql: string[] = [];
+    const prepare = t.env.DB.prepare.bind(t.env.DB);
+    (t.env.DB as { prepare: unknown }).prepare = (q: string) => (sql.push(q), prepare(q));
+    const open: string[] = [];
+    for (const r of ALL) {
+      for (const method of ["GET", "POST", "PUT", "DELETE"]) {
+        const path = concrete(r.path);
+        const res = await handleApi(
+          new Request(`${HOST}${path}`, {
+            method,
+            headers: { "cf-connecting-ip": "203.0.113.77", ...(method === "GET" ? {} : { origin: HOST, "content-type": "application/json" }) },
+            body: method === "GET" ? undefined : JSON.stringify({ id: ID, email: "a@example.com", consent: true }),
+          }),
+          t.env,
+        );
+        if (res.status !== 404 && res.status !== 405) open.push(`${method} ${r.path} ${res.status}`);
+      }
+    }
+    return { t, sql, open: [...new Set(open)].sort() };
+  }
+
+  it("no route, with any method, writes a rate_limits row or any other row", async () => {
+    const { t, sql, open } = await hitEverything(PROD);
+    for (const table of TABLES) expect(t.count(table), table).toBe(0);
+    expect(sql.filter((q) => /rate_limits/i.test(q))).toEqual([]);
+    expect(sql.filter((q) => /^\s*(INSERT|UPDATE)/i.test(q))).toEqual([]);
+    // the only routes that answer anything but 404/405: health, config, and deleting a guest row (none can exist)
+    expect(open).toEqual(["DELETE /api/guest/:id 200", "GET /api/config 200", "GET /api/health 200"]);
+    const stored = JSON.stringify(TABLES.map((x) => t.raw.prepare(`SELECT * FROM ${x}`).all()));
+    expect(stored).not.toContain("203.0.113");
+  });
+
+  it("/api/push/* is 404 without both VAPID keys, before rate limiting", async () => {
+    for (const vapid of [{}, { VAPID_PUBLIC_KEY: "BPub" }, { VAPID_PRIVATE_KEY: "priv" }]) {
+      const t = fakeEnv({ ...PROD, SIGNING_SECRET: "s".repeat(40), ...vapid });
+      for (const [m, p] of [["GET", "/api/push/key"], ["POST", "/api/push/subscribe"], ["POST", "/api/push/unsubscribe"]] as const) {
+        const res = await handleApi(new Request(`${HOST}${p}`, { method: m, headers: { "cf-connecting-ip": "203.0.113.5", ...(m === "POST" ? { origin: HOST, "content-type": "application/json" } : {}) }, body: m === "POST" ? JSON.stringify({ id: ID }) : undefined }), t.env);
+        expect(res.status, `${JSON.stringify(vapid)} ${p}`).toBe(404);
+      }
+      expect(t.count("rate_limits")).toBe(0);
+    }
+  });
+
+  it("the digest unsubscribe link is gone with accounts off", async () => {
+    const t = fakeEnv({ ...PROD, SIGNING_SECRET: "s".repeat(40) });
+    expect((await handleApi(new Request(`${HOST}/api/unsubscribe?p=${ID}&s=00`), t.env)).status).toBe(404);
+    expect((await handleApi(new Request(`${HOST}/api/unsubscribe?p=${ID}&s=00`, { method: "POST" }), t.env)).status).toBe(404);
+  });
+
+  it("without SIGNING_SECRET, a route that must rate-limit fails closed (503) and stores nothing", async () => {
+    // guest sync switched on, or push configured, but the secret forgotten
+    const guest = fakeEnv({ ...PROD, GUEST_SYNC_ENABLED: "true" });
+    const g = await handleApi(new Request(`${HOST}/api/guest`, { method: "POST", headers: { "cf-connecting-ip": "203.0.113.9" } }), guest.env);
+    expect(g.status).toBe(503);
+    expect(await g.json()).toEqual({ error: "unavailable" });
+    expect(guest.count("rate_limits")).toBe(0);
+    expect(guest.count("guest_sessions")).toBe(0);
+
+    const push = fakeEnv({ ...PROD, VAPID_PUBLIC_KEY: "BPub", VAPID_PRIVATE_KEY: "priv" });
+    const p = await handleApi(new Request(`${HOST}/api/push/unsubscribe`, { method: "POST", headers: { origin: HOST, "content-type": "application/json", "cf-connecting-ip": "203.0.113.9" }, body: JSON.stringify({ id: ID }) }), push.env);
+    expect(p.status).toBe(503);
+    expect(push.count("rate_limits")).toBe(0);
+
+    // the limiter itself: no unkeyed fallback on a real host; development on localhost keeps its dev key
+    await expect(allow(push.env, LIMITS.pushPerIp, "203.0.113.9", new URL(HOST))).rejects.toBeInstanceOf(RateLimitUnavailable);
+    expect(push.count("rate_limits")).toBe(0);
+    const dev = fakeEnv();
+    expect(await allow(dev.env, LIMITS.writePerParent, ID, new URL("http://localhost:5173/x"))).toBe(true);
+    expect(dev.count("rate_limits")).toBe(1);
   });
 });
 
@@ -236,6 +353,33 @@ describe("public site follows the build's billing flag", () => {
     expect(llms).toContain("- Contact: hello@brainzippy.com");
     expect(llms).not.toContain("/pricing");
     expect(JSON.stringify(s.FAQ)).not.toMatch(/6\.99|free-access code/);
+  });
+
+  it("production build: /privacy is the guest-only early-access notice, linked from every page's footer", async () => {
+    const s = await importSite({ billing: false });
+    const { pages, llms } = s.renderSite({ css: "", js: "/a.js", preloadFont: "/f.woff2" });
+    for (const p of pages) expect(p.html, p.path).toContain('href="/privacy"');
+    const text = pages.find((x) => x.path === "/privacy")!.html.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/\s+/g, " ");
+    expect(text).toContain("Early-access privacy notice. A full policy will be published before accounts or payments are switched on.");
+    for (const fact of ["No accounts and no email.", "No payments.", "No ads and no trackers.", "in this browser on this device", "Delete all progress", "Cloudflare hosts BrainZippy", "automatic request logging is switched off", "If a child emails us,", "we reply to a grown-up, not to the child, and we delete the child's message", "hello@brainzippy.com", "guest play only"])
+      expect(text, fact).toContain(fact);
+    // features that are off are not described
+    expect(text).not.toMatch(/reminder|notification|being tested|subscription|card/i);
+    expect(llms).toContain("https://brainzippy.com/privacy");
+  });
+
+  it("the notice follows the flags: reminders appear only with a VAPID key; test features are flagged, never described as guest-only", async () => {
+    const page = async (flags: Parameters<typeof importSite>[0]) => {
+      const s = await importSite(flags);
+      const p = s.renderSite({ css: "", js: "/a.js", preloadFont: "/f.woff2" }).pages.find((x) => x.path === "/privacy")!;
+      return p.html.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'");
+    };
+    const push = await page({ billing: false, push: true });
+    expect(push).toContain("Daily reminders (optional)");
+    expect(push).toContain("turns off and forgets any daily reminder");
+    const staging = await page({ billing: true, accounts: true, friends: true });
+    expect(staging).toContain("grown-up accounts, payments, friends and challenges switched on for testing");
+    expect(staging).not.toMatch(/No accounts and no email|No payments\.|guest play only/);
   });
 
   it("billing-on build: /pricing is published and teachers are told to ask for a free school code", async () => {

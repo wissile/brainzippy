@@ -7,6 +7,7 @@ import type { SiteFlags } from "../../../src/site/flags";
  * default (billing off).
  */
 export async function importSite(flags: SiteFlags) {
+  // unspecified flags default to off (production)
   vi.resetModules();
   (globalThis as Record<string, unknown>).__BZ_SITE_FLAGS__ = flags;
   try {

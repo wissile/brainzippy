@@ -59,6 +59,7 @@ export function renderLlms(pages: readonly Pick<PageDef, "path" | "title">[]): s
     link("For teachers", "/for-teachers", SITE.billing ? "classroom use in guest mode, free school codes and curriculum links." : "classroom use in guest mode, free during early access, and curriculum links."),
     link("Pricing", "/pricing", "family plan, free play and trial, renewal and cancellation."),
     link("FAQ", "/faq"),
+    link("Privacy notice", "/privacy", SITE.billing || SITE.features.accounts || SITE.features.friends ? "early access: progress stays on the device, no ads or trackers." : "early access: guest play only, progress stays on the device, no ads or trackers."),
     ...pages.filter((p) => p.path.startsWith("/ages/")).map((p) => link(p.title, p.path)),
     "",
     "## Guides for parents",

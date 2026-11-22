@@ -189,7 +189,7 @@ describe("magic-link auth and sessions", () => {
   });
 
   it("sign-in for an unknown email reveals nothing and sends nothing", async () => {
-    const t = fakeEnv({ APP_ENV: "staging", RESEND_API_KEY: "re_test" });
+    const t = fakeEnv({ APP_ENV: "staging", RESEND_API_KEY: "re_test", SIGNING_SECRET: "s".repeat(40) });
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     const r = await call(t, "/api/auth/magic-link", { body: { email: "who@example.com", mode: "signin" } });
     expect(r.status).toBe(202);
@@ -199,7 +199,7 @@ describe("magic-link auth and sessions", () => {
   });
 
   it("sends through Resend with the API key, never returning the link", async () => {
-    const t = fakeEnv({ APP_ENV: "staging", RESEND_API_KEY: "re_test", EMAIL_FROM: "BrainZippy <hi@mail.example>" });
+    const t = fakeEnv({ APP_ENV: "staging", RESEND_API_KEY: "re_test", SIGNING_SECRET: "s".repeat(40), EMAIL_FROM: "BrainZippy <hi@mail.example>" });
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ id: "x" })));
     const r = await call(t, "/api/auth/magic-link", { body: { email: "s@example.com", consent: true, mode: "signup" } });
     expect(await r.json()).toEqual({ ok: true });
@@ -222,7 +222,7 @@ describe("magic-link auth and sessions", () => {
   });
 
   it("rate-limits magic-link requests per IP outside development", async () => {
-    const t = fakeEnv({ APP_ENV: "staging", RESEND_API_KEY: "re_test" });
+    const t = fakeEnv({ APP_ENV: "staging", RESEND_API_KEY: "re_test", SIGNING_SECRET: "s".repeat(40) });
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}"));
     const statuses = [];
     for (let i = 0; i < 11; i++) {

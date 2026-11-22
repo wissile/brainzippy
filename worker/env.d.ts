@@ -5,7 +5,8 @@
 interface Env {
   /** Resend API key (secret). Without it, development logs magic links to the console; other environments refuse to send. */
   RESEND_API_KEY?: string;
-  /** HMAC key for unsubscribe links and hashed rate-limit keys (secret, ≥32 random bytes). Required outside development. */
+  /** HMAC key for unsubscribe links and rate-limit keys (secret, ≥32 random bytes). Not needed for guest-only play; outside
+   * development, every route that rate-limits (accounts, billing, friends, push, guest sync) answers 503 without it. */
   SIGNING_SECRET?: string;
   /** Sender (var), default "BrainZippy <hello@brainzippy.com>". The domain must be verified in Resend. */
   EMAIL_FROM?: string;
@@ -24,6 +25,10 @@ interface Env {
   BILLING_ENABLED?: string;
   /** VAPID public key (var). Empty = daily reminders off. */
   VAPID_PUBLIC_KEY?: string;
+  /** VAPID private key (secret). Missing = daily reminders off, even with a public key. */
+  VAPID_PRIVATE_KEY?: string;
+  /** Contact for push services, e.g. "mailto:hello@brainzippy.com" (var). */
+  VAPID_SUBJECT?: string;
   /** "true" re-enables anonymous guest progress writes (/api/guest). Off by default: client sync is off (D-011). */
   GUEST_SYNC_ENABLED?: string;
 }

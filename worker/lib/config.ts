@@ -43,10 +43,15 @@ export const flagOn = (v: string | undefined): boolean => v === "true";
 export const accountsEnabled = (env: Env): boolean => flagOn(env.ACCOUNTS_ENABLED);
 export const billingEnabled = (env: Env): boolean => accountsEnabled(env) && flagOn(env.BILLING_ENABLED);
 export const friendsEnabled = (env: Env): boolean => accountsEnabled(env) && flagOn(env.FRIENDS_ENABLED);
-/** Daily reminders need only the VAPID public key to be advertised (the private key is checked where it is used). */
-export const pushEnabled = (env: Env): boolean => typeof env.VAPID_PUBLIC_KEY === "string" && env.VAPID_PUBLIC_KEY.trim().length > 0;
+/**
+ * Daily reminders (web push) are configured only when BOTH VAPID keys exist: the public key var is non-empty and the
+ * VAPID_PRIVATE_KEY secret is set. One notion everywhere: /api/config `push`, the /api/push/* routes (404 otherwise,
+ * before any rate limiting) and the client's reminders section.
+ */
+export const pushEnabled = (env: Env): boolean =>
+  typeof env.VAPID_PUBLIC_KEY === "string" && env.VAPID_PUBLIC_KEY.trim().length > 0 && typeof env.VAPID_PRIVATE_KEY === "string" && env.VAPID_PRIVATE_KEY.length > 0;
 
-export type Feature = "accounts" | "billing" | "friends";
+export type Feature = "accounts" | "billing" | "friends" | "push";
 export interface PublicConfig {
   accounts: boolean;
   billing: boolean;
@@ -55,7 +60,8 @@ export interface PublicConfig {
 }
 /** What GET /api/config tells the app. Booleans only: no ids, no keys, nothing about the visitor. */
 export const publicConfig = (env: Env): PublicConfig => ({ accounts: accountsEnabled(env), billing: billingEnabled(env), friends: friendsEnabled(env), push: pushEnabled(env) });
-export const featureEnabled = (env: Env, f: Feature): boolean => (f === "accounts" ? accountsEnabled(env) : f === "billing" ? billingEnabled(env) : friendsEnabled(env));
+const FEATURE_CHECKS: Record<Feature, (env: Env) => boolean> = { accounts: accountsEnabled, billing: billingEnabled, friends: friendsEnabled, push: pushEnabled };
+export const featureEnabled = (env: Env, f: Feature): boolean => FEATURE_CHECKS[f](env);
 
 /** Version of the consent wording shown next to the checkbox (src/account/consent.ts). Bump when the wording changes. */
 export { CONSENT_VERSION } from "../../src/account/consent";

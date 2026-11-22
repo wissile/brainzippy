@@ -30,17 +30,20 @@ You need: a Cloudflare account with **brainzippy.com active**, **one API token**
    - `CLOUDFLARE_ACCOUNT_ID` (step 2)
 
    Then *Settings → Environments*: create **production** and tick **Required reviewers → you**. Create **staging** too (no reviewers).
-5. **Deploy.** Go to *Actions → Deploy → Run workflow*, choose **production**, then approve the run. The workflow:
+5. **Deploy.** Go to *Actions → Deploy → Run workflow*, choose **production**, leave **allow_features** unticked, then approve the run. The workflow:
    1. builds the site and Worker with the production config;
-   2. runs `wrangler deploy`, which on the very first run **creates the D1 database `brainzippy-db`** and the **brainzippy.com custom domain** (DNS record and certificate);
-   3. applies the database migrations;
-   4. checks `https://brainzippy.com/api/health` and that the live feature flags are all off.
+   2. **stops** unless `ACCOUNTS_ENABLED`, `BILLING_ENABLED` and `FRIENDS_ENABLED` are all `"false"` for production, both in `wrangler.jsonc` and in the built config (`scripts/check-guest-flags.mjs`; see [section 4](#4-turning-features-on-later) for the override);
+   3. runs `wrangler deploy`, which on the very first run **creates the D1 database `brainzippy-db`** and the **brainzippy.com custom domain** (DNS record and certificate);
+   4. applies the database migrations;
+   5. checks `https://brainzippy.com/api/health` and that the live feature flags are all off.
 6. **Optional, recommended:**
    - **www redirect:** *Rules → Redirect Rules → Create*: `www.brainzippy.com/*` → `https://brainzippy.com/${1}`, status 301, preserve query string. Add a proxied DNS record for `www` (for example `AAAA www 100::`) so the rule can run.
-   - **`SIGNING_SECRET`:** `npx wrangler secret put SIGNING_SECRET --env production` with any long random string (`openssl rand -base64 48`). Guest play works without it; with it, the rate limiter's hashed IP keys are keyed (HMAC) instead of plain SHA-256.
+   - **`SIGNING_SECRET`:** not needed for guest play. In guest-only production no route rate-limits, so nothing (not even a hashed IP address) is stored. It becomes **required** before you switch on accounts, reminders or guest sync: without it, every route that must rate-limit answers 503 instead of storing an unkeyed hash ([section 4](#4-turning-features-on-later)).
    - **Support inbox:** make sure **hello@brainzippy.com** receives mail. It is the contact address on the site, in the grown-ups page and in the legal drafts. Cloudflare Email Routing can forward it to your own inbox for free.
 
-Note that once the two secrets exist, every push to `main` also deploys **staging** (`brainzippy-staging.<your-subdomain>.workers.dev`, its own database `brainzippy-db-staging`). Staging has every feature flag on so you can try accounts and billing, but without the Resend and Stripe secrets, sign-up and checkout refuse with "not available yet", so nobody can leave personal data there.
+Note that once the two secrets exist, every push to `main` also deploys **staging** (`brainzippy-staging.<your-subdomain>.workers.dev`, its own database `brainzippy-db-staging`). Staging has every feature flag on so you can try accounts and billing, but without the Resend, Stripe and signing secrets, sign-up and checkout refuse ("not available yet" or 503), so nobody can leave personal data there.
+
+**Protect staging (recommended).** Staging is public on its workers.dev address and has every flag on, so once you add secrets there, anyone who finds the URL could sign up or try codes. Put it behind **Cloudflare Access**: *Workers & Pages → brainzippy-staging → Access → Protect this Worker behind Access → All traffic*, then choose who may sign in (your Cloudflare account or your email domain) and *Apply Access*. This covers the workers.dev hostname and preview URLs, and needs Zero Trust set up on the account ([Cloudflare Access for Workers](https://developers.cloudflare.com/workers/configuration/cloudflare-access/); the page doesn't cover plan limits, so check them in the Zero Trust dashboard). With Access on, the CI smoke test (`STAGING_URL`) and Stripe's test webhooks can't reach staging: leave `STAGING_URL` unset, and test webhooks with the Stripe CLI. If you keep staging open instead, accept the risk: keep real secrets off it, use only Stripe **test** keys and synthetic data, and never share the URL.
 
 ---
 
@@ -51,14 +54,16 @@ Note that once the two secrets exist, every push to `main` also deploys **stagin
 | Parent accounts: sign-in/sign-up by magic link, onboarding email step, `/api/parent-signup`, children, sync, parent dashboard, daily digest email | `ACCOUNTS_ENABLED` | `"false"` | `"true"` |
 | Billing: plan page, Stripe Checkout and portal, free-access codes, webhook, the day-15 paywall and trial clock | `BILLING_ENABLED` (needs accounts) | `"false"` | `"true"` |
 | Friends, leaderboard, challenges | `FRIENDS_ENABLED` (needs accounts) | `"false"` | `"true"` |
-| Daily reminders (web push) | `VAPID_PUBLIC_KEY` non-empty | empty (off) | empty (off) |
+| Daily reminders (web push) | `VAPID_PUBLIC_KEY` non-empty **and** the `VAPID_PRIVATE_KEY` secret set | off (no keys) | off (no keys) |
 
 A flag is on only when its value is exactly `"true"`. When a flag is off:
-- the Worker answers **404** on its routes (indistinguishable from a route that doesn't exist) and its cron job does nothing;
-- the app reads `GET /api/config` (`{accounts, billing, friends, push}`, cached for 5 minutes) and hides everything that belongs to the feature: the onboarding grown-up email step is skipped, `/parents` says "Grown-up accounts are coming soon. Progress is saved on this device.", there is no paywall, `/plan` has nothing to buy and grown-up copy says "Free while we're in early access";
-- the public site is built without the `/pricing` page or any price (it reads the flags of the environment being built).
+- the Worker answers **404** on its routes (indistinguishable from a route that doesn't exist), before any rate limiting, and its cron job does nothing. With accounts off this includes the digest unsubscribe link (`/api/unsubscribe`); with reminders off, every `/api/push/*` route;
+- the app reads `GET /api/config` (`{accounts, billing, friends, push}`, cached for 5 minutes) and hides everything that belongs to the feature: the reminders section and any mention of reminders disappear, the onboarding grown-up email step is skipped, `/parents` says "Grown-up accounts are coming soon. Progress is saved on this device.", there is no paywall, `/plan` has nothing to buy and grown-up copy says "Free while we're in early access";
+- the public site is built without the `/pricing` page or any price, and its privacy notice (`/privacy`) describes only features that are on (it reads the flags of the environment being built).
 
-Always on: guest play, offline play, local progress, the daily game limit, and the nightly retention purge.
+Always on: guest play, offline play, local progress, the daily game limit, the early-access privacy notice and the nightly retention purge.
+
+**Rate limiting needs `SIGNING_SECRET`.** Rate-limit keys are HMACs of the IP address or email; there is no unkeyed fallback. Outside local development, a route that must rate-limit (accounts, billing, friends, reminders, guest sync) answers **503** without the secret and stores nothing.
 
 ## 2. Databases (automatic provisioning)
 
@@ -89,7 +94,7 @@ The first migrate step means that on later deploys the schema is updated before 
 
 ## 4. Turning features on later
 
-Each feature needs: **legal review → secrets and settings → flip the flag → deploy**. Flip a flag by changing `"false"` to `"true"` under `env.production.vars` in `wrangler.jsonc`, then run *Deploy → production*. Open apps pick the change up within about five minutes (the `/api/config` cache).
+Each feature needs: **legal review → publish the final privacy policy in place of the early-access notice → secrets and settings → flip the flag → deploy**. Flip a flag by changing `"false"` to `"true"` under `env.production.vars` in `wrangler.jsonc`, then run *Deploy → production* **with `allow_features` ticked**: the deploy guard (`scripts/check-guest-flags.mjs`) fails any production deploy where `ACCOUNTS_ENABLED`, `BILLING_ENABLED` or `FRIENDS_ENABLED` is not `"false"` unless that box is ticked, so a flag can't go live by accident in an unrelated release. Tick it on every production deploy from then on. The post-deploy smoke test still checks that the live flags match the build. Open apps pick the change up within about five minutes (the `/api/config` cache).
 
 ### Parent accounts (`ACCOUNTS_ENABLED`)
 1. **Legal:** a lawyer reviews and finalises `docs/legal/PRIVACY_POLICY_DRAFT.md`, `TERMS_DRAFT.md` and the consent method in `COPPA_CHECKLIST.md`. Publish the final privacy policy before switching on.
@@ -132,7 +137,7 @@ This prints a key pair:
 - Put the **public** key in `VAPID_PUBLIC_KEY` under `env.production.vars`.
 - Set the **private** key as a secret: `npx wrangler secret put VAPID_PRIVATE_KEY --env production`.
 
-`VAPID_SUBJECT` is already `mailto:hello@brainzippy.com`. Reminders need no account (they are per device, behind the grown-up check), but describe them in the privacy policy before switching them on.
+`VAPID_SUBJECT` is already `mailto:hello@brainzippy.com`. Reminders need **both** keys (with only one, `/api/config` says `push: false` and `/api/push/*` answers 404) and **`SIGNING_SECRET`** (subscribe and unsubscribe are rate-limited per IP; without the secret they answer 503). Reminders need no account (they are per device, behind the grown-up check). The privacy notice describes them automatically once the public key is set, but have a lawyer confirm the wording (`docs/legal/PRIVACY_POLICY_DRAFT.md`, section 3) before switching them on.
 
 ### Staging
 

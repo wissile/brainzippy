@@ -14,8 +14,9 @@ import { registry } from "../content";
 import { AGES_NOW, SUBJECTS_NOW, listJoin } from "./catalog";
 import { siteFlags } from "./flags";
 
-/** Billing switched on for the environment being built (src/site/flags.ts). Off = early access, everything free. */
-const BILLING = siteFlags().billing;
+/** Flags of the environment being built (src/site/flags.ts). Billing off = early access, everything free. */
+const FLAGS = siteFlags();
+const BILLING = FLAGS.billing;
 
 /** Live libraries with published games, in the registry's teaching order (maths, English, science, ...). */
 const subjectsNow = registry.libraries.filter((l) => SUBJECTS_NOW.some((s) => s.id === l.id)).map((l) => l.title);
@@ -35,6 +36,8 @@ export const SITE = {
   email: SUPPORT_EMAIL,
   /** Billing on for this build. Off: no /pricing page, no prices, "Free while we're in early access" (D-030). */
   billing: BILLING,
+  /** All feature flags of this build: the privacy notice (/privacy) describes only what is switched on. */
+  features: FLAGS,
   locale: "en",
   /** One-sentence definition used as the default meta description and Organization description. */
   definition: `BrainZippy is a website of story-based learning games for children. The games available today teach ${subjectsLower} to children aged about ${AGES_NOW.min} to ${AGES_NOW.max}.`,

@@ -1,5 +1,5 @@
 import { REMINDER_TITLE, type ReminderPayload, reminderBody, reminderVariant } from "../../src/pwa/reminderCopy";
-import type { Ctx, Route } from "../router";
+import { type Ctx, type Route, behind } from "../router";
 import { readCapped } from "../lib/http";
 import { LIMITS, allow, clientIp } from "../lib/rateLimit";
 import { type VapidKeys, b64urlDecode, sendWebPush } from "../lib/webpush";
@@ -208,13 +208,17 @@ export async function sendDueReminders(env: PushEnv, now = new Date(), fetchImpl
   return result;
 }
 
-/** Router adapter: /api/push/* keeps its self-contained handler; state-changing calls are rate-limited per IP. */
+/**
+ * Router adapter: /api/push/* keeps its self-contained handler; state-changing calls are rate-limited per IP.
+ * Behind the "push" feature: unless both VAPID keys are configured, every /api/push/* route answers 404 before any rate
+ * limiting, so a deployment without reminders never writes a rate_limits row for them.
+ */
 const limited = async (c: Ctx): Promise<Response> => {
   if (!(await allow(c.env, LIMITS.pushPerIp, clientIp(c.req), c.url))) return json({ error: "rate_limited" }, 429);
   return handlePush(c.req, c.env as unknown as PushEnv);
 };
-export const routes: Route[] = [
+export const routes: Route[] = behind("push", [
   { method: "GET", path: "/api/push/key", handler: (c) => handlePush(c.req, c.env as unknown as PushEnv) },
   { method: "POST", path: "/api/push/subscribe", handler: limited },
   { method: "POST", path: "/api/push/unsubscribe", handler: limited },
-];
+]);

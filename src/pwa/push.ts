@@ -1,14 +1,21 @@
 /**
- * Daily reminders — client side. Everything here runs only after a grown-up passes the parent gate and taps.
- * Notification permission is requested ONLY inside enableReminders(), which must be called from a tap
- * (Safari requires the request to come straight from the user gesture, so it is the very first await).
+ * Daily reminders — client side. Everything here runs only after a grown-up passes the parent gate and taps, and only
+ * when the deployment has reminders configured (`features().push`, from /api/config; the UI is hidden otherwise).
+ * Order, so a grown-up is never asked for permission that then fails: preparePush() fetches the server key and waits
+ * for the service worker when the panel opens; only with both in hand is "Turn on" enabled. enableReminders() then
+ * asks for notification permission as its very first await (Safari requires the request to come straight from the
+ * user gesture).
  *
  * Sent to our server: a random device id, the browser's push endpoint + keys, the hour and the IANA timezone.
  * Never sent: the child's name, the monster name (it is handed to the service worker on this device only).
  */
+import { features } from "../app/features";
 import { loadState } from "../services/storage";
 
-const KEY = "bz.push.v1";
+export const PUSH_STORAGE_KEY = "bz.push.v1";
+const KEY = PUSH_STORAGE_KEY;
+/** Service-worker cache holding the monster name for notification text (src/pwa/sw.ts, LOCAL). */
+export const SW_PREFS_CACHE = "bz-local";
 export const DEFAULT_HOUR = 17;
 export const HOURS = Array.from({ length: 12 }, (_, i) => 8 + i); // 08:00 … 19:00 (quiet hours 20:00–08:00)
 
@@ -87,17 +94,36 @@ async function postJson(url: string, body: unknown): Promise<Response> {
 
 export type EnableResult = "on" | "denied" | "unsupported" | "server" | "failed";
 
-/** MUST be called directly from a grown-up's tap. */
-export async function enableReminders(hour: number): Promise<EnableResult> {
+/** What enableReminders() needs before it may ask for permission: the server's public key and a ready service worker. */
+export interface PushReady {
+  publicKey: string;
+  reg: ServiceWorkerRegistration;
+}
+
+/**
+ * Called when the reminder panel opens (no prompt, no tap needed). Resolves to null when reminders can't work right
+ * now: switched off for this deployment, no key from the server, offline, or no service worker.
+ */
+export async function preparePush(fetchImpl: typeof fetch = fetch): Promise<PushReady | null> {
+  if (!features().push || pushSupport() !== "supported") return null;
+  try {
+    const keyRes = await fetchImpl("/api/push/key", { credentials: "omit" });
+    if (!keyRes.ok) return null;
+    const { publicKey } = (await keyRes.json()) as { publicKey?: unknown };
+    if (typeof publicKey !== "string" || !/^[A-Za-z0-9_-]{80,100}$/.test(publicKey)) return null;
+    return { publicKey, reg: await swRegistration() };
+  } catch {
+    return null;
+  }
+}
+
+/** MUST be called directly from a grown-up's tap, with the result of preparePush(). */
+export async function enableReminders(hour: number, ready: PushReady): Promise<EnableResult> {
   if (pushSupport() !== "supported") return "unsupported";
-  const permission = await Notification.requestPermission();
+  const permission = await Notification.requestPermission(); // first await: still inside the tap
   if (permission !== "granted") return "denied";
   try {
-    const reg = await swRegistration();
-    const keyRes = await fetch("/api/push/key");
-    if (!keyRes.ok) return "server";
-    const { publicKey } = (await keyRes.json()) as { publicKey?: string };
-    if (!publicKey) return "server";
+    const { reg, publicKey } = ready;
     let sub = await reg.pushManager.getSubscription();
     if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(publicKey) });
     const s = loadReminderSettings();
@@ -130,12 +156,37 @@ export async function disableReminders(): Promise<void> {
 }
 
 /**
+ * "Delete all progress": forget everything reminders keep on this device. Unsubscribes (server row too) if a
+ * subscription was ever made, then removes the device id (localStorage "bz.push.v1") and the service worker's prefs
+ * cache (it holds the monster name). Best effort and bounded: never throws.
+ */
+export async function forgetReminders(): Promise<void> {
+  let stored: string | null = null;
+  try {
+    stored = localStorage.getItem(KEY);
+  } catch {
+    /* no storage */
+  }
+  if (stored !== null) await disableReminders().catch(() => undefined);
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    /* ignore */
+  }
+  try {
+    if (typeof caches !== "undefined") await caches.delete(SW_PREFS_CACHE);
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
  * On app start: if reminders are on, re-send the subscription (keeps the timezone current after travel or
  * DST changes, recovers rotated endpoints, and refreshes the 180-day retention clock). Silent; never prompts.
  */
 export async function refreshReminders(): Promise<void> {
   const s = loadReminderSettings();
-  if (!s.enabled || !s.deviceId || notificationPermission() !== "granted" || pushSupport() !== "supported") return;
+  if (!features().push || !s.enabled || !s.deviceId || notificationPermission() !== "granted" || pushSupport() !== "supported") return;
   try {
     const reg = await swRegistration();
     const sub = await reg.pushManager.getSubscription();

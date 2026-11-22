@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { HOURS, type EnableResult, deviceTimeZone, disableReminders, enableReminders, loadReminderSettings, notificationPermission, pushSupport } from "./push";
+import { useEffect, useState } from "react";
+import { HOURS, type EnableResult, type PushReady, deviceTimeZone, disableReminders, enableReminders, loadReminderSettings, notificationPermission, preparePush, pushSupport } from "./push";
 import "./pwa.css";
 
 const hourLabel = (h: number) => new Date(2000, 0, 1, h).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
@@ -12,8 +12,10 @@ const MESSAGES: Record<Exclude<EnableResult, "on">, string> = {
 };
 
 /**
- * Grown-ups page → "Daily reminder". Behind the parent gate (2-digit × 1-digit multiplication, same as the
- * other grown-up actions). Nothing asks for notification permission until the grown-up taps "Turn on".
+ * Grown-ups page → "Daily reminder". Shown only when reminders are configured (features.push; the caller hides it
+ * otherwise). Behind the parent gate (2-digit × 1-digit multiplication, same as the other grown-up actions).
+ * Opening the panel fetches the server key first (preparePush); "Turn on" stays disabled until it has arrived, and
+ * nothing asks for notification permission until the grown-up taps it. So we never prompt and then fail.
  */
 export function ReminderSettings() {
   const [stage, setStage] = useState<"closed" | "gate" | "open">("closed");
@@ -23,13 +25,25 @@ export function ReminderSettings() {
   const [hour, setHour] = useState(settings.hour);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
+  const [ready, setReady] = useState<PushReady | null | "loading">("loading");
   const support = pushSupport();
   const tz = deviceTimeZone();
 
+  useEffect(() => {
+    if (stage !== "open" || support !== "supported") return;
+    let live = true;
+    setReady("loading");
+    void preparePush().then((r) => live && setReady(r));
+    return () => {
+      live = false;
+    };
+  }, [stage, support]);
+
   const turnOn = async () => {
+    if (!ready || ready === "loading") return;
     setBusy(true);
     setNote("");
-    const r = await enableReminders(hour); // permission prompt happens here, from this tap
+    const r = await enableReminders(hour, ready); // permission prompt happens here, from this tap
     setBusy(false);
     setSettings(loadReminderSettings());
     setNote(r === "on" ? `Done. One gentle reminder a day at ${hourLabel(hour)}.` : MESSAGES[r]);
@@ -94,8 +108,11 @@ export function ReminderSettings() {
                 </select>
               </div>
               <p className="bz-small" data-testid="reminder-tz">Time zone: {tz} (from this device)</p>
+              {ready === null && !settings.enabled && (
+                <p className="bz-note" role="status" data-testid="reminder-unavailable">{MESSAGES.server}</p>
+              )}
               <div className="bz-row">
-                <button type="button" className="pill-btn" data-testid="reminder-on" disabled={busy} onClick={() => void turnOn()}>
+                <button type="button" className="pill-btn" data-testid="reminder-on" disabled={busy || !ready || ready === "loading"} aria-busy={ready === "loading"} onClick={() => void turnOn()}>
                   {settings.enabled ? "Save time" : "Turn on"}
                 </button>
                 {settings.enabled && (

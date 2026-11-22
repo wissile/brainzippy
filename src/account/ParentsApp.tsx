@@ -24,6 +24,7 @@ export const ACCOUNTS_COMING_SOON = "Grown-up accounts are coming soon. Progress
 
 function AccountsComingSoon() {
   const { navigate } = useApp();
+  const { push } = useFeatures();
   return (
     <main className="pa-screen" data-testid="parents">
       <header className="pa-top">
@@ -37,7 +38,7 @@ function AccountsComingSoon() {
           <h2>Coming soon</h2>
           <p>{ACCOUNTS_COMING_SOON}</p>
           <p className="pa-muted">
-            You can set the daily game limit, daily reminders and delete this device's progress on the{" "}
+            You can set the daily game limit{push ? ", daily reminders" : ""} and delete this device's progress on the{" "}
             <a className="pa-link" href="/grown-ups" onClick={(e) => { e.preventDefault(); navigate("/grown-ups"); }}>
               grown-ups page
             </a>

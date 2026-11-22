@@ -15,6 +15,7 @@ import { About, FaqPage, ForParents, ForTeachers, HowItWorks, Landing, Research 
 import { AgePage, GamePage, GamesHub, LibraryPage, gamesForBand } from "./pages/catalog";
 import { GuidePage, GuidesHub } from "./pages/guides";
 import { PricingPage } from "./pages/pricing";
+import { PRIVACY_UPDATED, PrivacyPage, privacyDescription } from "./pages/privacy";
 import { article, breadcrumbList, faqPage, learningResource, organization, website } from "./seo";
 import type { Crumb, PageDef } from "./types";
 
@@ -124,6 +125,14 @@ export function buildRoutes(): PageDef[] {
       updated: CORE_UPDATED,
       breadcrumbs: crumbs({ name: "About", path: "/about" }),
       render: () => h(About),
+    }),
+    page({
+      path: "/privacy",
+      title: "BrainZippy privacy notice (early access)",
+      description: privacyDescription(),
+      updated: PRIVACY_UPDATED,
+      breadcrumbs: crumbs({ name: "Privacy", path: "/privacy" }),
+      render: () => h(PrivacyPage),
     }),
     page({
       path: "/games",

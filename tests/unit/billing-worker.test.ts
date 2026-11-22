@@ -23,7 +23,8 @@ afterEach(() => {
 });
 
 async function setup(extra: Record<string, unknown> = STRIPE, createdAt = Date.now()) {
-  const f = fakeEnv(extra as never);
+  // Off localhost, rate-limited routes need SIGNING_SECRET (they fail closed with 503 without it).
+  const f = fakeEnv({ SIGNING_SECRET: "s".repeat(40), ...extra } as never);
   const parentId = crypto.randomUUID();
   f.raw.prepare("INSERT INTO parents (id, email, consent_version, consented_at, created_at, digest_opt_in) VALUES (?, ?, 'v', ?, ?, 0)").run(parentId, "p@example.com", createdAt, createdAt);
   const cookie = (await createSession(f.env, new URL(ORIGIN), parentId)).split(";")[0]!;

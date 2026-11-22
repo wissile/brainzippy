@@ -4,6 +4,15 @@
 
 _Last updated: [DATE]._
 
+## 0. Two modes: guest-only (live now) and account mode (future) **[LAWYER]**
+
+These terms are written for **account mode** (parent accounts, subscriptions, friends), which stays switched off in production until a lawyer has reviewed this draft (decision D-030).
+
+- **Guest-only mode (production today):** anyone can play every game for free, without an account, an email address or a payment. Progress stays on the device. No terms are published yet; the site publishes only the early-access privacy notice at `/privacy` and the contact address hello@brainzippy.com. Sections 3, 4, 6 and 10 below do not apply in this mode.
+- **Account mode (future):** these terms, finalised by a lawyer, must be published before `ACCOUNTS_ENABLED` or `BILLING_ENABLED` is switched on in production. The production deploy fails while either flag is not `"false"` unless the person starting it ticks an explicit override (`.github/workflows/deploy.yml`, `allow_features`).
+
+**[LAWYER]** whether short terms of use (acceptable use, no warranty, intellectual property, governing law) should be published for guest-only mode as well.
+
 ## 1. Agreement
 These terms are between [Company legal name] ("BrainZippy") and the **parent or legal guardian** who uses BrainZippy or creates an account. Children may play under the supervision and responsibility of their parent or guardian. Accounts may only be created by adults (18+ **[LAWYER]** age of majority by jurisdiction).
 

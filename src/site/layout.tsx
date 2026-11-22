@@ -85,6 +85,7 @@ function Footer() {
             <li><a href="/for-teachers">For teachers</a></li>
             <li><a href="/research">Research</a></li>
             <li><a href="/guides">Parent guides</a></li>
+            <li><a href="/privacy" data-testid="footer-privacy">Privacy</a></li>
             <li><a href="/games">All games</a></li>
             <li><a href="/libraries/math">Maths games</a></li>
           </ul>

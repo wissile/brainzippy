@@ -6,7 +6,7 @@ import { useFeatures } from "./features";
 import { SUPPORT_EMAIL, SUPPORT_MAILTO } from "./support";
 import { EARLY_ACCESS_LINE } from "../billing/copy";
 import { ReminderSettings } from "../pwa/ReminderSettings";
-import { disableReminders } from "../pwa/push";
+import { forgetReminders } from "../pwa/push";
 import { DailyLimitSetting } from "../daily/DailyLimitSetting";
 import { joinAnd, liveSubjects, playableWorlds } from "../content/registry";
 
@@ -19,7 +19,7 @@ export const AGE_BANDS = [
 
 export function GrownUpsScreen() {
   const { navigate } = useApp();
-  const { accounts, billing, friends } = useFeatures();
+  const { accounts, billing, friends, push } = useFeatures();
   const [status, setStatus] = useState<"idle" | "gate" | "deleted" | "failed">("idle");
   const [answer, setAnswer] = useState("");
   // Parent gate: multiplication beyond the games' range (a speed bump for children, not a security boundary).
@@ -34,8 +34,9 @@ export function GrownUpsScreen() {
         return;
       }
     }
-    // Deleting progress also removes this device's reminder subscription (best effort; never blocks deletion).
-    await disableReminders().catch(() => undefined);
+    // Also forget reminders: the subscription (if any), the device id ("bz.push.v1") and the service worker's prefs
+    // cache, which holds the monster name. Best effort; never blocks deletion.
+    await forgetReminders().catch(() => undefined);
     clearState();
     setStatus("deleted");
   };
@@ -88,7 +89,7 @@ export function GrownUpsScreen() {
         </ul>
         <p className="honest"><strong>An honest note:</strong> these principles are well researched, but BrainZippy itself has not yet been tested in a formal study, so we don't claim it is "proven". We plan to measure learning with families who opt in, and we'll publish what we find.</p>
 
-        <ReminderSettings />
+        {push && <ReminderSettings />}
 
         <h2>Privacy</h2>
         {accounts ? (
@@ -96,6 +97,7 @@ export function GrownUpsScreen() {
         ) : (
           <p data-testid="privacy-guest">BrainZippy is guest play only: no account, no ads, no chat and no third-party trackers. Your child's first name (optional), their monster and their progress are stored only in this browser and are never sent to us. We don't ask for anyone's email, photos or location.</p>
         )}
+        <p><a href="/privacy" data-testid="privacy-notice-link">Read the privacy notice</a></p>
         <h2>Parent account</h2>
         {accounts ? (
           <p>An optional parent account (email sign-in, no password) shows your child's progress, sets a daily game limit{friends ? ", saves progress across devices and lets you add friends by invite" : " and saves progress across devices"}. <a href="/parents" data-testid="open-parents" onClick={(e) => { e.preventDefault(); navigate("/parents"); }}>Open the parent area</a></p>

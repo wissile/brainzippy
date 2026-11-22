@@ -113,7 +113,7 @@ describe("migration 0006: typed monster names leave the server", () => {
 
 describe("legacy sign-up and magic-link confirmation pages", () => {
   it("existing and new emails get the same reply outside development; existing accounts get a notice, not a link", async () => {
-    const t = fakeEnv({ APP_ENV: "staging", RESEND_API_KEY: "re_test" });
+    const t = fakeEnv({ APP_ENV: "staging", RESEND_API_KEY: "re_test", SIGNING_SECRET: "s".repeat(40) });
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}"));
     t.raw.prepare("INSERT INTO parents (id, email, consent_version, consented_at, created_at, digest_opt_in) VALUES ('p1', 'known@example.com', 'v', 1, 1, 0)").run();
     const post = (email: string) =>
@@ -197,7 +197,7 @@ describe("capped body reads", () => {
   });
 
   it("push subscribe refuses a chunked body over 2 KB", async () => {
-    const t = fakeEnv({ VAPID_PUBLIC_KEY: "x", VAPID_PRIVATE_KEY: "y" } as never);
+    const t = fakeEnv({ VAPID_PUBLIC_KEY: "x", VAPID_PRIVATE_KEY: "y", SIGNING_SECRET: "s".repeat(40) } as never);
     const res = await handleApi(streamReq("https://brainzippy.test/api/push/subscribe", 3000, { origin: "https://brainzippy.test" }), t.env);
     expect(res.status).toBe(400);
   });
