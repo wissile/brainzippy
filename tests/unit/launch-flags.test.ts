@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { handleApi } from "../../worker/index";
 import * as routeModules from "../../worker/routes";
 import { allow, LIMITS, RateLimitUnavailable } from "../../worker/lib/rateLimit";
-import { CRON_JOBS, runScheduled } from "../../worker/jobs";
+import { CRON, runScheduled } from "../../worker/jobs";
 import { accountsEnabled, billingEnabled, flagOn, friendsEnabled, publicConfig, pushEnabled } from "../../worker/lib/config";
 import { getEntitlement } from "../../worker/lib/entitlements";
 import { emptyChildProgress } from "../../src/account/schema";
@@ -305,7 +305,7 @@ describe("cron jobs with accounts off", () => {
       .prepare("INSERT INTO children (id, parent_id, monster_json, public_name, age_band, nickname, settings_json, progress_json, created_at, updated_at) VALUES ('c1', '11111111-1111-4111-8111-111111111111', '{}', 'Brave Zoomkin', 'ages-6-8', NULL, '{}', ?, 1, 1)")
       .run(JSON.stringify({ ...emptyChildProgress(), history }));
   }
-  const digestCron = Object.entries(CRON_JOBS).find(([, jobs]) => jobs.includes("daily-digest"))![0];
+  const digestCron = CRON; // NOW is 23:00 UTC, a digest slot
   const secrets = { APP_ENV: "staging", RESEND_API_KEY: "re_test", SIGNING_SECRET: "s".repeat(40), APP_ORIGIN: "https://brainzippy.test" };
 
   it("the daily digest does nothing: no Resend call, no rows marked", async () => {
@@ -329,7 +329,7 @@ describe("cron jobs with accounts off", () => {
     const t = fakeEnv(OFF);
     const now = Date.now();
     t.raw.prepare("INSERT INTO guest_sessions (id, created_at, updated_at) VALUES ('g1', 0, 0)").run();
-    expect(await runScheduled("17 3 * * *", t.env, now)).toEqual([]);
+    expect(await runScheduled(CRON, t.env, Date.parse("2026-11-17T03:10:00Z"))).toEqual([]);
     expect(t.count("guest_sessions")).toBe(0);
   });
 });

@@ -9,9 +9,10 @@
   // Invocation logs would retain request URLs (incl. guest ids) — keep them off for a children's product.
   "observability": { "enabled": true, "logs": { "invocation_logs": false } },
   "preview_urls": false,
-  // UTC. Each cron maps to named jobs in worker/jobs/index.ts (CRON_JOBS). Free plan allows 5 Cron Triggers per account; this uses 3.
-  // 03:17 retention purge · every 10 min in hour 23 daily parent digest · hourly at :00 daily-reminder push.
-  "triggers": { "crons": ["17 3 * * *", "*/10 23 * * *", "0 * * * *"] },
+  // UTC. ONE trigger; worker/jobs/index.ts (jobsDue) picks the jobs by the clock: 03:10 retention purge ·
+  // every 10 min in hour 23 parent digest (accounts only) · hourly at :00 reminder push. The Free plan allows
+  // 5 Cron Triggers per ACCOUNT across all Workers (production + staging use 2). Keep in sync with CRON.
+  "triggers": { "crons": ["*/10 * * * *"] },
   "assets": {
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",

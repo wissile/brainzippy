@@ -58,7 +58,7 @@ Code splitting: the game (engine + art + runner) is a lazy chunk; home/menus loa
 Controls: same-origin check on writes (Origin header), UUID-format ids (122-bit random = bearer secret for anonymous, non-sensitive data), `no-store`, `nosniff`, generic errors, parameterised D1 statements. Known gap: no rate limiting yet (see PRIVACY_SECURITY.md).
 
 ### Worker structure (Phase 1)
-`worker/index.ts` (fetch + scheduled) → `worker/router.ts` (path params, 404/405, Origin check on writes) → `worker/routes/*.ts`, registered one line each in `worker/routes/index.ts` (add `export { routes as push } from "./push";`). Helpers in `worker/lib/` (http, validation, crypto, session, rateLimit, email + templates, entitlements, config). Scheduled jobs in `worker/jobs/`: `CRON_JOBS` maps each cron in `wrangler.jsonc` to named jobs (`purge`, `daily-digest`). Data contracts shared with the client live in `src/account/` (schema, merge, points, catalog). Database choice and free-tier limits: [DATABASE.md](DATABASE.md).
+`worker/index.ts` (fetch + scheduled) → `worker/router.ts` (path params, 404/405, Origin check on writes) → `worker/routes/*.ts`, registered one line each in `worker/routes/index.ts` (add `export { routes as push } from "./push";`). Helpers in `worker/lib/` (http, validation, crypto, session, rateLimit, email + templates, entitlements, config). Scheduled jobs in `worker/jobs/`: one Cron Trigger (`CRON`); `jobsDue` picks the named jobs (`purge`, `daily-digest`, `push-reminders`) by the UTC clock (D-032). Data contracts shared with the client live in `src/account/` (schema, merge, points, catalog). Database choice and free-tier limits: [DATABASE.md](DATABASE.md).
 
 ### Account API (session cookie required unless noted)
 | Method | Path | Notes |

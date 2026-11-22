@@ -34,7 +34,7 @@ Parent-controlled, on the grown-ups page behind the parent gate (`src/pwa/Remind
 
 **Copy** (`src/pwa/reminderCopy.ts`) is addressed to the parent, with no guilt, streaks or fear of missing out, for example "Ziggy has a new adventure ready today 🌟". The server sends a generic version. The service worker swaps in the monster name, which the page hands to it on the device (`bz-local` cache) and which is never sent to the server. Clicking a notification focuses an open BrainZippy window (it never navigates a child out of a game) or opens `/`.
 
-**Schedule** (`worker/lib/webpushSchedule.ts`; the Cron Trigger `0 * * * *` calls `sendDueReminders`):
+**Schedule** (`worker/lib/webpushSchedule.ts`; the single Cron Trigger `*/10 * * * *` calls `sendDueReminders` in the :00 slot of each hour (`jobsDue`, D-032)):
 - A reminder goes out only during the chosen local hour. In half-hour timezones it arrives at hh:30.
 - Quiet hours: never between 20:00 and 08:00 local time. These hours can't be chosen, and the job rejects them as well.
 - At most one reminder per local calendar day.

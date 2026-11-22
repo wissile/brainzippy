@@ -4,8 +4,8 @@ import { purge } from "./purge";
 import { type PushEnv, sendDueReminders } from "../routes/push";
 
 /**
- * Named scheduled jobs. `CRON_JOBS` maps each cron expression in wrangler.jsonc (`triggers.crons`, UTC) to job names.
- * Add a job: write it, add it to JOBS, list it under a cron (and add the cron to wrangler.jsonc if new).
+ * Named scheduled jobs. `jobsDue` decides which run on each tick of the single `CRON`.
+ * Add a job: write it, add it to JOBS, and give it a time slot in `jobsDue`.
  */
 export type Job = (env: Env, now: number) => Promise<unknown>;
 
@@ -17,18 +17,34 @@ export const JOBS: Record<string, Job> = {
   "push-reminders": (env, now) => sendDueReminders(env as unknown as PushEnv, new Date(now)),
 };
 
-export const CRON_JOBS: Record<string, string[]> = {
-  "17 3 * * *": ["purge"],
-  // Every 10 min 23:00–23:50 UTC (early evening in the Americas, late evening in Europe); each run sends one batch.
-  "*/10 23 * * *": ["daily-digest"],
-  // Hourly: parent-chosen local-hour reminders, max one per day per device (worker/routes/push.ts).
-  "0 * * * *": ["push-reminders"],
-};
+/**
+ * One Cron Trigger for everything (wrangler.jsonc `triggers.crons`, UTC). The Workers Free plan allows only 5 Cron
+ * Triggers per *account*, shared by every Worker in it, so this Worker uses one and picks jobs by the clock (D-032).
+ */
+export const CRON = "*/10 * * * *";
 
-/** Runs every job for the cron; one failing job never stops the others. Returns the names that failed. */
+/** Pure: the jobs due at a scheduled time (UTC), rounded down to its 10-minute slot so a late run still matches. */
+export function jobsDue(now: number): string[] {
+  const d = new Date(now);
+  const hour = d.getUTCHours();
+  const slot = Math.floor(d.getUTCMinutes() / 10) * 10;
+  const due: string[] = [];
+  // Hourly: parent-chosen local-hour reminders, max one per day per device (worker/routes/push.ts).
+  if (slot === 0) due.push("push-reminders");
+  // Every 10 min 23:00–23:50 UTC (early evening in the Americas, late evening in Europe); each run sends one batch.
+  if (hour === 23) due.push("daily-digest");
+  // Once a day at 03:10 UTC.
+  if (hour === 3 && slot === 10) due.push("purge");
+  return due;
+}
+
+/** Runs every job due now; one failing job never stops the others. An unknown cron runs nothing. Returns the names that failed. */
 export async function runScheduled(cron: string, env: Env, now: number): Promise<string[]> {
-  const names = CRON_JOBS[cron] ?? [];
-  if (names.length === 0) console.warn(`[cron] no jobs for "${cron}"`);
+  if (cron !== CRON) {
+    console.warn(`[cron] unknown schedule "${cron}"`);
+    return [];
+  }
+  const names = jobsDue(now);
   const failed: string[] = [];
   for (const name of names) {
     try {

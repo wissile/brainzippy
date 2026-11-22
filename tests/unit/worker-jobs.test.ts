@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { CRON_JOBS, runScheduled } from "../../worker/jobs";
+import { CRON, jobsDue, runScheduled } from "../../worker/jobs";
 import { dailyDigest, digestChild, suggestNext } from "../../worker/jobs/digest";
 import { purge } from "../../worker/jobs/purge";
 import { digestEmail, magicLinkEmail } from "../../worker/lib/emailTemplates";
@@ -88,10 +88,28 @@ describe("digest job", () => {
 });
 
 describe("cron dispatch and purge", () => {
-  it("every cron in wrangler.jsonc maps to known jobs, and vice versa", () => {
+  it("wrangler.jsonc has exactly one cron, the one the Worker dispatches on (Free plan: 5 per account)", () => {
     const cfg = readFileSync(new URL("../../wrangler.jsonc", import.meta.url), "utf8");
-    const crons = JSON.parse(cfg.replace(/^\s*\/\/.*$/gm, "")).triggers.crons as string[];
-    expect(crons.sort()).toEqual(Object.keys(CRON_JOBS).sort());
+    const parsed = JSON.parse(cfg.replace(/^\s*\/\/.*$/gm, ""));
+    expect(parsed.triggers.crons).toEqual([CRON]);
+    for (const env of Object.values(parsed.env ?? {}) as { triggers?: { crons: string[] } }[]) {
+      if (env.triggers) expect(env.triggers.crons).toEqual([CRON]);
+    }
+  });
+
+  it("jobsDue picks jobs by the UTC clock, rounding late runs down to their 10-minute slot", () => {
+    const at = (iso: string) => jobsDue(Date.parse(iso));
+    expect(at("2026-11-17T03:10:00Z")).toEqual(["purge"]);
+    expect(at("2026-11-17T03:17:42Z")).toEqual(["purge"]);
+    expect(at("2026-11-17T03:00:00Z")).toEqual(["push-reminders"]);
+    expect(at("2026-11-17T23:00:00Z")).toEqual(["push-reminders", "daily-digest"]);
+    expect(at("2026-11-17T23:50:00Z")).toEqual(["daily-digest"]);
+    expect(at("2026-11-17T12:30:00Z")).toEqual([]);
+    // Over one day: purge once, digest 6 batches, reminders 24 times.
+    const day = Array.from({ length: 144 }, (_, i) => jobsDue(Date.parse("2026-11-17T00:00:00Z") + i * 600_000)).flat();
+    expect(day.filter((j) => j === "purge")).toHaveLength(1);
+    expect(day.filter((j) => j === "daily-digest")).toHaveLength(6);
+    expect(day.filter((j) => j === "push-reminders")).toHaveLength(24);
   });
 
   it("purge removes expired rows only; an unknown cron runs nothing", async () => {
@@ -107,6 +125,6 @@ describe("cron dispatch and purge", () => {
     expect(t.raw.prepare("SELECT key FROM rate_limits").all()).toEqual([{ key: "b" }]);
     expect(t.raw.prepare("SELECT id FROM guest_sessions").all()).toEqual([{ id: "g2" }]);
     expect(await runScheduled("1 1 1 1 1", t.env, now)).toEqual([]);
-    expect(await runScheduled("17 3 * * *", t.env, now)).toEqual([]);
+    expect(await runScheduled(CRON, t.env, now)).toEqual([]);
   });
 });
