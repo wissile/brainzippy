@@ -184,6 +184,29 @@ describe("answers", () => {
     const v = ex(8, (m) => !m.safe);
     expect(validateAnswer(v.answer, "check").correct).toBe(true);
     expect(validateAnswer(ex(8, (m) => m.safe).answer, "ok").correct).toBe(true);
+    expect(validateAnswer(ex(8, (m) => m.safe).answer, "reply").correct).toBe(false);
+    expect(validateAnswer(v.answer, "ok").correct).toBe(false);
+  });
+  it("asking is never wrong: 'check another way, with a grown-up' is accepted on every item at every level", () => {
+    let offered = 0;
+    for (const e of [...allGenerated(), mmTutorial]) {
+      if (e.answer.kind !== "choice" || !e.answer.options.some((o) => o.id === "check")) continue;
+      offered++;
+      expect(validateAnswer(e.answer, "check").correct, e.id).toBe(true);
+    }
+    // level 8 offers it on every item (so the check above is not vacuous)
+    for (const seed of SEEDS) for (const e of generateBand(messageMystery, 8, seed, 8)) {
+      expect(e.answer.kind === "choice" && e.answer.options.map((o) => o.id)).toContain("check");
+    }
+    expect(offered).toBeGreaterThanOrEqual(SEEDS.length * 8);
+  });
+  it("level 8 safe messages fit what the child knows and never push them to go somewhere now", () => {
+    for (const m of BANK.l8.filter((x) => x.safe)) {
+      const text = m.body.map((p) => p.text).join(" ");
+      expect(text, m.id).not.toMatch(/\b(hurry|quick|now|come (outside|to))\b/i);
+    }
+    expect(BANK.l8.map((m) => m.id)).not.toContain("owl-show");
+    expect(BANK.l8.map((m) => m.id)).not.toContain("rainbow");
   });
   it("inbox: every message into its bin; a miss marks the wrong ones", () => {
     const e = generateBand(messageMystery, 9, 5, 8)[0]!;
@@ -206,7 +229,7 @@ describe("helper, praise and voice", () => {
     expect(hintFor(miss(find(4, (m) => !m.safe), "safe"))).toBe("mm.hint.polish");
     expect(hintFor(miss(find(7, (m) => !m.safe), "stop"))).toBe("mm.hint.reply");
     expect(hintFor(miss(find(8, (m) => !m.safe), "reply"))).toBe("mm.hint.friend");
-    expect(hintFor(miss(find(8, (m) => m.safe), "check"))).toBe("mm.hint.expected");
+    expect(hintFor(miss(find(8, (m) => m.safe), "reply"))).toBe("mm.hint.expected");
     const clue = find(6, (m) => m.id === "gems-hurry");
     expect(hintFor(miss(clue, ["b0"]))).toBe("mm.help.rush"); // the first clue they missed
     expect(explainFor(mmTutorial)).toBe("mm.help.start");

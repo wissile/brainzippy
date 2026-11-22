@@ -21,7 +21,7 @@ The spec puts the world at 8–11. The owner's brief says 7+, so levels 0–3 ar
   - don't tap the link or reply;
   - never share passwords or secret codes;
   - check with the sender another way (level 8).
-- **Asking is never wrong.** If a child puts a safe message in "Ask a grown-up", it still counts as a miss for levelling, because the skill is telling the two apart. The feedback, though, starts with Hoot saying "Asking a grown-up is always OK! But look: this one asks for nothing secret." Spec improvement: the spec's "Trick" bin became "Ask a grown-up", following the owner's brief, so the right action is built into the bin.
+- **Asking is never wrong.** If a child puts a safe message in "Ask a grown-up", it still counts as a miss for levelling on the sort levels, because the skill is telling the two apart. On level 8 ("check another way") "Check another way, with a grown-up" is **accepted on every message**, safe or not (content review M2, 2026-11-22); a unit test asserts that `check` is accepted wherever it is offered. The feedback, though, starts with Hoot saying "Asking a grown-up is always OK! But look: this one asks for nothing secret." Spec improvement: the spec's "Trick" bin became "Ask a grown-up", following the owner's brief, so the right action is built into the bin.
 - **No guarantees.** No line says a check makes a message safe. The bin is called "Safe" because the brief names it so, and the outro ends on "you know who to ask". The safe tag on a worked answer only states facts: "Real town address" and "Asks for nothing secret".
 - **Not frightening.** Threats stay mild (a game closes, stars or levels are lost, a game pet is hungry). There are no strangers asking to meet, no photos of the child, no violence, and no words like "hacker" or "virus". The fog in the story is soft and thins as the round goes on. A unit test blocks a list of fear words.
 - **Fictional everything.** Every town, person, game and address is made up:
@@ -43,7 +43,7 @@ Each band has 8 messages, played in index order. Within a band the trick/safe pa
 | 5 | sort + magnifier | the link says one place and goes to another; a file nobody expected | STTSTSST | clues |
 | 6 | clue mode | tap every clue (2–3 per trick) or "No clues" | TTSTTSTT | clues |
 | 7 | action | three fixed cards: *Don't tap or reply. Show a grown-up* · *Reply and say stop* · *Read it. Reply if you want* (review bank L1–L5) | TSTTSTST | action |
-| 8 | check another way | tricks from REAL town addresses (a friend's account asks for a gift card or password) vs urgent-but-safe messages (swim class moved, snow day). Cards: *It was expected and asks for nothing secret* · *Check another way, with a grown-up* · *Reply to the message to check* | STSSTSTS | verify |
+| 8 | check another way | tricks from REAL town addresses (a friend's account asks for a gift card or password) vs safe messages that fit what the child knows (swim class moved, snow day, the book you asked for, chess club like we planned); safe messages never push the child to go somewhere right now. Cards: *It fits what I know and asks for nothing secret. Read it.* · *Check another way, with a grown-up* (always accepted) · *Reply to the message to check* | STSSTSTS | verify |
 | 9 | inbox | four messages (2 tricks, 2 safe) from the review bank; open each, post each, then Done (match answer) | — | action |
 
 On levels 4–5 the sender address and the link destination are folded ("Real address: tap to check") until the child magnifies them. This is how many apps show only a display name. The magnifier line names the real address ("It really comes from bytebery.example"), and Hoot's round-start line teaches the one rule needed: "Town mail comes from byteberry.example."
@@ -74,7 +74,7 @@ A detective board, not a quiz:
   - a neat look-alike → "Tricks can look very neat. Check who really sent it." (misconception: good spelling means real);
   - "Reply and say stop" → "Replying tells the tricker you're there";
   - a friend's-account trick → "Accounts can be borrowed. Ask your friend another way";
-  - urgent-but-safe → "Was this expected? Does it ask for anything secret?";
+  - a safe message answered with "Reply to check" → "Was this expected? Does it ask for anything secret?";
   - a safe message sent to Ask → `mm.hint.askOk`.
 
 ## Misconceptions → where they're tested
@@ -83,7 +83,7 @@ A detective board, not a quiz:
 | Good spelling / a polite tone means it's real | L4 (all bodies polished; the clue is the sender) |
 | A familiar name means it's real | L4 `not-bobbo`, L6 `bobbo-secret` (name says Bobbo, the address isn't the town's) |
 | The link words tell you where it goes | L5, L6, L8 `puff-link` |
-| Everything urgent is a trick | L8 safe messages (swim moved, owl show in 10 minutes, snow day) |
+| Everything surprising is a trick | L8 safe messages (swim moved, snow day, parade early, picnic moved inside) |
 | A friend's account is always my friend | L8 tricks from real town addresses |
 | Reply to say stop / reply to check | L7 *Reply and say stop*, L8 *Reply to the message to check* |
 | Every message is a scam | ≥ 2 safe messages per band; safe messages are as common as tricks on L0–L5 |
@@ -122,8 +122,8 @@ Clue ↔ guidance map:
 ## Flagged for expert review (before release)
 1. **A cybersecurity educator should check all 82 messages and the level-7/8 card wording**, especially:
    - (a) whether "Check another way, with a grown-up" is the best child phrasing of FTC's "contact the company using a number you know";
-   - (b) the claim in `mm.help.start` that "real friends and helpers never ask for your password". It's true for children's game and school contexts, but the absolute is a simplification.
-2. **A child-safety specialist should review** `our-secret` ("Let's be friends! Don't tell your family we talk.") and `drawings-card`. Both touch online-contact grooming patterns, in non-graphic wording, and both resolve to "Ask a grown-up".
+   - (b) `mm.help.start`, now "Keep your password secret. Only share it with your grown-up." (the earlier absolute "friends and helpers never ask" was dropped after content review: parents and teachers sometimes do).
+2. **A child-safety specialist should review** `our-secret` ("Let's be friends! Don't tell your family we talk."), `drawings-card`, `home-address` and `secret-gift`. All four touch online-contact grooming patterns (secrecy, gifts, asking where the child lives), in non-graphic wording, and all resolve to "Ask a grown-up".
 3. **Rule simplification:** "Byteberry mail comes from byteberry.example" is a simplified domain rule. Real organisations sometimes use several domains, and real look-alikes can be subtler.
 4. **Name check:** "Byteberry", "Gem Team", "Star Racer Game", "Prize Wizard" and the other names need a trademark/brand check, so that none matches a real product.
 5. **Yearly re-check:** compare against current CISA/FTC guidance once a year.
