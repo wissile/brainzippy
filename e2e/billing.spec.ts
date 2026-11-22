@@ -3,6 +3,7 @@ import { type Page, expect, test } from "@playwright/test";
 import { collectErrors, seed } from "./helpers";
 
 /**
+ * Needs development flags (ACCOUNTS_ENABLED + BILLING_ENABLED "true", as in .dev.vars.example); skips otherwise.
  * Billing end to end with the development fake Stripe (no network: APP_ENV=development, no STRIPE_SECRET_KEY,
  * localhost → worker/lib/stripeFake.ts emits signed webhooks into the real handler).
  * Synthetic data only. Requires `npm run db:migrate:local` (0005_billing) in this checkout.
@@ -10,6 +11,11 @@ import { collectErrors, seed } from "./helpers";
 const DAY = 86_400_000;
 const GAME = "/play/counting-adventure";
 const uniq = () => `${Date.now()}${Math.floor(Math.random() * 1e6)}`;
+
+test.beforeEach(async ({ request }) => {
+  const flags = await (await request.get("/api/config")).json();
+  test.skip(!flags.billing, "billing is switched off on this server (production flags)");
+});
 
 async function passGate(page: Page) {
   const label = await page.locator('label[for="pa-gate-answer"]').innerText();
@@ -62,7 +68,8 @@ test("day 15 on a device: the child sees a sleepy-monster scene with no prices; 
 
   await page.goto(GAME);
   await expect(gameReady(page)).toBeVisible(); // day 1: plays (and starts this device's 14 days)
-  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("bz.billing")!).firstPlayAt)).toBeGreaterThanOrEqual(t0);
+  // First play is recorded once GET /api/config says billing is on (it may land just after the first render).
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("bz.billing") ?? "{}").firstPlayAt ?? 0)).toBeGreaterThanOrEqual(t0);
 
   await page.clock.setSystemTime(t0 + 14 * DAY - 60_000);
   await spaGo(page, "/map");

@@ -109,7 +109,10 @@ test.describe("public site", () => {
     expect(res.status()).toBe(200);
     const llms = await res.text();
     expect(llms.startsWith("# BrainZippy\n")).toBe(true);
-    expect(llms).toContain("$6.99 per month");
+    // the local build uses wrangler.jsonc's top level (production flags, D-030): early access, no price yet
+    expect(llms).toContain("Free while we're in early access");
+    expect(llms).toContain("- Contact: hello@brainzippy.com");
+    expect(llms).not.toContain("$6.99");
     const games = (await sitemapPaths(request)).filter((p) => p.startsWith("/games/"));
     expect(games.length).toBeGreaterThan(0);
     for (const g of games) expect(llms, g).toContain(`https://brainzippy.com${g})`);

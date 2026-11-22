@@ -16,6 +16,11 @@ async function popBubbles(page: Page) {
   }
 }
 
+/** The grown-up email step exists only with parent accounts on (development flags); launch.spec.ts covers it off. */
+async function skipUnlessAccounts(page: Page) {
+  test.skip(!(await (await page.request.get("/api/config")).json()).accounts, "parent accounts are switched off on this server");
+}
+
 async function answerGate(page: Page, labelFor: string, input: string, ok: string) {
   const q = await page.locator(`label[for="${labelFor}"]`).innerText();
   const [a, b] = q.match(/(\d+) × (\d+)/)!.slice(1).map(Number);
@@ -24,6 +29,7 @@ async function answerGate(page: Page, labelFor: string, input: string, ok: strin
 }
 
 test("first-time child: story → bubbles → build monster → names → age → parent email → map → game", async ({ page }, info) => {
+  await skipUnlessAccounts(page);
   const errors = collectErrors(page);
   const bodies: string[] = [];
   page.on("request", (r) => {
@@ -125,6 +131,7 @@ test("first-time child: story → bubbles → build monster → names → age �
 });
 
 test("grown-up step can be skipped, and onboarding resumes after refresh", async ({ page }) => {
+  await skipUnlessAccounts(page);
   await seed(page, { muted: true }, { fresh: true });
   await page.goto("/");
   await press(page, '[data-testid="site-play"]');
