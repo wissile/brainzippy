@@ -7,9 +7,15 @@
  * they update by themselves when a world gets its editorial copy. llms.txt is generated from this file
  * at build time (src/site/llms.ts), so it can never go stale.
  */
+import { SUPPORT_EMAIL } from "../app/support";
+import { EARLY_ACCESS_LINE } from "../billing/copy";
 import { CARD_TRIAL_DAYS, INTRO_TRIAL_DAYS, PRICE } from "../billing/model";
 import { registry } from "../content";
 import { AGES_NOW, SUBJECTS_NOW, listJoin } from "./catalog";
+import { siteFlags } from "./flags";
+
+/** Billing switched on for the environment being built (src/site/flags.ts). Off = early access, everything free. */
+const BILLING = siteFlags().billing;
 
 /** Live libraries with published games, in the registry's teaching order (maths, English, science, ...). */
 const subjectsNow = registry.libraries.filter((l) => SUBJECTS_NOW.some((s) => s.id === l.id)).map((l) => l.title);
@@ -25,6 +31,10 @@ const subjectsShort =
 export const SITE = {
   name: "BrainZippy",
   origin: "https://brainzippy.com",
+  /** Public contact address (owner decision 2026-11-22). There is deliberately no contact form. */
+  email: SUPPORT_EMAIL,
+  /** Billing on for this build. Off: no /pricing page, no prices, "Free while we're in early access" (D-030). */
+  billing: BILLING,
   locale: "en",
   /** One-sentence definition used as the default meta description and Organization description. */
   definition: `BrainZippy is a website of story-based learning games for children. The games available today teach ${subjectsLower} to children aged about ${AGES_NOW.min} to ${AGES_NOW.max}.`,
@@ -50,9 +60,12 @@ export const SITE = {
     "Wrong answers lead to hints and a worked example, never a penalty.",
   ],
   /** Published price (docs/BILLING.md). Must match src/billing/model.ts PRICE (checked in tests/unit/billing-site.test.ts). */
-  pricing: { amount: "6.99", currency: "USD", period: "month", trialDays: 14, freePlayDays: 14 } as null | { amount: string; currency: string; period: string; trialDays: number; freePlayDays: number },
+  /** null while billing is off (early access). */
+  pricing: (BILLING ? { amount: "6.99", currency: "USD", period: "month", trialDays: 14, freePlayDays: 14 } : null) as null | { amount: string; currency: string; period: string; trialDays: number; freePlayDays: number },
   /** Price facts for llms.txt, FAQ and teacher page, from src/billing/model.ts (docs/BILLING.md), so they can't drift. */
-  priceLine: `${INTRO_TRIAL_DAYS} days of free play on a device (no account or card), then a ${CARD_TRIAL_DAYS}-day free trial once a grown-up adds a card, then ${PRICE.display} per month per family, cancel anytime. Free-access codes are available for schools and promotions. Children never see prices.`,
+  priceLine: BILLING
+    ? `${INTRO_TRIAL_DAYS} days of free play on a device (no account or card), then a ${CARD_TRIAL_DAYS}-day free trial once a grown-up adds a card, then ${PRICE.display} per month per family, cancel anytime. Free-access codes are available for schools and promotions. Children never see prices.`
+    : `${EARLY_ACCESS_LINE}: every game is open, with no account, no card and nothing to buy. Children never see prices or purchase prompts.`,
   logoPath: "/og/logo.png",
   defaultOgImage: "/og/default.png",
 } as const;

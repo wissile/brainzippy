@@ -19,6 +19,7 @@ export const organization = () => ({
   url: absoluteUrl("/"),
   logo: absoluteUrl(SITE.logoPath),
   description: SITE.definition,
+  email: SITE.email,
 });
 
 export const website = () => ({

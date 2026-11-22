@@ -12,7 +12,7 @@
  * Rendering itself lives in src/site/build.tsx (pure, unit-tested); this script only does file I/O.
  */
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runnerImport } from "vite";
@@ -31,6 +31,23 @@ function emitAsset(name, ext, buf) {
   writeFileSync(join(out, file), buf);
   return `/${file}`;
 }
+
+/**
+ * Site flags come from the Worker config being built (dist/<worker>/wrangler.json, flattened by the Vite plugin for
+ * CLOUDFLARE_ENV), never from .dev.vars, so a local build can't publish pricing that production doesn't have (D-030).
+ * Must be set before the site modules are imported (src/site/flags.ts reads it at import time).
+ */
+function builtWorkerVars() {
+  const dist = join(root, "dist");
+  const configs = readdirSync(dist, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && d.name !== "client" && existsSync(join(dist, d.name, "wrangler.json")))
+    .map((d) => join(dist, d.name, "wrangler.json"));
+  if (configs.length !== 1) throw new Error(`prerender: expected one dist/<worker>/wrangler.json, found ${configs.length}`);
+  return JSON.parse(readFileSync(configs[0], "utf8")).vars ?? {};
+}
+const vars = builtWorkerVars();
+const siteFlags = { billing: vars.ACCOUNTS_ENABLED === "true" && vars.BILLING_ENABLED === "true" };
+globalThis.__BZ_SITE_FLAGS__ = siteFlags;
 
 const { module: site } = await runnerImport(join(root, "src/site/build.tsx"), { configFile: false, logLevel: "error" });
 
@@ -76,4 +93,5 @@ if (!/name="robots" content="noindex/.test(shell)) throw new Error("prerender: d
 
 const kb = (n) => (n / 1024).toFixed(1);
 const sizes = pages.map((p) => Buffer.byteLength(p.html));
+console.log(`prerender: site flags ${JSON.stringify(siteFlags)}`);
 console.log(`prerender: ${pages.length} pages (HTML ${kb(Math.min(...sizes))}–${kb(Math.max(...sizes))} KB), sitemap.xml, llms.txt, _redirects, site js ${kb(Buffer.byteLength(site.SITE_JS))} KB`);

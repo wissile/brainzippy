@@ -104,14 +104,19 @@ export function buildRoutes(): PageDef[] {
       jsonLd: [faqPage(FAQ.flatMap((g) => g.items))],
       render: () => h(FaqPage),
     }),
-    page({
-      path: "/pricing",
-      title: "BrainZippy pricing: $6.99/month after a free trial",
-      description: "BrainZippy costs $6.99 a month for the family after 14 days of free play and a 14-day free trial with a card. Cancel anytime; children never see prices.",
-      updated: "2026-11-18",
-      breadcrumbs: crumbs({ name: "Pricing", path: "/pricing" }),
-      render: () => h(PricingPage),
-    }),
+    // Public pricing only while billing is switched on for this build (D-030, src/site/flags.ts).
+    ...(SITE.billing
+      ? [
+          page({
+            path: "/pricing",
+            title: "BrainZippy pricing: $6.99/month after a free trial",
+            description: "BrainZippy costs $6.99 a month for the family after 14 days of free play and a 14-day free trial with a card. Cancel anytime; children never see prices.",
+            updated: "2026-11-18",
+            breadcrumbs: crumbs({ name: "Pricing", path: "/pricing" }),
+            render: () => h(PricingPage),
+          }),
+        ]
+      : []),
     page({
       path: "/about",
       title: "About BrainZippy",

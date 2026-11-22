@@ -74,12 +74,13 @@ function Footer() {
           <p className="footer-brand">{SITE.name}</p>
           <p>{SITE.short}</p>
           <p>No ads, no chat, no third-party trackers.</p>
+          <p>Contact: <a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
         </div>
         <nav aria-label="Footer">
           <ul>
             <li><a href="/about">About</a></li>
             <li><a href="/faq">FAQ</a></li>
-            <li><a href="/pricing">Pricing</a></li>
+            {SITE.billing && <li><a href="/pricing">Pricing</a></li>}
             <li><a href="/for-parents">For parents</a></li>
             <li><a href="/for-teachers">For teachers</a></li>
             <li><a href="/research">Research</a></li>
