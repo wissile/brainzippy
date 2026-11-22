@@ -10,11 +10,20 @@
 export interface SiteFlags {
   /** BILLING_ENABLED (and ACCOUNTS_ENABLED) are "true" for the environment being built. */
   billing: boolean;
+  /** ACCOUNTS_ENABLED is "true". */
+  accounts?: boolean;
+  /** FRIENDS_ENABLED (and ACCOUNTS_ENABLED) are "true". */
+  friends?: boolean;
+  /**
+   * VAPID_PUBLIC_KEY is non-empty. The private key is a secret the build can't see, so the site may describe reminders
+   * that still lack it (over-disclosure, never under-disclosure); the app itself follows /api/config.
+   */
+  push?: boolean;
 }
 
 export const SITE_FLAGS_GLOBAL = "__BZ_SITE_FLAGS__";
 
-export function siteFlags(): SiteFlags {
+export function siteFlags(): Required<SiteFlags> {
   const g = (globalThis as Record<string, unknown>)[SITE_FLAGS_GLOBAL] as Partial<SiteFlags> | undefined;
-  return { billing: g?.billing === true };
+  return { billing: g?.billing === true, accounts: g?.accounts === true, friends: g?.friends === true, push: g?.push === true };
 }

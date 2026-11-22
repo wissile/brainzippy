@@ -142,6 +142,20 @@ test.describe("public site", () => {
     }
   });
 
+  test("the early-access privacy notice is published and linked from the footer", async ({ page, request }, info) => {
+    expect(await sitemapPaths(request)).toContain("/privacy");
+    await page.goto("/faq");
+    await page.getByTestId("footer-privacy").click();
+    await expect(page).toHaveURL(/\/privacy$/);
+    await expect(page.locator("h1")).toHaveText("Privacy notice");
+    await expect(page.getByTestId("privacy-label")).toHaveText("Early-access privacy notice. A full policy will be published before accounts or payments are switched on.");
+    await expect(page.getByTestId("privacy-child-email")).toContainText("we reply to a grown-up");
+    // a local build has production's flags (wrangler.jsonc top level): guest-only wording, nothing about features that are off
+    await expect(page.getByTestId("privacy-short")).toContainText("No accounts and no email.");
+    expect(await page.locator("main").innerText()).not.toMatch(/reminder|being tested/i);
+    await page.screenshot({ path: info.outputPath("privacy.png"), fullPage: true });
+  });
+
   test("no content page overflows at 390×844", async ({ browser, request }) => {
     const paths = await sitemapPaths(request);
     expect(paths.length).toBeGreaterThan(15);

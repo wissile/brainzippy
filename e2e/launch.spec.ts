@@ -46,6 +46,10 @@ test("the server reports guest-only flags", async ({ request }) => {
   expect(res.headers()["cache-control"]).toBe("public, max-age=300");
   expect((await request.post("/api/parent-signup", { data: { email: "a@example.com", consent: true } })).status()).toBe(404);
   expect((await request.post("/api/auth/magic-link", { data: { email: "a@example.com", consent: true, mode: "signup" } })).status()).toBe(404);
+  // reminders not configured and accounts off: push and the digest unsubscribe link don't exist
+  expect((await request.get("/api/push/key")).status()).toBe(404);
+  expect((await request.post("/api/push/subscribe", { data: {} })).status()).toBe(404);
+  expect((await request.get("/api/unsubscribe")).status()).toBe(404);
 });
 
 test("onboarding goes from age straight to the map and never asks for an email", async ({ page }, info) => {
@@ -128,6 +132,7 @@ test("/parents is a calm coming-soon page; /plan and /grown-ups show nothing pur
   await expect(soon).toContainText("Grown-up accounts are coming soon. Progress is saved on this device.");
   await expect(page.locator('input[type="email"], [data-testid="pa-gate-answer"], [data-testid="pa-send-link"]')).toHaveCount(0);
   await expect(soon.getByRole("link", { name: "hello@brainzippy.com" })).toHaveAttribute("href", "mailto:hello@brainzippy.com");
+  await expect(soon).not.toContainText(/reminder/i); // push is not configured in production
   await noOverflow(page);
   await page.screenshot({ path: info.outputPath("launch-parents.png"), fullPage: true });
 
@@ -141,6 +146,9 @@ test("/parents is a calm coming-soon page; /plan and /grown-ups show nothing pur
   await expect(page.getByTestId("early-access")).toContainText("Free while we're in early access");
   await expect(page.getByTestId("accounts-coming-soon")).toBeVisible();
   await expect(page.getByTestId("open-parents")).toHaveCount(0); // no sign-in link
+  // no VAPID keys in production: no reminders section, nothing that could ask for notification permission
+  await expect(page.locator('.bz-reminders, [data-testid="reminder-open"]')).toHaveCount(0);
+  await expect(page.getByTestId("privacy-notice-link")).toHaveAttribute("href", "/privacy");
   await expect(page.getByTestId("support-email")).toHaveAttribute("href", "mailto:hello@brainzippy.com");
   expect(await page.locator("body").innerText()).not.toMatch(/\$6\.99|add friends/i);
   await noOverflow(page);

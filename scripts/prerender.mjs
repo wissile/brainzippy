@@ -46,7 +46,13 @@ function builtWorkerVars() {
   return JSON.parse(readFileSync(configs[0], "utf8")).vars ?? {};
 }
 const vars = builtWorkerVars();
-const siteFlags = { billing: vars.ACCOUNTS_ENABLED === "true" && vars.BILLING_ENABLED === "true" };
+const accounts = vars.ACCOUNTS_ENABLED === "true";
+const siteFlags = {
+  accounts,
+  billing: accounts && vars.BILLING_ENABLED === "true",
+  friends: accounts && vars.FRIENDS_ENABLED === "true",
+  push: typeof vars.VAPID_PUBLIC_KEY === "string" && vars.VAPID_PUBLIC_KEY.trim() !== "",
+};
 globalThis.__BZ_SITE_FLAGS__ = siteFlags;
 
 const { module: site } = await runnerImport(join(root, "src/site/build.tsx"), { configFile: false, logLevel: "error" });

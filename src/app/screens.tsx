@@ -97,6 +97,7 @@ export function GrownUpsScreen() {
         ) : (
           <p data-testid="privacy-guest">BrainZippy is guest play only: no account, no ads, no chat and no third-party trackers. Your child's first name (optional), their monster and their progress are stored only in this browser and are never sent to us. We don't ask for anyone's email, photos or location.</p>
         )}
+        <p><a href="/privacy" data-testid="privacy-notice-link">Read the privacy notice</a></p>
         <h2>Parent account</h2>
         {accounts ? (
           <p>An optional parent account (email sign-in, no password) shows your child's progress, sets a daily game limit{friends ? ", saves progress across devices and lets you add friends by invite" : " and saves progress across devices"}. <a href="/parents" data-testid="open-parents" onClick={(e) => { e.preventDefault(); navigate("/parents"); }}>Open the parent area</a></p>

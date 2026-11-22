@@ -355,6 +355,33 @@ describe("public site follows the build's billing flag", () => {
     expect(JSON.stringify(s.FAQ)).not.toMatch(/6\.99|free-access code/);
   });
 
+  it("production build: /privacy is the guest-only early-access notice, linked from every page's footer", async () => {
+    const s = await importSite({ billing: false });
+    const { pages, llms } = s.renderSite({ css: "", js: "/a.js", preloadFont: "/f.woff2" });
+    for (const p of pages) expect(p.html, p.path).toContain('href="/privacy"');
+    const text = pages.find((x) => x.path === "/privacy")!.html.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/\s+/g, " ");
+    expect(text).toContain("Early-access privacy notice. A full policy will be published before accounts or payments are switched on.");
+    for (const fact of ["No accounts and no email.", "No payments.", "No ads and no trackers.", "in this browser on this device", "Delete all progress", "Cloudflare hosts BrainZippy", "automatic request logging is switched off", "If a child emails us,", "we reply to a grown-up, not to the child, and we delete the child's message", "hello@brainzippy.com", "guest play only"])
+      expect(text, fact).toContain(fact);
+    // features that are off are not described
+    expect(text).not.toMatch(/reminder|notification|being tested|subscription|card/i);
+    expect(llms).toContain("https://brainzippy.com/privacy");
+  });
+
+  it("the notice follows the flags: reminders appear only with a VAPID key; test features are flagged, never described as guest-only", async () => {
+    const page = async (flags: Parameters<typeof importSite>[0]) => {
+      const s = await importSite(flags);
+      const p = s.renderSite({ css: "", js: "/a.js", preloadFont: "/f.woff2" }).pages.find((x) => x.path === "/privacy")!;
+      return p.html.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'");
+    };
+    const push = await page({ billing: false, push: true });
+    expect(push).toContain("Daily reminders (optional)");
+    expect(push).toContain("turns off and forgets any daily reminder");
+    const staging = await page({ billing: true, accounts: true, friends: true });
+    expect(staging).toContain("grown-up accounts, payments, friends and challenges switched on for testing");
+    expect(staging).not.toMatch(/No accounts and no email|No payments\.|guest play only/);
+  });
+
   it("billing-on build: /pricing is published and teachers are told to ask for a free school code", async () => {
     const s = await importSite({ billing: true });
     const { pages, llms } = s.renderSite({ css: "", js: "/a.js", preloadFont: "/f.woff2" });

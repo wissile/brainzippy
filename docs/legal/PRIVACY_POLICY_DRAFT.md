@@ -4,6 +4,22 @@
 
 _Last updated: [DATE]. Version: draft-2026-11-18._
 
+## 0. Two modes: guest-only (live now) and account mode (future) **[LAWYER]**
+
+The product runs in one of two modes, chosen by feature flags in `wrangler.jsonc` (decision D-030). This draft covers **account mode**; the guest-only mode has its own short notice, published now.
+
+| | Guest-only mode (production today) | Account mode (future, after legal review) |
+|---|---|---|
+| Flags | `ACCOUNTS_ENABLED`, `BILLING_ENABLED`, `FRIENDS_ENABLED` all `"false"`; no VAPID keys | One or more flags `"true"` |
+| Public notice | `/privacy`, the **early-access privacy notice**, generated from the build's flags (`src/site/pages/privacy.tsx`) so it never describes a feature that is off. It is labelled: "Early-access privacy notice. A full policy will be published before accounts or payments are switched on." | This document, once a lawyer has finalised it. It must replace `/privacy` **before** any flag is switched on in production |
+| Personal data we receive | None. The Worker writes no database rows for guest players (unit test: `tests/unit/launch-flags.test.ts`, "guest-only production writes nothing to D1"); rate limiting is not active, so not even keyed IP hashes are stored | As described in sections 3–7 below |
+| On the device | Progress, monster, monster name, optional first name, age group, settings (`localStorage`); offline game files. "Delete all progress" removes the profile and progress, the reminder device id and the service worker's prefs cache | Same, plus a session cookie when a parent signs in |
+| Server logs | Workers invocation logs are off; error lines carry no IP address and are kept by Cloudflare Workers Logs for up to 3 days (Free) or 7 days (Paid). Cloudflare processes IP addresses to deliver and protect the site under its own policy | Same |
+| Email to hello@brainzippy.com | Used only to reply. If a child emails us, we reply to a grown-up, not to the child, and delete the child's message. **[LAWYER]** confirm this handling and any retention period | Same |
+| Payments | None | Stripe (section 6) |
+
+Still for a lawyer, even in guest-only mode: whether the early-access notice is sufficient on its own for COPPA (no personal information is collected from children) and for GDPR/UK GDPR transparency (the controller's identity and address are still placeholders; Cloudflare's processing of IP addresses), and whether the handling of children's emails is adequate.
+
 ## 1. Who we are
 BrainZippy ("we", "us") makes learning games for children aged 3–14 at brainzippy.com. Contact: hello@brainzippy.com · [Company legal name, address]. **[LAWYER]** EU/UK representative if required.
 

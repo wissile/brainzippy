@@ -26,7 +26,7 @@ describe("prerendered public pages", () => {
   // world (or its copy) never breaks these assertions; only a missing or extra page does.
   // Default build = production flags (billing off, D-030): no /pricing page. The billing-on page set is checked in
   // tests/unit/launch-flags.test.ts.
-  const CORE = ["/", "/how-it-works", "/research", "/for-parents", "/for-teachers", "/faq", "/about", "/games", "/guides"];
+  const CORE = ["/", "/how-it-works", "/research", "/for-parents", "/for-teachers", "/faq", "/about", "/privacy", "/games", "/guides"];
   // library pages: live libraries with published games and editorial copy (D-029)
   const expectedSubjects = LIBRARIES_NOW.filter((l) => SUBJECTS.some((s) => s.slug === l.id)).map((l) => `/libraries/${l.id}`);
   const expectedAges = AGE_BANDS.filter((b) => GAMES.some((g) => overlapYears(g.ages, b) >= 2)).map((b) => `/ages/${b.slug}`);
