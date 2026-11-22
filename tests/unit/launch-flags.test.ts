@@ -14,6 +14,7 @@ import { getEntitlement } from "../../worker/lib/entitlements";
 import { emptyChildProgress } from "../../src/account/schema";
 import { canPlay, DAY_MS, parseEntitlement } from "../../src/billing/model";
 import { fakeEnv } from "./helpers/d1";
+import { checkGuestFlags, stripJsonComments } from "../../scripts/check-guest-flags.mjs";
 import { importSite } from "./helpers/site";
 
 beforeEach(() => {
@@ -87,6 +88,32 @@ describe("flag parsing", () => {
       expect(db.database_id, e).toBeUndefined();
       expect(db.database_name).toMatch(/^brainzippy-db/);
     }
+  });
+});
+
+describe("deploy guard (scripts/check-guest-flags.mjs)", () => {
+  const wranglerJsonc = readFileSync(new URL("../../wrangler.jsonc", import.meta.url), "utf8");
+  const withProd = (vars: Record<string, unknown>) => {
+    const cfg = JSON.parse(stripJsonComments(wranglerJsonc)) as { env: { production: { vars: Record<string, unknown> } } };
+    cfg.env.production.vars = { ...cfg.env.production.vars, ...vars };
+    return `// comment\n${JSON.stringify(cfg)}`;
+  };
+  const built = (vars: Record<string, unknown>) => JSON.stringify({ vars: { ...OFF, ...vars } });
+
+  it("passes the repo's wrangler.jsonc (comments, and // inside strings like https://)", () => {
+    expect(stripJsonComments('{"a":"https://x" // c\n,/* b */"b":1}')).toBe('{"a":"https://x" \n,"b":1}');
+    expect(checkGuestFlags({ wranglerJsonc })).toEqual([]);
+    expect(checkGuestFlags({ wranglerJsonc, builtJson: built({}) })).toEqual([]);
+  });
+
+  it("fails on any production flag that is not exactly \"false\", in the source or the built config", () => {
+    for (const v of ["true", "TRUE", "", undefined, "0"]) {
+      for (const k of ["ACCOUNTS_ENABLED", "BILLING_ENABLED", "FRIENDS_ENABLED"]) {
+        expect(checkGuestFlags({ wranglerJsonc: withProd({ [k]: v }) }), `${k}=${v}`).toHaveLength(1);
+        expect(checkGuestFlags({ wranglerJsonc, builtJson: built({ [k]: v }) }), `built ${k}=${v}`).toHaveLength(1);
+      }
+    }
+    expect(() => checkGuestFlags({ wranglerJsonc: "{ not json" })).toThrow();
   });
 });
 

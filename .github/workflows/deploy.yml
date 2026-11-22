@@ -4,7 +4,7 @@ name: Deploy
 # Production deploys ONLY when started by hand, and the "production" GitHub
 # environment should require the owner's approval (Settings → Environments).
 #
-# Order (docs/DEPLOY.md): build → migrate if the database already exists → wrangler deploy (automatic provisioning
+# Order (docs/DEPLOY.md): build → (production) guest-only flag guard → migrate if the database already exists → wrangler deploy (automatic provisioning
 # creates the D1 database named in wrangler.jsonc on the very first deploy, and finds it by name afterwards) →
 # migrate (applies everything on a brand-new database; a no-op otherwise) → smoke test (health + the live feature
 # flags must match the build's).
@@ -19,6 +19,10 @@ on:
         type: choice
         options: [staging, production]
         default: staging
+      allow_features:
+        description: "Production only: allow ACCOUNTS/BILLING/FRIENDS flags that are not \"false\" (only after legal review, docs/DEPLOY.md section 4)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -84,6 +88,13 @@ jobs:
       - run: npm ci
       - name: Build for production
         run: CLOUDFLARE_ENV=production npm run build
+      # Guest-only guard (D-030): fail unless ACCOUNTS_ENABLED, BILLING_ENABLED and FRIENDS_ENABLED are all "false" in
+      # wrangler.jsonc env.production and in the built config. Override: tick allow_features when starting the run.
+      - name: Guard - production must be guest-only
+        env:
+          ALLOW_FEATURES: ${{ github.event.inputs.allow_features }}
+        run: |
+          if [ "$ALLOW_FEATURES" = "true" ]; then node scripts/check-guest-flags.mjs --allow-features; else node scripts/check-guest-flags.mjs; fi
       - name: Apply D1 migrations before deploying (skipped until the database exists)
         run: ./scripts/ci-d1.sh pre brainzippy-db production
       - name: Deploy (the first deploy creates the D1 database and the brainzippy.com custom domain)
