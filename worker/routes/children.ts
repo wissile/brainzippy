@@ -1,4 +1,4 @@
-import type { Route } from "../router";
+import { behind, type Route } from "../router";
 import { mergeChildProgress } from "../../src/account/merge";
 import { emptyChildProgress, DEFAULT_SETTINGS, MAX_CHILDREN } from "../../src/account/schema";
 import { parsePublicName } from "../../src/account/publicName";
@@ -14,7 +14,7 @@ import { cleanDisplayName, isObj, MAX_CHILD_PROGRESS_BYTES, onlyKeys, parseAgeBa
  * The child-typed monster name is never accepted: other families see only `publicName`, a pick-list combination
  * (src/account/publicName.ts) that defaults to a deterministic name and can be changed by the parent.
  */
-export const routes: Route[] = [
+export const routes: Route[] = behind("accounts", [
   {
     method: "GET",
     path: "/api/children",
@@ -164,4 +164,4 @@ export const routes: Route[] = [
       return json({ progress: merged, settings: rowSettings(child) });
     },
   },
-];
+]);

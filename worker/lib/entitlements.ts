@@ -5,7 +5,8 @@
  * Enforcement model (honest user): play is gated on the device (src/billing/PlayGate.tsx) using this answer, cached
  * for offline play. There are no paid-only API features today; any future one must check `requirePaid` server-side.
  */
-import { computeEntitlement, DAY_MS, type BillingState, type Entitlement } from "../../src/billing/model";
+import { computeEntitlement, DAY_MS, earlyAccessEntitlement, type BillingState, type Entitlement } from "../../src/billing/model";
+import { billingEnabled } from "./config";
 
 export type { Entitlement, EntitlementStatus } from "../../src/billing/model";
 export type EntitlementSubject = { parentId: string } | { deviceId: string };
@@ -65,6 +66,8 @@ export async function loadBilling(env: Env, parentId: string): Promise<{ state: 
 }
 
 export async function getEntitlement(env: Env, subject: EntitlementSubject, now = Date.now()): Promise<Entitlement> {
+  // Billing off (BILLING_ENABLED, D-030): everyone is free during early access; no trial clock runs.
+  if (!billingEnabled(env)) return earlyAccessEntitlement(now);
   if ("parentId" in subject) {
     const loaded = await loadBilling(env, subject.parentId);
     if (loaded) return computeEntitlement(loaded.state, now);

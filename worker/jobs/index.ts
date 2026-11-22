@@ -1,3 +1,4 @@
+import { accountsEnabled } from "../lib/config";
 import { dailyDigest } from "./digest";
 import { purge } from "./purge";
 import { type PushEnv, sendDueReminders } from "../routes/push";
@@ -9,8 +10,10 @@ import { type PushEnv, sendDueReminders } from "../routes/push";
 export type Job = (env: Env, now: number) => Promise<unknown>;
 
 export const JOBS: Record<string, Job> = {
+  // Retention purge always runs: deleting expired data is never a feature to switch off.
   purge: (env, now) => purge(env, now),
-  "daily-digest": (env, now) => dailyDigest(env, now),
+  // Parent emails exist only with accounts (ACCOUNTS_ENABLED, D-030). Off: a no-op that touches neither D1 nor Resend.
+  "daily-digest": async (env, now) => (accountsEnabled(env) ? dailyDigest(env, now) : { skipped: "accounts_disabled" }),
   "push-reminders": (env, now) => sendDueReminders(env as unknown as PushEnv, new Date(now)),
 };
 

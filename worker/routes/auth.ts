@@ -1,4 +1,4 @@
-import type { Route } from "../router";
+import { behind, type Route } from "../router";
 import { appOrigin, CONSENT_VERSION, isDev } from "../lib/config";
 import { randomToken, sha256Hex, TOKEN_RE } from "../lib/crypto";
 import { sendEmail } from "../lib/email";
@@ -21,7 +21,7 @@ export const MAGIC_LINK_TTL_MS = 15 * 60 * 1000;
 const expiredPage = () =>
   html('<h1>This link has expired</h1><p>Sign-in links work once and only for 15 minutes.</p><p><a class="btn" href="/parents">Get a new link</a></p>', 410);
 
-export const routes: Route[] = [
+export const routes: Route[] = behind("accounts", [
   {
     method: "POST",
     path: "/api/auth/magic-link",
@@ -112,4 +112,4 @@ export const routes: Route[] = [
       return json({ ok: true }, 200, { "set-cookie": cookie });
     },
   },
-];
+]);

@@ -7,7 +7,7 @@ interface Env {
   RESEND_API_KEY?: string;
   /** HMAC key for unsubscribe links and hashed rate-limit keys (secret, ≥32 random bytes). Required outside development. */
   SIGNING_SECRET?: string;
-  /** Sender, e.g. "BrainZippy <hello@mail.brainzippy.com>" (var). Domain must be verified in Resend. */
+  /** Sender (var), default "BrainZippy <hello@brainzippy.com>". The domain must be verified in Resend. */
   EMAIL_FROM?: string;
   /** Public origin used in emailed links, e.g. "https://brainzippy.com" (var). Defaults to the request origin. */
   APP_ORIGIN?: string;
@@ -16,6 +16,14 @@ interface Env {
   /** "true" turns on friends, leaderboard and challenges (var). Off at top level and in production until the
    * verifiable-parental-consent question is decided by a lawyer (docs/legal/COPPA_CHECKLIST.md). */
   FRIENDS_ENABLED?: string;
+  /** "true" turns on parent accounts: magic-link sign-in, /api/parent-signup, /api/me, children, sync and the daily
+   * digest (var). Off at top level and in production until legal review (D-030). */
+  ACCOUNTS_ENABLED?: string;
+  /** "true" turns on billing: checkout, portal, redeem, status, webhook and the trial clock (var). Needs
+   * ACCOUNTS_ENABLED. Off at top level and in production until legal review (D-030). */
+  BILLING_ENABLED?: string;
+  /** VAPID public key (var). Empty = daily reminders off. */
+  VAPID_PUBLIC_KEY?: string;
   /** "true" re-enables anonymous guest progress writes (/api/guest). Off by default: client sync is off (D-011). */
   GUEST_SYNC_ENABLED?: string;
 }

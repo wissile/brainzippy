@@ -1,4 +1,4 @@
-import type { Route } from "../router";
+import { behind, type Route } from "../router";
 import { appOrigin, CONSENT_VERSION, isDev } from "../lib/config";
 import { randomToken, sha256Hex, TOKEN_RE } from "../lib/crypto";
 import { sendEmail } from "../lib/email";
@@ -18,7 +18,7 @@ import { isObj, normaliseEmail, onlyKeys } from "../lib/validation";
 const RESEND_COOLDOWN_MS = 10 * 60 * 1000;
 const PENDING_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
-export const routes: Route[] = [
+export const routes: Route[] = behind("accounts", [
   {
     method: "POST",
     path: "/api/parent-signup",
@@ -121,7 +121,7 @@ export const routes: Route[] = [
       return html('<h1>Thank you!</h1><p>Your email is confirmed. Your child can keep playing BrainZippy.</p><p><a class="btn" href="/parents">Open the parent area</a></p>');
     },
   },
-];
+]);
 
 const invalidPage = () => html("<h1>Link not valid</h1><p>Please request a new confirmation email.</p>", 400);
 const expiredPage = () => html("<h1>Link expired</h1><p>Please request a new confirmation email.</p>", 410);

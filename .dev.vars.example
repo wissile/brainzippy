@@ -4,10 +4,15 @@
 # Even with APP_ENV=development, development behaviour (on-screen magic links, dev signing secret, fake Stripe,
 # per-IP rate-limit bypass) only runs for requests to localhost / 127.0.0.1 (worker/lib/config.ts).
 APP_ENV="development"
+# Feature flags (D-030). Production has all three "false" (guest play only) until legal review; development turns
+# them on so the account, billing and friends flows can be built and tested. Set any to "false" here (or run
+# `npm run e2e:launch`) to see exactly what production visitors see.
+ACCOUNTS_ENABLED="true"
+BILLING_ENABLED="true"
 # Friends, leaderboard and challenges (off in production until legal sign-off; docs/legal/COPPA_CHECKLIST.md).
 FRIENDS_ENABLED="true"
 # Optional in development. Without RESEND_API_KEY, magic links are logged to the console and shown on screen.
 # RESEND_API_KEY="re_..."
 # SIGNING_SECRET="<at least 32 random characters>"   (needed to try the daily digest cron locally: cron jobs never use the dev secret)
-# EMAIL_FROM="BrainZippy <hello@mail.brainzippy.com>"
+# EMAIL_FROM="BrainZippy <hello@brainzippy.com>"
 # APP_ORIGIN="https://brainzippy.com"
