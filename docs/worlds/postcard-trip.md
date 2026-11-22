@@ -23,7 +23,7 @@ Spec: `docs/curriculum/geography.md` §4. Code: `src/games/postcard-trip/`. Regi
 | 0–4 | compass rose, map key, grid references on a map | NGS 1 (maps and spatial tools) |
 | 0–2, 9 | follow and plan routes from directions; the same island and world map every time build a mental map | NGS 2 (mental maps) |
 | 5–8 | continents, oceans, hemispheres; relative location ("Africa is below Europe") | NGS 1, 4 (physical characteristics of places) |
-| 5, 9 | postcards show real landmarks and nature with one respectful fact each | NGS 4, 6 (culture and perception of places) |
+| 5, 9 | postcards show real landmarks and nature with one respectful fact each (food, festivals, languages) | NGS 4 (physical and human characteristics of places), NGS 10 (Earth's cultural mosaics) |
 | 8 | seasons opposite across the equator | NGS 7 (physical processes, simplified) |
 
 ## 3. Levels (generator: `generator.ts`, 10 levels, maxLevel 9)
@@ -55,7 +55,8 @@ Within a round, difficulty steps up after 2 first-try answers (engine), so a lev
 - L2 hides the destination: with the postcard visible children walked by sight and ignored the directions. Any order of the same steps is accepted (the child decoded the route correctly).
 - L5 and L6 use **one card / one boat per mission** with the card's own spoken line (pre-readers can't read two labels); the multi-card match lives in L9's review.
 - L7 asks "which ocean is **east of Africa**?" ("the ocean along that side") rather than "which ocean does she cross?", which was ambiguous for several pairs. Balloon flights that cross the map edge (e.g. North America → Asia) or could land on two continents (Asia south, Australia north) are excluded.
-- L8 equator questions use only places ≥12° from the equator (Kenya, the Amazon and Bali are excluded); seasons use July / December.
+- L8 equator questions use only places ≥12° from the equator (Kenya, the Amazon and Bali are excluded); seasons use July / December and only places outside the tropics (|latitude| > 23.5°; Peru and Madagascar were removed after content review, since wet and dry seasons matter more there than summer and winter, and a unit test holds this).
+- "North is at the top" is always said as "on this map" (`pc.help.compass`, `pc.help.worldcompass`), because "north is always up" is itself a misconception.
 - L9 alternates the trip with a mixed review, so the top level really "mixes all".
 
 ## 6. Accuracy and respect policy

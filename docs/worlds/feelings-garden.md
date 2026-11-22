@@ -67,8 +67,8 @@ This world practises naming feelings and choosing kind actions through stories. 
 
 ## Flagged for early-childhood educator / SEL specialist review (before launch)
 - **Accepted sets** on situation and body items, for example: lost teddy → sad or scared; hiding eyes while shaking → scared or sad; first day at school → nervous, excited or scared; fireworks → surprised, scared or happy.
-- **Wording of less kind ideas** ("Laugh", "Look away", "Push in", "Throw things"), and whether 4–5-year-olds read "Laugh" as laughing *at* the friend. The card shows Snug laughing at a sad friend.
-- **Calm ideas for 4–5-year-olds:** whether "Say: I feel cross" and "Squeeze a calm stone" are clear without an adult.
+- **Wording of less kind ideas** ("Laugh", "Look away", "Cut in line", "Throw things"), and whether 4–5-year-olds read "Laugh" as laughing *at* the friend. The card shows Snug laughing at a sad friend. US English wording (popsicle, cut in line, mad, favorite) since 2026-11-22. "Walk away" is marked less kind only on level 5 "help a friend" items, though it is a commonly taught calming strategy: please confirm.
+- **Calm ideas for 4–5-year-olds:** whether "Say: I feel mad" and "Squeeze a calm stone" are clear without an adult.
 - **Mild worry content:** thunder, a barking dog, a spider, the lights going out, a big wave, a bumped knee (the answer is "get a grown-up" or "ask are you OK"), and Bobbo holding tight on a fair ride.
 - **Being left out** (`alone`, `tag`, `holiday`): kept gentle, with the kind answer "ask to play".
 - **Faces:** whether the frustrated face (squeezed eyes, gritted teeth) and the angry face read as different at this age, and whether the proud face (closed happy eyes, hands on hips) is read as proud.

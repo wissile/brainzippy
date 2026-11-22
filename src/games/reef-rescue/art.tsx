@@ -588,7 +588,7 @@ export function NoBasket() {
 
 // ---------------------------------------------------------------- scene background
 
-/** Underwater by Monster Island: sunlit water, light rays, distant reef shapes, Ripple's kelp and the sand. */
+/** Underwater by Monster Island: sunlit water, light rays, distant reef shapes, Ripple's seagrass and the sand. */
 export function ReefBackground() {
   return (
     <svg className="scene-bg rr-bg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
@@ -625,7 +625,7 @@ export function ReefBackground() {
 
 export function ReefGuardianSticker() {
   return (
-    <svg viewBox="0 0 240 240" className="sticker-art" role="img" aria-label="Reef Guardian sticker: a round shell badge with a coral sprig and Ripple's kelp-leaf hat">
+    <svg viewBox="0 0 240 240" className="sticker-art" role="img" aria-label="Reef Guardian sticker: a round shell badge with a coral sprig and Ripple's seagrass-leaf hat">
       <circle cx="120" cy="120" r="112" fill="#8EE3C8" stroke={INK} strokeWidth="6" />
       <circle cx="120" cy="120" r="94" fill="#BDEFFF" stroke={INK} strokeWidth="4" />
       <g transform="translate(120 100) scale(0.8) translate(-120 -111)">
@@ -635,7 +635,7 @@ export function ReefGuardianSticker() {
         <CoralSprigPaths color={REEF.coralPink} />
       </g>
       </g>
-      {/* Ripple's kelp-leaf hat */}
+      {/* Ripple's seagrass-leaf hat */}
       <path d="M78 52 C92 30 136 26 162 44 C150 50 136 50 120 46 C106 50 92 54 78 52 Z" fill="#3E9B5F" stroke={INK} strokeWidth="4.5" strokeLinejoin="round" />
       <path d="M92 46 C108 40 128 38 146 42" stroke="#7CCB8F" strokeWidth="4" fill="none" strokeLinecap="round" />
       <path id="rr-arc" d="M40 172 A88 88 0 0 0 200 172" fill="none" />

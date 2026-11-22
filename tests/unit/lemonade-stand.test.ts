@@ -268,7 +268,9 @@ describe("Lemonade Stand voice and coaching", () => {
   });
 
   it("running totals up to a dollar are covered", () => {
-    for (let c = 1; c <= 99; c++) varsOk("ls.total", { c });
+    for (let c = 2; c <= 99; c++) varsOk("ls.total", { c });
+    expect(lines["ls.total"]!.vary!.c).not.toContain(1); // never "1 cents"
+    expect(lines["ls.total.cent"]!.text).toBe("One cent.");
     expect(renderLine("ls.total", { c: 37 })).toBe("37 cents.");
     expect(lines["ls.total.dollar"]).toBeDefined();
   });

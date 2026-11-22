@@ -37,7 +37,7 @@
       "text": "Here's your Explorer Sticker for your shell!"
     },
     "pc.help.compass": {
-      "text": "North is at the top. Never Eat Soggy Waffles: north, east, south, west!"
+      "text": "On this map, north is at the top. Never Eat Soggy Waffles!"
     },
     "pc.help.opposite": {
       "text": "Oops, that's the opposite way. Check the letters on the compass rose."
@@ -67,7 +67,7 @@
       "text": "Five oceans, all joined together: Pacific, Atlantic, Indian, Arctic and Southern."
     },
     "pc.help.worldcompass": {
-      "text": "North is up, south is down. East is right, west is left."
+      "text": "On this map, north is up and south is down. Check the compass rose."
     },
     "pc.help.side": {
       "text": "Find the continent first. Then look at the water on that side."
@@ -279,9 +279,7 @@
           "Norway",
           "Japan",
           "China",
-          "Peru",
           "Argentina",
-          "Madagascar",
           "Sydney",
           "Antarctica"
         ]

@@ -93,7 +93,7 @@
       "text": "Rumble is laughing on the swing. He might feel happy."
     },
     "fg.s.crayon": {
-      "text": "Hoot's favourite crayon snapped in two. How might Hoot feel?"
+      "text": "Hoot's favorite crayon snapped in two. How might Hoot feel?"
     },
     "fg.m.crayon": {
       "text": "Hoot's crayon broke, and his eyes look down. He might feel sad."
@@ -123,7 +123,7 @@
       "text": "Puff's boat sank, and her mouth turns down. She might feel sad."
     },
     "fg.s.music": {
-      "text": "Hoot is dancing to his favourite song. How might Hoot feel?"
+      "text": "Hoot is dancing to his favorite song. How might Hoot feel?"
     },
     "fg.m.music": {
       "text": "Hoot is dancing and smiling. He might feel happy."
@@ -225,7 +225,7 @@
       "text": "Hoot is smiling with his wings up. He might feel happy."
     },
     "fg.s.lolly": {
-      "text": "Zuzu's ice lolly melted before she could eat it. How might she feel?"
+      "text": "Zuzu's popsicle melted before she could eat it. How might she feel?"
     },
     "fg.m.lolly": {
       "text": "Zuzu's mouth turns down, and she has a tear. She might feel sad."
@@ -435,7 +435,7 @@
       "text": "Counting to five, or asking for a break, are calm ideas."
     },
     "fg.s.laces": {
-      "text": "Gloop feels cross. His shoelaces keep coming undone. What can he do?"
+      "text": "Gloop feels mad. His shoelaces keep coming undone. What can he do?"
     },
     "fg.m.laces": {
       "text": "Taking slow breaths, or asking for help, are calm ideas."
@@ -444,28 +444,28 @@
       "text": "Puff feels angry. Someone took her turn on the slide. What can she do?"
     },
     "fg.m.turn": {
-      "text": "Saying 'I feel cross', or telling a grown-up, are safe ideas."
+      "text": "Saying 'I feel mad', or telling a grown-up, are safe ideas."
     },
     "fg.s.scribble": {
       "text": "Hoot feels angry. Someone scribbled on his picture. What can he do?"
     },
     "fg.m.scribble": {
-      "text": "Taking slow breaths, or saying 'I feel cross', are calm ideas."
+      "text": "Taking slow breaths, or saying 'I feel mad', are calm ideas."
     },
     "fg.s.tricky": {
-      "text": "Bobbo feels cross. His puzzle is very tricky. What can he do?"
+      "text": "Bobbo feels mad. His puzzle is very tricky. What can he do?"
     },
     "fg.m.tricky": {
       "text": "Asking for a break, or asking for help, are calm ideas."
     },
     "fg.s.queue": {
-      "text": "Zuzu feels cross. The line for the swing is long. What can she do?"
+      "text": "Zuzu feels mad. The line for the swing is long. What can she do?"
     },
     "fg.m.queue": {
       "text": "Counting to five, or squeezing a calm stone, are calm ideas."
     },
     "fg.s.wobbly": {
-      "text": "Rumble feels cross. His blocks keep falling over. What can he do?"
+      "text": "Rumble feels mad. His blocks keep falling over. What can he do?"
     },
     "fg.m.wobbly": {
       "text": "Taking slow breaths, or asking for help, are calm ideas."
@@ -642,7 +642,7 @@
       "text": "Get a grown-up."
     },
     "fg.a.askok": {
-      "text": "Ask, are you OK?."
+      "text": "Ask, are you OK?"
     },
     "fg.a.kindwords": {
       "text": "Say something kind."
@@ -666,7 +666,7 @@
       "text": "Squeeze a calm stone."
     },
     "fg.a.sayfeel": {
-      "text": "Say, I feel cross."
+      "text": "Say, I feel mad."
     },
     "fg.a.askhelp": {
       "text": "Ask for help."
@@ -690,7 +690,7 @@
       "text": "Knock it all down."
     },
     "fg.a.push": {
-      "text": "Push in."
+      "text": "Cut in line."
     },
     "fg.help.start": {
       "text": "Look for clues: the face, the body, and what just happened."
