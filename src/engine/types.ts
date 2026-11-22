@@ -41,18 +41,20 @@ export interface AnswerOption {
 /**
  * What counts as correct — DATA in the exercise; validated by `validateAnswer` (src/engine/validation.ts).
  *  number   — a whole number; with `choices` the child picks one of them, without it any number may be entered
- *  choice   — exactly one labelled option (text and/or picture) is correct
+ *  choice   — one labelled option (text and/or picture) is correct; `also` lists other options that are just as right
+ *             (several right answers, e.g. "sad" or "angry" when a tower falls); the child picks any one of them
  *  sequence — put pieces in order (sequencing, word building, code blocks); `pieces` may include distractors
  *  set      — select every correct option and no others (order does not matter)
- *  match    — assign every item to a target (matching pairs, or sorting when several items share a target)
+ *  match    — assign every item to a target (matching pairs, or sorting when several items share a target);
+ *             `accept` lists other targets that are just as right for an item (e.g. each friend may feel more than one way)
  *  numeric  — a measured/calculated value accepted within ± tolerance (pilot, physics, money)
  */
 export type Answer =
   | { kind: "number"; value: number; choices?: readonly number[] }
-  | { kind: "choice"; correct: string; options: readonly AnswerOption[] }
+  | { kind: "choice"; correct: string; also?: readonly string[]; options: readonly AnswerOption[] }
   | { kind: "sequence"; order: readonly string[]; pieces: readonly AnswerOption[] }
   | { kind: "set"; correct: readonly string[]; options: readonly AnswerOption[] }
-  | { kind: "match"; pairs: Readonly<Record<string, string>>; items: readonly AnswerOption[]; targets: readonly AnswerOption[] }
+  | { kind: "match"; pairs: Readonly<Record<string, string>>; accept?: Readonly<Record<string, readonly string[]>>; items: readonly AnswerOption[]; targets: readonly AnswerOption[] }
   | { kind: "numeric"; value: number; tolerance: number; unit?: string; min?: number; max?: number; step?: number };
 export type AnswerKind = Answer["kind"];
 

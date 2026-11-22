@@ -1,0 +1,809 @@
+{
+  "objects": {
+    "fg-bobbo": {
+      "one": "Bobbo",
+      "many": "Bobbo"
+    },
+    "fg-zuzu": {
+      "one": "Zuzu",
+      "many": "Zuzu"
+    },
+    "fg-gloop": {
+      "one": "Gloop",
+      "many": "Gloop"
+    },
+    "fg-hoot": {
+      "one": "Hoot",
+      "many": "Hoot"
+    },
+    "fg-rumble": {
+      "one": "Rumble",
+      "many": "Rumble"
+    },
+    "fg-puff": {
+      "one": "Puff",
+      "many": "Puff"
+    }
+  },
+  "lines": {
+    "fg.intro": {
+      "text": "Hi, I'm Snug! Will you help my friends' flowers bloom?"
+    },
+    "fg.back": {
+      "text": "Welcome back! More friends are visiting the garden."
+    },
+    "fg.story.intro1": {
+      "text": "This is Snug's garden. Every friend has their own flower bed."
+    },
+    "fg.story.intro2": {
+      "text": "When a friend feels understood, their flowers bloom."
+    },
+    "fg.story.intro3": {
+      "text": "Today lots of friends are visiting, with lots of feelings."
+    },
+    "fg.story.intro4": {
+      "text": "Let's help Snug understand them!"
+    },
+    "fg.story.between2": {
+      "text": "Look, two beds are blooming!"
+    },
+    "fg.story.between4": {
+      "text": "Feelings show on faces, and in bodies too."
+    },
+    "fg.story.between6": {
+      "text": "Sometimes we can do something kind to help."
+    },
+    "fg.story.outro1": {
+      "text": "The whole garden is blooming!"
+    },
+    "fg.story.outro2": {
+      "text": "You noticed clues and thought about how friends feel."
+    },
+    "fg.story.outro3": {
+      "text": "All feelings are OK. Here's your Bloom Badge!"
+    },
+    "fg.s.gift": {
+      "text": "Puff got a present! Look at her big smile. How might Puff feel?"
+    },
+    "fg.m.gift": {
+      "text": "Puff is smiling with her present. She might feel happy."
+    },
+    "fg.s.icecream": {
+      "text": "Oh no! Bobbo's ice cream fell on the ground. How might he feel?"
+    },
+    "fg.m.icecream": {
+      "text": "Bobbo's ice cream fell, and his mouth turns down. He might feel sad."
+    },
+    "fg.s.bubbles": {
+      "text": "Zuzu is blowing big bubbles in the sun. How might she feel?"
+    },
+    "fg.m.bubbles": {
+      "text": "Zuzu is smiling at her bubbles. She might feel happy."
+    },
+    "fg.s.balloon": {
+      "text": "Gloop's balloon floated up and away. How might Gloop feel?"
+    },
+    "fg.m.balloon": {
+      "text": "Gloop's balloon flew away, and he has a tear. He might feel sad."
+    },
+    "fg.s.swing": {
+      "text": "Rumble is swinging up high on the swing. How might he feel?"
+    },
+    "fg.m.swing": {
+      "text": "Rumble is laughing on the swing. He might feel happy."
+    },
+    "fg.s.crayon": {
+      "text": "Hoot's favourite crayon snapped in two. How might Hoot feel?"
+    },
+    "fg.m.crayon": {
+      "text": "Hoot's crayon broke, and his eyes look down. He might feel sad."
+    },
+    "fg.s.rainbow": {
+      "text": "Puff sees a big rainbow in the sky! How might Puff feel?"
+    },
+    "fg.m.rainbow": {
+      "text": "Puff is smiling at the rainbow. She might feel happy."
+    },
+    "fg.s.sandcastle": {
+      "text": "A wave washed Zuzu's sandcastle away. How might she feel?"
+    },
+    "fg.m.sandcastle": {
+      "text": "Zuzu's sandcastle is gone, and she has a tear. She might feel sad."
+    },
+    "fg.s.book": {
+      "text": "Gloop found his lost book under the bed! How might he feel?"
+    },
+    "fg.m.book": {
+      "text": "Gloop found his book, and he is smiling. He might feel happy."
+    },
+    "fg.s.boat": {
+      "text": "Puff's paper boat sank in the puddle. How might Puff feel?"
+    },
+    "fg.m.boat": {
+      "text": "Puff's boat sank, and her mouth turns down. She might feel sad."
+    },
+    "fg.s.music": {
+      "text": "Hoot is dancing to his favourite song. How might Hoot feel?"
+    },
+    "fg.m.music": {
+      "text": "Hoot is dancing and smiling. He might feel happy."
+    },
+    "fg.s.thunder": {
+      "text": "Boom! Bobbo hears loud thunder outside. How might he feel?"
+    },
+    "fg.m.thunder": {
+      "text": "Bobbo's eyes are wide, and his hands are up. He might feel scared."
+    },
+    "fg.s.popup": {
+      "text": "Rumble opens a box, and a toy pops out! How might he feel?"
+    },
+    "fg.m.popup": {
+      "text": "Rumble's eyes and mouth are big and round. He might feel surprised."
+    },
+    "fg.s.footprint": {
+      "text": "Someone walked on Zuzu's drawing with muddy feet. How might she feel?"
+    },
+    "fg.m.footprint": {
+      "text": "Zuzu's eyebrows point down, and her hands are fists. She might feel angry."
+    },
+    "fg.s.shell": {
+      "text": "Gloop found a shiny shell on the beach. How might he feel?"
+    },
+    "fg.m.shell": {
+      "text": "Gloop is smiling at his shell. He might feel happy."
+    },
+    "fg.s.kite": {
+      "text": "Hoot's kite got stuck high up in a tree. How might he feel?"
+    },
+    "fg.m.kite": {
+      "text": "Hoot's kite is stuck, and his eyes look down. He might feel sad."
+    },
+    "fg.s.dog": {
+      "text": "A big dog barks very loudly at Puff. How might she feel?"
+    },
+    "fg.m.dog": {
+      "text": "Puff is leaning back with wide eyes. She might feel scared."
+    },
+    "fg.s.confetti": {
+      "text": "Whoosh! Confetti falls all over Zuzu! How might she feel?"
+    },
+    "fg.m.confetti": {
+      "text": "Zuzu's mouth makes a big round O. She might feel surprised."
+    },
+    "fg.s.truck": {
+      "text": "Someone grabbed Bobbo's toy truck without asking. How might he feel?"
+    },
+    "fg.m.truck": {
+      "text": "Bobbo's eyebrows point down, and his hands are fists. He might feel angry."
+    },
+    "fg.s.dark": {
+      "text": "The lights go out, and it is very dark. How might Rumble feel?"
+    },
+    "fg.m.dark": {
+      "text": "Rumble's eyes are wide, and he is shaking. He might feel scared."
+    },
+    "fg.s.letter": {
+      "text": "Puff gets a letter with a big heart on it. How might she feel?"
+    },
+    "fg.m.letter": {
+      "text": "Puff is smiling at her letter. She might feel happy."
+    },
+    "fg.s.spider": {
+      "text": "A spider drops down right in front of Zuzu! How might she feel?"
+    },
+    "fg.m.spider": {
+      "text": "Zuzu jumped back, and her eyes are wide. She might feel scared."
+    },
+    "fg.s.cake": {
+      "text": "Gloop's friends made him a big birthday cake! How might he feel?"
+    },
+    "fg.m.cake": {
+      "text": "Gloop is smiling a big smile. He might feel happy."
+    },
+    "fg.s.sandwich": {
+      "text": "Rumble dropped his sandwich in the mud. How might he feel?"
+    },
+    "fg.m.sandwich": {
+      "text": "Rumble's mouth turns down, and he has a tear. He might feel sad."
+    },
+    "fg.s.blocks": {
+      "text": "Someone keeps knocking down Bobbo's blocks on purpose. How might he feel?"
+    },
+    "fg.m.blocks": {
+      "text": "Bobbo's eyebrows point down, and his hands are fists. He might feel angry."
+    },
+    "fg.s.bee": {
+      "text": "A buzzy bee flies close to Puff's nose. How might she feel?"
+    },
+    "fg.m.bee": {
+      "text": "Puff's eyes are wide, and her hands are up. She might feel scared."
+    },
+    "fg.s.invite": {
+      "text": "A friend asks Hoot to come and play. How might he feel?"
+    },
+    "fg.m.invite": {
+      "text": "Hoot is smiling with his wings up. He might feel happy."
+    },
+    "fg.s.lolly": {
+      "text": "Zuzu's ice lolly melted before she could eat it. How might she feel?"
+    },
+    "fg.m.lolly": {
+      "text": "Zuzu's mouth turns down, and she has a tear. She might feel sad."
+    },
+    "fg.s.ball": {
+      "text": "Someone grabbed Gloop's ball and won't give it back. How might he feel?"
+    },
+    "fg.m.ball": {
+      "text": "Gloop's eyebrow points down, and his hands are fists. He might feel angry."
+    },
+    "fg.s.wave": {
+      "text": "A huge wave rushes up the beach toward Bobbo. How might he feel?"
+    },
+    "fg.m.wave": {
+      "text": "Bobbo's eyes are wide, and he is leaning back. He might feel scared."
+    },
+    "fg.s.puzzle": {
+      "text": "Rumble finished his big puzzle! How might he feel?"
+    },
+    "fg.m.puzzle": {
+      "text": "Rumble is smiling with his arms up. He might feel happy."
+    },
+    "fg.s.tower": {
+      "text": "Gloop built a tall tower. Then it fell down! How might he feel?"
+    },
+    "fg.m.tower": {
+      "text": "Gloop worked hard on that tower. He might feel sad, or even angry."
+    },
+    "fg.s.party": {
+      "text": "Bobbo opens the door, and his friends shout, 'Surprise!' How might he feel?"
+    },
+    "fg.m.party": {
+      "text": "A surprise party for Bobbo! He might feel surprised, and happy too."
+    },
+    "fg.s.teddy": {
+      "text": "Hoot can't find his teddy anywhere. How might he feel?"
+    },
+    "fg.m.teddy": {
+      "text": "Hoot can't find his teddy. He might feel sad, or a bit scared."
+    },
+    "fg.s.home": {
+      "text": "Time to go home, but Zuzu wants to keep playing. How might she feel?"
+    },
+    "fg.m.home": {
+      "text": "Zuzu has to stop playing. She might feel sad, or angry."
+    },
+    "fg.s.fireworks": {
+      "text": "Bang! Big fireworks light up the sky. How might Rumble feel?"
+    },
+    "fg.m.fireworks": {
+      "text": "Fireworks are loud and bright. Rumble might feel surprised, scared, or happy!"
+    },
+    "fg.s.seat": {
+      "text": "Puff got up, and someone took her seat. How might she feel?"
+    },
+    "fg.m.seat": {
+      "text": "Puff's seat was taken. She might feel angry, or sad."
+    },
+    "fg.s.drawing": {
+      "text": "Gloop's friend drew a picture just for him! How might he feel?"
+    },
+    "fg.m.drawing": {
+      "text": "A picture just for Gloop! He might feel happy, or surprised."
+    },
+    "fg.s.wind": {
+      "text": "Whoosh! The wind blew Bobbo's drawing away. How might he feel?"
+    },
+    "fg.m.wind": {
+      "text": "Bobbo's drawing blew away. He might feel surprised, sad, or angry."
+    },
+    "fg.s.van": {
+      "text": "The ice cream van drove away before Hoot got there. How might he feel?"
+    },
+    "fg.m.van": {
+      "text": "Hoot missed the ice cream van. He might feel sad, or angry."
+    },
+    "fg.s.beach": {
+      "text": "Zuzu hears, 'We're going to the beach today!' How might she feel?"
+    },
+    "fg.m.beach": {
+      "text": "A beach day! Zuzu might feel happy, or surprised."
+    },
+    "fg.s.knees": {
+      "text": "Rumble is hugging his knees, with his head down. How might he feel?"
+    },
+    "fg.m.knees": {
+      "text": "Hugging knees with a low head can mean sad, or scared."
+    },
+    "fg.s.stomp": {
+      "text": "Bobbo is stomping, with his hands in tight fists. How might he feel?"
+    },
+    "fg.m.stomp": {
+      "text": "Tight fists and stomping feet can mean angry."
+    },
+    "fg.s.jump": {
+      "text": "Zuzu is jumping, with her arms up high. How might she feel?"
+    },
+    "fg.m.jump": {
+      "text": "Jumping with arms up high can mean happy."
+    },
+    "fg.s.hide": {
+      "text": "Gloop is shaking, with his hands over his eyes. How might he feel?"
+    },
+    "fg.m.hide": {
+      "text": "Shaking and hiding your eyes can mean scared, or sad."
+    },
+    "fg.s.slump": {
+      "text": "Hoot's head hangs low, and his shoulders droop. How might he feel?"
+    },
+    "fg.m.slump": {
+      "text": "A low head and droopy shoulders can mean sad."
+    },
+    "fg.s.crossed": {
+      "text": "Zuzu crosses her arms tight and stamps her foot. How might she feel?"
+    },
+    "fg.m.crossed": {
+      "text": "Tight crossed arms and a stamping foot can mean angry."
+    },
+    "fg.s.leanback": {
+      "text": "Bobbo leans back fast, with his hands up. How might he feel?"
+    },
+    "fg.m.leanback": {
+      "text": "Leaning back with hands up can mean scared, or surprised."
+    },
+    "fg.s.hugself": {
+      "text": "Gloop sits all alone, hugging himself. How might he feel?"
+    },
+    "fg.m.hugself": {
+      "text": "Sitting alone, hugging yourself, can mean sad."
+    },
+    "fg.s.dance": {
+      "text": "Rumble is dancing around and waving his arms. How might he feel?"
+    },
+    "fg.m.dance": {
+      "text": "Dancing and waving arms can mean happy."
+    },
+    "fg.s.wings": {
+      "text": "Hoot jumps, and his wings fly up wide! How might he feel?"
+    },
+    "fg.m.wings": {
+      "text": "A jump with wings up wide can mean surprised, or happy."
+    },
+    "fg.s.kitebroke": {
+      "text": "Hoot is sad. His kite broke. What could help?"
+    },
+    "fg.m.kitebroke": {
+      "text": "Sitting with Hoot, or helping fix his kite, could help."
+    },
+    "fg.s.crayons": {
+      "text": "Zuzu dropped all her crayons. She feels sad. What could help?"
+    },
+    "fg.m.crayons": {
+      "text": "Helping Zuzu pick up her crayons could help."
+    },
+    "fg.s.alone": {
+      "text": "Puff is sad. Nobody is playing with her. What could help?"
+    },
+    "fg.m.alone": {
+      "text": "Asking Puff to play could help her feel included."
+    },
+    "fg.s.storm": {
+      "text": "Gloop is scared of the thunder. What could help?"
+    },
+    "fg.m.storm": {
+      "text": "Sitting with Gloop, or getting a grown-up, could help."
+    },
+    "fg.s.dropped": {
+      "text": "Bobbo is sad. His ice cream fell. What could help?"
+    },
+    "fg.m.dropped": {
+      "text": "Sharing with Bobbo, or saying something kind, could help."
+    },
+    "fg.s.fell": {
+      "text": "Rumble is sad. His tower fell down. What could help?"
+    },
+    "fg.m.fell": {
+      "text": "Building the tower again together could help Rumble."
+    },
+    "fg.s.newkid": {
+      "text": "Zuzu is new at the park. She looks worried. What could help?"
+    },
+    "fg.m.newkid": {
+      "text": "Asking Zuzu to play could help her feel welcome."
+    },
+    "fg.s.knee": {
+      "text": "Hoot tripped and bumped his knee. What could help?"
+    },
+    "fg.m.knee": {
+      "text": "Asking Hoot if he's OK, or getting a grown-up, could help."
+    },
+    "fg.s.nosnack": {
+      "text": "Puff forgot her snack. She feels sad. What could help?"
+    },
+    "fg.m.nosnack": {
+      "text": "Sharing a snack with Puff could help."
+    },
+    "fg.s.knocked": {
+      "text": "Bobbo feels angry. Someone knocked his tower over. What can he do?"
+    },
+    "fg.m.knocked": {
+      "text": "Taking slow breaths, or telling a grown-up, are safe ideas."
+    },
+    "fg.s.lostgame": {
+      "text": "Zuzu feels angry. She lost the game. What can she do?"
+    },
+    "fg.m.lostgame": {
+      "text": "Counting to five, or asking for a break, are calm ideas."
+    },
+    "fg.s.laces": {
+      "text": "Gloop feels cross. His shoelaces keep coming undone. What can he do?"
+    },
+    "fg.m.laces": {
+      "text": "Taking slow breaths, or asking for help, are calm ideas."
+    },
+    "fg.s.turn": {
+      "text": "Puff feels angry. Someone took her turn on the slide. What can she do?"
+    },
+    "fg.m.turn": {
+      "text": "Saying 'I feel cross', or telling a grown-up, are safe ideas."
+    },
+    "fg.s.scribble": {
+      "text": "Hoot feels angry. Someone scribbled on his picture. What can he do?"
+    },
+    "fg.m.scribble": {
+      "text": "Taking slow breaths, or saying 'I feel cross', are calm ideas."
+    },
+    "fg.s.tricky": {
+      "text": "Bobbo feels cross. His puzzle is very tricky. What can he do?"
+    },
+    "fg.m.tricky": {
+      "text": "Asking for a break, or asking for help, are calm ideas."
+    },
+    "fg.s.queue": {
+      "text": "Zuzu feels cross. The line for the swing is long. What can she do?"
+    },
+    "fg.m.queue": {
+      "text": "Counting to five, or squeezing a calm stone, are calm ideas."
+    },
+    "fg.s.wobbly": {
+      "text": "Rumble feels cross. His blocks keep falling over. What can he do?"
+    },
+    "fg.m.wobbly": {
+      "text": "Taking slow breaths, or asking for help, are calm ideas."
+    },
+    "fg.s.spill": {
+      "text": "Puff feels angry. Her paint spilled everywhere. What can she do?"
+    },
+    "fg.m.spill": {
+      "text": "Squeezing a calm stone, or telling a grown-up, are calm ideas."
+    },
+    "fg.s.firstday": {
+      "text": "It's Hoot's first day at a new school. How might he feel?"
+    },
+    "fg.m.firstday": {
+      "text": "A first day can feel nervous, and excited too. Both are OK."
+    },
+    "fg.s.bigdrawing": {
+      "text": "Zuzu finished a big drawing, all by herself. How might she feel?"
+    },
+    "fg.m.bigdrawing": {
+      "text": "Zuzu worked hard and finished. She might feel proud, and happy."
+    },
+    "fg.s.nofit": {
+      "text": "Bobbo's puzzle piece won't fit, again and again. How might he feel?"
+    },
+    "fg.m.nofit": {
+      "text": "When something won't work, we might feel frustrated, or angry."
+    },
+    "fg.s.picnic": {
+      "text": "Puff waited all week for a picnic. Then it rained. How might she feel?"
+    },
+    "fg.m.picnic": {
+      "text": "Puff waited so long. She might feel disappointed, or sad."
+    },
+    "fg.s.tag": {
+      "text": "Friends are playing tag, and nobody asks Gloop. How might he feel?"
+    },
+    "fg.m.tag": {
+      "text": "Being left out can feel lonely, or sad."
+    },
+    "fg.s.fair": {
+      "text": "Rumble is going to the fair tomorrow! How might he feel?"
+    },
+    "fg.m.fair": {
+      "text": "Something fun is coming! Rumble might feel excited, and happy."
+    },
+    "fg.s.bike": {
+      "text": "Hoot rode his bike, after trying and trying! How might he feel?"
+    },
+    "fg.m.bike": {
+      "text": "Hoot kept trying, and he did it! He might feel proud."
+    },
+    "fg.s.show": {
+      "text": "Zuzu waits behind the curtain to sing in the show. How might she feel?"
+    },
+    "fg.m.show": {
+      "text": "Before a show we might feel nervous, and excited too."
+    },
+    "fg.s.knot": {
+      "text": "Bobbo tries and tries, but the knot won't come undone. How might he feel?"
+    },
+    "fg.m.knot": {
+      "text": "When something is tricky, we might feel frustrated, or angry."
+    },
+    "fg.s.holiday": {
+      "text": "Puff's best friend is away all week. How might Puff feel?"
+    },
+    "fg.m.holiday": {
+      "text": "Missing a friend can feel lonely, or sad."
+    },
+    "fg.s.helper": {
+      "text": "Gloop wanted to be today's helper, but he wasn't picked. How might he feel?"
+    },
+    "fg.m.helper": {
+      "text": "Gloop hoped to help. He might feel disappointed, or sad."
+    },
+    "fg.s.rainday": {
+      "text": "Rain! No picnic today. Rumble wanted a nap anyway. How might each feel?"
+    },
+    "fg.m.rainday": {
+      "text": "Rumble might feel happy. Puff might feel disappointed. Different feelings!"
+    },
+    "fg.s.race": {
+      "text": "Puff won the race, and Bobbo came last. How might each friend feel?"
+    },
+    "fg.m.race": {
+      "text": "Puff might feel proud. Bobbo might feel disappointed. Both are OK."
+    },
+    "fg.s.bang": {
+      "text": "The fireworks start! Zuzu cheers. Rumble covers his ears. How might each friend feel?"
+    },
+    "fg.m.bang": {
+      "text": "Zuzu might feel excited. Rumble might feel scared. Different feelings!"
+    },
+    "fg.s.puppy": {
+      "text": "A puppy runs up. Gloop loves dogs. Hoot steps back. How might each feel?"
+    },
+    "fg.m.puppy": {
+      "text": "Gloop might feel excited. Hoot might feel nervous. Both are OK."
+    },
+    "fg.s.cupcake": {
+      "text": "Bobbo got the last cupcake. Zuzu didn't get one. How might each friend feel?"
+    },
+    "fg.m.cupcake": {
+      "text": "Bobbo might feel happy. Zuzu might feel disappointed. Different feelings!"
+    },
+    "fg.s.pool": {
+      "text": "Swim time! Puff jumps in. Gloop holds the side. How might each feel?"
+    },
+    "fg.m.pool": {
+      "text": "Puff might feel excited. Gloop might feel nervous. Both are OK."
+    },
+    "fg.s.ride": {
+      "text": "The big ride starts! Hoot loves it. Bobbo holds tight. How might each feel?"
+    },
+    "fg.m.ride": {
+      "text": "Hoot might feel excited. Bobbo might feel scared. Different feelings!"
+    },
+    "fg.s.crash": {
+      "text": "Their tower falls! Rumble laughs. Zuzu stomps. How might each friend feel?"
+    },
+    "fg.m.crash": {
+      "text": "Rumble might feel happy. Zuzu might feel frustrated. Both are OK."
+    },
+    "fg.f.happy": {
+      "text": "Happy."
+    },
+    "fg.f.sad": {
+      "text": "Sad."
+    },
+    "fg.f.angry": {
+      "text": "Angry."
+    },
+    "fg.f.scared": {
+      "text": "Scared."
+    },
+    "fg.f.surprised": {
+      "text": "Surprised."
+    },
+    "fg.f.frustrated": {
+      "text": "Frustrated."
+    },
+    "fg.f.proud": {
+      "text": "Proud."
+    },
+    "fg.f.nervous": {
+      "text": "Nervous."
+    },
+    "fg.f.excited": {
+      "text": "Excited."
+    },
+    "fg.f.disappointed": {
+      "text": "Disappointed."
+    },
+    "fg.f.lonely": {
+      "text": "Lonely."
+    },
+    "fg.a.sit": {
+      "text": "Sit together."
+    },
+    "fg.a.fix": {
+      "text": "Help fix it."
+    },
+    "fg.a.share": {
+      "text": "Share."
+    },
+    "fg.a.play": {
+      "text": "Ask to play."
+    },
+    "fg.a.pickup": {
+      "text": "Help pick up."
+    },
+    "fg.a.grownup": {
+      "text": "Get a grown-up."
+    },
+    "fg.a.askok": {
+      "text": "Ask, are you OK?."
+    },
+    "fg.a.kindwords": {
+      "text": "Say something kind."
+    },
+    "fg.a.build": {
+      "text": "Build it again."
+    },
+    "fg.a.breathe": {
+      "text": "Take slow breaths."
+    },
+    "fg.a.pause": {
+      "text": "Ask for a break."
+    },
+    "fg.a.tell": {
+      "text": "Tell a grown-up."
+    },
+    "fg.a.count": {
+      "text": "Count to five."
+    },
+    "fg.a.stone": {
+      "text": "Squeeze a calm stone."
+    },
+    "fg.a.sayfeel": {
+      "text": "Say, I feel cross."
+    },
+    "fg.a.askhelp": {
+      "text": "Ask for help."
+    },
+    "fg.a.laugh": {
+      "text": "Laugh."
+    },
+    "fg.a.walk": {
+      "text": "Walk away."
+    },
+    "fg.a.ignore": {
+      "text": "Look away."
+    },
+    "fg.a.throw": {
+      "text": "Throw things."
+    },
+    "fg.a.shout": {
+      "text": "Shout at a friend."
+    },
+    "fg.a.knock": {
+      "text": "Knock it all down."
+    },
+    "fg.a.push": {
+      "text": "Push in."
+    },
+    "fg.help.start": {
+      "text": "Look for clues: the face, the body, and what just happened."
+    },
+    "fg.help.face": {
+      "text": "Eyes and mouths tell us a lot. Look closely."
+    },
+    "fg.help.body": {
+      "text": "Bodies show feelings too. Tight fists can mean angry."
+    },
+    "fg.help.situation": {
+      "text": "What happened to them? How would you feel?"
+    },
+    "fg.help.okay": {
+      "text": "All feelings are OK. It's what we do with them that matters."
+    },
+    "fg.help.different": {
+      "text": "Friends can feel different about the same thing."
+    },
+    "fg.help.kind": {
+      "text": "When a friend feels sad, being with them can help."
+    },
+    "fg.help.calm": {
+      "text": "Big angry feelings are OK. Let's find a calm, safe idea."
+    },
+    "fg.help.more": {
+      "text": "Some feelings have special names, like proud or nervous."
+    },
+    "fg.hint.action": {
+      "text": "Hmm. How might {one} feel if we did that? What else could help?",
+      "vary": {
+        "kind": [
+          "fg-bobbo",
+          "fg-zuzu",
+          "fg-gloop",
+          "fg-hoot",
+          "fg-rumble",
+          "fg-puff"
+        ]
+      }
+    },
+    "fg.hint.calm": {
+      "text": "Big angry feelings are OK. What could {one} do that's safe?",
+      "vary": {
+        "kind": [
+          "fg-bobbo",
+          "fg-zuzu",
+          "fg-gloop",
+          "fg-hoot",
+          "fg-rumble",
+          "fg-puff"
+        ]
+      }
+    },
+    "fg.hint.model": {
+      "text": "Let's look at the clues together."
+    },
+    "fg.gentle": {
+      "text": "Hmm, let's look again."
+    },
+    "fg.praise.clues": {
+      "text": "You noticed the clues!"
+    },
+    "fg.praise.face": {
+      "text": "You looked closely at the face!"
+    },
+    "fg.praise.more": {
+      "text": "Yes, that makes sense. Friends can feel more than one way."
+    },
+    "fg.praise.body": {
+      "text": "You read the body clues!"
+    },
+    "fg.praise.kind": {
+      "text": "That's a kind idea."
+    },
+    "fg.praise.helper": {
+      "text": "You thought about what your friend needs."
+    },
+    "fg.praise.calm": {
+      "text": "That's a calm idea."
+    },
+    "fg.praise.safe": {
+      "text": "That's safe for everyone. Nice thinking!"
+    },
+    "fg.praise.different": {
+      "text": "You saw that they feel different things."
+    },
+    "fg.idle": {
+      "text": "Tap a picture to hear it. Then bring it to our friend."
+    },
+    "fg.pick": {
+      "text": "Pick a flower first. Then tap here to give it."
+    },
+    "fg.pickcard": {
+      "text": "Pick an idea card first. Then tap here."
+    },
+    "fg.breath.open": {
+      "text": "Let's breathe slowly with the flower."
+    },
+    "fg.breath.how": {
+      "text": "Hold the flower to breathe in. Let go to breathe out."
+    },
+    "fg.breath.tap": {
+      "text": "Or tap to breathe in, and tap again to breathe out."
+    },
+    "fg.breath.in": {
+      "text": "Breathe in slowly."
+    },
+    "fg.breath.out": {
+      "text": "And breathe out."
+    },
+    "fg.breath.done": {
+      "text": "Three slow breaths. Your flower is wide open!"
+    }
+  }
+}

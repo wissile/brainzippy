@@ -74,7 +74,9 @@ describe("library registry integrity", () => {
         'library empty: a live library needs at least one world (or set status "coming-soon")',
       ]),
     );
-    expect(isPlayable({ subject: "geo" })).toBe(false); // coming soon
+    // any coming-soon library (none hard-coded: libraries go live one by one) is not playable
+    for (const l of registry.libraries.filter((x) => x.status === "coming-soon")) expect(isPlayable({ subject: l.id }), l.id).toBe(false);
+    expect(isPlayable({ subject: "sel" })).toBe(true); // live since Snug's Feelings Garden
     expect(isPlayable({ subject: "pilot" })).toBe(true); // live since Zephy's Sky Hoops
     expect(isPlayable({ subject: "cs" })).toBe(true); // live since Toggle's Garden Path
     expect(isPlayable({ subject: "math" })).toBe(true);

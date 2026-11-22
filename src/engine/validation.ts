@@ -56,7 +56,7 @@ export function validateAnswer(answer: Answer, value: AnswerValue): ValidationRe
       return { correct: false, reason: v > answer.value ? "too-high" : "too-low" };
     }
     case "choice":
-      return value === answer.correct ? { correct: true, reason: "correct" } : { correct: false, reason: "wrong-choice" };
+      return value === answer.correct || answer.also?.includes(value as string) ? { correct: true, reason: "correct" } : { correct: false, reason: "wrong-choice" };
     case "set": {
       const picked = [...new Set(value as readonly string[])];
       const parts = Object.fromEntries(picked.map((id) => [id, answer.correct.includes(id)]));
@@ -75,7 +75,7 @@ export function validateAnswer(answer: Answer, value: AnswerValue): ValidationRe
     }
     case "match": {
       const v = value as Readonly<Record<string, string>>;
-      const parts = Object.fromEntries(Object.entries(v).map(([item, target]) => [item, answer.pairs[item] === target]));
+      const parts = Object.fromEntries(Object.entries(v).map(([item, target]) => [item, answer.pairs[item] === target || !!answer.accept?.[item]?.includes(target)]));
       const complete = answer.items.every((it) => v[it.id] !== undefined);
       if (complete && Object.values(parts).every(Boolean)) return { correct: true, reason: "correct", parts };
       return { correct: false, reason: complete ? "wrong-match" : "incomplete", parts };
@@ -122,7 +122,7 @@ export function correctKeys(answer: Answer): AnswerKey[] {
     case "number":
       return [answer.value];
     case "choice":
-      return [answer.correct];
+      return [answer.correct, ...(answer.also ?? [])];
     case "set":
       return [...answer.correct];
     case "sequence": {
@@ -225,6 +225,11 @@ export function lintExercise(ex: Exercise): string[] {
     case "choice":
       problems.push(...lintOptions(ex.id, "options", a.options, 2));
       if (!ids(a.options).includes(a.correct)) problems.push(`${ex.id}: correct option missing`);
+      if (a.also) {
+        if (a.also.some((c) => !ids(a.options).includes(c))) problems.push(`${ex.id}: also uses unknown option`);
+        if (a.also.includes(a.correct) || new Set(a.also).size !== a.also.length) problems.push(`${ex.id}: also repeats a correct option`);
+        if (a.also.length + 1 >= a.options.length) problems.push(`${ex.id}: at least one option must be not correct`);
+      }
       break;
     case "set":
       problems.push(...lintOptions(ex.id, "options", a.options, 2));
@@ -244,6 +249,7 @@ export function lintExercise(ex: Exercise): string[] {
       const targets = ids(a.targets);
       if (items.some((i) => !(i in a.pairs))) problems.push(`${ex.id}: every item needs a target`);
       if (Object.entries(a.pairs).some(([i, t]) => !items.includes(i) || !targets.includes(t))) problems.push(`${ex.id}: pairs use unknown ids`);
+      if (a.accept && Object.entries(a.accept).some(([i, ts]) => !items.includes(i) || ts.some((t) => !targets.includes(t) || t === a.pairs[i]))) problems.push(`${ex.id}: accept uses unknown or repeated ids`);
       break;
     }
   }
