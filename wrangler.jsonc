@@ -4,6 +4,8 @@
   "main": "./worker/index.ts",
   "compatibility_date": "2026-11-01",
   "workers_dev": false,
+  // Served on brainzippy.com (requires the zone to be active in this Cloudflare account). Staging overrides this.
+  "routes": [{ "pattern": "brainzippy.com", "custom_domain": true }],
   // Invocation logs would retain request URLs (incl. guest ids) — keep them off for a children's product.
   "observability": { "enabled": true, "logs": { "invocation_logs": false } },
   "preview_urls": false,
@@ -19,9 +21,9 @@
     {
       "binding": "DB",
       "database_name": "brainzippy-db",
-      // Placeholder for LOCAL development only (`--local` D1 state). Staging and production have no database_id and are
-      // provisioned by `wrangler deploy`; a deploy that fell back to this top level would fail on this id (safe).
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      // No database_id: the top level IS production (guest-only flags below) and is what Cloudflare Workers Builds
+      // deploys from Git. Wrangler (>=4.45) creates "brainzippy-db" on the first deploy and reuses it by name afterwards.
+      // Local dev keeps its own D1 state under .wrangler/ (npm run db:migrate:local).
       "migrations_dir": "migrations"
     }
   ],
@@ -62,6 +64,7 @@
       },
       // Staging is served on <name>.<account>.workers.dev; set APP_ORIGIN to that URL once known (docs/DEPLOY.md).
       "workers_dev": true,
+      "routes": [],
       "d1_databases": [
         {
           "binding": "DB",

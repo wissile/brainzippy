@@ -17,7 +17,8 @@
     "gen:sfx": "python3 scripts/gen_sfx.py",
     "gen:voice": "python3 scripts/gen_voice.py",
     "deploy:preview": "npm run build && wrangler versions upload",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "deploy:cf": "node scripts/check-guest-flags.mjs && wrangler deploy && wrangler d1 migrations apply DB --remote"
   },
   "dependencies": {
     "@fontsource/baloo-2": "^5.3.0",

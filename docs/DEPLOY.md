@@ -14,6 +14,21 @@ Costs for a guest-only launch: **$0** on Cloudflare Workers Free (D1 included). 
 
 ---
 
+## Deploying with Cloudflare Workers Builds (Git integration) — current setup
+
+The repo is connected to Cloudflare Workers Builds, which builds and deploys `main` on every push using the
+**top-level** `wrangler.jsonc`. The top level *is* production: guest-only flags (D-030), the `brainzippy.com`
+custom domain, and a D1 binding without an id (Wrangler creates `brainzippy-db` on the first deploy and reuses
+it by name afterwards).
+
+In the Cloudflare dashboard → Workers → brainzippy → Settings → Build:
+- **Build command:** `npm run build`
+- **Deploy command:** `npm run deploy:cf` (recommended; the default `npx wrangler deploy` also works). `deploy:cf`
+  refuses to deploy unless accounts, billing and friends are all "false", deploys, then applies D1 migrations.
+- `brainzippy.com` must be an active zone in the same Cloudflare account for the custom domain to attach.
+
+The GitHub Actions "Deploy" workflow below is an alternative path; it stays idle while its secrets are unset.
+
 ## Shortest path to go live (guest play only, about 20 minutes)
 
 You need: a Cloudflare account with **brainzippy.com active**, **one API token**, and **two GitHub secrets**. No database to create by hand, no IDs to paste, no Worker secrets.
