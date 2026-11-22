@@ -228,9 +228,11 @@ function IslandBoard({ st, act, alongIndex, busy, progress, m }: BoardProps & { 
   // ---------- layout ----------
   const [rootRef, root] = useSize<HTMLDivElement>();
   const wide = root.w > root.h * 1.2;
-  const keyBox = wide ? { w: Math.min(220, root.w * 0.3), h: 0 } : { w: 0, h: 104 };
+  const keyCount = FEATURES.filter((f) => m.features[f] !== undefined).length;
+  const keyRows = Math.ceil(keyCount / Math.max(1, Math.floor((Math.min(root.w, 560) - 16) / 104)));
+  const keyBox = wide ? { w: root.h < 380 ? 262 : Math.min(224, root.w * 0.3), h: 0 } : { w: 0, h: keyRows * 50 + 22 };
   const head = 26;
-  const tile = Math.max(34, Math.min(96, Math.floor(Math.min((root.w - keyBox.w - head - 24) / COLS, (root.h - keyBox.h - head - 16) / ROWS))));
+  const tile = Math.max(34, Math.min(96, Math.floor(Math.min((root.w - keyBox.w - head - 24) / COLS, (root.h - keyBox.h - head - 10) / ROWS))));
 
   const modelPath = useMemo(() => walk(m.start, m.moves).cells.slice(1), [m]);
   const showFeet = model ? (alongIndex >= 0 ? alongIndex + 1 : modelPath.length) : 0;

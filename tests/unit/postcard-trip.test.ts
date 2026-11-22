@@ -215,7 +215,7 @@ describe("every generated mission has one correct, reachable answer", () => {
           expect(m.legs).toHaveLength(2);
           expect(m.moves.length).toBeGreaterThanOrEqual(2);
           expect(m.moves.length).toBeLessThanOrEqual(4);
-          const [a, b] = m.legs as [{ d: string }, { d: string }];
+          const [a, b] = [m.legs[0]!, m.legs[1]!];
           expect((a.d === "n" || a.d === "s") !== (b.d === "n" || b.d === "s")).toBe(true);
           expect(reaches(m, [...m.moves].reverse())).toBe(true); // any order of the same steps arrives too
         }
@@ -306,7 +306,7 @@ describe("engine flow: misses are never punished, the ladder ends in a model", (
   it("trip and cards: wrong parts are marked so right cards can stay", () => {
     const trip = levelItems(9).find((ex) => decodeMission(ex).mode === "trip")!;
     const m = decodeMission(trip) as WorldMission;
-    const order = (trip.answer as { order: string[] }).order;
+    const order = trip.answer.kind === "sequence" ? trip.answer.order : [];
     const swapped = [order[0]!, cardId(m.decoy!), order[2]!];
     const r = validateAnswer(trip.answer, swapped);
     expect(r.correct).toBe(false);

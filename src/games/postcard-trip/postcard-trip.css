@@ -37,6 +37,7 @@
   font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: var(--pc-ink); line-height: 1; pointer-events: none;
 }
 .pc-album-stack { display: block; width: 34px; height: 24px; }
+@media (orientation: portrait) and (max-width: 500px) { .pc-stage.is-island .pc-album { display: none; } }
 .pc-album-stack .pc-postcard-art { border-width: 2px; border-radius: 4px; }
 
 /* ---------- postcards ---------- */
@@ -78,7 +79,7 @@
 .pc-tile { position: absolute; z-index: 2; width: var(--tile); height: var(--tile); padding: 0; background: none; border: none; display: block; }
 .pc-tile-sym { position: absolute; inset: 9%; display: block; }
 .pc-sym { display: block; width: 100%; height: 100%; overflow: visible; }
-button.pc-tile { cursor: pointer; border-radius: 14px; transition: transform var(--t-fast) var(--ease-bounce), background-color var(--t-fast); }
+button.pc-tile { width: max(var(--tile), 44px); height: max(var(--tile), 44px); margin: calc((var(--tile) - max(var(--tile), 44px)) / 2); cursor: pointer; border-radius: 14px; transition: transform var(--t-fast) var(--ease-bounce), background-color var(--t-fast); }
 button.pc-tile:hover { background: rgba(255, 255, 255, 0.35); }
 button.pc-tile:active { transform: scale(0.94); }
 .pc-tile.is-out { opacity: 0.3; filter: grayscale(1); }
@@ -121,7 +122,7 @@ button.pc-tile:active { transform: scale(0.94); }
 .pc-stage.is-wide .pc-key { flex-direction: column; flex-wrap: nowrap; align-items: stretch; max-width: 210px; max-height: 100%; overflow: auto; }
 .pc-key-title { font: 800 1rem/1 var(--font-display); color: var(--pc-ink); padding: 0 4px; }
 .pc-key-item {
-  display: flex; align-items: center; gap: 4px; height: 44px; min-width: 44px; padding: 0 8px 0 2px;
+  flex: none; display: flex; align-items: center; gap: 4px; height: 46px; min-width: 46px; padding: 0 8px 0 2px;
   border-radius: 12px; background: #fff; border: 2px solid rgba(43, 33, 64, 0.25); color: var(--pc-ink);
   font: 700 0.95rem/1 var(--font-display);
 }
@@ -212,15 +213,15 @@ button.pc-tile:active { transform: scale(0.94); }
 .pc-hemi-label.is-s { background: #DDF1FF; }
 
 /* trip stops */
-.pc-stops { flex: none; list-style: none; margin: 0 auto; padding: 4px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: nowrap; max-width: 100%; }
+.pc-stops { flex: none; list-style: none; margin: 0 auto; padding: 4px 6px; display: flex; align-items: center; justify-content: center; gap: 4px 6px; flex-wrap: wrap; max-width: 100%; }
 .pc-stops li { display: flex; align-items: center; gap: 4px; }
-.pc-stop-from { display: grid; place-items: center; min-height: 44px; padding: 0 8px; border-radius: 12px; background: #FFE27A; border: 3px solid var(--pc-ink); font: 800 0.85rem/1.1 var(--font-display); color: var(--pc-ink); text-align: center; max-width: 84px; }
+.pc-stop-from { display: grid; place-items: center; min-height: 44px; padding: 0 8px; border-radius: 12px; background: #FFE27A; border: 3px solid var(--pc-ink); font: 800 0.8rem/1.1 var(--font-display); color: var(--pc-ink); text-align: center; max-width: 80px; }
 .pc-leg-arrow {
   width: 44px; height: 56px; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
   border-radius: 12px; background: #fff; border: 3px solid var(--pc-ink); color: var(--pc-ink); font: 800 0.95rem/1 var(--font-display);
 }
 .pc-slot {
-  position: relative; width: clamp(64px, 15vw, 112px); height: 64px; padding: 2px; display: grid; place-items: center;
+  position: relative; width: clamp(60px, 9vw, 112px); height: 64px; padding: 2px; display: grid; place-items: center;
   border-radius: 12px; background: rgba(255, 255, 255, 0.7); border: 3px dashed rgba(43, 33, 64, 0.5); color: var(--pc-ink);
 }
 .pc-slot.is-target { border-color: #F2B200; background: #FFF8D6; }
@@ -234,9 +235,9 @@ button.pc-tile:active { transform: scale(0.94); }
 
 /* arrows used in the plan, legs and trip */
 .pc-arrow { display: inline-block; font-size: 1.5rem; line-height: 1; font-weight: 900; color: var(--pc-ink); }
-.pc-arrow.dir-n { transform: rotate(-90deg); }
-.pc-arrow.dir-s { transform: rotate(90deg); }
-.pc-arrow.dir-w { transform: rotate(180deg); }
+.pc-arrow.dir-n { rotate: -90deg; }
+.pc-arrow.dir-s { rotate: 90deg; }
+.pc-arrow.dir-w { rotate: 180deg; }
 .pc-arrow.is-ghost { color: #8E6CEF; animation: model 1s ease-in-out infinite; }
 
 /* ================= tray ================= */
@@ -363,3 +364,13 @@ button.pc-tile:active { transform: scale(0.94); }
 .pc-stage.still .pc-ghost-card, .pc-stage.still .pc-pin-dot, .pc-stage.still .pc-tile, .pc-stage.still .pc-key-item, .pc-stage.still .pc-area,
 .pc-stage.still .pc-land, .pc-stage.still .pc-ocean, .pc-stage.still .pc-slot-ghost, .pc-stage.still .pc-foot, .pc-stage.still .pc-posted { animation: none !important; }
 .pc-stage.still .pc-island-card.is-collected { opacity: 0; }
+
+/* ---------- short landscape: the key becomes two columns so the island and key both fit ---------- */
+.pc-island-wrap { overflow: hidden; }
+@media (max-height: 520px) and (orientation: landscape) {
+  .pc-stage.is-island .pc-album { display: none; }
+  .pc-stage.is-wide .pc-key { display: grid; grid-template-columns: repeat(2, auto); gap: 4px; padding: 4px; max-width: 250px; overflow: visible; align-content: center; }
+  .pc-key-title { display: none; }
+  .pc-key-item { padding-right: 6px; font-size: 0.8rem; }
+  .pc-key-sym { width: 32px; height: 32px; }
+}

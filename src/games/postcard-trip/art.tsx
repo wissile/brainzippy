@@ -416,7 +416,7 @@ export function ExplorerSticker() {
         <path d="M112 108 C124 100 142 106 144 120 C146 134 132 148 120 146 C108 144 102 132 104 122 Z" />
         <path d="M118 58 C128 52 146 56 148 66 C150 74 138 78 128 76 Z" />
       </g>
-      <g transform="translate(100 100) scale(0.62)"><CompassRose size={120} /></g>
+      <g transform="translate(62.8 62.8) scale(0.62)"><CompassRose size={120} /></g>
       <path d="M38 152 L58 136 M162 152 L142 136" stroke="#FFD43B" strokeWidth="6" strokeLinecap="round" />
     </svg>
   );
