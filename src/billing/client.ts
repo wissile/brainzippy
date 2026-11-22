@@ -4,8 +4,13 @@
  * - cache: the last entitlement the server returned for the signed-in parent, for offline play.
  * Enforcement is client-side by design (honest-user model, see docs/BILLING.md): clearing site data restarts the
  * device's free period. Paid access is never taken away just because the device is offline (OFFLINE_GRACE_MS).
+ *
+ * Billing off (GET /api/config `billing: false`, D-030): no trial clock runs (first play is not recorded, so each
+ * device's 14 days start only once billing is switched on), every decision is "free, early access", and nothing
+ * here calls the billing API.
  */
-import { decidePlay, parseEntitlement, type CachedEntitlement, type Entitlement } from "./model";
+import { features } from "../app/features";
+import { decidePlay, earlyAccessEntitlement, parseEntitlement, type CachedEntitlement, type Entitlement } from "./model";
 
 const KEY = "bz.billing";
 
@@ -63,12 +68,14 @@ export function onBillingChange(fn: () => void): () => void {
   return () => listeners.delete(fn);
 }
 
-/** Called when a game opens. Only the first call ever sets the time. */
+/** Called when a game opens (billing on only). Only the first call ever sets the time. */
 export function markFirstPlay(now = Date.now()) {
+  if (!features().billing) return;
   if (loadBilling().firstPlayAt === null) save({ firstPlayAt: now });
 }
 
-export function currentDecision(now = Date.now()) {
+export function currentDecision(now = Date.now()): { entitlement: Entitlement; playable: boolean } {
+  if (!features().billing) return { entitlement: earlyAccessEntitlement(now), playable: true };
   const s = loadBilling();
   return decidePlay(s.firstPlayAt, s.cache, now);
 }
@@ -82,7 +89,8 @@ export function rememberEntitlement(ent: Entitlement, now = Date.now()) {
  * Ask the server (needs the parent's session cookie on this device). Sends the device's first play so the account's
  * free period starts at the earlier of the two. "signed-out" and "offline" leave the cache untouched.
  */
-export async function refreshEntitlement(): Promise<StatusResponse | "signed-out" | "offline"> {
+export async function refreshEntitlement(): Promise<StatusResponse | "signed-out" | "offline" | "billing-off"> {
+  if (!features().billing) return "billing-off";
   try {
     const res = await fetch("/api/billing/status", {
       method: "POST",

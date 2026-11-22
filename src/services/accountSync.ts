@@ -1,4 +1,5 @@
 import { api } from "../account/api";
+import { features } from "../app/features";
 import { applyToGuest, guestToChildProgress, mergeHistory } from "../account/merge";
 import { roundPoints } from "../account/points";
 import type { ChildSettings } from "../account/schema";
@@ -26,7 +27,8 @@ function applySettings(settings: ChildSettings) {
 /** Push this device's progress to the linked child and fold the merged result back. Resolves false on any failure. */
 export async function syncNow(): Promise<boolean> {
   const st = loadState();
-  if (!st.account) return false;
+  // Accounts switched off (D-030): never call the API, and keep any link so it resumes when accounts return.
+  if (!st.account || !features().accounts) return false;
   const res = await api.sync(st.account.childId, guestToChildProgress(st.progress, st.history));
   if (!res.ok) {
     if (res.status === 404) saveState({ account: null }); // child deleted elsewhere: unlink quietly
@@ -55,7 +57,7 @@ export function startChallenge(c: Omit<ActiveChallenge, "startedAt" | "result">)
 /** Post a finished challenge round (retried on the next round or visit if offline). */
 export async function postChallengeResult(): Promise<void> {
   const c = loadState().challenge;
-  if (!c?.result || c.result.posted) return;
+  if (!c?.result || c.result.posted || !features().friends) return;
   const res = await api.challengeResult(c.token, c.childId, c.result.score);
   const latest = loadState().challenge;
   if (res.ok && latest?.token === c.token) saveState({ challenge: { ...latest, result: { score: res.score, beat: res.beat, posted: true } } });

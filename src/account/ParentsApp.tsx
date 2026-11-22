@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useApp } from "../app/AppContext";
+import { useFeatures } from "../app/features";
+import { SUPPORT_EMAIL, SUPPORT_MAILTO } from "../app/support";
 import { loadState } from "../services/storage";
 import { api, type Me } from "./api";
 import { CONSENT_LINK_TEXT, CONSENT_TEXT_AFTER_LINK, CONSENT_TEXT_BEFORE_LINK } from "./consent";
@@ -11,8 +13,47 @@ import "./parents.css";
 /**
  * Parent area (/parents, /parents/invite/:code). Behind the parent gate. Calm, plain layout; no child-facing art
  * beyond each child's own monster. Sign-in is by email magic link only.
+ * Accounts off (ACCOUNTS_ENABLED, D-030): a calm "coming soon" page; no form, nothing asked, no API call.
  */
 export default function ParentsApp() {
+  const { accounts } = useFeatures();
+  return accounts ? <ParentArea /> : <AccountsComingSoon />;
+}
+
+export const ACCOUNTS_COMING_SOON = "Grown-up accounts are coming soon. Progress is saved on this device.";
+
+function AccountsComingSoon() {
+  const { navigate } = useApp();
+  return (
+    <main className="pa-screen" data-testid="parents">
+      <header className="pa-top">
+        <h1>BrainZippy for parents</h1>
+        <button type="button" className="pa-btn" data-testid="pa-back-to-games" onClick={() => navigate(loadState().profile.step === "done" ? "/map" : "/")}>
+          Back to the games
+        </button>
+      </header>
+      <div className="pa-main">
+        <section className="pa-card" data-testid="parents-coming-soon">
+          <h2>Coming soon</h2>
+          <p>{ACCOUNTS_COMING_SOON}</p>
+          <p className="pa-muted">
+            You can set the daily game limit, daily reminders and delete this device's progress on the{" "}
+            <a className="pa-link" href="/grown-ups" onClick={(e) => { e.preventDefault(); navigate("/grown-ups"); }}>
+              grown-ups page
+            </a>
+            . Questions? Email{" "}
+            <a className="pa-link" href={SUPPORT_MAILTO}>
+              {SUPPORT_EMAIL}
+            </a>
+            .
+          </p>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function ParentArea() {
   const { path, navigate } = useApp();
   const { passed, pass } = useParentGate();
   const [me, setMe] = useState<Me | null | "loading">("loading");
@@ -65,6 +106,7 @@ export default function ParentsApp() {
 }
 
 function SignIn() {
+  const { friends } = useFeatures();
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
@@ -134,7 +176,7 @@ function SignIn() {
         </button>
       </div>
       <p className="pa-muted">
-        An account lets you see your child's progress, set a daily game limit, save progress across devices and add friends. We only ask for <strong>your</strong> email; no password, and never your child's email.
+        An account lets you see your child's progress, set a daily game limit{friends ? ", save progress across devices and add friends" : " and save progress across devices"}. We only ask for <strong>your</strong> email; no password, and never your child's email.
       </p>
       <div className="pa-field">
         <label htmlFor="pa-email">Your email</label>

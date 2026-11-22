@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { useApp } from "../app/AppContext";
 import { billingApi, errorText, refreshEntitlement, type StatusResponse } from "./client";
-import { CONSENT_LABEL, CONSENT_LABEL_NO_TRIAL, fmtDate } from "./copy";
+import { useFeatures } from "../app/features";
+import { CONSENT_LABEL, CONSENT_LABEL_NO_TRIAL, EARLY_ACCESS_LINE, fmtDate } from "./copy";
 import { daysLeft, PRICE, type Entitlement } from "./model";
 import "./billing.css";
 
 /** Plain-language status line for a parent. Never shown to children. */
 export function statusText(e: Entitlement, now = Date.now()): string {
+  if (e.source === "early-access") return `${EARLY_ACCESS_LINE}. Nothing to pay.`;
   if (e.status === "free") return e.endsAt ? `Free access with a code until ${fmtDate(e.endsAt)}.` : "Free access with a code. Nothing to pay.";
   if (e.status === "needs-payment") return e.paymentIssue ? "We couldn't take the last payment, so games are paused. Update your card in Manage billing." : `The free play period ended${e.trialEndsAt ? ` on ${fmtDate(e.trialEndsAt)}` : ""}.`;
   if (e.source === "intro" && e.trialEndsAt) {
@@ -92,6 +94,23 @@ export function RedeemForm({ onRedeemed }: { onRedeemed: () => void }) {
 
 /** Billing card on /parents: status, start trial, Manage billing (Customer Portal), Cancel plan (2 clicks), codes. */
 export function BillingCard({ initial }: { initial?: Entitlement }) {
+  const { billing } = useFeatures();
+  return billing ? <LiveBillingCard initial={initial} /> : <EarlyAccessCard />;
+}
+
+/** Billing off (D-030): no plan, no card, no codes. */
+function EarlyAccessCard() {
+  return (
+    <section className="pa-card" data-testid="billing-card" aria-labelledby="bz-billing-title">
+      <h2 id="bz-billing-title">Plan</h2>
+      <p className="bz-billing-status" data-testid="billing-status" data-status="free" data-source="early-access">
+        {EARLY_ACCESS_LINE}. Nothing to pay and no card needed.
+      </p>
+    </section>
+  );
+}
+
+function LiveBillingCard({ initial }: { initial?: Entitlement }) {
   const { navigate } = useApp();
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [error, setError] = useState("");

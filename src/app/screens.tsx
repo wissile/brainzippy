@@ -2,6 +2,9 @@ import { useState } from "react";
 import { clearState, loadState } from "../services/storage";
 import { NavButton } from "../ui/controls";
 import { useApp } from "./AppContext";
+import { useFeatures } from "./features";
+import { SUPPORT_EMAIL, SUPPORT_MAILTO } from "./support";
+import { EARLY_ACCESS_LINE } from "../billing/copy";
 import { ReminderSettings } from "../pwa/ReminderSettings";
 import { disableReminders } from "../pwa/push";
 import { DailyLimitSetting } from "../daily/DailyLimitSetting";
@@ -16,6 +19,7 @@ export const AGE_BANDS = [
 
 export function GrownUpsScreen() {
   const { navigate } = useApp();
+  const { accounts, billing, friends } = useFeatures();
   const [status, setStatus] = useState<"idle" | "gate" | "deleted" | "failed">("idle");
   const [answer, setAnswer] = useState("");
   // Parent gate: multiplication beyond the games' range (a speed bump for children, not a security boundary).
@@ -87,9 +91,25 @@ export function GrownUpsScreen() {
         <ReminderSettings />
 
         <h2>Privacy</h2>
-        <p>Guest play needs no account and there are no ads, chat, or third-party trackers. Your child's first name (optional), their monster and their progress are stored only in this browser and are never sent to us. The only thing that can be sent is <strong>your</strong> email, if you choose to add it in the grown-up step, with your consent. We never ask for photos or location.</p>
+        {accounts ? (
+          <p>Guest play needs no account and there are no ads, chat, or third-party trackers. Your child's first name (optional), their monster and their progress are stored only in this browser and are never sent to us. The only thing that can be sent is <strong>your</strong> email, if you choose to add it in the grown-up step, with your consent. We never ask for photos or location.</p>
+        ) : (
+          <p data-testid="privacy-guest">BrainZippy is guest play only: no account, no ads, no chat and no third-party trackers. Your child's first name (optional), their monster and their progress are stored only in this browser and are never sent to us. We don't ask for anyone's email, photos or location.</p>
+        )}
         <h2>Parent account</h2>
-        <p>An optional parent account (email sign-in, no password) shows your child's progress, sets a daily game limit, saves progress across devices and lets you add friends by invite. <a href="/parents" data-testid="open-parents" onClick={(e) => { e.preventDefault(); navigate("/parents"); }}>Open the parent area</a></p>
+        {accounts ? (
+          <p>An optional parent account (email sign-in, no password) shows your child's progress, sets a daily game limit{friends ? ", saves progress across devices and lets you add friends by invite" : " and saves progress across devices"}. <a href="/parents" data-testid="open-parents" onClick={(e) => { e.preventDefault(); navigate("/parents"); }}>Open the parent area</a></p>
+        ) : (
+          <p data-testid="accounts-coming-soon">Grown-up accounts are coming soon. Progress is saved on this device.</p>
+        )}
+        {!billing && (
+          <>
+            <h2>Cost</h2>
+            <p data-testid="early-access">{EARLY_ACCESS_LINE}. Every game is open, with no card and nothing to buy.</p>
+          </>
+        )}
+        <h2>Contact</h2>
+        <p>Questions, feedback or a problem? Email us at <a href={SUPPORT_MAILTO} data-testid="support-email">{SUPPORT_EMAIL}</a>.</p>
         {status === "idle" && (
           <p><button type="button" className="pill-btn danger" data-testid="reset-progress" onClick={() => setStatus("gate")}>Delete all progress on this device</button></p>
         )}

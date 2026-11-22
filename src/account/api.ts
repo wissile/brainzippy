@@ -39,8 +39,9 @@ export interface Me {
   parent: { email: string; digestOptIn: boolean; createdAt: number };
   children: ChildOut[];
   entitlement: Entitlement;
-  /** Server feature flags. `friends` covers friends, leaderboard and challenges (FRIENDS_ENABLED). */
-  features?: { friends: boolean };
+  /** Server feature flags. `friends` covers friends, leaderboard and challenges (FRIENDS_ENABLED); `billing` is
+   * BILLING_ENABLED (D-030). The app-wide source is GET /api/config (src/app/features.ts). */
+  features?: { friends: boolean; billing?: boolean };
 }
 export interface Friend {
   id: string;
