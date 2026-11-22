@@ -184,9 +184,10 @@ describe("daily planner: variety (P7) on the real registry", () => {
     const plan = planDay(input);
     expect(plan).toHaveLength(10);
     const { open } = dayWorlds(input);
-    expect(open.length * MAX_PER_WORLD).toBeLessThan(10); // only 3 unlocked worlds: repeats are unavoidable…
+    // few unlocked worlds (the QA case had 3; ages-5+ worlds without prerequisites add to them): repeats may be unavoidable…
     const counts = open.map((w) => roundsOf(plan, w));
     expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(1); // …so they are spread evenly
+    if (open.length * MAX_PER_WORLD >= 10) for (const w of new Set(ids(plan))) expect(roundsOf(plan, w)).toBeLessThanOrEqual(MAX_PER_WORLD);
     for (let i = 1; i < plan.length; i++) expect(plan[i]!.world).not.toBe(plan[i - 1]!.world);
     // once pattern parade unlocks (cardinality met) there are enough worlds: nobody plays more than twice
     const more = { ...input, levels: { ...levels, "counting-adventure": 4 } };

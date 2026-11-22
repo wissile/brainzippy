@@ -1,0 +1,584 @@
+{
+  "lines": {
+    "pc.ready": {
+      "text": "Hi, I'm Yonder! Will you help me read maps and visit my pen pals?"
+    },
+    "pc.back": {
+      "text": "Welcome back, explorer! More postcards arrived."
+    },
+    "pc.story.intro1": {
+      "text": "This is Yonder. Her shell is a little globe, covered in travel stickers."
+    },
+    "pc.story.intro2": {
+      "text": "One morning, a whole bag of postcards arrived from pen pals around the world!"
+    },
+    "pc.story.intro3": {
+      "text": "Yonder wants to visit every one. But first, she needs to read a map."
+    },
+    "pc.story.intro4": {
+      "text": "Zephy will fly the postcards. You read the map!"
+    },
+    "pc.story.between2": {
+      "text": "Two postcards in the bag! Where will the next one come from?"
+    },
+    "pc.story.between4": {
+      "text": "Look, this postcard came from far, far away!"
+    },
+    "pc.story.between6": {
+      "text": "Last few postcards. Yonder's shell is nearly full of stickers."
+    },
+    "pc.story.outro1": {
+      "text": "Yonder visited every pen pal!"
+    },
+    "pc.story.outro2": {
+      "text": "You used the compass, the key and the map to find each place."
+    },
+    "pc.story.outro3": {
+      "text": "Here's your Explorer Sticker for your shell!"
+    },
+    "pc.help.compass": {
+      "text": "North is at the top. Never Eat Soggy Waffles: north, east, south, west!"
+    },
+    "pc.help.opposite": {
+      "text": "Oops, that's the opposite way. Check the letters on the compass rose."
+    },
+    "pc.help.turn": {
+      "text": "Find the letter on the compass rose first. Then press that button."
+    },
+    "pc.help.route": {
+      "text": "Do the first direction, then the next. Count the steps as you go."
+    },
+    "pc.help.edge": {
+      "text": "That's the edge of the island. Let's check the compass rose."
+    },
+    "pc.help.key": {
+      "text": "A map key tells you what each little picture means."
+    },
+    "pc.help.lookalike": {
+      "text": "Those two symbols look alike. Check the picture in the key carefully."
+    },
+    "pc.help.grid": {
+      "text": "Go along to the letter, then up or down to the number."
+    },
+    "pc.help.continent": {
+      "text": "A continent is a huge piece of land. Most continents have lots of countries."
+    },
+    "pc.help.ocean": {
+      "text": "Five oceans, all joined together: Pacific, Atlantic, Indian, Arctic and Southern."
+    },
+    "pc.help.worldcompass": {
+      "text": "North is up, south is down. East is right, west is left."
+    },
+    "pc.help.side": {
+      "text": "Find the continent first. Then look at the water on that side."
+    },
+    "pc.help.equator": {
+      "text": "The equator is an imaginary line around the middle of the Earth."
+    },
+    "pc.help.above": {
+      "text": "Places above the equator line are north. Places below it are south."
+    },
+    "pc.help.season": {
+      "text": "When it's summer north of the equator, it's winter south of it."
+    },
+    "pc.help.trip": {
+      "text": "Start at the balloon. Follow one arrow at a time to the next continent."
+    },
+    "pc.help.land": {
+      "text": "That's land! Boats sail on the water."
+    },
+    "pc.where.na": {
+      "text": "North America is on the left side, near the top."
+    },
+    "pc.where.sa": {
+      "text": "South America is on the left side, below North America."
+    },
+    "pc.where.europe": {
+      "text": "Europe is near the top, in the middle, just above Africa."
+    },
+    "pc.where.africa": {
+      "text": "Africa is in the middle of the map, below Europe."
+    },
+    "pc.where.asia": {
+      "text": "Asia is the biggest continent. It's at the top, on the right."
+    },
+    "pc.where.australia": {
+      "text": "Australia is on the right, near the bottom, below Asia."
+    },
+    "pc.where.antarctica": {
+      "text": "Antarctica is the icy land all along the bottom."
+    },
+    "pc.where.pacific": {
+      "text": "The Pacific is the biggest ocean. It's on both edges of this map."
+    },
+    "pc.where.atlantic": {
+      "text": "The Atlantic is between the Americas and Europe and Africa."
+    },
+    "pc.where.indian": {
+      "text": "The Indian Ocean is below Asia, between Africa and Australia."
+    },
+    "pc.where.arctic": {
+      "text": "The Arctic Ocean is at the very top, around the North Pole."
+    },
+    "pc.where.southern": {
+      "text": "The Southern Ocean goes all the way around Antarctica."
+    },
+    "pc.prompt.step": {
+      "text": "Help Yonder walk {dir} to the {place}.",
+      "vary": {
+        "dir": [
+          "north",
+          "east",
+          "south",
+          "west"
+        ],
+        "place": [
+          "lighthouse",
+          "forest",
+          "cave",
+          "bridge",
+          "beach",
+          "house",
+          "mountain",
+          "lake"
+        ]
+      }
+    },
+    "pc.prompt.route": {
+      "text": "Go {dir} {n}, then {dir2} {n2}.",
+      "vary": {
+        "dir": [
+          "north",
+          "east",
+          "south",
+          "west"
+        ],
+        "n": [
+          1,
+          2
+        ],
+        "dir2": [
+          "north",
+          "east",
+          "south",
+          "west"
+        ],
+        "n2": [
+          1,
+          2
+        ]
+      }
+    },
+    "pc.prompt.key": {
+      "text": "Find the {symbol} on the map.",
+      "vary": {
+        "symbol": [
+          "lighthouse",
+          "forest",
+          "cave",
+          "bridge",
+          "beach",
+          "house",
+          "mountain",
+          "lake"
+        ]
+      }
+    },
+    "pc.prompt.grid": {
+      "text": "Which square is the {feature} in?",
+      "vary": {
+        "feature": [
+          "lighthouse",
+          "forest",
+          "cave",
+          "bridge",
+          "beach",
+          "house",
+          "mountain",
+          "lake"
+        ]
+      }
+    },
+    "pc.prompt.ocean": {
+      "text": "Sail the boat to the {ocean} Ocean.",
+      "vary": {
+        "ocean": [
+          "Pacific",
+          "Atlantic",
+          "Indian",
+          "Arctic",
+          "Southern"
+        ]
+      }
+    },
+    "pc.prompt.fly": {
+      "text": "Which way should Yonder fly to reach {to}?",
+      "vary": {
+        "to": [
+          "North America",
+          "South America",
+          "Europe",
+          "Africa",
+          "Asia",
+          "Australia",
+          "Antarctica"
+        ]
+      }
+    },
+    "pc.prompt.side": {
+      "text": "Yonder sails {dir} from {continent}. Which ocean is the boat in?",
+      "vary": {
+        "dir": [
+          "north",
+          "east",
+          "south",
+          "west"
+        ],
+        "continent": [
+          "North America",
+          "South America",
+          "Europe",
+          "Africa",
+          "Asia",
+          "Australia",
+          "Antarctica"
+        ]
+      }
+    },
+    "pc.prompt.hemi": {
+      "text": "Is {place} north or south of the equator?",
+      "vary": {
+        "place": [
+          "Canada",
+          "Mexico",
+          "France",
+          "Italy",
+          "Norway",
+          "Egypt",
+          "Japan",
+          "China",
+          "India",
+          "Peru",
+          "Argentina",
+          "Madagascar",
+          "Sydney",
+          "Antarctica"
+        ]
+      }
+    },
+    "pc.prompt.season": {
+      "text": "In {month}, is it summer or winter in {place}?",
+      "vary": {
+        "month": [
+          "July",
+          "December"
+        ],
+        "place": [
+          "Canada",
+          "France",
+          "Norway",
+          "Japan",
+          "China",
+          "Peru",
+          "Argentina",
+          "Madagascar",
+          "Sydney",
+          "Antarctica"
+        ]
+      }
+    },
+    "pc.prompt.trip": {
+      "text": "Start in {start}. Follow the arrows and put the postcards in order.",
+      "vary": {
+        "start": [
+          "North America",
+          "South America",
+          "Europe",
+          "Africa",
+          "Asia",
+          "Australia"
+        ]
+      }
+    },
+    "pc.prompt.cards": {
+      "text": "Post each card to its continent. Tap a card to hear it."
+    },
+    "pc.leg.first": {
+      "text": "First, fly {dir}.",
+      "vary": {
+        "dir": [
+          "north",
+          "east",
+          "south",
+          "west"
+        ]
+      }
+    },
+    "pc.leg.then": {
+      "text": "Then fly {dir}.",
+      "vary": {
+        "dir": [
+          "north",
+          "east",
+          "south",
+          "west"
+        ]
+      }
+    },
+    "pc.card.canada": {
+      "text": "This postcard is from Canada, in North America. Where is North America?"
+    },
+    "pc.found.canada": {
+      "text": "You found North America! Many people in Canada skate on frozen lakes."
+    },
+    "pc.card.usa": {
+      "text": "This postcard is from the United States, in North America. Where is North America?"
+    },
+    "pc.found.usa": {
+      "text": "You found North America! A river carved the Grand Canyon over millions of years."
+    },
+    "pc.card.mexico": {
+      "text": "This postcard is from Mexico, in North America. Where is North America?"
+    },
+    "pc.found.mexico": {
+      "text": "You found North America! People in Mexico often eat tortillas made from corn."
+    },
+    "pc.card.peru": {
+      "text": "This postcard is from Peru, in South America. Where is South America?"
+    },
+    "pc.found.peru": {
+      "text": "You found South America! People in Peru have grown potatoes for thousands of years."
+    },
+    "pc.card.brazil": {
+      "text": "This postcard is from Brazil, in South America. Where is South America?"
+    },
+    "pc.found.brazil": {
+      "text": "You found South America! The Amazon rainforest is full of plants and animals."
+    },
+    "pc.card.argentina": {
+      "text": "This postcard is from Argentina, in South America. Where is South America?"
+    },
+    "pc.found.argentina": {
+      "text": "You found South America! In Patagonia, giant glaciers slide slowly into lakes."
+    },
+    "pc.card.france": {
+      "text": "This postcard is from France, in Europe. Where is Europe?"
+    },
+    "pc.found.france": {
+      "text": "You found Europe! The Eiffel Tower in Paris is made of iron."
+    },
+    "pc.card.italy": {
+      "text": "This postcard is from Italy, in Europe. Where is Europe?"
+    },
+    "pc.found.italy": {
+      "text": "You found Europe! The Colosseum in Rome is almost two thousand years old."
+    },
+    "pc.card.norway": {
+      "text": "This postcard is from Norway, in Europe. Where is Europe?"
+    },
+    "pc.found.norway": {
+      "text": "You found Europe! Fjords are deep, narrow bays carved out by glaciers."
+    },
+    "pc.card.egypt": {
+      "text": "This postcard is from Egypt, in Africa. Where is Africa?"
+    },
+    "pc.found.egypt": {
+      "text": "You found Africa! The Great Pyramids are more than four thousand years old."
+    },
+    "pc.card.kenya": {
+      "text": "This postcard is from Kenya, in Africa. Where is Africa?"
+    },
+    "pc.found.kenya": {
+      "text": "You found Africa! Many people in Kenya speak Swahili and English."
+    },
+    "pc.card.southafrica": {
+      "text": "This postcard is from South Africa, in Africa. Where is Africa?"
+    },
+    "pc.found.southafrica": {
+      "text": "You found Africa! Table Mountain has a flat top, just like a table."
+    },
+    "pc.card.madagascar": {
+      "text": "This postcard is from Madagascar, in Africa. Where is Africa?"
+    },
+    "pc.found.madagascar": {
+      "text": "You found Africa! Madagascar is a big island where lemurs live in the wild."
+    },
+    "pc.card.japan": {
+      "text": "This postcard is from Japan, in Asia. Where is Asia?"
+    },
+    "pc.found.japan": {
+      "text": "You found Asia! People in Japan often eat rice and soup for breakfast."
+    },
+    "pc.card.china": {
+      "text": "This postcard is from China, in Asia. Where is Asia?"
+    },
+    "pc.found.china": {
+      "text": "You found Asia! The Great Wall of China is thousands of miles long."
+    },
+    "pc.card.india": {
+      "text": "This postcard is from India, in Asia. Where is Asia?"
+    },
+    "pc.found.india": {
+      "text": "You found Asia! Many people in India celebrate Diwali, the festival of lights."
+    },
+    "pc.card.indonesia": {
+      "text": "This postcard is from Indonesia, in Asia. Where is Asia?"
+    },
+    "pc.found.indonesia": {
+      "text": "You found Asia! On Bali, farmers grow rice on steps cut into hills."
+    },
+    "pc.card.sydney": {
+      "text": "This postcard is from Sydney, in Australia. Where is Australia?"
+    },
+    "pc.found.sydney": {
+      "text": "You found Australia! The Sydney Opera House roof looks like sails."
+    },
+    "pc.card.reef": {
+      "text": "This postcard is from the Great Barrier Reef, in Australia. Where is Australia?"
+    },
+    "pc.found.reef": {
+      "text": "You found Australia! The Great Barrier Reef is the biggest coral reef on Earth."
+    },
+    "pc.card.antarctica": {
+      "text": "This postcard is from a science station in Antarctica. Where is Antarctica?"
+    },
+    "pc.found.antarctica": {
+      "text": "You found Antarctica! Scientists live at stations there to study the ice."
+    },
+    "pc.praise.compass": {
+      "text": "You used the compass rose, and Yonder got the postcard!"
+    },
+    "pc.praise.listen": {
+      "text": "You listened for the direction and found the way."
+    },
+    "pc.praise.route": {
+      "text": "You followed every direction, step by step."
+    },
+    "pc.praise.key": {
+      "text": "You checked the map key."
+    },
+    "pc.praise.grid": {
+      "text": "Along, then up or down. Careful grid reading!"
+    },
+    "pc.found.pacific": {
+      "text": "You found the Pacific Ocean!"
+    },
+    "pc.found.atlantic": {
+      "text": "You found the Atlantic Ocean!"
+    },
+    "pc.found.indian": {
+      "text": "You found the Indian Ocean!"
+    },
+    "pc.found.arctic": {
+      "text": "You found the Arctic Ocean!"
+    },
+    "pc.found.southern": {
+      "text": "You found the Southern Ocean!"
+    },
+    "pc.praise.fly": {
+      "text": "You used the compass on the world map!"
+    },
+    "pc.praise.side": {
+      "text": "You looked at the right side of the continent."
+    },
+    "pc.praise.equator": {
+      "text": "You checked the equator line."
+    },
+    "pc.praise.season": {
+      "text": "You thought about the hemisphere. Great thinking!"
+    },
+    "pc.praise.trip": {
+      "text": "You followed every arrow, one stop at a time."
+    },
+    "pc.praise.cards": {
+      "text": "You found every continent on the map!"
+    },
+    "pc.retry": {
+      "text": "Let's look at the map again."
+    },
+    "pc.hint.model": {
+      "text": "Watch Zephy show the way. Then you try."
+    },
+    "pc.hint.modelTap": {
+      "text": "Tap the glowing one."
+    },
+    "pc.idle": {
+      "text": "Take your time. Look at the map."
+    },
+    "pc.walk.go": {
+      "text": "Off we go!"
+    },
+    "pc.walk.full": {
+      "text": "The plan is ready. Press Walk!"
+    },
+    "pc.dir.n": {
+      "text": "North."
+    },
+    "pc.dir.e": {
+      "text": "East."
+    },
+    "pc.dir.s": {
+      "text": "South."
+    },
+    "pc.dir.w": {
+      "text": "West."
+    },
+    "pc.say.north": {
+      "text": "North of the equator."
+    },
+    "pc.say.south": {
+      "text": "South of the equator."
+    },
+    "pc.say.summer": {
+      "text": "Summer."
+    },
+    "pc.say.winter": {
+      "text": "Winter."
+    },
+    "pc.cont.na": {
+      "text": "North America."
+    },
+    "pc.cont.sa": {
+      "text": "South America."
+    },
+    "pc.cont.europe": {
+      "text": "Europe."
+    },
+    "pc.cont.africa": {
+      "text": "Africa."
+    },
+    "pc.cont.asia": {
+      "text": "Asia."
+    },
+    "pc.cont.australia": {
+      "text": "Australia."
+    },
+    "pc.cont.antarctica": {
+      "text": "Antarctica."
+    },
+    "pc.sym.lighthouse": {
+      "text": "Lighthouse."
+    },
+    "pc.sym.forest": {
+      "text": "Forest."
+    },
+    "pc.sym.cave": {
+      "text": "Cave."
+    },
+    "pc.sym.bridge": {
+      "text": "Bridge."
+    },
+    "pc.sym.beach": {
+      "text": "Beach."
+    },
+    "pc.sym.house": {
+      "text": "House."
+    },
+    "pc.sym.mountain": {
+      "text": "Mountain."
+    },
+    "pc.sym.lake": {
+      "text": "Lake."
+    }
+  }
+}
