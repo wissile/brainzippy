@@ -107,6 +107,17 @@ a:focus-visible, .play:focus-visible { outline: 3px solid #fff; box-shadow: 0 0 
 .tint-gloop { border-top-color: var(--gloop); }
 .tint-puff { border-top-color: var(--puff); }
 .tint-rumble { border-top-color: var(--rumble); }
+.tint-zuzu { border-top-color: var(--zuzu); }
+.tint-hoot { border-top-color: var(--hoot); }
+.tint-toggle { border-top-color: #a8d83f; }
+.tint-zephy { border-top-color: #e5484d; }
+.tint-budge { border-top-color: #e9a93b; }
+.tint-fenn { border-top-color: #4f5bd5; }
+.tint-dabble { border-top-color: #ff6b6b; }
+.tint-yonder { border-top-color: #a8714a; }
+.tint-snug { border-top-color: #ffbe98; }
+.tint-brix { border-top-color: #34557a; }
+.tint-ripple { border-top-color: #58c2a2; }
 
 /* game page */
 .badges { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.45rem; }

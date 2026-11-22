@@ -1,5 +1,16 @@
 import { Bobbo } from "../characters/Bobbo";
 import { Gloop, Hoot, Puff, Rumble, Zuzu } from "../characters/Crew";
+// Host components imported one by one: the library index imports CSS, which the prerender's module runner can't load.
+import { Brix } from "../characters/library/Brix";
+import { Budge } from "../characters/library/Budge";
+import { Dabble } from "../characters/library/Dabble";
+import { Fenn } from "../characters/library/Fenn";
+import type { HostProps } from "../characters/library/kit";
+import { Ripple } from "../characters/library/Ripple";
+import { Snug } from "../characters/library/Snug";
+import { Toggle } from "../characters/library/Toggle";
+import { Yonder } from "../characters/library/Yonder";
+import { Zephy } from "../characters/library/Zephy";
 import type { SiteGame } from "./catalog";
 import { GAME_COPY } from "./content/games";
 import type { Guide } from "./content/guides";
@@ -7,11 +18,17 @@ import { REFERENCES, type RefKey } from "./content/references";
 import { SKILLS } from "./content/curriculum";
 import { PlayIcon } from "./layout";
 
-export type CritterId = "bobbo" | "gloop" | "puff" | "rumble" | "zuzu" | "hoot";
+/** The Critter Crew plus the library hosts (src/characters/library), all original BrainZippy characters. */
+export const CRITTERS = ["bobbo", "gloop", "puff", "rumble", "zuzu", "hoot", "toggle", "zephy", "budge", "fenn", "dabble", "yonder", "snug", "brix", "ripple"] as const;
+export type CritterId = (typeof CRITTERS)[number];
+export const isCritterId = (id: string): id is CritterId => (CRITTERS as readonly string[]).includes(id);
+const HOSTS: Partial<Record<CritterId, (p: HostProps) => React.ReactElement>> = { toggle: Toggle, zephy: Zephy, budge: Budge, fenn: Fenn, dabble: Dabble, yonder: Yonder, snug: Snug, brix: Brix, ripple: Ripple };
 
-/** Original Critter Crew art, rendered to static inline SVG (decorative: hidden from assistive tech). */
+/** Original character art, rendered to static inline SVG (decorative: hidden from assistive tech). */
 export function Critter({ c, size = 120, className = "" }: { c: CritterId; size?: number; className?: string }) {
+  const Host = HOSTS[c];
   const art =
+    Host ? <Host state="idle" size={size} /> :
     c === "bobbo" ? <Bobbo state="idle" size={size} /> :
     c === "gloop" ? <Gloop size={size} /> :
     c === "puff" ? <Puff size={size} /> :

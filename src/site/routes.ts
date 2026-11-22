@@ -34,7 +34,7 @@ function page(p: Omit<PageDef, "jsonLd"> & { jsonLd?: readonly object[] }): Page
   return { ...p, jsonLd: ld };
 }
 
-const CORE_UPDATED = "2026-11-18";
+const CORE_UPDATED = "2026-11-22";
 
 /** _redirects rules owned by the site map: /subjects/<id> moved to /libraries/<id> (D-029). */
 export const ROUTE_REDIRECTS = ["# Subjects became libraries (D-029).", "/subjects/* /libraries/:splat 301"] as const;
@@ -50,13 +50,13 @@ export function buildRoutes(): PageDef[] {
   });
 
   const ages = `${AGES_NOW.min}–${AGES_NOW.max}`;
-  const subjectWords = SITE.subjectsPhrase;
+  const subjectWords = SITE.subjectsShort;
   const subjectPaths = libraries.map(({ l, s }) => ({ path: libraryPath(l.id), label: `${s.name} games` }));
   pages.push(
     page({
       path: "/",
       title: `${SITE.name}: story-based learning games for kids aged ${ages}`,
-      description: `Story-based ${subjectWords} games for kids aged ${ages}, from counting and rhymes to fractions and equations. Spoken instructions, gentle hints, no ads.`,
+      description: `Story-based learning games for kids aged ${ages}: ${subjectWords}, from counting and rhymes to coding and feelings. Spoken help, no ads.`,
       updated: CORE_UPDATED,
       breadcrumbs: [HOME],
       jsonLd: [organization(), website()],
@@ -89,8 +89,8 @@ export function buildRoutes(): PageDef[] {
     }),
     page({
       path: "/for-teachers",
-      title: "BrainZippy for teachers: ad-free learning games and Common Core links",
-      description: "Using BrainZippy's ad-free learning games in class: guest mode with no student data, spoken instructions, and how each game's skills map to Common Core standards.",
+      title: "BrainZippy for teachers: ad-free learning games and curriculum links",
+      description: "Using BrainZippy's ad-free learning games in class: guest mode with no student data, spoken instructions, and how each skill links to Common Core, NGSS and CSTA.",
       updated: CORE_UPDATED,
       breadcrumbs: crumbs({ name: "For teachers", path: "/for-teachers" }),
       render: () => h(ForTeachers),
@@ -122,7 +122,7 @@ export function buildRoutes(): PageDef[] {
     }),
     page({
       path: "/games",
-      title: `All BrainZippy games: ${subjectWords} games for ages ${ages}`,
+      title: `All BrainZippy games by subject, age and skill (ages ${ages})`,
       description: `Every BrainZippy game in one place: ${GAMES.length} story games in ${subjectWords} for ages ${ages}, with the skills each one teaches and how its levels grow.`,
       updated: CORE_UPDATED,
       breadcrumbs: crumbs({ name: "Games", path: "/games" }),

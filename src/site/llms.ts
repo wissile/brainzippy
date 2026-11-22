@@ -39,7 +39,7 @@ export function renderLlms(pages: readonly Pick<PageDef, "path" | "title">[]): s
   );
   // live libraries only (D-029): coming-soon libraries are never listed
   for (const library of LIBRARIES_NOW) {
-    lines.push("", `### ${library.title}`, "");
+    lines.push("", `### ${library.title}`);
     const page = link(`About the ${library.title} library`, libraryPath(library.id), `${library.description} Host: ${library.hostName}.`);
     if (page) lines.push(page);
     for (const g of library.games) {

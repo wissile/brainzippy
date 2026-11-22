@@ -12,6 +12,7 @@ import { GUIDES } from "../../src/site/content/guides";
 import { REFERENCES } from "../../src/site/content/references";
 import { SITE } from "../../src/site/entity";
 import { isAppRoute } from "../../src/site/routes";
+import { isCritterId } from "../../src/site/components";
 
 const root = join(__dirname, "../..");
 const ASSETS = { css: SITE_CSS, js: "/assets/site-test.js", preloadFont: "/assets/font-test.woff2" };
@@ -93,7 +94,7 @@ describe("prerendered public pages", () => {
       const d = docs.find((x) => x.path === path)!.doc;
       const text = `${d.title} ${d.querySelector('meta[name="description"]')!.getAttribute("content")}`;
       expect(text, path).toContain(`${AGES_NOW.min}–${AGES_NOW.max}`);
-      expect(text, path).toContain(SITE.subjectsPhrase);
+      expect(text, path).toContain(SITE.subjectsShort);
     }
   });
 
@@ -247,8 +248,39 @@ describe("library pages (D-029)", () => {
       const text = d.querySelector("main")!.textContent!;
       expect(text).toContain(l.kidTitle);
       expect(text).toContain(l.hostName);
+      expect(isCritterId(l.host), `site art for host ${l.host}`).toBe(true);
       for (const g of l.games) expect(d.querySelector(`main a[href="/games/${g.id}"]`), g.id).not.toBeNull();
     }
+  });
+
+  it("a library page says what children learn at each age and how each game's difficulty grows", () => {
+    for (const l of LIBRARIES_NOW) {
+      const copy = SUBJECTS.find((s) => s.slug === l.id)!;
+      expect(copy.byAge?.some((a) => a.status === "now"), `${l.id} byAge`).toBe(true);
+      const main = docs.find((x) => x.path === `/libraries/${l.id}`)!.doc.querySelector("main")!;
+      const text = main.textContent!.replace(/\s+/g, " ");
+      expect(text).toContain("What children learn at each age");
+      for (const g of l.games) expect(text, `${l.id}: ${g.id}`).toContain(`${g.title} has ${g.levelCount} levels`);
+    }
+  });
+
+  // Library-specific honesty rules (docs/curriculum/*.md §6): checked on the library page and every game page of that library.
+  const REQUIRED: Record<string, RegExp> = {
+    pilot: /not flight training/i,
+    sel: /not therapy/i,
+    money: /no (real )?(financial or )?product (advice|recommendations)|no financial or product advice|product recommendations/i,
+    cyber: /grown-up/i,
+  };
+  it("libraries with safety rules state them on every page", () => {
+    for (const l of LIBRARIES_NOW) {
+      const rule = REQUIRED[l.id];
+      if (!rule) continue;
+      for (const path of [`/libraries/${l.id}`, ...l.games.map((g) => `/games/${g.id}`)]) {
+        expect(docs.find((x) => x.path === path)!.doc.querySelector("main")!.textContent, path).toMatch(rule);
+      }
+    }
+    // never promise safety or certification
+    for (const { path, doc } of docs) expect(doc.body.textContent ?? "", path).not.toMatch(/\b(keeps? (your )?(child|kids?) safe online|is certified|certified by|FAA-approved training)\b(?!.*not)/i);
   });
 
   it("old /subjects/* URLs redirect permanently to /libraries/*", () => {
@@ -303,7 +335,9 @@ describe("sitemap, robots and llms.txt", () => {
     for (const g of GUIDES) expect(llms).toContain(`/guides/${g.slug}`);
     expect(llms).not.toMatch(/TODO|undefined|NaN/);
     expect(llms).toContain("/pricing");
-    expect(llms.split("\n").length, "keep llms.txt concise").toBeLessThan(80);
+    // concise: a fixed budget for the facts and product links, plus one line per listed item (library heading + page, game, guide, age page)
+    const items = 2 * LIBRARIES_NOW.length + GAMES.length + GUIDES.length + pages.filter((p) => p.path.startsWith("/ages/")).length;
+    expect(llms.split("\n").length, "keep llms.txt concise").toBeLessThan(50 + items);
   });
 
   it("the SPA shell is noindex and has no canonical", () => {

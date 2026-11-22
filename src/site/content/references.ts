@@ -9,13 +9,14 @@ export interface Reference {
   /** In-text citation, e.g. "Siegler & Ramani, 2008". */
   short: string;
   authors: string;
-  year: number;
+  /** Publication year, or "n.d." for an undated web page from an official source. */
+  year: number | "n.d.";
   title: string;
   venue: string;
   url: string;
 }
 
-const R = (key: string, short: string, authors: string, year: number, title: string, venue: string, url: string): Reference => ({ key, short, authors, year, title, venue, url });
+const R = (key: string, short: string, authors: string, year: number | "n.d.", title: string, venue: string, url: string): Reference => ({ key, short, authors, year, title, venue, url });
 
 export const REFERENCES = {
   gelman1978: R("gelman1978", "Gelman & Gallistel, 1978", "Gelman, R. & Gallistel, C. R.", 1978, "The Child's Understanding of Number", "Harvard University Press", "https://www.hup.harvard.edu/books/9780674116375"),
@@ -45,6 +46,20 @@ export const REFERENCES = {
   siegler2010: R("siegler2010", "Siegler et al., 2010", "Siegler, R., Carpenter, T., Fennell, F., Geary, D., Lewis, J., Okamoto, Y., Thompson, L. & Wray, J.", 2010, "Developing effective fractions instruction for kindergarten through 8th grade: A practice guide (NCEE 2010-4039)", "Institute of Education Sciences, What Works Clearinghouse", "https://ies.ed.gov/ncee/wwc/PracticeGuide/15"),
   ccssela: R("ccssela", "Common Core State Standards for English Language Arts, 2010", "National Governors Association Center for Best Practices & Council of Chief State School Officers", 2010, "Common Core State Standards for English Language Arts & Literacy in History/Social Studies, Science, and Technical Subjects", "NGA Center & CCSSO", "https://www.thecorestandards.org/ELA-Literacy/"),
   ccss: R("ccss", "Common Core State Standards, 2010", "National Governors Association Center for Best Practices & Council of Chief State School Officers", 2010, "Common Core State Standards for Mathematics", "NGA Center & CCSSO", "https://www.thecorestandards.org/Math/"),
+  // Library frameworks (docs/curriculum/README.md §5). We say "aligned with"; none of these bodies has reviewed BrainZippy.
+  csta2017: R("csta2017", "CSTA, 2017", "Computer Science Teachers Association", 2017, "CSTA K-12 Computer Science Standards, revised 2017", "Computer Science Teachers Association", "https://portal.ct.gov/-/media/sde/cte/csta-k12-computer-science-standards-revised-2017.pdf"),
+  ngss2013: R("ngss2013", "NGSS Lead States, 2013", "NGSS Lead States", 2013, "Next Generation Science Standards: For States, By States", "The National Academies Press", "https://www.nextgenscience.org/"),
+  nspfe2021: R("nspfe2021", "Council for Economic Education & Jump$tart, 2021", "Council for Economic Education & Jump$tart Coalition for Personal Financial Literacy", 2021, "National Standards for Personal Financial Education", "Council for Economic Education & Jump$tart Coalition", "https://www.ksde.gov/Portals/0/CSAS/CSAS%20Home/Financial%20Literacy/2021%20National%20Standards%20for%20Personal%20Financial%20Education.pdf"),
+  cfpb2016: R("cfpb2016", "CFPB, 2016", "Consumer Financial Protection Bureau", 2016, "Building blocks to help youth achieve financial capability: A new model and recommendations", "Consumer Financial Protection Bureau", "https://www.consumerfinance.gov/consumer-tools/educator-tools/youth-financial-education/learn/"),
+  ncge2012: R("ncge2012", "NCGE, 2012", "Heffron, S. G. & Downs, R. M. (Eds.)", 2012, "Geography for Life: National Geography Standards, second edition", "National Council for Geographic Education", "https://ncge.org/resources/national-geography-standards"),
+  casel: R("casel", "CASEL, n.d.", "Collaborative for Academic, Social, and Emotional Learning", "n.d.", "What is the CASEL framework?", "CASEL", "https://casel.org/fundamentals-of-sel/what-is-the-casel-framework/"),
+  faa2023: R("faa2023", "FAA, 2023", "Federal Aviation Administration", 2023, "Pilot's Handbook of Aeronautical Knowledge (FAA-H-8083-25C)", "U.S. Department of Transportation, Federal Aviation Administration", "https://www.faa.gov/regulations_policies/handbooks_manuals/aviation/phak"),
+  cisa2024: R("cisa2024", "CISA, 2024", "Cybersecurity and Infrastructure Security Agency", 2024, "Secure Our World: Recognize and report phishing", "CISA", "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing"),
+  ftc2025: R("ftc2025", "FTC, 2025", "Federal Trade Commission, Consumer Advice", 2025, "Protect yourself from phishing scams", "FTC consumer alert", "https://consumer.ftc.gov/consumer-alerts/2025/04/protect-yourself-phishing-scams"),
+  noaa: R("noaa", "NOAA Ocean Service, n.d.", "National Oceanic and Atmospheric Administration, National Ocean Service", "n.d.", "What is coral bleaching?", "NOAA Ocean Facts", "https://oceanservice.noaa.gov/facts/coral_bleach.html"),
+  // Research for the new libraries (authors, year and venue checked by web search on 2026-11-22).
+  bers2014: R("bers2014", "Bers et al., 2014", "Bers, M. U., Flannery, L., Kazakoff, E. R. & Sullivan, A.", 2014, "Computational thinking and tinkering: Exploration of an early childhood robotics curriculum", "Computers & Education, 72, 145–157", "https://sites.bc.edu/devtech/wp-content/uploads/sites/181/2018/02/computersandeducation.pdf"),
+  barrett2019: R("barrett2019", "Barrett et al., 2019", "Barrett, L. F., Adolphs, R., Marsella, S., Martinez, A. M. & Pollak, S. D.", 2019, "Emotional expressions reconsidered: Challenges to inferring emotion from human facial movements", "Psychological Science in the Public Interest, 20(1), 1–68", "https://pmc.ncbi.nlm.nih.gov/articles/PMC6640856"),
 } satisfies Record<string, Reference>;
 
 export type RefKey = keyof typeof REFERENCES;
