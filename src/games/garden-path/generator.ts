@@ -27,7 +27,8 @@ import {
  *   8  debug loop: repeat count ±1 or one wrong body move              spaces = blocks of P
  */
 
-export const GP_AGES = [5, 7] as const;
+/** The world spans ages 5–10 (playable from 5; the loop levels are rated 7–9 and 8–10 by the curriculum). */
+export const GP_AGES = [5, 10] as const;
 export const SKILL = {
   build: "cs.seq.build",
   decompose: "cs.seq.decompose",
@@ -35,6 +36,14 @@ export const SKILL = {
   repeat: "cs.loop.repeat",
   loopDebug: "cs.loop.debug",
 } as const;
+/** Item ages follow the skill (docs/curriculum/computer-science.md §2; same ranges as the library-cs pack). */
+export const SKILL_AGES: Record<string, readonly [number, number]> = {
+  [SKILL.build]: [5, 7],
+  [SKILL.decompose]: [6, 8],
+  [SKILL.debug]: [6, 8],
+  [SKILL.repeat]: [7, 9],
+  [SKILL.loopDebug]: [8, 10],
+};
 
 export interface LevelSpec { label: string; mode: Mode; skill: string }
 export const LEVELS: readonly LevelSpec[] = [
@@ -326,7 +335,7 @@ export function exerciseFor(pz: Puzzle, opts: { id: string; seed: number; skillI
     id: opts.id,
     skillId: opts.skillId,
     objective: OBJECTIVE[pz.mode],
-    ages: GP_AGES,
+    ages: SKILL_AGES[opts.skillId] ?? GP_AGES,
     interaction: "choose",
     answer: answerFor(pz),
     objectKind: pr.kind,

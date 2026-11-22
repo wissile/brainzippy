@@ -42,7 +42,8 @@ const pack: ContentPack = {
       subject: "cs",
       topic: "cs.seq",
       skills: ["cs.seq.build", "cs.seq.decompose", "cs.debug.sequence", "cs.loop.repeat", "cs.loop.debug"],
-      ages: [5, 7],
+      // playable from 5 (levels 0–3); decomposing/debugging are rated 6–8, loops 7–9 and fixing loops 8–10
+      ages: [5, 10],
       maxLevel: 8,
       title: "Toggle's Garden Path",
       gameType: "coding game",

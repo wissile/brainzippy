@@ -235,6 +235,18 @@ describe("generator", () => {
     }
   });
 
+  it("item ages follow each level's skill (loops are not tagged 5–7); the world is playable from 5", async () => {
+    const { getWorld, getSkill } = await import("../../src/content");
+    for (let level = 0; level <= GP_MAX_LEVEL; level++) {
+      const ex = generateGardenPath(level, createRng(level * 31 + 7), 0);
+      expect(ex.ages, `level ${level}`).toEqual(getSkill(ex.skillId)!.ages);
+    }
+    expect(generateGardenPath(0, createRng(1), 0).ages[0]).toBe(5);
+    expect(generateGardenPath(8, createRng(1), 0).ages).toEqual([8, 10]);
+    const w = getWorld("garden-path")!;
+    expect(w.ages[0]).toBe(5);
+    expect(w.ages[1]).toBe(10);
+  });
   it("the tutorial is one right move on a strip, guided at difficulty 1", () => {
     expect(gardenTutorial.tutorial).toBe(true);
     expect(gardenTutorial.difficulty).toBe(1);
