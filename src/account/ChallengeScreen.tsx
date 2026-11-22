@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { audio } from "../audio/AudioEngine";
 import { useApp } from "../app/AppContext";
+import { useFeatures } from "../app/features";
 import { loadState } from "../services/storage";
 import { postChallengeResult, startChallenge } from "../services/accountSync";
 import { IconPlay } from "../ui/icons";
@@ -13,15 +14,22 @@ import "./parents.css";
  * /challenge/:token — a friend's "beat my score" round. Child-facing: big monster, the number to beat, one Play button.
  * Opening it needs a signed-in parent on this device whose child is an approved friend (nothing is shown otherwise).
  * Results are framed as practice: beating the score is celebrated, not beating it is never a failure.
+ * Friends off (FRIENDS_ENABLED, D-030): shows "ended" straight away and makes no API call at all.
  */
 export default function ChallengeScreen({ token }: { token: string }) {
   const { navigate, unlockAudio } = useApp();
-  const [view, setView] = useState<ChallengeView | "loading" | "signin" | "missing">("loading");
+  const { friends } = useFeatures();
+  const [view, setView] = useState<ChallengeView | "loading" | "signin" | "missing">(friends ? "loading" : "missing");
   const [player, setPlayer] = useState<string>("");
   const local = loadState().challenge;
   const mineLocal = local?.token === token ? local : null;
 
   useEffect(() => {
+    if (!friends) {
+      setView("missing");
+      return;
+    }
+    setView("loading");
     void (async () => {
       await postChallengeResult(); // retry an unposted result first
       const r = await api.challenge(token);
@@ -31,7 +39,7 @@ export default function ChallengeScreen({ token }: { token: string }) {
         setPlayer(r.players.find((p) => p.id === linked)?.id ?? r.players[0]?.id ?? "");
       } else setView(r.status === 401 ? "signin" : "missing");
     })();
-  }, [token]);
+  }, [token, friends]);
 
   const play = () => {
     if (typeof view !== "object" || !player) return;
