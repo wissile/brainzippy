@@ -443,12 +443,12 @@ export function GardenBoard({ st, act, alongIndex, busy }: BoardProps) {
       </div>
 
       <div className="gp-program">
-      <div className={`gp-strip ${hot === "strip" ? "is-hot" : ""}`} data-gp-strip role="list" aria-label={`Program: ${pz.slots} card ${pz.slots === 1 ? "space" : "spaces"}`} data-testid="gp-strip">
+      <ul className={`gp-strip bz-list ${hot === "strip" ? "is-hot" : ""}`} data-gp-strip role="list" aria-label={`Program: ${pz.slots} card ${pz.slots === 1 ? "space" : "spaces"}`} data-testid="gp-strip">
         {program.map((b, i) => {
           if (b?.t === "repeat") {
             const iter = active && active.top === i ? active.iter : -1;
             return (
-              <div key={i} role="listitem" className={`gp-repeat ${isActive(i, -1) ? "is-active" : ""} ${solved ? "is-right" : ""}`} data-testid="gp-repeat" data-slot={i}>
+              <li key={i} className={`gp-repeat ${isActive(i, -1) ? "is-active" : ""} ${solved ? "is-right" : ""}`} data-testid="gp-repeat" data-slot={i}>
                 <button
                   type="button"
                   className={`gp-space gp-repeat-head is-filled ${hotIs(i, -1) ? "is-hot" : ""} ${isMarked(i, -1) ? "is-bug" : ""}`}
@@ -492,15 +492,14 @@ export function GardenBoard({ st, act, alongIndex, busy }: BoardProps) {
                     </button>
                   ))}
                 </div>
-              </div>
+              </li>
             );
           }
           const g = ghostFor(i);
           return (
+            <li key={i} className="bz-li">
             <button
-              key={i}
               type="button"
-              role="listitem"
               className={`gp-space ${b ? "is-filled" : ""} ${g ? "has-ghost" : ""} ${isActive(i, -1) ? "is-active" : ""} ${isMarked(i, -1) ? "is-bug" : ""} ${hotIs(i, -1) ? "is-hot" : ""} ${solved && b ? "is-right" : ""}`}
               data-testid="gp-slot" data-slot={i} data-body={-1} data-block={b?.t === "move" ? b.d : ""} data-gp-space="" data-gp-key=""
               aria-label={spaceLabel(b, i, -1)}
@@ -510,9 +509,10 @@ export function GardenBoard({ st, act, alongIndex, busy }: BoardProps) {
             >
               {b ? <SlotFace b={b} /> : g ? <span className="gp-ghost"><SlotFace b={g} ghost /></span> : <span className="gp-hole" aria-hidden="true">{i + 1}</span>}
             </button>
+            </li>
           );
         })}
-      </div>
+      </ul>
       <button
         type="button"
         className={`gp-go ${full && canAct ? "is-ready" : ""} ${model && !nextGhost(program, pz.solution) && canAct ? "is-model" : ""} ${solved ? "is-right" : ""}`}

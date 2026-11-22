@@ -138,12 +138,13 @@
 .mm-bin.is-model { animation: mm-pulse 1.2s ease-in-out infinite; }
 @keyframes mm-bounce { 40% { transform: scale(1.1) translateY(-6px); } }
 @keyframes mm-pulse { 50% { transform: scale(1.05); box-shadow: 0 0 0 5px #fff, 0 0 26px 8px var(--mm-gold); } }
-.mm-binned { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.mm-binned { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; padding: 0; }
 .mm-mini { width: 48px; height: 44px; padding: 4px; border-radius: 12px; background: #fff; border: 3px solid var(--mm-ink); cursor: pointer; }
 .mm-mini.is-ok { border-color: #2f9e44; background: #e3f6e6; cursor: default; }
 
 /* ---------- inbox ---------- */
-.mm-inbox { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 560px; }
+.mm-inbox { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 560px; padding: 0; }
+.mm-env-li { flex: 1 1 0; min-width: 64px; }
 .mm-envelope {
   position: relative; flex: 1 1 0; min-width: 64px; min-height: 64px; padding: 4px 6px; border-radius: 16px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
