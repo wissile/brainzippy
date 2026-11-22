@@ -186,7 +186,10 @@ export function SkyBoard({ st, act, busy }: BoardProps) {
     }
     const c = value as Ctl;
     void t;
-    if (s.mode === "line") return c === right ? `${EFFECT[c]}. The nose lines up with the runway!` : `${EFFECT[c]}. The nose is not lined up yet.`;
+    if (s.mode === "line") {
+      if (c === right) return `The pedal steered the nose wheel. Zephy rolls straight down the runway!`;
+      return isPedal(c) ? `The pedal steered the nose further ${c === "lpedal" ? "left" : "right"}. Not straight yet.` : `The wing flaps moved, but on the ground the plane kept drifting. Not straight yet.`;
+    }
     return `${EFFECT[c]}${c === right ? " and Zephy flew through the hoop!" : " and Zephy passed beside the hoop."}`;
   };
 

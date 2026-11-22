@@ -65,7 +65,8 @@ export const PC_MAX_LEVEL = LEVELS.length - 1;
 export const STEP_FEATURES: readonly Feature[] = FEATURES;
 /** Places for equator questions: single-word names, ≥ 12° from the equator. */
 export const HEMI_PLACES: readonly string[] = ["canada", "mexico", "france", "italy", "norway", "egypt", "japan", "china", "india", "peru", "argentina", "madagascar", "sydney", "antarctica"];
-export const SEASON_PLACES: readonly string[] = ["canada", "france", "norway", "japan", "china", "peru", "argentina", "madagascar", "sydney", "antarctica"];
+/** Season questions only use places outside the tropics (|latitude| > 23.5°): in the tropics wet and dry seasons matter more than summer and winter. */
+export const SEASON_PLACES: readonly string[] = ["canada", "france", "norway", "japan", "china", "argentina", "sydney", "antarctica"];
 export const MONTHS = ["July", "December"] as const;
 /** Spoken name in equator / season prompts. */
 export const sayName = (p: Place) => (p.id === "antarctica" ? "Antarctica" : p.name);

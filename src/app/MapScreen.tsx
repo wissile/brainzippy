@@ -187,6 +187,9 @@ function Island({ status, view }: { status: DailyStatus; view: "today" | "explor
         </button>
       </nav>
 
+      {/* the caption has its own band at the bottom (like the end-of-day scene), so it never covers a stop or a card */}
+      <div className="map-body">
+      <div className="map-content">
       {view === "explore" ? (
         <Explore band={bandOf(st.ageBand)} />
       ) : (
@@ -232,7 +235,11 @@ function Island({ status, view }: { status: DailyStatus; view: "today" | "explor
           </div>
         </div>
       )}
-      <SpeechBubble text={caption} tail="down" className="map-caption" />
+      </div>
+      <div className="map-caption-band" data-testid="map-caption-band">
+        <SpeechBubble text={caption} tail="down" className="map-caption" />
+      </div>
+      </div>
     </main>
   );
 }

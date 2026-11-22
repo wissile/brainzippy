@@ -401,12 +401,11 @@ export function MessageBoard({ st, act, busy }: BoardProps) {
           <span className="mm-bin-label">{BIN_LABEL[bin]}</span>
         </button>
         {inbox && inside.length > 0 && (
-          <div className="mm-binned" role="list" aria-label={`In ${BIN_LABEL[bin]}`}>
+          <ul className="mm-binned bz-list" role="list" aria-label={`In ${BIN_LABEL[bin]}`}>
             {inside.map((x) => (
+              <li key={x.id} className="bz-li">
               <button
-                key={x.id}
                 type="button"
-                role="listitem"
                 className={`mm-mini ${sh.locked.includes(x.id) ? "is-ok" : ""}`}
                 data-testid="mm-binned"
                 data-msg={x.id}
@@ -416,8 +415,9 @@ export function MessageBoard({ st, act, busy }: BoardProps) {
               >
                 <EnvelopeIcon />
               </button>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
     );
@@ -494,15 +494,14 @@ export function MessageBoard({ st, act, busy }: BoardProps) {
       <p className="sr-only">{ex.a11yDescription}</p>
       <div className="mm-main">
         {inbox && (
-          <div className="mm-inbox" role="list" aria-label="Inbox">
+          <ul className="mm-inbox bz-list" role="list" aria-label="Inbox">
             {d.msgs.map((x, i) => {
               const bin = sh.assign[x.id];
               const model = st.hintStage >= 2 && st.model && typeof st.model === "object" ? (st.model as Record<string, string>)[x.id] : undefined;
               return (
+                <li key={x.id} className="bz-li mm-env-li">
                 <button
-                  key={x.id}
                   type="button"
-                  role="listitem"
                   className={`mm-envelope ${i === sh.open ? "is-open" : ""} ${bin ? "is-sorted" : ""} ${sh.locked.includes(x.id) ? "is-ok" : ""} ${st.hintStage >= 1 && !bin && canAct ? "is-glow" : ""}`}
                   data-testid="mm-envelope"
                   data-msg={x.id}
@@ -520,9 +519,10 @@ export function MessageBoard({ st, act, busy }: BoardProps) {
                   <span className="mm-env-from">{x.from}</span>
                   {model && <span className={`mm-tag ${model === "safe" ? "is-safe" : ""}`}>{BIN_LABEL[model as Bin]}</span>}
                 </button>
+                </li>
               );
             })}
-          </div>
+          </ul>
         )}
         {card}
       </div>

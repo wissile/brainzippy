@@ -13,7 +13,12 @@ body {
 button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; padding: 0; touch-action: manipulation; }
 button[aria-disabled="true"] { cursor: default; }
 :focus-visible { outline: 4px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 9px var(--ink) !important; border-radius: 16px; }
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* margin -1px: a 1px box at the end of a full-height page must not add 1px of scroll (live-caption) */
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* A list whose items are buttons: the <li> carries the listitem role, the native <button> inside keeps its own role (WCAG 4.1.2). */
+.bz-list { list-style: none; margin: 0; }
+.bz-li { list-style: none; margin: 0; padding: 0; display: flex; }
+.bz-li > button { flex: 1 1 auto; }
 svg { display: block; }
 
 /* ---------- shared controls ---------- */

@@ -1,6 +1,6 @@
 # Toggle's Garden Path (`garden-path`)
 
-Ages 5–7 · computer science library (`cs`, "Code Garden"), topic `cs.seq` · host **Toggle** (the spec's "Loopi"), helper **Puff** · music `meadow`.
+Ages 5–10 (playable from 5; levels 0–3 are rated 5–7, the loop levels 7–10) · computer science library (`cs`, "Code Garden"), topic `cs.seq` · host **Toggle** (the spec's "Loopi"), helper **Puff** · music `meadow`.
 Spec: `docs/curriculum/computer-science.md` §4. Code: `src/games/garden-path/`. Registry: `src/content/packs/library-cs/` (library now `live`).
 
 ## Objective
@@ -21,14 +21,14 @@ Codes are the ones mapped in `computer-science.md` §2. They come from the verif
 
 | Level(s) | Skill | CSTA 2026 (PK-12) | CSTA 2017 (K-12) |
 |---|---|---|---|
-| 0–3 | `cs.seq.build` | `E1-ALG-PS-01` | `1A-AP-10` (programs with sequences) |
+| 0–3 | `cs.seq.build` | `E1-PRO-PD-04` (create code from an algorithm that includes sequence) | `1A-AP-10` (programs with sequences) |
 | 0–3 (run trace) | `cs.seq.follow` (practised) | `EK-ALG-PS-01` | `1A-AP-08` (follow step-by-step algorithms) |
-| 4 | `cs.seq.decompose` | — | `1A-AP-11` (decompose the steps into a precise sequence) |
-| 5 | `cs.debug.sequence` | — | `1A-AP-14` (debug errors in sequences) |
-| 6–7 | `cs.loop.repeat` | `E2-ALG-PS-01` | `1A-AP-10` (programs with simple loops) |
-| 8 | `cs.loop.debug` | — | `1A-AP-14` (debug errors with simple loops), `1B-AP-15` |
+| 4 | `cs.seq.decompose` | `E1-ALG-PS-01` (decompose a problem or task into individual parts to develop an algorithm) | `1A-AP-11` (decompose the steps into a precise sequence) |
+| 5 | `cs.debug.sequence` | `E1-PRO-TR-07` (debug a program that includes a sequence of commands) | `1A-AP-14` (debug errors in sequences) |
+| 6–7 | `cs.loop.repeat` | `E2-ALG-PS-01`, `E2-PRO-PD-04` (sequence, events and iteration) | `1A-AP-10` (programs with simple loops) |
+| 8 | `cs.loop.debug` | `E2-PRO-TR-07` | `1A-AP-14` (debug errors with simple loops), `1B-AP-15` |
 
-`1A` is the K–2 band (ages 5–8) and `1B` is grades 3–5. The world sits at the top of 1A, so `1B-AP-15` is a stretch link for level 8 only. These are alignments, not claims of efficacy (D-020).
+`1A` is the K–2 band (ages 5–7) and `1B` is grades 3–5 (ages 8–11). CSTA 2026 codes corrected 2026-11-22 after an independent content review against csteachers.org (`E1-ALG-PS-01` is decomposition, so it belongs to level 4 only). The world sits at the top of 1A, so `1B-AP-15` is a stretch link for level 8 only. These are alignments, not claims of efficacy (D-020).
 
 ## Story
 Toggle's tummy is rumbling. The juiciest berries are across the garden, and Toggle can only move by following arrow cards. The world has 4 intro beats and between-beats after exercises 2, 4 and 6 ("Munch!", rocks, "nearly full"). The 3 outro beats end with the Path Finder badge: a leaf shaped like an arrow, with Toggle's antenna bulb on top.

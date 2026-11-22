@@ -52,7 +52,8 @@ const CUSTOMER_NAMES = ["Bobbo", "Zuzu", "Gloop", "Hoot", "Rumble", "Puff"] as c
 /** Speak a running total when it is one of the pre-rendered amounts (1¢–$1). Silent when muted. */
 function sayTotal(muted: boolean, cents: number) {
   if (muted) return;
-  if (cents >= 1 && cents <= 99) void audio.speak("ls.total", { c: cents });
+  if (cents === 1) void audio.speak("ls.total.cent");
+  else if (cents >= 2 && cents <= 99) void audio.speak("ls.total", { c: cents });
   else if (cents === 100) void audio.speak("ls.total.dollar");
 }
 

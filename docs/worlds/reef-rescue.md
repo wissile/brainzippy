@@ -10,14 +10,14 @@ them recover."
 
 | Skill | Levels | Objective | NGSS (aligned with) |
 |---|---|---|---|
-| `nature.habitat.needs` | 0–1 | match species to the food and habitat that meet their needs | K-ESS3-1 (context, ages 8+) |
-| `nature.web.chain` | 2–3 | food chain from the sun; arrows = "gives energy to" | 5-LS2-1 |
+| `nature.habitat.needs` | 0–1 | match species to the food and habitat that meet their needs | 3-LS4-3 (some organisms survive well, some less well, some not at all in a habitat) |
+| `nature.web.chain` | 2–3 | food chain from the sun; arrows = "gives energy to" | 5-PS3-1 (energy in animals' food was once energy from the sun); 5-LS2-1 (context: matter moving among organisms) |
 | `nature.reef.coral` | 4 | coral is an animal; algae partners give food and colour; coral gives them a home | MS-LS2-2 (interactions), 5-LS2-1 |
 | `nature.reef.bleaching` | 5, 9 | warm water → algae pushed out → white → weak; recovery; reading a heat chart | MS-LS2-4, MS-ESS3-5 (context) |
 | `nature.reef.restore` | 6, 8 | actions that help or harm; planting coral where it can grow | MS-LS2-5, MS-ESS3-3 |
 | `nature.web.change` | 7 | removing grazers lets algae smother coral; bringing them back helps | MS-LS2-1, MS-LS2-4 |
 
-Codes come from the spec (MS-LS2-* and MS-ESS3-* were checked on nextgenscience.org by the spec author on 2026-11-17). The others
+Codes come from the spec (MS-LS2-* and MS-ESS3-* were checked on nextgenscience.org by the spec author on 2026-11-17). Revised 2026-11-22 after an independent content review: the sun-energy chain aligns with 5-PS3-1 (5-LS2-1 is about matter), and the kindergarten K-ESS3-1 was replaced by 3-LS4-3 for ages 8+. The others
 still need to be re-checked during validation. Prerequisites are registered only inside this world's chain (needs → chain →
 coral → bleaching → restore; chain → change). The spec's `sci.life.needs` and `nature.web.decomposers` have no world yet.
 

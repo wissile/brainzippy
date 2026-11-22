@@ -24,11 +24,11 @@ Ages 5–14+. **Host:** Loopi (new; a segmented caterpillar-monster whose body s
 |---|---|---|---|---|---|---|---|
 | `cs.seq.order` | put the steps of an everyday task in a working order | 5–6 | — | any order works; skipping a needed step | 3 steps: bread → toaster → plate | 6 steps with two steps that may swap | EK-ALG-PS-01, 1A-AP-08 |
 | `cs.seq.follow` | trace a given step list and predict where it ends | 5–7 | — | one arrow moves "all the way" | 2 arrows on a strip | 6 arrows on a 5×5 grid | EK-ALG-PS-01 |
-| `cs.seq.build` | build a sequence of moves that reaches a goal | 5–7 | seq.follow | off-by-one step counts; left/right confusion | 1 move | 7 moves around 2 rocks via a berry | E1-ALG-PS-01, 1A-AP-10 |
-| `cs.seq.decompose` | break a goal into sub-goals | 6–8 | seq.build | solving everything in one go | goal via 1 berry | goal via 3 berries in a set order | 1A-AP-11 |
-| `cs.debug.sequence` | find and fix the first wrong step in a sequence | 6–8 | seq.follow | rewriting the whole program; fixing the last step | 3 blocks, 1 wrong | 7 blocks, 1 wrong near the start | 1A-AP-14 |
-| `cs.loop.repeat` | use repeat N to shorten a program | 7–9 | seq.build | repeat 3 runs 4 times; body runs once | repeat 3 [→] | repeat 3 [→ ↑] staircase | 1A-AP-10, E2-ALG-PS-01 |
-| `cs.loop.debug` | fix wrong repeat counts and bodies | 8–10 | loop.repeat, debug.sequence | changing the count when the body is wrong | wrong count | wrong body block inside a loop | 1A-AP-14, 1B-AP-15 |
+| `cs.seq.build` | build a sequence of moves that reaches a goal | 5–7 | seq.follow | off-by-one step counts; left/right confusion | 1 move | 7 moves around 2 rocks via a berry | E1-PRO-PD-04, 1A-AP-10 |
+| `cs.seq.decompose` | break a goal into sub-goals | 6–8 | seq.build | solving everything in one go | goal via 1 berry | goal via 3 berries in a set order | E1-ALG-PS-01, 1A-AP-11 |
+| `cs.debug.sequence` | find and fix the first wrong step in a sequence | 6–8 | seq.follow | rewriting the whole program; fixing the last step | 3 blocks, 1 wrong | 7 blocks, 1 wrong near the start | E1-PRO-TR-07, 1A-AP-14 |
+| `cs.loop.repeat` | use repeat N to shorten a program | 7–9 | seq.build | repeat 3 runs 4 times; body runs once | repeat 3 [→] | repeat 3 [→ ↑] staircase | 1A-AP-10, E2-ALG-PS-01, E2-PRO-PD-04 |
+| `cs.loop.debug` | fix wrong repeat counts and bodies | 8–10 | loop.repeat, debug.sequence | changing the count when the body is wrong | wrong count | wrong body block inside a loop | E2-PRO-TR-07, 1A-AP-14, 1B-AP-15 |
 | `cs.cond.events` | start actions when an event happens | 7–9 | seq.build | events run in screen order | "when tapped → blink" | 2 events with different actions | E2-ALG-PS-01, 1B-AP-10 |
 | `cs.cond.if-else` | choose actions with if/else on a sensed value | 8–10 | cond.events | "if" runs both branches; else is optional always | if red → left bin | if/else-if with 3 outcomes over 6 test inputs | E3-ALG-PS-01, 1B-AP-10 |
 | `cs.debug.test` | pick test cases that reveal a bug | 9–10 | cond.if-else | one passing test proves it works | which input shows the bug? | choose a minimal test set covering every branch | 1B-AP-15, MS-ALG-PS-03 |

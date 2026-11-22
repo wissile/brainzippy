@@ -210,7 +210,9 @@ const L6: Msg[] = [
 
 /**
  * Level 8 (check another way): tricks sent from a REAL town address (an account can be borrowed or taken over)
- * and surprising-but-safe messages (urgent, yet expected and asking for nothing secret).
+ * and safe messages that fit what the child already knows (a change of plan, something they asked for) and ask
+ * for nothing secret. Safe messages never push the child to go somewhere right now. "Check another way, with a
+ * grown-up" is accepted on EVERY item: asking is never wrong (docs/worlds/message-mystery.md).
  */
 const L8: Msg[] = [
   { id: "zuzu-card", from: "Zuzu", user: "zuzu", domain: "byteberry", body: B("I'm stuck!", c("Can you buy me a gift card and send the code?", "giftCard")), safe: false },
@@ -220,10 +222,10 @@ const L8: Msg[] = [
   { id: "bobbo-file", from: "Bobbo", user: "bobbo", domain: "byteberry", body: B(c("Open this file right now!", "urgent"), "It's a surprise."), file: { name: "surprise.exe", spoken: "surprise dot e x e", clue: true }, safe: false },
   { id: "school-card", from: "Byteberry School", user: "school", domain: "byteberry", body: B(c("Today only!", "urgent"), c("Pay for the class trip with a gift card.", "giftCard")), safe: false },
   { id: "swim-moved", from: "Byteberry Pool", user: "pool", domain: "byteberry", body: B("Swim class moved to four o'clock today.", "See you there!"), safe: true },
-  { id: "owl-show", from: "Hoot", user: "hoot", domain: "byteberry", body: B("Hurry, the owl show starts in ten minutes!", "Come to the library."), safe: true },
+  { id: "book-ready", from: "Byteberry Library", user: "library", domain: "byteberry", body: B("The book you asked for is ready.", "Pick it up any day this week."), safe: true },
   { id: "snow-day", from: "Byteberry School", user: "school", domain: "byteberry", body: B("Snow day! School is closed today.", "Stay warm!"), safe: true },
   { id: "early-parade", from: "Mayor Maple", user: "mayor", domain: "byteberry", body: B("The parade starts early today, at nine.", "See you there!"), safe: true },
-  { id: "rainbow", from: "Bobbo", user: "bobbo", domain: "byteberry", body: B("Quick! Come outside and see the rainbow!"), safe: true },
+  { id: "chess-plan", from: "Hoot", user: "hoot", domain: "byteberry", body: B("See you at chess club after school,", "like we planned!"), safe: true },
   { id: "spelling-list", from: "Zuzu", user: "zuzu", domain: "byteberry", body: B("Here's the spelling list you asked me for."), file: { name: "spelling-list.txt", spoken: "spelling list" }, safe: true },
   { id: "picnic-inside", from: "Gloop", user: "gloop", domain: "byteberry", body: B("It's raining, so today's picnic is in the town hall."), safe: true },
 ];

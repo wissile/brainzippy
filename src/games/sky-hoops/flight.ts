@@ -65,6 +65,8 @@ export const CAMERAS = {
   side: lookAt([13, 0.9, 0.3], [0, 0.25, 0.3]),
   /** Higher chase view looking down at the runway. */
   runway: lookAt([0.8, 2.4, -9], [0, -1.4, 10]),
+  /** Low chase view of the plane rolling on the runway (L6: steering on the ground). */
+  ground: lookAt([0.7, -2.3, -8], [0, -4.4, 12]),
   /** Icons: straight behind (roll), from above (yaw). */
   rear: lookAt([0, 0.9, -11], [0, 0.25, 0]),
   top: lookAt([0, 13, -1.2], [0, 0, 0.1]),
@@ -330,12 +332,24 @@ export interface SimStart {
   x?: number; y?: number; z?: number;
   /** Path heading (yaw of the flight path), radians. */
   heading?: number;
-  /** Nose offset from the path (L6: the nose points away from the runway line), radians. */
+  /** Nose offset from the path, radians. */
   nose?: number;
+  /**
+   * On the ground (L6, the take-off roll): the wheels stay on the runway, a pedal steers the nose wheel so the
+   * path follows the nose, and the stick only moves the control surfaces (the plane cannot roll or climb yet).
+   */
+  ground?: boolean;
 }
+
+/** Where the runway is (world y) and how high the plane's body sits above it on its wheels. */
+export const GROUND_Y = -5;
+export const ON_WHEELS_Y = GROUND_Y + 0.97;
+/** Rolling speed on the ground (slower than flying, so the plane stays on the runway). */
+export const GROUND_SPEED = 9;
 
 /** Fly a list of control segments from a start state. Deterministic. */
 export function simulate(segs: readonly Seg[], start: SimStart = {}): Track {
+  if (start.ground) return simulateGround(segs, start);
   let x = start.x ?? 0, y = start.y ?? 0, z = start.z ?? 0, psi = start.heading ?? 0;
   const nose0 = start.nose ?? 0;
   let beta = nose0;
@@ -384,6 +398,47 @@ export function simulate(segs: readonly Seg[], start: SimStart = {}): Track {
     x += SPEED * dt * Math.sin(psi) * Math.cos(gamma);
     y += SPEED * dt * Math.sin(gamma);
     z += SPEED * dt * Math.cos(psi) * Math.cos(gamma);
+  }
+  return { poses, total };
+}
+
+/** The take-off roll: pedals steer (nose wheel and rudder); stick moves only flap the surfaces. Deterministic. */
+function simulateGround(segs: readonly Seg[], start: SimStart): Track {
+  let x = start.x ?? 0, z = start.z ?? 0;
+  const y = start.y ?? ON_WHEELS_Y;
+  const psi0 = (start.heading ?? 0) + (start.nose ?? 0);
+  let psi = psi0;
+  const poses: Pose[] = [];
+  const total = segs.reduce((a, s) => a + s.dur, 0);
+  const n = Math.max(2, Math.round(total * STEPS_PER_UNIT));
+  const dt = total / n;
+  let segIdx = 0, segStart = 0, psiAtSeg = psi0;
+  for (let i = 0; i <= n; i++) {
+    const t = i * dt;
+    while (segIdx < segs.length - 1 && t > segStart + segs[segIdx]!.dur + 1e-9) {
+      segStart += segs[segIdx]!.dur;
+      segIdx++;
+      psiAtSeg = psi;
+    }
+    const seg = segs[segIdx]!;
+    const u = Math.min(1, Math.max(0, (t - segStart) / seg.dur));
+    let elev = 0, ail = 0, rud = 0, roll = 0;
+    const ctl = seg.ctl;
+    if (ctl === "back" || ctl === "fwd") {
+      elev = (ctl === "back" ? 1 : -1) * (u < 0.85 ? 1 : 0);
+    } else if (ctl === "left" || ctl === "right") {
+      const s = ctl === "right" ? 1 : -1;
+      ail = -s * (u < 0.85 ? 1 : 0);
+      roll = s * 0.025 * Math.sin(Math.PI * Math.min(1, u / 0.85)); // a tiny rock on the wheels: no bank, no turn
+    } else if (ctl === "lpedal" || ctl === "rpedal") {
+      const s = ctl === "rpedal" ? 1 : -1;
+      psi = psiAtSeg + s * (seg.amount ?? 14) * DEG * smooth(u / 0.45);
+      rud = -s * (u < 0.92 ? 1 : 0);
+    }
+    const fade = 1 - smooth((t / total - 0.84) / 0.16);
+    poses.push({ x, y, z, pitch: 0, roll, yaw: psi, elev, ail, rud, fade });
+    x += GROUND_SPEED * dt * Math.sin(psi);
+    z += GROUND_SPEED * dt * Math.cos(psi);
   }
   return { poses, total };
 }

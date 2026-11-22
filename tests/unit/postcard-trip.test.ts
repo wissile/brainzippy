@@ -361,6 +361,10 @@ describe("voice", () => {
   it("vary lists are complete and small; lines are short and praise process, not ability", () => {
     expect(lines["pc.prompt.hemi"]!.vary!.place).toEqual(HEMI_PLACES.map((id) => sayName(PLACES.find((p) => p.id === id)!)));
     expect(lines["pc.prompt.season"]!.vary!.month).toEqual([...MONTHS]);
+    expect(lines["pc.prompt.season"]!.vary!.place).toEqual(SEASON_PLACES.map((id) => sayName(PLACES.find((p) => p.id === id)!)));
+    // season questions stay outside the tropics, and "north is up" is never said as a general rule
+    for (const id of SEASON_PLACES) expect(Math.abs(PLACES.find((p) => p.id === id)!.at[1]), id).toBeGreaterThan(23.5);
+    for (const [id, l] of Object.entries(lines)) if (/north is (up|at the top)/i.test(l.text)) expect(l.text, id).toMatch(/on this map/i);
     expect(lines["pc.prompt.fly"]!.vary!.to).toEqual(CONTINENTS.map((c) => CONTINENT_NAME[c]));
     expect(lines["pc.prompt.ocean"]!.vary!.ocean).toEqual(OCEANS.map((o) => OCEAN_NAME[o]));
     for (const [id, l] of Object.entries(lines)) {

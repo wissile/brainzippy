@@ -51,7 +51,7 @@ const PRAISE: Record<Mode, { trick: string[]; safe: string[] }> = {
   sort: { trick: ["mm.praise.tell", "mm.praise.asks", "mm.praise.slow"], safe: ["mm.praise.expected", "mm.praise.asks"] },
   clues: { trick: ["mm.praise.clues", "mm.praise.parts"], safe: ["mm.praise.parts", "mm.praise.expected"] },
   action: { trick: ["mm.praise.tell", "mm.praise.slow"], safe: ["mm.praise.expected"] },
-  verify: { trick: ["mm.praise.verify", "mm.praise.slow"], safe: ["mm.praise.expected"] },
+  verify: { trick: ["mm.praise.verify", "mm.praise.slow"], safe: ["mm.praise.bothOk"] },
   inbox: { trick: ["mm.praise.sorted"], safe: ["mm.praise.sorted"] },
 };
 export function praiseFor(ex: Pick<Exercise, "params">): string[] {

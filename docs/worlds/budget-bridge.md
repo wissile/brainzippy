@@ -24,14 +24,14 @@ These are alignments for teachers and parents, not claims of efficacy (D-020). A
 | 0–6, 8 | build, test, compare designs; any valid design passes; many do | 3-5-ETS1-2 (generate and compare multiple solutions) |
 | all | a fair, repeatable load test; the badges show the failure point | 3-5-ETS1-3 (plan and carry out fair tests; identify failure points) |
 | 4, 6, 8 | budgets that rule out "steel everywhere"; precise criteria (load numbers) | MS-ETS1-1 (criteria and constraints, precisely) |
-| 7 | read the test data (which span, holds 2 vs load 5) and fix that part | MS-ETS1-3 (analyse test data), MS-ETS1-4 (iterative testing of a model) |
+| 7 | read the test data (which span, holds 2 vs load 5) and fix that part | 3-5-ETS1-3 (fair tests that find which part of a model can be improved), MS-ETS1-4 (iterative testing of a model) |
 
 ## 3. The model (deterministic, no physics engine, no randomness in outcomes)
 All in `logic.ts`. Game numbers chosen to teach trade-offs; the board says so: "Game numbers: real bridges are designed by engineers using real measurements."
 
 - A gap of G cells (1 cell = 1 plank length) between two banks. Under each cell is **solid ground** (a mound) or **deep water**.
 - A cell holds a **deck** (wood $10 or steel $25), a **pillar** ($30, a stone pier one cell wide) and/or a **triangle brace** ($10).
-- **Supports** are the two banks and every pillar on ground. A deck cell on a pillar rests on it directly. A pillar in deep water has nothing to stand on: it holds nothing up and breaks the ground rule.
+- **Supports** are the two banks and every pillar on ground. A deck cell on a pillar rests on it directly. Our crew **can't build a pillar in this deep water** (a constraint of this site, not of bridges in general: real bridges do stand piers in deep water, on deep foundations). A pillar placed there holds nothing up and breaks the site rule. The hint says so: "Our crew can't build pillars in the deep water here. Use the solid ground."
 - A **span** (segment) is a run of cells between supports. It is as strong as its **weakest** piece (wood if any cell is wood). Max span: wood 3, steel 4. Capacity (load units):
 
 | span | wood | steel |
@@ -93,7 +93,7 @@ C* = the solver's cheapest valid cost; budgets round up to $5 ($20–$300 voiced
 |---|---|---|
 | the strongest material is always best | steel everywhere at levels 1, 4, 8 is over budget | budget hint; budget bar |
 | a longer plank is just as strong | wood over 4 cells; long unsupported spans | the span bends; span hint; badges show "holds 1" |
-| you can build anywhere | pillar in deep water (levels 5–8) | the pillar tilts and holds nothing; ground hint |
+| you can build anywhere on this site | pillar in deep water (levels 5–8) | the pillar tilts and holds nothing; ground hint ("our crew can't build here", framed as this site's constraint) |
 | triangles anywhere help | triangles on part of a span | brace hint ("cover the whole span") |
 | failure means start over | rebuilding at level 7 | improve hint; the budget only covers a fix |
 | there is one right design | — | any valid design passes; level 6 guarantees several |

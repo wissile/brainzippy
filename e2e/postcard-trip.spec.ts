@@ -127,9 +127,13 @@ async function noOverflow(page: Page) {
   expect(over.w).toBeLessThanOrEqual(vp.width + 1);
   expect(over.h).toBeLessThanOrEqual(vp.height + 1);
   for (const sel of ['[data-testid="choice"]', '[data-testid="done"]', '[data-testid="pc-card"]', '[data-testid="pc-region"]', '[data-testid="pc-slot"]', '[data-testid="pc-key-item"]', '[data-testid="pc-plan-slot"]', '[data-testid="pc-leg"]']) {
-    for (const box of await Promise.all((await page.locator(sel).all()).map((c) => c.boundingBox()))) {
+    for (const loc of await page.locator(sel).all()) {
+      const box = await loc.boundingBox();
       if (!box) continue;
-      expect(Math.min(box.width, box.height), sel).toBeGreaterThanOrEqual(43.5);
+      // controls are ≥ 64 px for ages 5–9; spatial targets on a map (region pins, island squares in the key level)
+      // follow the map's scale and stay ≥ 44 px (they also have a keyboard path)
+      const spatial = sel === '[data-testid="pc-region"]' || (await loc.evaluate((el) => el.classList.contains("pc-tile")));
+      expect(Math.min(box.width, box.height), sel).toBeGreaterThanOrEqual(spatial ? 43.5 : 63.5);
       expect(box.x, sel).toBeGreaterThanOrEqual(-1);
       expect(box.y, sel).toBeGreaterThanOrEqual(-1);
       expect(box.x + box.width, sel).toBeLessThanOrEqual(vp.width + 1);

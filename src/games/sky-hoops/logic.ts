@@ -12,7 +12,8 @@ import {
  *   stick forward → elevator trailing edge down → nose DOWN              (pitch)
  *   stick left    → left aileron up, right down → left wing down, ROLL left
  *   left pedal    → rudder to the left          → nose swings LEFT       (yaw)
- *   a plane TURNS by banking (rolling) its wings; the rudder alone only swings the nose (skids).
+ *   a plane TURNS by banking (rolling) its wings; in the air the rudder alone only swings the nose (skids).
+ *   ON THE GROUND (L6, the take-off roll) the pedals steer the nose wheel (and rudder), so the path follows the nose.
  */
 export type Ctl = "back" | "fwd" | "left" | "right" | "lpedal" | "rpedal";
 export type Stick = "back" | "fwd" | "left" | "right";
@@ -223,12 +224,13 @@ export function sceneOf(s: Scenario): Scene {
       return { camera: "chase", hoops: [hoopOnTrack(track(s.side), TURN_HOOP_AT)], start: {}, runway: false, msPerUnit: 1150, track };
     }
     case "line": {
-      const start: SimStart = { nose: s.nose === "right" ? LINE_NOSE : -LINE_NOSE };
+      // On the ground: the plane rolls down the runway with its nose drifting off the centre line.
+      const start: SimStart = { ground: true, heading: s.nose === "right" ? LINE_NOSE : -LINE_NOSE };
       const track = (c: Ctl | readonly Ctl[]) => {
         const ctl = (Array.isArray(c) ? c[0] : c) as Ctl;
         return cached(`l:${s.nose}:${ctl}`, () => simulate([segFor(ctl, "line")], start));
       };
-      return { camera: "runway", hoops: [], start, runway: true, msPerUnit: 1300, track };
+      return { camera: "ground", hoops: [], start, runway: true, msPerUnit: 1300, track };
     }
     case "course": {
       // The plane flies the plan up to (and including) the first wrong move, then that pass ends: the child sees

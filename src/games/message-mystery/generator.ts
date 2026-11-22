@@ -23,7 +23,7 @@ import {
  *   5  sort + magnifier · link goes elsewhere / unexpected file            cyber.scam.clues
  *   6  clue mode · tap every clue (2–3), or "no clues"                      cyber.scam.clues
  *   7  action · the safest thing to do (review bank)                       cyber.scam.action
- *   8  check another way · real-address tricks vs urgent-but-safe          cyber.scam.verify
+ *   8  check another way · real-address tricks vs safe changes of plan     cyber.scam.verify (check always accepted)
  *   9  inbox · sort four messages at once (review bank)                    cyber.scam.action
  */
 
@@ -55,7 +55,7 @@ export const LEVELS: readonly LevelSpec[] = [
   { label: "link goes elsewhere / unexpected file (magnifier)", mode: "sort", skill: SKILL.clues, fold: true, focus: ["link", "file"], pattern: [S, T, T, S, T, S, S, T], bank: BANK.l5 },
   { label: "clue mode: tap every clue", mode: "clues", skill: SKILL.clues, fold: false, focus: [], pattern: [T, T, S, T, T, S, T, T], bank: BANK.l6 },
   { label: "the safest thing to do", mode: "action", skill: SKILL.action, fold: false, focus: [], pattern: [T, S, T, T, S, T, S, T], bank: REVIEW_BANK },
-  { label: "check another way: real-address tricks vs urgent-but-safe", mode: "verify", skill: SKILL.verify, fold: false, focus: [], pattern: [S, T, S, S, T, S, T, S], bank: BANK.l8 },
+  { label: "check another way: real-address tricks vs safe changes of plan", mode: "verify", skill: SKILL.verify, fold: false, focus: [], pattern: [S, T, S, S, T, S, T, S], bank: BANK.l8 },
   { label: "inbox: sort four messages", mode: "inbox", skill: SKILL.action, fold: false, focus: [], pattern: [], bank: REVIEW_BANK },
 ];
 export const MM_MAX_LEVEL = LEVELS.length - 1;
@@ -75,7 +75,7 @@ export const ACTION_OPTIONS: readonly AnswerOption[] = [
 ];
 /** Level 8. */
 export const VERIFY_OPTIONS: readonly AnswerOption[] = [
-  { id: "ok", text: "It was expected and asks for nothing secret. Read it.", say: "mm.act.ok" },
+  { id: "ok", text: "It fits what I know and asks for nothing secret. Read it.", say: "mm.act.ok" },
   { id: "check", text: "Check another way, with a grown-up.", say: "mm.act.check" },
   { id: "reply", text: "Reply to the message to check.", say: "mm.act.reply" },
 ];
@@ -138,7 +138,8 @@ export function messageExercise(m: Msg, level: number, opts: { id: string; seed:
         ...base,
         objective: "Check a surprising message another way before acting on it.",
         objectKind: "action",
-        answer: { kind: "choice", correct: m.safe ? "ok" : "check", options: VERIFY_OPTIONS },
+        // Checking with a grown-up is never wrong: on a safe message it is just as right as reading it.
+        answer: m.safe ? { kind: "choice", correct: "ok", also: ["check"], options: VERIFY_OPTIONS } : { kind: "choice", correct: "check", options: VERIFY_OPTIONS },
         a11yDescription: `A message. ${msgDesc} Choose what to do.`,
       };
     default:

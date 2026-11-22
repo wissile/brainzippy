@@ -48,14 +48,14 @@
   position: absolute; left: 8px; top: 8px; z-index: 3; max-width: 46%;
   display: flex; flex-direction: column; gap: 2px;
   background: var(--rl-panel); border: 3px solid var(--rl-ink); border-radius: 14px; padding: 4px 9px;
-  font-family: var(--font-body); font-weight: 700; font-size: clamp(0.72rem, 1.6cqw + 0.4rem, 1rem); line-height: 1.2; color: var(--rl-ink);
+  font-family: var(--font-body); font-weight: 700; font-size: clamp(0.8rem, 1.6cqw + 0.4rem, 1rem); line-height: 1.2; color: var(--rl-ink);
 }
 .rl-info:empty { display: none; }
 .rl-info b { font-family: var(--font-display); font-size: 1.15em; }
-.rl-info small { font-weight: 600; opacity: 0.75; }
+.rl-info small { font-weight: 600; opacity: 0.85; font-size: max(0.8rem, 0.85em); }
 .rl-info svg { width: 1.2em; height: 1.2em; vertical-align: -0.2em; }
 .rl-work { color: #1b6f66; animation: rl-pop 300ms var(--ease-out) both; }
-.rl-note { position: absolute; right: 8px; bottom: 6px; margin: 0; z-index: 2; font-size: 0.72rem; font-weight: 700; color: var(--rl-ink); background: rgba(255, 255, 255, 0.75); padding: 1px 8px; border-radius: 99px; }
+.rl-note { position: absolute; right: 8px; bottom: 6px; margin: 0; z-index: 2; font-size: 0.8rem; font-weight: 700; color: var(--rl-ink); background: rgba(255, 255, 255, 0.85); padding: 1px 8px; border-radius: 99px; }
 .on-moon .rl-note { color: #fff; background: rgba(0, 0, 0, 0.35); }
 
 /* the rocket rig: bay (cargo / fuel) · body · engine mount, standing on the pad */
@@ -74,7 +74,7 @@
 }
 .rl-bay.is-target, .rl-mount.is-target, .rl-body-btn.is-target { outline: 4px solid #ffd43b; outline-offset: 2px; animation: rl-glow 1s ease-in-out infinite alternate; }
 .rl-bay.is-lifted .rl-crate:last-child, .rl-bay.is-lifted .rl-tank:last-child { transform: translateY(-8px); }
-.rl-bay-empty { align-self: center; font-weight: 800; font-size: 0.75rem; color: rgba(43, 33, 64, 0.6); text-transform: uppercase; letter-spacing: 1px; }
+.rl-bay-empty { align-self: center; font-weight: 800; font-size: 0.8rem; color: #4f4566; text-transform: uppercase; letter-spacing: 1px; }
 .rl-crate { width: clamp(18px, 6cqh, 30px); aspect-ratio: 60 / 56; display: inline-block; animation: rl-pop 260ms var(--ease-bounce) both; transition: transform var(--t-fast); }
 .rl-crate svg, .rl-tank svg { width: 100%; height: 100%; display: block; }
 .rl-crate.is-slot { border: 3px dashed #fff; border-radius: 6px; background: rgba(255, 212, 59, 0.35); animation: model 1s ease-in-out infinite; }
@@ -90,7 +90,7 @@
 .rl-mount.has-engine { border-color: transparent; background: none; }
 .rl-mount > svg { width: 100%; height: 100%; }
 .rl-mount.is-lifted > svg { opacity: 0.35; }
-.rl-mount-empty { font-weight: 800; font-size: 0.75rem; color: rgba(43, 33, 64, 0.65); text-transform: uppercase; letter-spacing: 1px; }
+.rl-mount-empty { font-weight: 800; font-size: 0.8rem; color: #4f4566; text-transform: uppercase; letter-spacing: 1px; }
 .rl-flame { position: absolute; left: 50%; top: 88%; width: 46%; transform: translateX(-50%) scaleY(0); transform-origin: 50% 0; opacity: 0; pointer-events: none; }
 .rl-flame svg { width: 100%; height: auto; display: block; }
 
@@ -110,7 +110,7 @@
   background: #fff; border: 3px solid var(--c); border-radius: 10px; padding: 0 6px;
   font-family: var(--font-display); font-weight: 800; font-size: clamp(0.8rem, 2.4cqh + 0.3rem, 1.15rem); line-height: 1.15; color: var(--rl-ink);
 }
-.rl-arrow-label small { display: block; font-family: var(--font-body); font-size: 0.7em; font-weight: 700; color: var(--c); }
+.rl-arrow-label small { display: block; font-family: var(--font-body); font-size: max(0.8rem, 0.7em); font-weight: 700; color: var(--c); }
 .rl-arrow.up .rl-arrow-label { top: -6px; }
 .rl-arrow.down .rl-arrow-label { bottom: -6px; left: 28px; }
 .rl-arrow.is-hidden .rl-shaft { background: repeating-linear-gradient(var(--c) 0 6px, transparent 6px 11px); border-style: dashed; }
@@ -119,16 +119,16 @@
 .rl-compare { position: absolute; left: 104%; top: 50%; height: 34cqh; translate: 0 -100%; display: flex; align-items: flex-end; gap: 6px; z-index: 3; }
 .rl-bar { --len: 0.5; --c: var(--rl-thrust); position: relative; width: 16px; height: calc(var(--len) * 100%); background: var(--c); border: 3px solid var(--rl-ink); border-radius: 6px 6px 2px 2px; animation: rl-grow 500ms var(--ease-out) both; transform-origin: 50% 100%; }
 .rl-bar.down { --c: var(--rl-weight); }
-.rl-bar-label { position: absolute; bottom: calc(100% + 4px); left: 50%; translate: -50% 0; white-space: nowrap; background: #fff; border: 3px solid var(--c); border-radius: 10px; padding: 0 5px; font-family: var(--font-display); font-weight: 800; font-size: clamp(0.75rem, 2.2cqh + 0.3rem, 1.05rem); line-height: 1.1; color: var(--rl-ink); }
+.rl-bar-label { position: absolute; bottom: calc(100% + 4px); left: 50%; translate: -50% 0; white-space: nowrap; background: #fff; border: 3px solid var(--c); border-radius: 10px; padding: 0 5px; font-family: var(--font-display); font-weight: 800; font-size: clamp(0.8rem, 2.2cqh + 0.3rem, 1.05rem); line-height: 1.1; color: var(--rl-ink); }
 .rl-bar.up .rl-bar-label { translate: -85% 0; }
 .rl-bar.down .rl-bar-label { translate: -15% calc(-100% - 6px); }
-.rl-bar-label small { display: block; font-family: var(--font-body); font-size: 0.7em; color: var(--c); }
+.rl-bar-label small { display: block; font-family: var(--font-body); font-size: max(0.8rem, 0.7em); color: var(--c); }
 .rl-wins { display: inline-block; margin-left: 4px; padding: 0 5px; border-radius: 6px; background: #ffd43b; color: var(--rl-ink); font-style: normal; font-size: 0.8em; }
 
 /* Rumble's spring scale (weighing) */
 .rl-hook { position: absolute; left: 50%; bottom: 96%; width: 70%; transform: translateX(-50%); animation: rl-drop 400ms var(--ease-bounce) both; z-index: 4; }
 .rl-hook svg { width: 100%; height: auto; display: block; max-height: 22cqh; }
-.rl-hook-unit { position: absolute; right: 100%; top: 18%; white-space: nowrap; background: #fff; border: 3px solid #4d96ff; border-radius: 10px; padding: 0 6px; font-family: var(--font-display); font-weight: 800; font-size: clamp(0.75rem, 2cqh + 0.3rem, 1rem); color: var(--rl-ink); }
+.rl-hook-unit { position: absolute; right: 100%; top: 18%; white-space: nowrap; background: #fff; border: 3px solid #4d96ff; border-radius: 10px; padding: 0 6px; font-family: var(--font-display); font-weight: 800; font-size: clamp(0.8rem, 2cqh + 0.3rem, 1rem); color: var(--rl-ink); }
 
 /* flight states */
 .rl-rig.is-launch .rl-flame, .rl-rig.is-rise .rl-flame, .rl-rig.is-rumble .rl-flame { opacity: 1; transform: translateX(-50%) scaleY(1); }
@@ -174,8 +174,9 @@
 .rl-stage:has(.rl-result) .rl-info { opacity: 0; }
 
 /* mission ruler */
-.rl-ruler { position: absolute; left: 10px; top: 32cqh; bottom: 11cqh; width: 26%; z-index: 1; border-left: 4px solid var(--rl-ink); }
-.rl-mark { position: absolute; left: 0; right: 0; border-top: 3px dashed rgba(43, 33, 64, 0.5); font-size: clamp(0.65rem, 2cqh, 0.85rem); font-weight: 800; padding-left: 6px; color: var(--rl-ink); line-height: 1.1; }
+/* on the right edge, so the facts card (top left) never covers a height label */
+.rl-ruler { position: absolute; right: 10px; top: 32cqh; bottom: 11cqh; width: 24%; z-index: 1; border-right: 4px solid var(--rl-ink); }
+.rl-mark { position: absolute; left: 0; right: 0; border-top: 3px dashed rgba(43, 33, 64, 0.5); font-size: clamp(0.8rem, 2cqh, 0.9rem); font-weight: 800; padding-right: 6px; display: flex; justify-content: flex-end; white-space: nowrap; color: var(--rl-ink); line-height: 1.1; }
 .rl-mark.is-target { border-top: 4px solid #e09a1b; color: #8a4f00; }
 
 /* several rockets: ranking and before/after */
@@ -195,7 +196,7 @@
   position: relative; align-self: stretch; z-index: 3;
   display: flex; flex-direction: column; align-items: center;
   background: var(--rl-panel); border: 3px solid var(--rl-ink); border-radius: 12px; padding: 2px 4px;
-  font-size: clamp(0.66rem, 1.6cqw + 0.35rem, 0.95rem); font-weight: 700; line-height: 1.15; text-align: center; color: var(--rl-ink);
+  font-size: clamp(0.8rem, 1.6cqw + 0.35rem, 0.95rem); font-weight: 700; line-height: 1.15; text-align: center; color: var(--rl-ink);
 }
 .rl-tag b { font-family: var(--font-display); }
 .rl-tag.is-now { border-color: #e09a1b; box-shadow: 0 0 0 4px #ffd43b; }
@@ -210,7 +211,7 @@
 }
 .rl-shelf.is-target { outline: 4px solid #ffd43b; }
 .rl-shelf-title { margin: 0 0 4px; font-family: var(--font-display); font-weight: 800; font-size: 1rem; color: var(--rl-ink); }
-.rl-shelf-title small { font-family: var(--font-body); font-weight: 700; opacity: 0.7; }
+.rl-shelf-title small { font-family: var(--font-body); font-weight: 700; opacity: 0.85; font-size: max(0.8rem, 0.85em); }
 .rl-parts { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .rl-part {
   display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 2px;
@@ -248,7 +249,7 @@
   display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px;
   font-family: var(--font-display); color: var(--rl-ink);
 }
-.rl-slot small { font-family: var(--font-body); font-weight: 700; font-size: 0.72rem; }
+.rl-slot small { font-family: var(--font-body); font-weight: 700; font-size: 0.8rem; }
 .rl-slot b { font-size: 1.5rem; line-height: 1; min-height: 1em; }
 .rl-slot.is-full { border-style: solid; background: #fff; }
 .rl-slot.is-ok { border-color: #1b8f85; background: #e6fbf6; }
@@ -264,22 +265,24 @@
 .rl-tanks { min-height: 56px; }
 @container rl-stage (max-height: 340px) {
   .rl-plan caption { display: none; }
-  .rl-mission { padding: 4px 8px; gap: 2px 8px; }
+  .rl-mission { padding: 3px 8px; gap: 1px 8px; }
   .rl-mission .rl-stack { min-height: 0; }
   .rl-mission .rl-tank { width: 14px; }
-  .rl-plan { border-spacing: 2px; font-size: 0.7rem; }
-  .rl-plan td { padding: 0 2px; }
+  /* 0.8rem minimum text: the table tightens its spacing instead of shrinking the text */
+  .rl-plan { border-spacing: 2px 1px; font-size: 0.8rem; }
+  .rl-plan td, .rl-plan th { padding: 0 2px; line-height: 1; }
+  .rl-mission .rl-shelf-title small { font-size: 0.8rem; }
   .rl-mission .rl-shelf-title { font-size: 0.85rem; margin: 0; }
   .rl-mission .rl-tanks { min-height: 44px; flex-direction: row; padding: 2px 8px; }
-  .rl-budget { font-size: 0.78rem; }
+  .rl-budget { font-size: 0.8rem; }
 }
-.rl-plan { grid-column: 1 / -1; width: 100%; border-collapse: separate; border-spacing: 3px; font-size: clamp(0.62rem, 1.4cqw + 0.35rem, 0.85rem); text-align: center; color: var(--rl-ink); }
+.rl-plan { grid-column: 1 / -1; width: 100%; border-collapse: separate; border-spacing: 3px; font-size: clamp(0.8rem, 1.4cqw + 0.35rem, 0.9rem); text-align: center; color: var(--rl-ink); }
 .rl-plan caption { font-weight: 800; text-align: left; font-size: 0.85em; }
 .rl-plan th { font-weight: 800; white-space: nowrap; }
 .rl-plan td { border-radius: 8px; padding: 2px; border: 2px solid transparent; line-height: 1.1; }
 .rl-plan td span { font-weight: 700; white-space: nowrap; }
 .rl-plan td small { white-space: nowrap; }
-.rl-plan td small { opacity: 0.8; font-weight: 700; }
+.rl-plan td small { opacity: 0.85; font-weight: 700; font-size: 0.8rem; }
 .rl-plan .band-0 { background: #e7f6e1; }
 .rl-plan .band-1 { background: #d6efff; }
 .rl-plan .band-2 { background: #e5ddff; }
@@ -291,7 +294,7 @@
 
 /* notebook (weigh / compare modes) */
 .rl-notebook ul { margin: 0; padding-left: 1.1em; font-weight: 700; font-size: clamp(0.85rem, 1.6cqw + 0.4rem, 1.1rem); line-height: 1.35; color: var(--rl-ink); }
-.rl-small { margin: 4px 0 0; font-size: 0.75rem; font-weight: 700; opacity: 0.75; }
+.rl-small { margin: 4px 0 0; font-size: 0.8rem; font-weight: 700; opacity: 0.85; }
 
 /* drag ghost */
 .rl-ghost-drag { position: fixed; z-index: 50; width: 70px; transform: translate(-50%, -60%) rotate(-6deg) scale(1.1); pointer-events: none; filter: drop-shadow(0 12px 6px rgba(43, 33, 64, 0.3)); }

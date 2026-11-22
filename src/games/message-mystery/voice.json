@@ -73,7 +73,7 @@
       "text": "Read it. Reply if you want."
     },
     "mm.act.ok": {
-      "text": "It was expected and asks for nothing secret. Read it."
+      "text": "It fits what I know and asks for nothing secret. Read it."
     },
     "mm.act.check": {
       "text": "Check another way, with a grown-up."
@@ -82,7 +82,7 @@
       "text": "Reply to the message to check."
     },
     "mm.help.start": {
-      "text": "Real friends and helpers never ask for your password."
+      "text": "Keep your password secret. Only share it with your grown-up."
     },
     "mm.help.prize": {
       "text": "If a prize seems too good to be true, it's probably a trick."
@@ -221,6 +221,9 @@
     },
     "mm.praise.parts": {
       "text": "You looked at every part of the message."
+    },
+    "mm.praise.bothOk": {
+      "text": "This one fits what you know. Reading it or checking first are both fine!"
     },
     "mm.praise.verify": {
       "text": "Checking another way is a great detective move."
@@ -459,8 +462,8 @@
     "mm.msg.swim-moved": {
       "text": "Byteberry Pool says: Swim class moved to four o'clock today. See you there!"
     },
-    "mm.msg.owl-show": {
-      "text": "Hoot says: Hurry, the owl show starts in ten minutes! Come to the library."
+    "mm.msg.book-ready": {
+      "text": "Byteberry Library says: The book you asked for is ready. Pick it up any day this week."
     },
     "mm.msg.snow-day": {
       "text": "Byteberry School says: Snow day! School is closed today. Stay warm!"
@@ -468,8 +471,8 @@
     "mm.msg.early-parade": {
       "text": "Mayor Maple says: The parade starts early today, at nine. See you there!"
     },
-    "mm.msg.rainbow": {
-      "text": "Bobbo says: Quick! Come outside and see the rainbow!"
+    "mm.msg.chess-plan": {
+      "text": "Hoot says: See you at chess club after school, like we planned!"
     },
     "mm.msg.spelling-list": {
       "text": "Zuzu says: Here's the spelling list you asked me for. It has a file called spelling list."
