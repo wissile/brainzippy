@@ -2,10 +2,11 @@ import { mkdirSync } from "node:fs";
 import { type Locator, type Page, expect, test } from "@playwright/test";
 import { formatEq, solve } from "../src/games/balance-island/logic";
 import { ONBOARDED, collectErrors, press, screen, seed } from "./helpers";
+import { reviewDir } from "./helpers";
 
 /** Balance Scale Island: balance pans by drag, tap-tap and keyboard; hints; word stories; a full round to the sticker. */
 
-const REVIEW = "/home/claude/review/balance-island";
+const REVIEW = reviewDir("balance-island");
 const board = (page: Page) => page.getByTestId("balance-board");
 
 async function eq(page: Page) {

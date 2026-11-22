@@ -1,9 +1,10 @@
 import { type Page, expect, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { collectErrors, press, screen, seed } from "./helpers";
+import { reviewDir } from "./helpers";
 
 /** Fenn's Message Mystery: story → sort by drag, tap-tap, keyboard and tap → outro → Detective Badge + level up; every mode. */
-const REVIEW = "/home/claude/review/message-mystery";
+const REVIEW = reviewDir("message-mystery");
 mkdirSync(REVIEW, { recursive: true });
 const VIEWPORTS = [
   { name: "390x844", width: 390, height: 844 },

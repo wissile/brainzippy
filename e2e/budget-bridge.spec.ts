@@ -4,9 +4,10 @@ import { buildRound } from "../src/engine/round";
 import { budgetBridge } from "../src/games/budget-bridge/definition";
 import { type Cell, type Piece, type Puzzle, decodePuzzle } from "../src/games/budget-bridge/logic";
 import { ONBOARDED, collectErrors, press, screen } from "./helpers";
+import { reviewDir } from "./helpers";
 
 /** Brix's Budget Bridge: story → bridges built by tap-tap, gap-first taps, drag and keyboard → Test → outro → Bridge Builder + level up. */
-const REVIEW = "/home/claude/review/budget-bridge";
+const REVIEW = reviewDir("budget-bridge");
 mkdirSync(REVIEW, { recursive: true });
 const VIEWPORTS = [
   { name: "390x844", width: 390, height: 844 },

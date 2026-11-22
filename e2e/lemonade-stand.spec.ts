@@ -2,10 +2,11 @@ import { mkdirSync } from "node:fs";
 import { type Locator, type Page, expect, test } from "@playwright/test";
 import { bestIndex, costOf, greedy, ledgerOf, revenue, surveyOf, trayOf } from "../src/games/lemonade-stand/logic";
 import { ONBOARDED, collectErrors, press, screen, seed } from "./helpers";
+import { reviewDir } from "./helpers";
 
 /** Budge's Lemonade Stand: pay, change, supplies, customers, savings jar and price slider by drag, tap and keyboard. */
 
-const REVIEW = "/home/claude/review/lemonade-stand";
+const REVIEW = reviewDir("lemonade-stand");
 type Method = "drag" | "tap" | "keyboard";
 const board = (page: Page) => page.getByTestId("stand-board");
 

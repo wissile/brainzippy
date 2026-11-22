@@ -4,9 +4,10 @@ import { buildRound } from "../src/engine/round";
 import { patternParade } from "../src/games/pattern-parade/definition";
 import { decodeParade } from "../src/games/pattern-parade/logic";
 import { collectErrors, press, screen, seed } from "./helpers";
+import { reviewDir } from "./helpers";
 
 /** Puff's Pattern Parade: story → 8 parade gaps by tap, drag, tap-tap and keyboard → outro → Parade Star + level up. */
-const REVIEW = "/home/claude/review/pattern-parade";
+const REVIEW = reviewDir("pattern-parade");
 mkdirSync(REVIEW, { recursive: true });
 const VIEWPORTS = [
   { name: "390x844", width: 390, height: 844 },

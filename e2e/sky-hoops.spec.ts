@@ -1,9 +1,10 @@
 import { type Page, expect, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { collectErrors, press, screen, seed } from "./helpers";
+import { reviewDir } from "./helpers";
 
 /** Zephy's Sky Hoops: story → fly by tap, drag and keyboard → outro → Sky Wings + level up; every mode; hints; viewports. */
-const REVIEW = "/home/claude/review/sky-hoops";
+const REVIEW = reviewDir("sky-hoops");
 mkdirSync(REVIEW, { recursive: true });
 const VIEWPORTS = [
   { name: "390x844", width: 390, height: 844 },

@@ -2,13 +2,14 @@ import { mkdirSync } from "node:fs";
 import { type Locator, type Page, expect, test } from "@playwright/test";
 import { collectErrors, press, screen, seed } from "./helpers";
 import { fillingSubsets, nameOf, partition, type OutlineType, type PieceKind, type ShapeKind } from "../src/games/shape-squish/shapes";
+import { reviewDir } from "./helpers";
 
 /**
  * Gloop's Shape Squish: drag Gloop to the matching gate, find every triangle, sort by sides, and fill outlines.
  * Every mode is played by pointer drag, by tap / tap-tap and by keyboard. Synthetic state only.
  */
 type How = "drag" | "tap" | "key";
-const REVIEW = "/home/claude/review/shape-squish";
+const REVIEW = reviewDir("shape-squish");
 
 const progress = (level: number) => ({ v: 1, stickers: [], roundsCompleted: 0, skills: {}, levels: { "shape-squish": level } });
 async function open(page: Page, level = 0) {

@@ -1,5 +1,6 @@
 import { type Page, expect, test } from "@playwright/test";
 import { collectErrors, press, screen, seed, waitForNext } from "./helpers";
+import { reviewDir } from "./helpers";
 
 /**
  * Rumble's Sleepy Trail: the child walks Rumble to a fraction's post (tap a post, drag Rumble, or arrow keys)
@@ -196,7 +197,7 @@ const VIEWPORTS = [[390, 844], [915, 412], [1024, 1366], [1280, 800]] as const;
 test("review screenshots: story, play (each mode) and reward at four viewports", async ({ browser }, info_) => {
   test.skip(info_.project.name !== "desktop", "one run is enough");
   test.setTimeout(900_000);
-  const dir = "/home/claude/review/sleepy-trail";
+  const dir = reviewDir("sleepy-trail");
   for (const [w, h] of VIEWPORTS) {
     const touch = w < h;
     for (const level of [0, 3, 4, 5, 6, 8]) {

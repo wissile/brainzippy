@@ -1,14 +1,15 @@
 import { type Page, expect, test } from "@playwright/test";
 import { rhymes } from "../src/games/rhyme-lanterns/words";
 import { collectErrors, press, screen, seed } from "./helpers";
+import { reviewDir } from "./helpers";
 
 /**
  * Hoot's Rhyme Lanterns: story → rounds played by tap-tap, drag and keyboard → miss ladder (helper, then the
  * slow-word model) → outro → Lantern Keeper sticker + level up. Screenshots of intro / play / reward at the
- * four standard viewports go to /home/claude/review/rhyme-lanterns/ (and test-results/screens/).
+ * four standard viewports go to test-results/review/rhyme-lanterns/ (and test-results/screens/).
  */
 type How = "tap" | "drag" | "keyboard";
-const REVIEW = "/home/claude/review/rhyme-lanterns";
+const REVIEW = reviewDir("rhyme-lanterns");
 const VIEWPORTS = [
   { name: "390x844", width: 390, height: 844 },
   { name: "915x412", width: 915, height: 412 },

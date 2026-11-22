@@ -59,6 +59,6 @@ Framework changes (`src/engine`, `src/game`, shared CSS, characters): avoid them
   - finish a whole round by drag, by tap-tap, and by keyboard;
   - first miss shows the helper, second miss shows the model;
   - the reward appears and the level goes up.
-- Visual check: save screenshots of intro, play and reward at the four viewports to `/home/claude/review/<world-id>/` and look at them yourself before reporting.
+- Visual check: save screenshots of intro, play and reward at the four viewports via `reviewDir("<world-id>")` from `e2e/helpers.ts` (run with `BZ_REVIEW_DIR=/home/claude/review` to collect them here; never hard-code a machine path — CI has no such folder) and look at them yourself before reporting.
 
 Report in ≤250 words. Include: the world summary, levels table (one line per level), files, shared edits, tests run and their results, and the voice line count.

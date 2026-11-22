@@ -14,8 +14,13 @@ concurrency:
 
 jobs:
   test:
+    name: test (${{ matrix.project }})
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop, phone]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
@@ -33,11 +38,11 @@ jobs:
         run: cp .dev.vars.example .dev.vars
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
-      - name: End-to-end tests (desktop + phone)
-        run: npx playwright test --project=desktop --project=phone
+      - name: End-to-end tests (${{ matrix.project }})
+        run: npx playwright test --project=${{ matrix.project }}
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.project }}
           path: playwright-report/
           retention-days: 7

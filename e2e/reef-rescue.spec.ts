@@ -3,10 +3,11 @@ import { type Locator, type Page, expect, test } from "@playwright/test";
 import { ACTIONS, ANIMALS, FACT_QS, GRAZERS, STORIES, type ChainId, type HomeItemId, type ZoneId, chainValid, homesFor, riskiestRun, runId, weeksAbove } from "../src/games/reef-rescue/facts";
 import { MODES, type ModeName } from "../src/games/reef-rescue/generator";
 import { ONBOARDED, collectErrors, press, screen, seed } from "./helpers";
+import { reviewDir } from "./helpers";
 
 /** Ripple's Reef Rescue: place species by drag, tap-tap and keyboard; hints; every level; a full round to the Reef Guardian shell. */
 
-const REVIEW = "/home/claude/review/reef-rescue";
+const REVIEW = reviewDir("reef-rescue");
 const board = (page: Page) => page.getByTestId("reef-board");
 type Method = "tap" | "drag" | "keyboard";
 type P = Record<string, number>;

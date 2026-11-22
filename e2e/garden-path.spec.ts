@@ -4,9 +4,10 @@ import { buildRound } from "../src/engine/round";
 import { gardenPath } from "../src/games/garden-path/definition";
 import { type Dir, type Puzzle, decodePuzzle, movesOf } from "../src/games/garden-path/logic";
 import { collectErrors, press, screen, seed } from "./helpers";
+import { reviewDir } from "./helpers";
 
 /** Toggle's Garden Path: story → programs built by tap, drag, tap-tap and keyboard → Go → outro → Path Finder + level up. */
-const REVIEW = "/home/claude/review/garden-path";
+const REVIEW = reviewDir("garden-path");
 mkdirSync(REVIEW, { recursive: true });
 const VIEWPORTS = [
   { name: "390x844", width: 390, height: 844 },

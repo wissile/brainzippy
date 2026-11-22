@@ -16,7 +16,7 @@ import react from "@vitejs/plugin-react";
 import { chromium } from "@playwright/test";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const out = resolve(process.argv[2] ?? "/home/claude/review/characters");
+const out = resolve(process.argv[2] ?? (process.env.BZ_REVIEW_DIR ? `${process.env.BZ_REVIEW_DIR}/characters` : "test-results/review/characters"));
 const port = Number(process.env.PW_PORT ?? 4201);
 mkdirSync(out, { recursive: true });
 

@@ -12,7 +12,9 @@ export default defineConfig({
   timeout: 240_000,
   expect: { timeout: 15_000 },
   fullyParallel: false,
-  workers: 2,
+  // 2 locally (shared 2-core box); CI runners have 4 cores. CI retries absorb timing flakes and report them as "flaky".
+  workers: process.env.CI ? 4 : 2,
+  retries: process.env.CI ? 2 : 0,
   reporter: [["list"], ["html", { open: "never" }]],
   use: { baseURL: `http://localhost:${PORT}`, serviceWorkers: "block", trace: "retain-on-failure", screenshot: "only-on-failure" },
   // Development behaviour comes only from .dev.vars (wrangler.jsonc's top level is APP_ENV=production); create it from the example if missing.

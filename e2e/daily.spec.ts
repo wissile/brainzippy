@@ -1,11 +1,12 @@
 import { type Page, expect, test } from "@playwright/test";
 import { ONBOARDED, enterGame, press, solve, waitForNext } from "./helpers";
+import { reviewDir } from "./helpers";
 
 /**
  * Daily learning loop (docs/DAILY_LEARNING.md): today's trail, the daily limit, the end-of-day scene,
  * the /play lock, date rollover (page.clock) and Explore. Synthetic test data only.
  */
-const SHOTS = "/home/claude/review/daily";
+const SHOTS = reviewDir("daily");
 const DAY = "2026-11-18";
 const NEXT = "2026-11-19";
 const round = (l: number) => ({ w: "counting-adventure", l, ft: 7, n: 8 });

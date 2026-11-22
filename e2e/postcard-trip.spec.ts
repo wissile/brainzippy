@@ -6,9 +6,10 @@ import { postcardTrip } from "../src/games/postcard-trip/definition";
 import { type Mission, cardId, decodeMission } from "../src/games/postcard-trip/generator";
 import { FEATURES, refOf } from "../src/games/postcard-trip/island";
 import { ONBOARDED, collectErrors, press, screen } from "./helpers";
+import { reviewDir } from "./helpers";
 
 /** Yonder's Postcard Trip: story → island compass walks → world postcards, boats, balloon, equator and trips, by tap, tap-tap, drag and keyboard. */
-const REVIEW = "/home/claude/review/postcard-trip";
+const REVIEW = reviewDir("postcard-trip");
 mkdirSync(REVIEW, { recursive: true });
 const VIEWPORTS = [
   { name: "390x844", width: 390, height: 844 },

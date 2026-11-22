@@ -1,15 +1,16 @@
 import { type Page, expect, test } from "@playwright/test";
 import { ACTIONS, SCENARIOS, type Scenario, TUTORIAL, isAction } from "../src/games/feelings-garden/bank";
 import { collectErrors, press, screen, seed } from "./helpers";
+import { reviewDir } from "./helpers";
 
 /**
  * Snug's Feelings Garden: story → rounds by tap-tap, drag and keyboard → "not yet" ladder (Rumble's clue, then the
  * modelled answer with every fitting flower glowing) → outro → Bloom Badge + level up. Also: a less kind idea gets
  * a gentle question, two-friend items keep the right flower, and the optional breathing flower works by hold, tap
- * and keyboard. Screenshots of intro / play / reward at the four viewports go to /home/claude/review/feelings-garden/.
+ * and keyboard. Screenshots of intro / play / reward at the four viewports go to test-results/review/feelings-garden/.
  */
 type How = "tap" | "drag" | "keyboard";
-const REVIEW = "/home/claude/review/feelings-garden";
+const REVIEW = reviewDir("feelings-garden");
 const VIEWPORTS = [
   { name: "390x844", width: 390, height: 844 },
   { name: "915x412", width: 915, height: 412 },

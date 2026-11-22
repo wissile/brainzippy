@@ -121,3 +121,11 @@ export async function beginIfAsked(page: Page) {
   await expect(begin.or(onb).first()).toBeVisible({ timeout: 15_000 });
   if (await begin.isVisible()) await begin.click({ force: true, timeout: 5_000 }).catch(() => undefined); // breathing animation never settles
 }
+
+/**
+ * Where specs save review screenshots. Defaults to test-results/review/<name> (works on CI and any machine);
+ * set BZ_REVIEW_DIR (e.g. /home/claude/review) to collect them elsewhere. Never hard-code a machine path.
+ */
+export function reviewDir(name: string): string {
+  return `${process.env.BZ_REVIEW_DIR ?? "test-results/review"}/${name}`;
+}
