@@ -1,10 +1,11 @@
 import { GAMES, libraryPath, overlapYears, type SiteGame, type SiteLibrary } from "../catalog";
-import { Critter, type CritterId, GameCard, GuideCard, PageHead, RefList, Section, ages } from "../components";
+import { Critter, GameCard, GuideCard, PageHead, RefList, Section, ages, isCritterId } from "../components";
 import { SKILLS, type AgeBandInfo, type SubjectInfo } from "../content/curriculum";
 import { GAME_COPY } from "../content/games";
 import { registry } from "../../content";
 import { GUIDES, guideBySlug } from "../content/guides";
 import { REFERENCES } from "../content/references";
+import { subjectWord } from "../entity";
 import { PlayIcon } from "../layout";
 
 export const screenshotPath = (id: string) => `/og/shots/${id}.jpg`;
@@ -16,7 +17,7 @@ export function GamesHub({ libraries, paged }: { libraries: readonly SiteLibrary
       <PageHead title="All BrainZippy games" lead="Every game available today, with the ages it's designed for and the skills it teaches. Each one has several levels and adjusts to your child round by round." art="bobbo" />
       {libraries.map((s) => (
         <Section key={s.id} title={`${s.title} games`}>
-          {paged.includes(s.id) && <p><a className="text-link" href={libraryPath(s.id)}>About the {s.title === "English" ? s.title : s.title.toLowerCase()} library</a></p>}
+          {paged.includes(s.id) && <p><a className="text-link" href={libraryPath(s.id)}>About the {subjectWord(s.title)} library</a></p>}
           <div className="card-grid">
             {s.games.map((g) => <GameCard key={g.id} game={g} />)}
           </div>
@@ -137,14 +138,12 @@ export function GamePage({ game }: { game: SiteGame }) {
   );
 }
 
-const CREW: readonly CritterId[] = ["bobbo", "gloop", "puff", "rumble", "zuzu", "hoot"];
-
 /**
  * A live library's public page (/libraries/<id>): registry facts (host, description, published games) plus the
  * library's editorial copy (src/site/content/curriculum.ts SUBJECTS, keyed by library id). No copy → no page.
  */
 export function LibraryPage({ library, copy: subject, games }: { library: SiteLibrary; copy: SubjectInfo; games: readonly SiteGame[] }) {
-  const host = CREW.find((c) => c === library.host);
+  const host = isCritterId(library.host) ? library.host : undefined;
   const skills = [...new Set(games.flatMap((g) => g.skillIds))];
   const strands = subject.strands.filter((st) => skills.some((id) => id.startsWith(st.skills)));
   const min = Math.min(...games.map((g) => g.ages[0]));
@@ -157,6 +156,31 @@ export function LibraryPage({ library, copy: subject, games }: { library: SiteLi
         <p>{library.description} In the app this library is called {library.kidTitle}, and {library.hostName} is your child's guide.</p>
         <p>{games.length === 1 ? "One game" : `${games.length} games`} today, for ages {min}–{max}. {subject.now}</p>
         <div className="card-grid">{games.map((g) => <GameCard key={g.id} game={g} />)}</div>
+      </Section>
+      {subject.byAge && subject.byAge.length > 0 && (
+        <Section title="What children learn at each age" className="tinted">
+          <p>Ages are a guide, not a rule: every game starts easy and adjusts to your child.</p>
+          <ul>
+            {subject.byAge.map((a) => (
+              <li key={`${a.ages}-${a.status}`}><strong>Ages {a.ages}{a.status === "now" ? " (in the games today)" : " (planned)"}:</strong> {a.body}</li>
+            ))}
+          </ul>
+        </Section>
+      )}
+      <Section title="How the difficulty grows">
+        <ul>
+          {games.map((g) => {
+            const names = GAME_COPY[g.id]?.levelNames ?? [];
+            const first = names[0];
+            const last = names.at(-1);
+            return (
+              <li key={g.id}>
+                <a href={`/games/${g.id}`}>{g.title}</a> has {g.levelCount} levels{first && last ? <>, from “{first}” to “{last}”</> : null}.
+              </li>
+            );
+          })}
+        </ul>
+        <p>Within a round, first-try answers in a row make the next puzzles a little harder, and a puzzle that needs three or more tries makes them easier. A round with at least half the answers right first time moves up a level. Mistakes bring a hint, then a worked example; there are no timers.</p>
       </Section>
       <Section title="What's covered" className="tinted">
         {strands.map((s) => (

@@ -1,7 +1,11 @@
-import { LEVEL_RANGE } from "../catalog";
+import { LEVEL_RANGE, LIBRARIES_NOW } from "../catalog";
 import { SITE } from "../entity";
 
 const AGES = `${SITE.agesNow.min} to ${SITE.agesNow.max}`;
+const ONE_GAME = LIBRARIES_NOW.filter((l) => l.games.length === 1 && l.id !== "english").length;
+const WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve"];
+/** "Nine libraries" (counted from data), for the subjects answer. */
+const NEW_LIBRARIES = `${WORDS[ONE_GAME] ?? ONE_GAME} other ${ONE_GAME === 1 ? "library" : "libraries"}`;
 
 /**
  * Frequently asked questions. Answers are plain text so the same words appear on the page and in
@@ -34,12 +38,12 @@ export const FAQ: readonly FaqGroup[] = [
       },
       {
         q: "Which subjects does BrainZippy cover?",
-        a: `Today: ${SITE.subjectsPhrase}. The maths games run from counting to fractions and equations; English starts with listening games about rhyme. Reading, spelling, science and logic games are planned. We would rather publish a few subjects done well than many half-finished ones.`,
+        a: `Today there are ${LIBRARIES_NOW.length} learning libraries: ${SITE.subjectsPhrase}. The maths games run from counting to fractions and equations, and English starts with listening games about rhyme. ${NEW_LIBRARIES} started with one story game each, from coding with Toggle to naming feelings with Snug. More games are planned in every library, including reading and spelling. We would rather publish a few games done well than many half-finished ones.`,
         link: { href: "/games", label: "All games by subject" },
       },
       {
         q: "Does my child need to be able to read?",
-        a: "Not for the games for younger children. Every instruction is spoken and also shown as a caption, answers are pictures, shapes or numbers, and each game starts with a character showing what to do. Games for older children use written fractions and equations, and the top level of Balance Scale Island has short written word stories.",
+        a: "Not for the games for younger children. Every instruction is spoken and also shown as a caption, answers are pictures, shapes or numbers, and each game starts with a character showing what to do. Games for older children use more text, such as written fractions and equations, budgets and test results, and short pretend messages to inspect in Fenn's Message Mystery (each one can be read aloud). The top level of Balance Scale Island has short written word stories.",
       },
       {
         q: "Does it work on tablets and phones?",

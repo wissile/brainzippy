@@ -41,7 +41,7 @@ export function GrownUpsScreen() {
       <div className="screen-top"><NavButton to="/" label="Home" /><h1 className="screen-title">For grown-ups</h1><span /></div>
       <article className="prose">
         <p className="lead" data-testid="grownups-lead">
-          BrainZippy turns learning into short story adventures: {playableWorlds().length} worlds so far in {joinAnd(liveSubjects().map((x) => x.title))}, with more subjects on the way. Your child is the hero who brings back the lost Brain Sparks of Monster Island, with the Critter Crew as guides.
+          BrainZippy turns learning into short story adventures: {playableWorlds().length} worlds so far in {joinAnd(liveSubjects().map((x) => x.title))}, with more worlds on the way. Your child is the hero who brings back the lost Brain Sparks of Monster Island, with the Critter Crew as guides.
         </p>
 
         <h2>The goal</h2>

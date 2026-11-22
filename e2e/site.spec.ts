@@ -114,7 +114,10 @@ test.describe("public site", () => {
     expect(games.length).toBeGreaterThan(0);
     for (const g of games) expect(llms, g).toContain(`https://brainzippy.com${g})`);
     expect(llms).toContain("https://brainzippy.com/libraries/math)");
-    for (const t of ["Computer science", "Pilot ground school", "Digital safety"]) expect(llms).not.toContain(`### ${t}`);
+    // one "### <library>" section per published library page, no more (coming-soon libraries are never listed)
+    const libs = (await sitemapPaths(request)).filter((p) => p.startsWith("/libraries/"));
+    for (const l of libs) expect(llms, l).toContain(`https://brainzippy.com${l})`);
+    expect(llms.match(/^### /gm)?.length ?? 0).toBe(libs.length);
   });
 
   test("library and age pages list their games with working Play links", async ({ page, request }) => {
@@ -123,8 +126,10 @@ test.describe("public site", () => {
     const hubs = all.filter((p) => p.startsWith("/libraries/") || p.startsWith("/ages/"));
     expect(hubs).toContain("/libraries/english");
     expect(hubs).toContain("/libraries/math");
-    // coming-soon libraries have no public page
-    for (const id of ["cs", "pilot", "money", "cyber", "sci", "geo", "sel", "engr", "nature"]) expect(hubs).not.toContain(`/libraries/${id}`);
+    // every library page is reachable from the games hub (which lists live libraries only)
+    await page.goto("/games");
+    const linked = await page.locator('main a[href^="/libraries/"]').evaluateAll((as) => as.map((a) => a.getAttribute("href")));
+    expect([...new Set(linked)].sort()).toEqual(hubs.filter((p) => p.startsWith("/libraries/")).sort());
     for (const path of hubs) {
       await page.goto(path);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();

@@ -1,11 +1,11 @@
-import { GAMES, LEVEL_RANGE, SUBJECTS_NOW } from "../catalog";
-import { Critter, GameCard, GuideCard, PageHead, RefList, Section, ages } from "../components";
+import { GAMES, LEVEL_RANGE, SUBJECTS_NOW, listJoin } from "../catalog";
+import { Critter, GameCard, GuideCard, PageHead, RefList, Section, ages, isCritterId } from "../components";
 import { SKILLS } from "../content/curriculum";
 import { FAQ } from "../content/faq";
 import { GAME_COPY } from "../content/games";
 import { GUIDES } from "../content/guides";
 import { REFERENCES, type RefKey } from "../content/references";
-import { SITE } from "../entity";
+import { SITE, subjectWord } from "../entity";
 import { PlayLink } from "../layout";
 
 const C = ({ k }: { k: RefKey }) => <a className="cite" href={`#ref-${k}`}>({REFERENCES[k].short})</a>;
@@ -17,7 +17,7 @@ export function Landing({ agePaths, subjectPaths }: { agePaths: readonly { path:
         <div className="wrap hero-grid">
           <div className="hero-copy">
             <h1>Story-based learning games for kids</h1>
-            <p className="lead">Rhyme, count, share and solve your way around Monster Island with the Critter Crew. Spoken instructions, gentle hints, no ads.</p>
+            <p className="lead">Rhyme, count, code, explore and solve your way around Monster Island with the Critter Crew and friends. Spoken instructions, gentle hints, no ads.</p>
             <PlayLink big label="Play" />
             <p className="hero-note">No account needed. For ages {SITE.agesNow.min}–{SITE.agesNow.max}. <a className="tap-link" href="#grown-ups">Grown-ups, start here</a></p>
           </div>
@@ -191,7 +191,7 @@ const PRINCIPLES: readonly { title: string; finding: string; design: string; str
   {
     title: "Active, engaged, meaningful, social",
     finding: "A review of the science of learning suggested that apps teach best when children are mentally active, engaged with the learning goal, making meaningful connections, and interacting socially.",
-    design: "Every puzzle needs a decision with numbers; characters respond to what the child does; animation is there to explain or give feedback.",
+    design: "Every puzzle needs a decision about the learning goal; characters respond to what the child does; animation is there to explain or give feedback.",
     strength: "Expert review and framework, not a single trial.",
     refs: ["hirshpasek2015"],
   },
@@ -324,8 +324,8 @@ export function ForTeachers() {
         <p><strong>Schools can ask for free-access codes.</strong> A code unlocks BrainZippy with no card. It is redeemed once by the grown-up who holds the account, on the parent page; students never need accounts of their own. Children never see prices or purchase prompts.</p>
         <p><a className="text-link" href="/pricing">Pricing and renewal terms</a></p>
       </Section>
-      <Section title="Curriculum links (Common Core)">
-        <p>Our own mapping of each skill to the Common Core State Standards {stdRefs.map((k) => <C key={k} k={k} />)}. “Builds toward” means the game practises an early form or a part of the idea, not the full standard. This is not an official alignment review, and it has not yet been checked by an independent educator.</p>
+      <Section title="Curriculum links">
+        <p>Our own mapping of each skill to published standards and frameworks {stdRefs.map((k) => <C key={k} k={k} />)}. We say “aligned with”: BrainZippy is not certified or endorsed by any of these organisations. “Builds toward” means the game practises an early form or a part of the idea, not the full standard. Frameworks without codes (CASEL, the FAA handbook, CISA and FTC guidance) are named by area. This is not an official alignment review, and it has not yet been checked by an independent educator.</p>
         <table className="table">
           <thead><tr><th scope="col">Skill</th><th scope="col">Game</th><th scope="col">Standards</th></tr></thead>
           <tbody>
@@ -380,6 +380,8 @@ export function FaqPage() {
 }
 
 export function About() {
+  const crew = new Set(["bobbo", "zuzu", "gloop", "hoot", "rumble", "puff"]);
+  const hosts = SUBJECTS_NOW.flatMap((l) => (!crew.has(l.host) && isCritterId(l.host) ? [{ ...l, art: l.host }] : []));
   return (
     <>
       <PageHead title="About BrainZippy" lead={SITE.definition} art="puff" />
@@ -396,11 +398,19 @@ export function About() {
         </ul>
       </Section>
       <Section title="Where we are now">
-        <p>BrainZippy is in early access. Today there are {GAMES.length} games ({SUBJECTS_NOW.map((s) => `${s.games.length} ${s.title === "English" ? s.title : s.title.toLowerCase()}`).join(", ")}) for ages {SITE.agesNow.min} to {SITE.agesNow.max}. We're working on more maths and English, including reading and spelling, then science and logic, for ages {SITE.agesPlanned.min} to {SITE.agesPlanned.max}. We add a game only when it's finished and tested.</p>
+        <p>BrainZippy is in early access. Today there are {GAMES.length} games in {SUBJECTS_NOW.length} learning libraries ({listJoin(SUBJECTS_NOW.map((s) => `${s.games.length} in ${subjectWord(s.title)}`))}) for ages {SITE.agesNow.min} to {SITE.agesNow.max}. We're working on more games in every library, including {listJoin(SITE.subjectsPlanned.map((x) => x.toLowerCase()))}, for ages {SITE.agesPlanned.min} to {SITE.agesPlanned.max}. We add a game only when it's finished and tested.</p>
         <p>Meet the Critter Crew: Bobbo, Zuzu, Gloop, Hoot, Rumble and Puff, the friends who guide children around Monster Island.</p>
         <div className="crew-row" aria-hidden="true">
           {(["bobbo", "zuzu", "gloop", "hoot", "rumble", "puff"] as const).map((c) => <Critter key={c} c={c} size={84} />)}
         </div>
+        {hosts.length > 0 && (
+          <>
+            <p>Each library also has its own host: {listJoin(hosts.map((l) => `${l.hostName} in ${subjectWord(l.title)}`))}.</p>
+            <div className="crew-row" aria-hidden="true">
+              {hosts.map((l) => <Critter key={l.host} c={l.art} size={84} />)}
+            </div>
+          </>
+        )}
       </Section>
       <Section title="Find out more" className="tinted">
         <ul className="pill-list">
