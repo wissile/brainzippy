@@ -8,107 +8,138 @@ The code is on GitHub (`wissile/brainzippy`). Two GitHub Actions workflows handl
 
 Nothing goes live on brainzippy.com without your approval.
 
-Costs while you have no customers: **$0** on Cloudflare Workers Free (D1 included), Resend free tier and Stripe (no monthly fee; Stripe charges a fee per successful payment). Move to Workers Paid ($5/month) when you start taking payments; `docs/DATABASE.md` explains why.
+Production launches as **guest play only** (decision D-030): every game works, progress stays on the device, and nothing that collects personal data or takes money is switched on. Parent accounts, billing and friends are built and tested but stay off until a lawyer has reviewed them ([section 4](#4-turning-features-on-later)).
+
+Costs for a guest-only launch: **$0** on Cloudflare Workers Free (D1 included). Move to Workers Paid ($5/month) when you start taking payments; `docs/DATABASE.md` explains why.
 
 ---
 
-## 1. Cloudflare (about 15 minutes)
+## Shortest path to go live (guest play only, about 20 minutes)
 
-1. Create a Cloudflare account and add **brainzippy.com** as a site: change the nameservers at your registrar to the two Cloudflare gives you. Wait until the zone shows **Active**.
-2. **Account ID:** go to the dashboard, open *Workers & Pages*, and copy the Account ID from the right sidebar.
-3. **API token:** go to *My Profile → API Tokens → Create Token*.
+You need: a Cloudflare account with **brainzippy.com active**, **one API token**, and **two GitHub secrets**. No database to create by hand, no IDs to paste, no Worker secrets.
+
+1. **Cloudflare zone.** Add **brainzippy.com** as a site in Cloudflare and change the nameservers at your registrar to the two Cloudflare gives you. Wait until the zone shows **Active**.
+   - Delete any existing `CNAME` record for `brainzippy.com` itself: Cloudflare can't attach a Worker custom domain to a hostname that has one ([Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/)).
+2. **Account ID.** In the dashboard, open *Workers & Pages* and copy the **Account ID** from the right sidebar.
+3. **API token.** Go to *My Profile → API Tokens → Create Token*.
    - Start from the template **"Edit Cloudflare Workers"**.
-   - Add the permissions **Account → D1 → Edit**, plus **Zone → Workers Routes → Edit** for brainzippy.com.
+   - Make sure it also has **Account → D1 → Edit** (the first deploy creates the database) and **Zone → Workers Routes → Edit** for brainzippy.com (the custom domain; [Workers authorization](https://developers.cloudflare.com/workers/authorization/workers/)).
    - Copy the token. You will not see it again.
-4. **Create the two databases.** From a computer with the project checked out:
+4. **GitHub.** In the repo, go to *Settings → Secrets and variables → Actions → New repository secret*:
+   - `CLOUDFLARE_API_TOKEN` (step 3)
+   - `CLOUDFLARE_ACCOUNT_ID` (step 2)
+
+   Then *Settings → Environments*: create **production** and tick **Required reviewers → you**. Create **staging** too (no reviewers).
+5. **Deploy.** Go to *Actions → Deploy → Run workflow*, choose **production**, then approve the run. The workflow:
+   1. builds the site and Worker with the production config;
+   2. runs `wrangler deploy`, which on the very first run **creates the D1 database `brainzippy-db`** and the **brainzippy.com custom domain** (DNS record and certificate);
+   3. applies the database migrations;
+   4. checks `https://brainzippy.com/api/health` and that the live feature flags are all off.
+6. **Optional, recommended:**
+   - **www redirect:** *Rules → Redirect Rules → Create*: `www.brainzippy.com/*` → `https://brainzippy.com/${1}`, status 301, preserve query string. Add a proxied DNS record for `www` (for example `AAAA www 100::`) so the rule can run.
+   - **`SIGNING_SECRET`:** `npx wrangler secret put SIGNING_SECRET --env production` with any long random string (`openssl rand -base64 48`). Guest play works without it; with it, the rate limiter's hashed IP keys are keyed (HMAC) instead of plain SHA-256.
+   - **Support inbox:** make sure **hello@brainzippy.com** receives mail. It is the contact address on the site, in the grown-ups page and in the legal drafts. Cloudflare Email Routing can forward it to your own inbox for free.
+
+Note that once the two secrets exist, every push to `main` also deploys **staging** (`brainzippy-staging.<your-subdomain>.workers.dev`, its own database `brainzippy-db-staging`). Staging has every feature flag on so you can try accounts and billing, but without the Resend and Stripe secrets, sign-up and checkout refuse with "not available yet", so nobody can leave personal data there.
+
+---
+
+## 1. Which features are on
+
+| Feature | Flag (`wrangler.jsonc` vars) | Production now | Staging / local dev |
+|---|---|---|---|
+| Parent accounts: sign-in/sign-up by magic link, onboarding email step, `/api/parent-signup`, children, sync, parent dashboard, daily digest email | `ACCOUNTS_ENABLED` | `"false"` | `"true"` |
+| Billing: plan page, Stripe Checkout and portal, free-access codes, webhook, the day-15 paywall and trial clock | `BILLING_ENABLED` (needs accounts) | `"false"` | `"true"` |
+| Friends, leaderboard, challenges | `FRIENDS_ENABLED` (needs accounts) | `"false"` | `"true"` |
+| Daily reminders (web push) | `VAPID_PUBLIC_KEY` non-empty | empty (off) | empty (off) |
+
+A flag is on only when its value is exactly `"true"`. When a flag is off:
+- the Worker answers **404** on its routes (indistinguishable from a route that doesn't exist) and its cron job does nothing;
+- the app reads `GET /api/config` (`{accounts, billing, friends, push}`, cached for 5 minutes) and hides everything that belongs to the feature: the onboarding grown-up email step is skipped, `/parents` says "Grown-up accounts are coming soon. Progress is saved on this device.", there is no paywall, `/plan` has nothing to buy and grown-up copy says "Free while we're in early access";
+- the public site is built without the `/pricing` page or any price (it reads the flags of the environment being built).
+
+Always on: guest play, offline play, local progress, the daily game limit, and the nightly retention purge.
+
+## 2. Databases (automatic provisioning)
+
+`wrangler.jsonc` names the databases (`brainzippy-db`, `brainzippy-db-staging`) but has **no `database_id`** for staging or production. Wrangler 4.x provisions D1, KV and R2 bindings automatically on `wrangler deploy` ([changelog, 2025-10-24](https://developers.cloudflare.com/changelog/2025-10-24-automatic-resource-provisioning/)). Checked against the pinned wrangler 4.163.0 source:
+
+- **First deploy:** no database with that name exists, so wrangler creates one named exactly `database_name` and binds it.
+- **Later deploys reuse it.** Wrangler first keeps the database already bound to the deployed Worker (same binding name and database name); otherwise it looks the database up **by name**. The docs say provisioned resources "will stay linked across future deploys even without adding the resource IDs to the config file".
+- **Migrations** (`wrangler d1 migrations apply brainzippy-db --remote --env production`) also find the database by name through the API.
+- **CI doesn't write the ID back** (wrangler only edits the config file in interactive runs).
+
+**Should you paste the ID into `wrangler.jsonc` afterwards?** Not needed, and nothing breaks if you don't. Pasting it (from `npx wrangler d1 list`) pins the binding to that exact database, which protects against one mistake: renaming `database_name` would otherwise make the next deploy create a new, empty database. If you paste it, keep `database_name` unchanged. Database IDs are not secret, but this repo keeps them out on purpose.
+
+The top-level `database_id` (all zeros) is only for local development (`--local` state). A deploy that accidentally fell back to the top level would fail on it, which is the safe outcome.
+
+### Deploy order in the workflow
+
+`build → migrate (only if the database already exists) → wrangler deploy (creates the database on the first run) → migrate → smoke test`.
+
+The first migrate step means that on later deploys the schema is updated before the new code goes live. The second one applies everything to a brand-new database and is a no-op otherwise. Migrations must stay additive: compatible with the code that is live while they run. The smoke test (`scripts/ci-smoke.sh`) fails the run if `/api/health` doesn't answer, or if the live `/api/config` flags differ from the build's `wrangler.jsonc` flags.
+
+## 3. Which environment a deploy uses (and why the top level is production-safe)
+
+- The Vite plugin picks the environment **at build time** from `CLOUDFLARE_ENV` and writes a flattened `dist/brainzippy/wrangler.json`; `wrangler deploy` then deploys exactly that ([Vite plugin: Cloudflare environments](https://developers.cloudflare.com/workers/vite-plugin/reference/cloudflare-environments/)). The workflows always set `CLOUDFLARE_ENV=staging` or `production`. Verified 2026-11-22: `CLOUDFLARE_ENV=production npm run build && npx wrangler deploy --dry-run` accepts the config without a `database_id` and lists `env.DB (brainzippy-db)` with all three flags `"false"`.
+- **Unknown name → hard error.** Verified 2026-11-18 against wrangler 4.163.0: `CLOUDFLARE_ENV=nope` fails with `No environment found in configuration with name "nope"`, because `wrangler.jsonc` defines `env` sections.
+- **Unset or empty → silent fallback to the top level.** That is why the top level is production-safe: `APP_ENV` is `"production"` and every feature flag is `"false"` there, so a mistaken fallback can't switch on development behaviour or unreviewed features.
+- **Development only comes from `.dev.vars`** (gitignored; `cp .dev.vars.example .dev.vars`), which `npm run dev` and `vite preview` read. The Worker also refuses development behaviour unless the request host is `localhost` or `127.0.0.1` (`worker/lib/config.ts`). `wrangler deploy` never reads `.dev.vars`, and the site prerender ignores it too.
+- **See production locally:** `npm run e2e:launch` builds, overrides the three flags to `"false"` in the preview copy only (`scripts/preview-vars.mjs`), and runs the guest-launch browser checks.
+
+## 4. Turning features on later
+
+Each feature needs: **legal review → secrets and settings → flip the flag → deploy**. Flip a flag by changing `"false"` to `"true"` under `env.production.vars` in `wrangler.jsonc`, then run *Deploy → production*. Open apps pick the change up within about five minutes (the `/api/config` cache).
+
+### Parent accounts (`ACCOUNTS_ENABLED`)
+1. **Legal:** a lawyer reviews and finalises `docs/legal/PRIVACY_POLICY_DRAFT.md`, `TERMS_DRAFT.md` and the consent method in `COPPA_CHECKLIST.md`. Publish the final privacy policy before switching on.
+2. **Resend:** create an account, add the domain **brainzippy.com**, add the DNS records it shows (SPF/DKIM, optionally DMARC) in Cloudflare DNS, and wait for **Verified**. Create an API key with *Sending access*.
+3. **Secrets:**
    ```bash
-   npx wrangler login
-   npx wrangler d1 create brainzippy-db-staging
-   npx wrangler d1 create brainzippy-db
+   npx wrangler secret put RESEND_API_KEY --env production
+   npx wrangler secret put SIGNING_SECRET --env production   # if not set yet; openssl rand -base64 48
    ```
-   Each command prints a `database_id`. Paste them into `wrangler.jsonc`, replacing the placeholder zeros:
-   - the `staging` entry ends in `…0001`;
-   - the `production` entry ends in `…0002`.
+   `EMAIL_FROM` is already `BrainZippy <hello@brainzippy.com>`.
+4. Set `ACCOUNTS_ENABLED` to `"true"` and deploy.
 
-   Then commit and push. (Or send me the two IDs and I'll do it.)
-5. **www redirect:** go to *Rules → Redirect Rules → Create*: `www.brainzippy.com/*` → `https://brainzippy.com/${1}`, status 301, preserve query string. Add a proxied DNS record for `www` (e.g. `AAAA www 100::`) so the rule can run.
+Don't switch accounts off again once real parents have accounts: while the flag is off, the parent area (including data export and account deletion) is unavailable to them.
 
-## 2. GitHub (about 5 minutes)
+### Billing (`BILLING_ENABLED`, needs accounts)
+1. **Legal:** terms (refunds, renewal wording), auto-renewal rules and sales tax; see `docs/BILLING.md`.
+2. **Stripe:** follow `docs/BILLING.md`. Short version:
+   - create the product **BrainZippy** with a recurring price of **$6.99/month** and put its `price_…` ID in `STRIPE_PRICE_ID`;
+   - configure the Customer Portal (cancel at period end, no survey);
+   - add a webhook endpoint `https://brainzippy.com/api/billing/webhook` with the events listed in `docs/BILLING.md`;
+   - try everything in **test mode** on staging first.
+3. **Secrets:** `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` (`npx wrangler secret put … --env production`, live keys only on production).
+4. Set `BILLING_ENABLED` to `"true"` and deploy. This also publishes the `/pricing` page and the price wording on the site (the next build picks it up).
+   - Devices start their 14 free days when billing is switched on, not from their first visit: no trial clock runs while billing is off.
+   - Move to Workers Paid first (`docs/DATABASE.md`).
 
-In the repo, go to *Settings → Secrets and variables → Actions*:
-- **Secrets:** `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` (from step 1).
-- **Variable (optional):** `STAGING_URL`, the staging address shown after the first deploy, e.g. `https://brainzippy-staging.<your-subdomain>.workers.dev`. It's used for a smoke test.
-
-Then go to *Settings → Environments*:
-- Create **production** and tick **Required reviewers → you**. This is the approval step before anything reaches brainzippy.com.
-- Create **staging** (no reviewers needed).
-
-## 3. Worker secrets (per environment)
-
-Set these once for staging and once for production. Run each command and paste the value when asked:
-```bash
-npx wrangler secret put SIGNING_SECRET      --env staging   # any long random string: openssl rand -base64 48
-npx wrangler secret put RESEND_API_KEY      --env staging   # step 4
-npx wrangler secret put STRIPE_SECRET_KEY   --env staging   # step 5 (test-mode key on staging!)
-npx wrangler secret put STRIPE_WEBHOOK_SECRET --env staging # step 5
-npx wrangler secret put VAPID_PRIVATE_KEY   --env staging   # step 6
-# …then the same with --env production (live Stripe keys only on production)
-```
-
-Non-secret settings live in `wrangler.jsonc` under each environment's `vars`:
-- `APP_ORIGIN`: for staging, set the workers.dev URL.
-- `EMAIL_FROM`
-- `STRIPE_PRICE_ID`
-- `VAPID_PUBLIC_KEY`
-
-### Which environment a deploy uses (and why the top level is production-safe)
-
-- The Vite plugin picks the environment **at build time** from `CLOUDFLARE_ENV` and writes a flattened `dist/brainzippy/wrangler.json`; `wrangler deploy` then deploys exactly that ([Vite plugin: Cloudflare environments](https://developers.cloudflare.com/workers/vite-plugin/reference/cloudflare-environments/)). The workflows always set `CLOUDFLARE_ENV=staging` or `production`.
-- **Unknown name → hard error.** Verified 2026-11-18 against the pinned wrangler 4.163.0 (the config loader used by both wrangler and the Vite plugin): `CLOUDFLARE_ENV=nope` (or `--env nope`) fails with `No environment found in configuration with name "nope"` because `wrangler.jsonc` defines `env` sections. (Wrangler only downgrades this to a warning when a config has no `env` sections at all.) The official docs ([system environment variables](https://developers.cloudflare.com/workers/wrangler/system-environment-variables/)) don't describe this case, so re-check after upgrading wrangler.
-- **Unset or empty → silent fallback to the top level.** `CLOUDFLARE_ENV=""` or a missing variable builds the top-level config (Worker name `brainzippy`, no custom domain, placeholder D1). That is why the top level is production-safe: `APP_ENV` is `"production"` and `FRIENDS_ENABLED` is `"false"` there, so a mistaken fallback can't switch on development behaviour or unreviewed features.
-- **Development only comes from `.dev.vars`** (gitignored; `cp .dev.vars.example .dev.vars`), which `npm run dev` and `vite preview` read. The Worker also refuses development behaviour (on-screen magic links, dev signing secret, fake Stripe, per-IP rate-limit bypass) unless the request host is `localhost` or `127.0.0.1` (`worker/lib/config.ts`), so even a misconfigured deploy can't expose it on a real host. CI copies the example before the browser tests. `wrangler deploy` never reads `.dev.vars`.
-
-## 4. Resend (parent emails)
-
-1. Create a Resend account and add the domain **brainzippy.com**.
-2. Resend shows DNS records (SPF/DKIM, and optionally DMARC). Add them in Cloudflare DNS and wait for **Verified**.
-3. Create an API key with *Sending access* and set it as `RESEND_API_KEY` (step 3).
-
-Until this is done, sign-in links are only printed in the local development console. Staging and production refuse to pretend they sent email.
-
-## 5. Stripe (payments)
-
-Follow `docs/BILLING.md`. Short version:
-1. Create the product **BrainZippy** with a recurring price of **$6.99/month**, and put its price ID (`price_…`) in `STRIPE_PRICE_ID`.
-2. Configure the Customer Portal: cancel at period end, no cancellation survey.
-3. Add a webhook endpoint `https://brainzippy.com/api/billing/webhook` (staging: your workers.dev URL) with the events listed in `docs/BILLING.md`. Copy its signing secret to `STRIPE_WEBHOOK_SECRET`.
-4. Use **test mode** keys on staging. Switch production to live keys only after a full test.
-5. Recommended: enable Stripe Tax.
+Switching billing off again doesn't cancel anyone's Stripe subscription, and the webhook stops answering. Cancel subscriptions in Stripe first.
 
 Free-access codes for schools and promotions: `node scripts/access-code.mjs --help`.
 
-## 6. Daily reminders (web push)
+### Friends, leaderboard and challenges (`FRIENDS_ENABLED`, needs accounts)
+1. **Legal:** a lawyer must answer in writing which verifiable parental consent method social features need (`docs/legal/COPPA_CHECKLIST.md`, question 1).
+2. Set `FRIENDS_ENABLED` to `"true"` and deploy.
 
+### Daily reminders (`VAPID_PUBLIC_KEY`)
 ```bash
 node scripts/gen-vapid.mjs
 ```
 This prints a key pair:
-- Put the **public** key in `VAPID_PUBLIC_KEY` (`wrangler.jsonc`, per environment).
-- Set the **private** key as the `VAPID_PRIVATE_KEY` secret.
+- Put the **public** key in `VAPID_PUBLIC_KEY` under `env.production.vars`.
+- Set the **private** key as a secret: `npx wrangler secret put VAPID_PRIVATE_KEY --env production`.
 
-Leaving the public key empty keeps reminders switched off.
+`VAPID_SUBJECT` is already `mailto:hello@brainzippy.com`. Reminders need no account (they are per device, behind the grown-up check), but describe them in the privacy policy before switching them on.
 
-## 7. First deploy
+### Staging
 
-1. Push to `main`, or run *Actions → Deploy → staging*. The workflow applies database migrations, deploys, and smoke-tests `/api/health`.
-2. Try staging end to end:
-   - landing page → play → sign-in email;
-   - Stripe test checkout with card `4242 4242 4242 4242`;
-   - reminders.
-3. When you're happy, run *Actions → Deploy → production* and approve it. The workflow migrates the production database, deploys, creates the brainzippy.com custom domain on first deploy, and checks `https://brainzippy.com/api/health`.
+Staging gets the same secrets, with `--env staging` and Stripe **test** keys. Set `APP_ORIGIN` under `env.staging.vars` to the workers.dev URL, and the optional GitHub variable `STAGING_URL` to the same address for the smoke test.
 
 ## Before real customers (not code)
 
 - Have a lawyer review `docs/legal/*` (privacy policy, terms, COPPA checklist). These are drafts and not legal advice.
 - Decide the refund policy (placeholder in the terms) and how long to keep consent records.
-- Register a support email address and add it to the privacy policy.
+- Company name and address in the legal drafts are still placeholders. The contact address is hello@brainzippy.com.

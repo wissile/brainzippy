@@ -50,6 +50,7 @@ Code splitting: the game (engine + art + runner) is a lazy chunk; home/menus loa
 | Method | Path | Body | Notes |
 |---|---|---|---|
 | GET | /api/health | – | `{ok, env}` |
+| GET | /api/config | – | `{accounts, billing, friends, push}` booleans, `cache-control: public, max-age=300`, no auth, no PII (D-030). Account routes answer 404 unless `ACCOUNTS_ENABLED="true"`, billing routes unless `BILLING_ENABLED="true"` too, friends/challenges unless `FRIENDS_ENABLED="true"` too |
 | POST | /api/guest | – | creates random UUID row, 201 |
 | GET | /api/guest/:id/progress | – | 404 if unknown |
 | PUT | /api/guest/:id/progress | GuestProgress JSON ≤ 8 KB | strict schema (`progressSchema.ts`, shared client/Worker); unknown keys rejected |
@@ -106,13 +107,13 @@ When `loadState().challenge` is set and its `gameId` matches the game being open
 
 Config hardening: `workers_dev: false`, `preview_urls: false`, invocation logs off, no `nodejs_compat` (unused), compatibility date 2026-11-01.
 
-Placeholders: both `database_id` values in `wrangler.jsonc` are zero UUIDs; replace after `wrangler d1 create`. Secrets (`wrangler secret put`, `.dev.vars` locally): `RESEND_API_KEY`, `SIGNING_SECRET` (≥32 random bytes). Vars: `EMAIL_FROM`, `APP_ORIGIN` (https origin for emailed links), `DIGEST_BATCH`. Local development needs none (magic links are logged and shown on screen), but only with `APP_ENV=development` from `.dev.vars` and a localhost request.
+Databases: staging and production D1 bindings have only `database_name`; `wrangler deploy` provisions the database on the first deploy and reuses it by name afterwards (docs/DEPLOY.md §2). The top-level zero `database_id` is for local state only. Feature flags `ACCOUNTS_ENABLED`, `BILLING_ENABLED`, `FRIENDS_ENABLED`: `"false"` at the top level and in production (guest-only launch, D-030), `"true"` in staging and `.dev.vars`. Secrets (`wrangler secret put`, `.dev.vars` locally): `RESEND_API_KEY`, `SIGNING_SECRET` (≥32 random bytes). Vars: `EMAIL_FROM`, `APP_ORIGIN` (https origin for emailed links), `DIGEST_BATCH`. Local development needs none (magic links are logged and shown on screen), but only with `APP_ENV=development` from `.dev.vars` and a localhost request.
 
 ## Caching
 `public/_headers`: `/assets/*` (hashed) `max-age=31536000, immutable`; `/audio/*` 7 days; HTML default (revalidate). Worker responses set their own headers (`_headers` doesn't apply to them).
 
 ## CI/CD
-`.github/workflows/ci.yml`: typecheck → unit → Playwright (all projects). Deployment is deliberately manual until credentials and approval exist; the staging job template uses `cloudflare/wrangler-action@v4` with a scoped API token secret.
+`.github/workflows/ci.yml`: typecheck → unit → Playwright (all projects). `.github/workflows/deploy.yml`: staging on push to `main`, production by hand behind the owner-approved GitHub environment; each job runs build → migrate if the DB exists (`scripts/ci-d1.sh pre`) → `wrangler deploy` → migrate (`scripts/ci-d1.sh post`) → smoke test (`scripts/ci-smoke.sh`: health + live flags equal the build's).
 
 ## Cost assumptions
 At launch traffic everything fits the **Free** plan: static asset requests are free and unlimited; only `/api/*` counts toward 100k Worker requests/day; each round costs ~2 API calls and 1–2 D1 row writes (100k writes/day free). Usage-billed items to watch: Worker requests beyond free tier, D1 writes, future R2 storage/ops, Workers Builds minutes. Paid plan: $5/month minimum. Details and sources: research/CLOUDFLARE_NOTES.md §8.
