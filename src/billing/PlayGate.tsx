@@ -4,6 +4,7 @@ import { useApp } from "../app/AppContext";
 import { DEFAULT_MONSTER, Monster } from "../characters/Monster";
 import { loadState } from "../services/storage";
 import { NavButton, SoundButton, SpeechBubble } from "../ui/controls";
+import { onFeaturesChange } from "../app/features";
 import { currentDecision, markFirstPlay, onBillingChange, refreshEntitlement } from "./client";
 import "./billing.css";
 
@@ -11,6 +12,8 @@ import "./billing.css";
  * Wraps every game. Decides from the device at once (no network wait). A background refresh can UNLOCK straight away
  * (a grown-up just paid) but only LOCKS at the next game open, so a round in progress is never cut off.
  * Children never see prices here: only a sleepy monster and a button that fetches a grown-up.
+ * Billing off (D-030): always playable, no trial clock, no network call. If the flags arrive during this visit and
+ * billing turns out to be on, first play is recorded then (the gate still only locks at the next game open).
  */
 export function PlayGate({ children }: { children: React.ReactNode }) {
   const [playable, setPlayable] = useState(() => {
@@ -30,10 +33,16 @@ export function PlayGate({ children }: { children: React.ReactNode }) {
     const onVisible = () => document.visibilityState === "visible" && !playableRef.current && void check();
     document.addEventListener("visibilitychange", onVisible);
     const off = onBillingChange(() => !playableRef.current && currentDecision().playable && setPlayable(true));
+    const offFeatures = onFeaturesChange(() => {
+      markFirstPlay(); // no-op unless billing is now on
+      if (!playableRef.current && currentDecision().playable) setPlayable(true); // billing switched off: unlock
+      void check();
+    });
     return () => {
       live = false;
       document.removeEventListener("visibilitychange", onVisible);
       off();
+      offFeatures();
     };
   }, []);
 

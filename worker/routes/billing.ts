@@ -1,4 +1,4 @@
-import type { Ctx, Route } from "../router";
+import { behind, type Ctx, type Route } from "../router";
 import { requireParent } from "../lib/auth";
 import { appOrigin } from "../lib/config";
 import { billingDeletionStatements, billingExport, loadBilling, mergeTrialStart } from "../lib/entitlements";
@@ -39,7 +39,7 @@ async function readBody(c: Ctx, keys: string[]): Promise<Record<string, unknown>
   return isObj(body) && onlyKeys(body, keys) ? body : null;
 }
 
-export const routes: Route[] = [
+export const routes: Route[] = behind("billing", [
   {
     method: "POST",
     path: "/api/billing/status",
@@ -188,7 +188,7 @@ export const routes: Route[] = [
     },
   },
   ...devRoutes(),
-];
+]);
 
 /* ---------------- account deletion + export hooks (used by worker/routes/me.ts) ---------------- */
 

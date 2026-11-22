@@ -3,6 +3,7 @@
  * To add a module (e.g. push, billing): create worker/routes/<name>.ts and add one export line below.
  */
 export { routes as health } from "./health";
+export { routes as config } from "./config";
 export { routes as guest } from "./guest";
 export { routes as parentSignup } from "./parentSignup";
 export { routes as auth } from "./auth";

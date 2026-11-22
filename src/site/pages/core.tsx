@@ -320,9 +320,18 @@ export function ForTeachers() {
         </ul>
       </Section>
       <Section title="What it costs" className="tinted">
-        <p>BrainZippy is not free, but you can try it fully before paying anything. {SITE.pricing ? `Every device gets ${SITE.pricing.freePlayDays} days of free play with no account or card. After that, a grown-up can add a card for a ${SITE.pricing.trialDays}-day free trial, and then the plan costs $${SITE.pricing.amount} a month until it's cancelled. Cancel anytime.` : ""}</p>
-        <p><strong>Schools can ask for free-access codes.</strong> A code unlocks BrainZippy with no card. It is redeemed once by the grown-up who holds the account, on the parent page; students never need accounts of their own. Children never see prices or purchase prompts.</p>
-        <p><a className="text-link" href="/pricing">Pricing and renewal terms</a></p>
+        {SITE.pricing ? (
+          <>
+            <p>BrainZippy is not free, but you can try it fully before paying anything. Every device gets {SITE.pricing.freePlayDays} days of free play with no account or card. After that, a grown-up can add a card for a {SITE.pricing.trialDays}-day free trial, and then the plan costs ${SITE.pricing.amount} a month until it's cancelled. Cancel anytime.</p>
+            <p><strong>Ask us for a free school code:</strong> email <a className="text-link" href={`mailto:${SITE.email}`}>{SITE.email}</a>. A code unlocks BrainZippy with no card. It is redeemed once by the grown-up who holds the account, on the parent page; students never need accounts of their own. Children never see prices or purchase prompts.</p>
+            <p><a className="text-link" href="/pricing">Pricing and renewal terms</a></p>
+          </>
+        ) : (
+          <>
+            <p><strong>Free while we're in early access.</strong> Every game is open on every classroom device, with no sign-up, no card and nothing to buy. Children never see prices or purchase prompts.</p>
+            <p>Planning to use BrainZippy with a class, or have feedback from your classroom? Email us at <a className="text-link" href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+          </>
+        )}
       </Section>
       <Section title="Curriculum links">
         <p>Our own mapping of each skill to published standards and frameworks {stdRefs.map((k) => <C key={k} k={k} />)}. We say “aligned with”: BrainZippy is not certified or endorsed by any of these organisations. “Builds toward” means the game practises an early form or a part of the idea, not the full standard. Frameworks without codes (CASEL, the FAA handbook, CISA and FTC guidance) are named by area. This is not an official alignment review, and it has not yet been checked by an independent educator.</p>
@@ -411,6 +420,9 @@ export function About() {
             </div>
           </>
         )}
+      </Section>
+      <Section title="Contact us">
+        <p>Questions, feedback or a problem? Email <a className="text-link" href={`mailto:${SITE.email}`}>{SITE.email}</a>. We read every message.</p>
       </Section>
       <Section title="Find out more" className="tinted">
         <ul className="pill-list">

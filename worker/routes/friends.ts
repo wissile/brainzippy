@@ -1,4 +1,4 @@
-import type { Route, Ctx } from "../router";
+import { behind, type Route, type Ctx } from "../router";
 import { weekSummary, addDays } from "../../src/account/points";
 import { ownChild, requireParent, type ChildRow } from "../lib/auth";
 import { rowMonster, rowProgress, rowPublicName } from "../lib/children";
@@ -204,4 +204,4 @@ const featureRoutes: Route[] = [
 ];
 
 /** Behind FRIENDS_ENABLED (off in production until a lawyer decides on verifiable parental consent). */
-export const routes: Route[] = featureRoutes.map((r) => ({ ...r, feature: "friends" }));
+export const routes: Route[] = behind("friends", featureRoutes);

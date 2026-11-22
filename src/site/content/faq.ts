@@ -91,11 +91,16 @@ export const FAQ: readonly FaqGroup[] = [
         q: "Will my child see purchase prompts?",
         a: "No. Children never see purchase prompts. Anything about accounts or money sits behind a grown-up check.",
       },
-      {
-        q: "Is BrainZippy free?",
-        a: "Every device gets 14 days of free play with no account or card. Then a grown-up can add a card for a 14-day free trial, after which the family plan costs $6.99 a month until you cancel. Cancel anytime from the parent page; children never see prices or purchase prompts. Free-access codes, which need no card, are available for schools and some promotions.",
-        link: { href: "/pricing", label: "Pricing and renewal terms" },
-      },
+      SITE.billing
+        ? {
+            q: "Is BrainZippy free?",
+            a: "Every device gets 14 days of free play with no account or card. Then a grown-up can add a card for a 14-day free trial, after which the family plan costs $6.99 a month until you cancel. Cancel anytime from the parent page; children never see prices or purchase prompts. Free-access codes, which need no card, are available for schools and some promotions.",
+            link: { href: "/pricing", label: "Pricing and renewal terms" },
+          }
+        : {
+            q: "Is BrainZippy free?",
+            a: "Yes, BrainZippy is free while we're in early access. Every game is open, with no account, no card and nothing to buy, and children never see prices or purchase prompts. If that changes, we'll say so clearly on this site first.",
+          },
       {
         q: "How do I delete my child's progress?",
         a: "Open the grown-ups page inside the game, answer the grown-up check, and choose to delete all progress on the device. Clearing your browser's site data for brainzippy.com also removes it.",
@@ -108,8 +113,19 @@ export const FAQ: readonly FaqGroup[] = [
     items: [
       {
         q: "Can teachers use BrainZippy in class?",
-        a: "Yes, in guest mode on classroom devices, with no student accounts and no student data collected. Each device gets the same free play and trial as a family, and schools can ask for free-access codes. Classroom features such as class codes and teacher reports are not available yet.",
+        a: SITE.billing
+          ? `Yes, in guest mode on classroom devices, with no student accounts and no student data collected. Each device gets the same free play and trial as a family, and schools can ask us for a free school code at ${SITE.email}. Classroom features such as class codes and teacher reports are not available yet.`
+          : `Yes, in guest mode on classroom devices, with no student accounts and no student data collected. It's free while we're in early access. Classroom features such as class codes and teacher reports are not available yet; tell us what your class needs at ${SITE.email}.`,
         link: { href: "/for-teachers", label: "BrainZippy for teachers" },
+      },
+    ],
+  },
+  {
+    name: "Contact",
+    items: [
+      {
+        q: "How do I contact BrainZippy?",
+        a: `Email us at ${SITE.email} with questions, feedback or a problem. We read every message. Please don't include your child's full name or other personal details about them.`,
       },
     ],
   },

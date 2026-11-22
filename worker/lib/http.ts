@@ -9,9 +9,12 @@ export const SECURITY_HEADERS: Record<string, string> = {
   "strict-transport-security": "max-age=63072000; includeSubDomains",
 };
 
+/** Extra headers replace the defaults (e.g. a cacheable cache-control); set-cookie is appended so several can be sent. */
+const addHeaders = (headers: Headers, extra: HeadersInit) => new Headers(extra).forEach((v, k) => (k === "set-cookie" ? headers.append(k, v) : headers.set(k, v)));
+
 export function json(body: unknown, status = 200, extra: HeadersInit = {}): Response {
   const headers = new Headers(SECURITY_HEADERS);
-  new Headers(extra).forEach((v, k) => headers.append(k, v));
+  addHeaders(headers, extra);
   return new Response(JSON.stringify(body), { status, headers });
 }
 

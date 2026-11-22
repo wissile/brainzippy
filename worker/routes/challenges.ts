@@ -1,4 +1,4 @@
-import type { Ctx, Route } from "../router";
+import { behind, type Ctx, type Route } from "../router";
 import { WORLDS } from "../../src/account/catalog";
 import { ownChild, requireParent } from "../lib/auth";
 import { rowMonster, rowPublicName } from "../lib/children";
@@ -168,4 +168,4 @@ const featureRoutes: Route[] = [
 ];
 
 /** Behind FRIENDS_ENABLED (off in production until a lawyer decides on verifiable parental consent). */
-export const routes: Route[] = featureRoutes.map((r) => ({ ...r, feature: "friends" }));
+export const routes: Route[] = behind("friends", featureRoutes);

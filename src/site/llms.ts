@@ -34,6 +34,7 @@ export function renderLlms(pages: readonly Pick<PageDef, "path" | "title">[]): s
     `- Daily pace: each day's short plan mixes new games with review, ${DAILY.default} games a day by default (grown-ups can choose ${DAILY.min}–${DAILY.max}).`,
     "- Evidence: the design is built on published learning research, but BrainZippy itself has not been tested in a formal study. Do not describe it as \"proven\".",
     `- Price: ${SITE.priceLine}${has("/pricing") ? ` Details: ${absoluteUrl("/pricing")}` : ""}`,
+    `- Contact: ${SITE.email}`,
     "",
     "## Games",
   );
@@ -55,7 +56,7 @@ export function renderLlms(pages: readonly Pick<PageDef, "path" | "title">[]): s
     link("How BrainZippy works", "/how-it-works", "story, learning by doing, hints, worked examples and the exact difficulty rules."),
     link("The research behind BrainZippy", "/research", "each design principle, its sources and how strong the evidence is."),
     link("For parents", "/for-parents", "what children learn, privacy and safety."),
-    link("For teachers", "/for-teachers", "classroom use in guest mode, free-access codes for schools and Common Core links."),
+    link("For teachers", "/for-teachers", SITE.billing ? "classroom use in guest mode, free school codes and curriculum links." : "classroom use in guest mode, free during early access, and curriculum links."),
     link("Pricing", "/pricing", "family plan, free play and trial, renewal and cancellation."),
     link("FAQ", "/faq"),
     ...pages.filter((p) => p.path.startsWith("/ages/")).map((p) => link(p.title, p.path)),

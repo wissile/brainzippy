@@ -8,12 +8,15 @@ import { loadState } from "../services/storage";
 import { GrownUpsScreen } from "./screens";
 import { Onboarding } from "../onboarding/Onboarding";
 import { startAccountSync } from "../services/accountSync";
+import { startFeatures } from "./features";
 import { PlayGate } from "../billing/PlayGate";
 
 // Parent area + friend challenges (lazy: never loaded during normal play).
 const ParentsApp = lazy(() => import("../account/ParentsApp"));
 const ChallengeScreen = lazy(() => import("../account/ChallengeScreen"));
 const PlanScreen = lazy(() => import("../billing/PlanScreen"));
+// Optional features (accounts, billing, friends, push) from GET /api/config; cached, never blocks the first render.
+void startFeatures();
 startAccountSync();
 import { DailyGate } from "../daily/DailyGate";
 

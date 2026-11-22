@@ -1,7 +1,7 @@
-import type { Route } from "../router";
+import { behind, type Route } from "../router";
 import { requireParent, type ChildRow } from "../lib/auth";
 import { childOut, deleteChildrenStatements, rowPublicName } from "../lib/children";
-import { friendsEnabled } from "../lib/config";
+import { billingEnabled, friendsEnabled } from "../lib/config";
 import { getEntitlement } from "../lib/entitlements";
 import { err, json, readJson } from "../lib/http";
 import { clearCookie } from "../lib/session";
@@ -18,7 +18,7 @@ interface ParentRow {
   digest_opt_in: number;
 }
 
-export const routes: Route[] = [
+export const routes: Route[] = behind("accounts", [
   {
     method: "GET",
     path: "/api/me",
@@ -35,7 +35,7 @@ export const routes: Route[] = [
         parent: { email: parent.email, digestOptIn: parent.digest_opt_in === 1, createdAt: parent.created_at },
         children: (kids?.results as ChildRow[]).map(childOut),
         entitlement: await getEntitlement(c.env, { parentId: s.parentId }),
-        features: { friends: friendsEnabled(c.env) },
+        features: { friends: friendsEnabled(c.env), billing: billingEnabled(c.env) },
       });
     },
   },
@@ -115,5 +115,5 @@ export const routes: Route[] = [
       return json({ ok: true }, 200, { "set-cookie": clearCookie(c.url) });
     },
   },
-];
+]);
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { audio } from "../audio/AudioEngine";
 import { useApp } from "../app/AppContext";
+import { useFeatures } from "../app/features";
 import { AGE_BANDS } from "../app/screens";
 import { Bobbo } from "../characters/Bobbo";
 import { Gloop, Hoot, Puff, Rumble, Zuzu } from "../characters/Crew";
@@ -18,8 +19,11 @@ import { IconCheck, IconPlay } from "../ui/icons";
  * First-run flow: hook with story + play BEFORE asking anything, then let the child create something of their own.
  *   intro story → bubble-pop warm-up → build your monster → name it → your name (device-only) → age
  *   → grown-up step (parent gate + parent email with consent, skippable) → adventure map
+ * With parent accounts switched off (ACCOUNTS_ENABLED, D-030) the grown-up step is left out entirely: nothing is
+ * asked, no email field exists, and age goes straight to the map.
  */
 const ORDER: OnboardingStep[] = ["intro", "pop", "build", "name", "kid", "age", "grownup", "done"];
+const GUEST_ORDER: OnboardingStep[] = ORDER.filter((s) => s !== "grownup");
 const MONSTER_NAMES = ["Ziggy", "Pip", "Mo", "Bloop", "Nova", "Fizz", "Taco", "Luna"];
 
 function useProfile() {
@@ -36,17 +40,24 @@ function useProfile() {
 export function Onboarding() {
   const { navigate, audioReady, audioChecked, unlockAudio } = useApp();
   const [profile, update] = useProfile();
-  const step = profile.step;
+  const { accounts } = useFeatures();
+  const order = accounts ? ORDER : GUEST_ORDER;
+  // A device that stopped on the grown-up step before accounts were switched off finishes onboarding instead.
+  const step = !accounts && profile.step === "grownup" ? "done" : profile.step;
   const next = useCallback(() => {
-    const i = ORDER.indexOf(loadState().profile.step);
-    const to = ORDER[Math.min(ORDER.length - 1, i + 1)]!;
+    const cur = loadState().profile.step;
+    const i = order.indexOf(cur);
+    const to = i < 0 ? "done" : order[Math.min(order.length - 1, i + 1)]!;
     update({ step: to });
     if (to === "done") navigate("/map", { replace: true });
-  }, [update, navigate]);
+  }, [update, navigate, order]);
 
   useEffect(() => {
-    if (step === "done") navigate("/map", { replace: true });
-  }, [step, navigate]);
+    if (step === "done") {
+      if (profile.step !== "done") update({ step: "done" });
+      navigate("/map", { replace: true });
+    }
+  }, [step, profile.step, update, navigate]);
 
   if (!audioReady && step !== "done") {
     return (
@@ -66,8 +77,8 @@ export function Onboarding() {
     <main className={`onb step-${step}`} data-testid="onboarding" data-step={step}>
       <MeadowBackground />
       <div className="onb-top">
-        <span className="onb-dots" aria-label={`Step ${ORDER.indexOf(step) + 1} of ${ORDER.length - 1}`}>
-          {ORDER.slice(0, -1).map((s, i) => <i key={s} className={i <= ORDER.indexOf(step) ? "on" : ""} />)}
+        <span className="onb-dots" aria-label={`Step ${order.indexOf(step) + 1} of ${order.length - 1}`}>
+          {order.slice(0, -1).map((s, i) => <i key={s} className={i <= order.indexOf(step) ? "on" : ""} />)}
         </span>
         <AudioButtons />
       </div>
@@ -77,7 +88,7 @@ export function Onboarding() {
       {step === "name" && <NameMonster monster={profile.monster ?? DEFAULT_MONSTER} initial={profile.monsterName} onDone={(n) => { update({ monsterName: n }); next(); }} />}
       {step === "kid" && <KidName monster={profile.monster ?? DEFAULT_MONSTER} initial={profile.kidName} onDone={(n) => { update({ kidName: n }); next(); }} />}
       {step === "age" && <AgeStep onDone={() => next()} />}
-      {step === "grownup" && <GrownUp onDone={(s) => { update({ parentSignup: s }); next(); }} />}
+      {step === "grownup" && accounts && <GrownUp onDone={(s) => { update({ parentSignup: s }); next(); }} />}
     </main>
   );
 }

@@ -1,11 +1,11 @@
 # BrainZippy Privacy Policy — DRAFT
 
-> **DRAFT — NOT LEGAL ADVICE — NOT PUBLISHED.** Written by the engineering team to describe what the software actually does (see `docs/PRIVACY_SECURITY.md`). A qualified lawyer must review and finalise it before any real parent account is enabled. Items marked **[LAWYER]** need a legal decision. Company name, address and contact details are placeholders.
+> **DRAFT — NOT LEGAL ADVICE — NOT PUBLISHED.** Written by the engineering team to describe what the software actually does (see `docs/PRIVACY_SECURITY.md`). A qualified lawyer must review and finalise it before any real parent account is enabled. Items marked **[LAWYER]** need a legal decision. Company name and address are placeholders; the contact address is hello@brainzippy.com (owner decision 2026-11-22).
 
 _Last updated: [DATE]. Version: draft-2026-11-18._
 
 ## 1. Who we are
-BrainZippy ("we", "us") makes learning games for children aged 3–14 at brainzippy.com. Contact: [privacy@brainzippy.com] · [Company legal name, address]. **[LAWYER]** EU/UK representative if required.
+BrainZippy ("we", "us") makes learning games for children aged 3–14 at brainzippy.com. Contact: hello@brainzippy.com · [Company legal name, address]. **[LAWYER]** EU/UK representative if required.
 
 ## 2. The short version
 - Children can play **without an account**. Guest play stores progress only in the browser on your device.
@@ -62,7 +62,7 @@ We do not sell or rent personal information and do not share it for advertising.
 | Database recovery history | Deleted data can remain in our database provider's point-in-time recovery history for **up to 30 days**, then it is gone |
 
 ## 8. Your choices and rights
-From the parent area (behind a grown-up check) you can: see and change your children's profiles and settings; turn the nickname and daily summary on or off; **download all your data (JSON)**; **delete a child profile** or **delete your account**, which removes it from our live database immediately. You can also clear everything stored on a device. Under COPPA you can review, delete and refuse further collection of your child's information; under GDPR/UK GDPR you also have rights of access, rectification, erasure, restriction, portability and objection, and to complain to your supervisory authority. Contact [privacy@brainzippy.com]. **[LAWYER]** response timelines and identity verification for requests made outside the parent area.
+From the parent area (behind a grown-up check) you can: see and change your children's profiles and settings; turn the nickname and daily summary on or off; **download all your data (JSON)**; **delete a child profile** or **delete your account**, which removes it from our live database immediately. You can also clear everything stored on a device. Under COPPA you can review, delete and refuse further collection of your child's information; under GDPR/UK GDPR you also have rights of access, rectification, erasure, restriction, portability and objection, and to complain to your supervisory authority. Contact hello@brainzippy.com. **[LAWYER]** response timelines and identity verification for requests made outside the parent area.
 
 ## 9. Security
 Sign-in links and session identifiers are stored only as one-way hashes. Cookies are HttpOnly, Secure and SameSite. Requests that change data must come from our own site. Access is rate-limited. Our team never uses real children's data for development or testing.

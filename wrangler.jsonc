@@ -19,7 +19,8 @@
     {
       "binding": "DB",
       "database_name": "brainzippy-db",
-      // Placeholder for local dev. Replace with the real ID from `wrangler d1 create brainzippy-db` before any remote deploy.
+      // Placeholder for LOCAL development only (`--local` D1 state). Staging and production have no database_id and are
+      // provisioned by `wrangler deploy`; a deploy that fell back to this top level would fail on this id (safe).
       "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "migrations"
     }
@@ -30,20 +31,42 @@
   // Top level is production-safe on purpose: if a deploy ever falls back to the top level, nothing development-only
   // turns on. Local development sets APP_ENV=development in the gitignored .dev.vars (copy .dev.vars.example), and
   // the Worker additionally requires a localhost request before any development behaviour runs (worker/lib/config.ts).
-  // FRIENDS_ENABLED: friends, leaderboard and challenges. "false" here and in production until a lawyer decides on
-  // verifiable parental consent (docs/legal/COPPA_CHECKLIST.md); "true" in staging and in .dev.vars.
-  "vars": { "APP_ENV": "production", "FRIENDS_ENABLED": "false", "STRIPE_PRICE_ID": "", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
+  // Feature flags (D-030: guest-only production launch until legal review). Each is on only when exactly "true".
+  //   ACCOUNTS_ENABLED: parent sign-in/sign-up, children, sync, dashboard, daily digest email.
+  //   BILLING_ENABLED:  checkout, portal, codes, webhook and the day-15 trial clock (needs accounts).
+  //   FRIENDS_ENABLED:  friends, leaderboard and challenges (needs accounts; a lawyer must decide on verifiable
+  //                     parental consent first, docs/legal/COPPA_CHECKLIST.md).
+  // "false" here and in production; "true" in staging and in .dev.vars. How to turn each on: docs/DEPLOY.md.
+  "vars": {
+    "APP_ENV": "production",
+    "ACCOUNTS_ENABLED": "false",
+    "BILLING_ENABLED": "false",
+    "FRIENDS_ENABLED": "false",
+    "EMAIL_FROM": "BrainZippy <hello@brainzippy.com>",
+    "STRIPE_PRICE_ID": "",
+    "VAPID_PUBLIC_KEY": "",
+    "VAPID_SUBJECT": "mailto:hello@brainzippy.com"
+  },
   "env": {
     "staging": {
       "name": "brainzippy-staging",
-      "vars": { "APP_ENV": "staging", "FRIENDS_ENABLED": "true", "STRIPE_PRICE_ID": "", "VAPID_PUBLIC_KEY": "", "VAPID_SUBJECT": "mailto:hello@brainzippy.com" },
+      "vars": {
+        "APP_ENV": "staging",
+        "ACCOUNTS_ENABLED": "true",
+        "BILLING_ENABLED": "true",
+        "FRIENDS_ENABLED": "true",
+        "EMAIL_FROM": "BrainZippy <hello@brainzippy.com>",
+        "STRIPE_PRICE_ID": "",
+        "VAPID_PUBLIC_KEY": "",
+        "VAPID_SUBJECT": "mailto:hello@brainzippy.com"
+      },
       // Staging is served on <name>.<account>.workers.dev; set APP_ORIGIN to that URL once known (docs/DEPLOY.md).
       "workers_dev": true,
       "d1_databases": [
         {
           "binding": "DB",
+          // No database_id: `wrangler deploy` provisions or reuses the database by this name (docs/DEPLOY.md).
           "database_name": "brainzippy-db-staging",
-          "database_id": "00000000-0000-0000-0000-000000000001",
           "migrations_dir": "migrations"
         }
       ]
@@ -56,6 +79,8 @@
       "routes": [{ "pattern": "brainzippy.com", "custom_domain": true }],
       "vars": {
         "APP_ENV": "production",
+        "ACCOUNTS_ENABLED": "false",
+        "BILLING_ENABLED": "false",
         "FRIENDS_ENABLED": "false",
         "APP_ORIGIN": "https://brainzippy.com",
         "EMAIL_FROM": "BrainZippy <hello@brainzippy.com>",
@@ -66,8 +91,8 @@
       "d1_databases": [
         {
           "binding": "DB",
+          // No database_id: the first `wrangler deploy` creates "brainzippy-db"; later deploys find it by name (docs/DEPLOY.md).
           "database_name": "brainzippy-db",
-          "database_id": "00000000-0000-0000-0000-000000000002",
           "migrations_dir": "migrations"
         }
       ]

@@ -6,7 +6,11 @@ import { ONBOARDED, collectErrors, press, seed, solve, waitForNext } from "./hel
  * friend invite/accept across two browser contexts, and a challenge link played by the friend's child.
  * Synthetic data only. Requires `npm run db:migrate:local` (0003_accounts) in this checkout.
  */
-test.beforeEach(({}, info) => test.skip(info.project.name !== "desktop", "account flows run on desktop"));
+test.beforeEach(async ({ request }, info) => {
+  test.skip(info.project.name !== "desktop", "account flows run on desktop");
+  const flags = await (await request.get("/api/config")).json();
+  test.skip(!flags.accounts || !flags.friends, "accounts/friends are switched off on this server (production flags)");
+});
 
 const uniq = () => `${Date.now()}${Math.floor(Math.random() * 1e6)}`;
 const roundRec = (gameId: string, firstTry = 6) => {

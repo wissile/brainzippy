@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "e2e:launch": "BZ_E2E_FLAGS=launch playwright test e2e/launch.spec.ts e2e/full-round.spec.ts --project=desktop --project=phone",
     "db:migrate:local": "wrangler d1 migrations apply brainzippy-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply brainzippy-db --remote",
     "gen:sfx": "python3 scripts/gen_sfx.py",

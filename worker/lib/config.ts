@@ -28,8 +28,34 @@ export function appOrigin(env: Env, url: URL): string {
 
 export const emailFrom = (env: Env) => env.EMAIL_FROM ?? "BrainZippy <hello@brainzippy.com>";
 
-/** Feature flag for friends, leaderboard and challenges (FRIENDS_ENABLED var). Off unless exactly "true". */
-export const friendsEnabled = (env: Env): boolean => env.FRIENDS_ENABLED === "true";
+/**
+ * Feature flags (wrangler.jsonc vars). Each is off unless its value is exactly "true": a typo, "1", "TRUE" or a
+ * missing var keeps the feature off. Top level and production are "false" until legal review (D-030).
+ *
+ * Dependencies are enforced here, once, so no caller can get them wrong:
+ * - ACCOUNTS_ENABLED: parent sign-in/sign-up (magic links), /api/parent-signup, /api/me, children, sync, dashboard,
+ *   and the daily digest email job.
+ * - BILLING_ENABLED: checkout, portal, redeem, status, webhook and the day-15 trial clock. Needs accounts (every
+ *   billing route except the webhook needs a signed-in parent).
+ * - FRIENDS_ENABLED: friends, leaderboard and challenges. Needs accounts.
+ */
+export const flagOn = (v: string | undefined): boolean => v === "true";
+export const accountsEnabled = (env: Env): boolean => flagOn(env.ACCOUNTS_ENABLED);
+export const billingEnabled = (env: Env): boolean => accountsEnabled(env) && flagOn(env.BILLING_ENABLED);
+export const friendsEnabled = (env: Env): boolean => accountsEnabled(env) && flagOn(env.FRIENDS_ENABLED);
+/** Daily reminders need only the VAPID public key to be advertised (the private key is checked where it is used). */
+export const pushEnabled = (env: Env): boolean => typeof env.VAPID_PUBLIC_KEY === "string" && env.VAPID_PUBLIC_KEY.trim().length > 0;
+
+export type Feature = "accounts" | "billing" | "friends";
+export interface PublicConfig {
+  accounts: boolean;
+  billing: boolean;
+  friends: boolean;
+  push: boolean;
+}
+/** What GET /api/config tells the app. Booleans only: no ids, no keys, nothing about the visitor. */
+export const publicConfig = (env: Env): PublicConfig => ({ accounts: accountsEnabled(env), billing: billingEnabled(env), friends: friendsEnabled(env), push: pushEnabled(env) });
+export const featureEnabled = (env: Env, f: Feature): boolean => (f === "accounts" ? accountsEnabled(env) : f === "billing" ? billingEnabled(env) : friendsEnabled(env));
 
 /** Version of the consent wording shown next to the checkbox (src/account/consent.ts). Bump when the wording changes. */
 export { CONSENT_VERSION } from "../../src/account/consent";

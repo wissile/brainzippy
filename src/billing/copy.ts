@@ -16,3 +16,6 @@ export const HOW_IT_WORKS = [
   `Then a grown-up adds a card and gets ${CARD_TRIAL_DAYS} more free days. Nothing is charged during the trial.`,
   `After that, ${PRICE.display} a month until you cancel. Cancel anytime from the parent page in two clicks.`,
 ] as const;
+
+/** Grown-up copy while billing is switched off (BILLING_ENABLED, D-030). */
+export const EARLY_ACCESS_LINE = "Free while we're in early access";

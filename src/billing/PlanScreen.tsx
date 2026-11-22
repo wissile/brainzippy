@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useApp } from "../app/AppContext";
+import { useFeatures } from "../app/features";
 import { ParentGate, useParentGate } from "../account/ui";
 import "../account/parents.css";
 import { refreshEntitlement, type StatusResponse } from "./client";
-import { fmtDate, HOW_IT_WORKS, PRICE_LINE } from "./copy";
+import { EARLY_ACCESS_LINE, fmtDate, HOW_IT_WORKS, PRICE_LINE } from "./copy";
 import { CARD_TRIAL_DAYS, PRICE } from "./model";
 import { CheckoutButton, RedeemForm, statusText } from "./ParentBilling";
 import { loadState } from "../services/storage";
@@ -11,11 +12,37 @@ import { loadState } from "../services/storage";
 /**
  * /plan — the calm paywall, for grown-ups only (behind the parent gate). No countdowns, no urgency, no pre-ticked
  * boxes: what BrainZippy is, the price, the exact renewal terms, and an explicit consent tick before Checkout.
+ * Billing off (D-030): nothing purchasable at all, only a calm "free while we're in early access" note.
  */
 export default function PlanScreen() {
+  const { billing } = useFeatures();
+  return billing ? <Paywall /> : <EarlyAccessPlan />;
+}
+
+function EarlyAccessPlan() {
+  const { navigate } = useApp();
+  return (
+    <main className="pa-screen" data-testid="plan">
+      <header className="pa-top">
+        <h1>BrainZippy is free</h1>
+        <button type="button" className="pa-btn" data-testid="plan-back" onClick={() => navigate(loadState().profile.step === "done" ? "/map" : "/")}>
+          Back to the games
+        </button>
+      </header>
+      <div className="pa-main">
+        <section className="pa-card" data-testid="plan-early-access">
+          <h2>{EARLY_ACCESS_LINE}</h2>
+          <p>Every game is open to play. There's nothing to buy and no card to add. Progress is saved on this device.</p>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function Paywall() {
   const { navigate } = useApp();
   const { passed, pass } = useParentGate();
-  const [status, setStatus] = useState<StatusResponse | "signed-out" | "offline" | "loading">("loading");
+  const [status, setStatus] = useState<StatusResponse | "signed-out" | "offline" | "billing-off" | "loading">("loading");
   const cancelled = new URLSearchParams(window.location.search).get("billing") === "cancelled";
 
   useEffect(() => {
@@ -59,7 +86,7 @@ export default function PlanScreen() {
             {cancelled && <p className="pa-card" role="status">No problem, nothing was charged. You can come back any time.</p>}
             {status === "loading" ? (
               <p className="pa-muted" aria-busy="true">Loading…</p>
-            ) : status === "offline" ? (
+            ) : status === "offline" || status === "billing-off" ? (
               <p className="pa-error" role="alert">We couldn't reach BrainZippy. Check your connection and try again.</p>
             ) : status === "signed-out" ? (
               <section className="pa-card" data-testid="paywall-signin">

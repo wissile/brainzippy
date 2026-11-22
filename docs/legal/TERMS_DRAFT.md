@@ -61,4 +61,4 @@ To the extent permitted by law: the service is provided "as is"; BrainZippy's to
 [Jurisdiction, venue, any arbitration clause and consumer carve-outs.]
 
 ## 13. Contact
-[support@brainzippy.com] · [Company address]
+hello@brainzippy.com · [Company address]

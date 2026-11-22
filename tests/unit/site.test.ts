@@ -24,7 +24,9 @@ const publicFile = (url: string) => existsSync(join(root, "public", url));
 describe("prerendered public pages", () => {
   // Data-driven: the expected page set is derived from the catalog, guides and editorial content, so adding a
   // world (or its copy) never breaks these assertions; only a missing or extra page does.
-  const CORE = ["/", "/how-it-works", "/research", "/for-parents", "/for-teachers", "/faq", "/pricing", "/about", "/games", "/guides"];
+  // Default build = production flags (billing off, D-030): no /pricing page. The billing-on page set is checked in
+  // tests/unit/launch-flags.test.ts.
+  const CORE = ["/", "/how-it-works", "/research", "/for-parents", "/for-teachers", "/faq", "/about", "/games", "/guides"];
   // library pages: live libraries with published games and editorial copy (D-029)
   const expectedSubjects = LIBRARIES_NOW.filter((l) => SUBJECTS.some((s) => s.slug === l.id)).map((l) => `/libraries/${l.id}`);
   const expectedAges = AGE_BANDS.filter((b) => GAMES.some((g) => overlapYears(g.ages, b) >= 2)).map((b) => `/ages/${b.slug}`);
@@ -164,6 +166,8 @@ describe("prerendered public pages", () => {
       } else if (href.startsWith("/")) {
         const p = href.split("#")[0]!.split("?")[0]!;
         expect(paths.has(p) || isAppRoute(p) || publicFile(p), `broken internal link ${href}`).toBe(true);
+      } else if (href.startsWith("mailto:")) {
+        expect(href, "the only email link is the public contact address").toBe(`mailto:${SITE.email}`);
       } else {
         expect(href).toMatch(/^https:\/\//);
       }
@@ -324,8 +328,10 @@ describe("sitemap, robots and llms.txt", () => {
     expect(llms).toContain(`ages ${SITE.agesPlanned.min}–${SITE.agesPlanned.max}`);
     for (const s of SITE.subjectsNow) expect(llms).toContain(s);
     expect(llms).toContain(SITE.priceLine);
-    expect(llms).toMatch(/\$6\.99 per month/);
-    expect(llms).toMatch(/free-access codes/i);
+    // production build (billing off): early access, no price, no codes, no pricing page
+    expect(llms).toMatch(/free while we're in early access/i);
+    expect(llms).not.toMatch(/\$6\.99|free-access codes/i);
+    expect(llms).toContain("- Contact: hello@brainzippy.com");
     expect(llms).toMatch(/no ads/i);
     expect(llms).toMatch(/guests? without an account/);
     const links = [...llms.matchAll(/https:\/\/brainzippy\.com(\/[^)\s]*)/g)].map((m) => m[1]!);
@@ -334,7 +340,7 @@ describe("sitemap, robots and llms.txt", () => {
     for (const g of GAMES) expect(llms).toContain(`/games/${g.id}`);
     for (const g of GUIDES) expect(llms).toContain(`/guides/${g.slug}`);
     expect(llms).not.toMatch(/TODO|undefined|NaN/);
-    expect(llms).toContain("/pricing");
+    expect(llms).not.toContain("/pricing");
     // concise: a fixed budget for the facts and product links, plus one line per listed item (library heading + page, game, guide, age page)
     const items = 2 * LIBRARIES_NOW.length + GAMES.length + GUIDES.length + pages.filter((p) => p.path.startsWith("/ages/")).length;
     expect(llms.split("\n").length, "keep llms.txt concise").toBeLessThan(50 + items);

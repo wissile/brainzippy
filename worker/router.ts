@@ -1,4 +1,4 @@
-import { friendsEnabled } from "./lib/config";
+import { featureEnabled, type Feature } from "./lib/config";
 import { err } from "./lib/http";
 import { getSession, type Session } from "./lib/session";
 
@@ -27,11 +27,17 @@ export interface Route {
   handler: (c: Ctx) => Promise<Response> | Response;
   /** Allow cross-origin POSTs (only for token-authenticated endpoints such as RFC 8058 one-click unsubscribe). */
   crossOrigin?: boolean;
-  /** Feature-flagged route: answers 404 (as if it didn't exist) unless the flag is on. "friends" = FRIENDS_ENABLED. */
-  feature?: "friends";
+  /**
+   * Feature-flagged route: answers 404 (as if it didn't exist) unless the feature is on (worker/lib/config.ts):
+   * "accounts" = ACCOUNTS_ENABLED, "billing" = BILLING_ENABLED (+ accounts), "friends" = FRIENDS_ENABLED (+ accounts).
+   */
+  feature?: Feature;
 }
 
-export const featureOn = (env: Env, feature: Route["feature"]): boolean => feature === undefined || (feature === "friends" && friendsEnabled(env));
+export const featureOn = (env: Env, feature: Route["feature"]): boolean => feature === undefined || featureEnabled(env, feature);
+
+/** Marks every route of a module as belonging to a feature. */
+export const behind = (feature: Feature, routes: Route[]): Route[] => routes.map((r) => ({ ...r, feature }));
 
 interface Compiled extends Route {
   re: RegExp;

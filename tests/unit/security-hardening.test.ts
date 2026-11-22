@@ -79,7 +79,7 @@ describe("FRIENDS_ENABLED feature flag", () => {
       expect((await p.get("/api/invites/ABCDE-FGHJK")).status).toBe(404);
       expect((await p.post("/api/challenges", { childId: p.id, worldId: "counting-adventure", level: 0, seed: 1, score: 10 })).status).toBe(404);
       expect((await p.get(`/api/challenges/${"a".repeat(32)}`)).status).toBe(404);
-      expect(((await (await p.get("/api/me")).json()) as { features: { friends: boolean } }).features).toEqual({ friends: false });
+      expect(((await (await p.get("/api/me")).json()) as { features: { friends: boolean; billing: boolean } }).features).toEqual({ friends: false, billing: true });
       expect(t.count("friend_invites") + t.count("challenges")).toBe(0);
     }
   });
@@ -89,7 +89,7 @@ describe("FRIENDS_ENABLED feature flag", () => {
     const p = await parentWithChild(t);
     expect((await p.post(`/api/children/${p.id}/invites`, {})).status).toBe(201);
     expect((await p.get(`/api/children/${p.id}/friends`)).status).toBe(200);
-    expect(((await (await p.get("/api/me")).json()) as { features: { friends: boolean } }).features).toEqual({ friends: true });
+    expect(((await (await p.get("/api/me")).json()) as { features: { friends: boolean; billing: boolean } }).features).toEqual({ friends: true, billing: true });
   });
 });
 

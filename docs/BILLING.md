@@ -2,6 +2,8 @@
 
 Owner's model: **14 days of free play** (from the first game on a device, or the account's creation, whichever is earlier once a parent signs in on that device) → a grown-up adds a card → **14 more free days** (Stripe trial) → **$6.99/month** until cancelled. **Free-access codes** bypass payment entirely; **Stripe promotion codes** give discounts inside Checkout.
 
+> **Switched off in production** (`BILLING_ENABLED="false"`, D-030) until legal review. While off: billing routes answer 404, every entitlement is `free` / `early-access`, no trial clock runs on devices (first play isn't recorded, so the 14 days start when billing is switched on), there is no paywall, `/plan` sells nothing and the site has no `/pricing` page. How to switch on: `docs/DEPLOY.md` §4.
+
 ## How it fits together
 
 | Piece | Where |

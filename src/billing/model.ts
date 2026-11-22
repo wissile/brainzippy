@@ -19,8 +19,11 @@ export const PRICE = { cents: 699, display: "$6.99", currency: "usd", interval: 
 export const RENEWAL_TERMS_VERSION = "2026-11-18";
 
 export type EntitlementStatus = "trial" | "active" | "free" | "needs-payment";
-/** Where the entitlement comes from: the no-card free period, a Stripe subscription, a free-access code, or nothing. */
-export type EntitlementSource = "intro" | "stripe" | "code" | "none";
+/**
+ * Where the entitlement comes from: the no-card free period, a Stripe subscription, a free-access code, nothing, or
+ * early access (billing switched off: BILLING_ENABLED is not "true", D-030; everything is free, no trial clock).
+ */
+export type EntitlementSource = "intro" | "stripe" | "code" | "none" | "early-access";
 
 export interface Entitlement {
   status: EntitlementStatus;
@@ -146,6 +149,9 @@ export interface CachedEntitlement {
   fetchedAt: number;
 }
 
+/** Billing switched off (early access): free, no end date, no trial clock. Never cached as a server answer. */
+export const earlyAccessEntitlement = (now: number): Entitlement => ({ status: "free", source: "early-access", accessUntil: null, checkedAt: now });
+
 /** Device-only entitlement (never signed in): the free period from this device's first play. */
 export function deviceEntitlement(firstPlayAt: number | null, now: number): Entitlement {
   return computeEntitlement({ accountCreatedAt: null, trialStartedAt: firstPlayAt ?? now, sub: null, free: null, hasCustomer: false }, now);
@@ -165,7 +171,7 @@ export function parseEntitlement(x: unknown): Entitlement | null {
   if (!x || typeof x !== "object") return null;
   const o = x as Record<string, unknown>;
   const statuses: EntitlementStatus[] = ["trial", "active", "free", "needs-payment"];
-  const sources: EntitlementSource[] = ["intro", "stripe", "code", "none"];
+  const sources: EntitlementSource[] = ["intro", "stripe", "code", "none", "early-access"];
   if (!statuses.includes(o.status as EntitlementStatus) || !sources.includes(o.source as EntitlementSource)) return null;
   const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : undefined);
   if (!(o.accessUntil === null || num(o.accessUntil) !== undefined) || num(o.checkedAt) === undefined) return null;
