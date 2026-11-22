@@ -7,7 +7,7 @@ import { buildRound } from "../engine/round";
 import { choicesOf, targetOf } from "../engine/validation";
 import { type GuestProgress } from "../engine/progressSchema";
 import { type ExerciseEvent, type ExerciseState, exerciseReducer, initExercise, toResult } from "../engine/session";
-import type { Exercise, GameDefinition, MascotState, ProgressionState, Round } from "../engine/types";
+import type { Exercise, GameDefinition, MascotState, ProgressionState, Round, SfxId } from "../engine/types";
 import { loadState, saveState } from "../services/storage";
 import { Monster } from "../characters/Monster";
 import { AudioButtons, NavButton, SpeechBubble } from "../ui/controls";
@@ -58,6 +58,8 @@ export interface GameSkin {
   intro?: { line: string; text: string; backLine?: string; backText?: string };
   /** Idle help: line to replay and element to point at while answering. */
   idle?: { line: string; target: string };
+  /** Optional: the sound for a miss, replacing the engine's gentle "retry" sound (null = no sound; e.g. a neutral chime). */
+  missSfx?: { id: SfxId; rate?: number; gain?: number } | null;
 }
 
 type Stage = "story" | "intro" | "play" | "complete" | "outro" | "reward";
@@ -274,7 +276,8 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
     const ex = s.exercise;
     const t = ++token.current;
     setPointer(null);
-    audio.play(fb.sfx);
+    const sfx = !fb.correct && skin.missSfx !== undefined ? skin.missSfx : { id: fb.sfx };
+    if (sfx) audio.play(sfx.id, sfx);
     setMascot(fb.mascot);
 
     const countAlong = async () => {

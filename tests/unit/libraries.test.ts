@@ -76,6 +76,7 @@ describe("library registry integrity", () => {
     );
     // playability follows status, whichever libraries are live today (no hard-coded coming-soon example)
     for (const l of registry.libraries) expect(isPlayable({ subject: l.id }), l.id).toBe(l.status === "live");
+    expect(isPlayable({ subject: "sel" })).toBe(true); // live since Snug's Feelings Garden
     expect(isPlayable({ subject: "pilot" })).toBe(true); // live since Zephy's Sky Hoops
     expect(isPlayable({ subject: "cs" })).toBe(true); // live since Toggle's Garden Path
     expect(isPlayable({ subject: "math" })).toBe(true);
