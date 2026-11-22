@@ -147,7 +147,9 @@ export function Runway({ cam }: { cam: CameraId }) {
   const dw = onGround ? 0.16 : 0.12;
   return (
     <g className="sh-runway" aria-hidden="true">
-      <path d={q([[-160, g, near], [160, g, near], [160, g, 260], [-160, g, 260]])} fill={SH.grass} />
+      <path d={q([[-160, g, 2], [160, g, 2], [160, g, 260], [-160, g, 260]])} fill={SH.grass} />
+      {/* near the low ground camera, a narrower strip (a ±160 quad would reach behind the camera and not draw) */}
+      {onGround && <path d={q([[-40, g, near], [40, g, near], [40, g, 60], [-40, g, 60]])} fill={SH.grass} />}
       <path d={q([[-160, g, 60], [160, g, 60], [160, g, 260], [-160, g, 260]])} fill={SH.grassDark} opacity="0.35" />
       <path d={q([[-w, g, from], [w, g, from], [w, g, 120], [-w, g, 120]])} fill={SH.tarmac} stroke={INK} strokeWidth="3" strokeLinejoin="round" />
       {keys.map((x) => (
