@@ -229,8 +229,9 @@ function IslandBoard({ st, act, alongIndex, busy, progress, m }: BoardProps & { 
   const [rootRef, root] = useSize<HTMLDivElement>();
   const wide = root.w > root.h * 1.2;
   const keyCount = FEATURES.filter((f) => m.features[f] !== undefined).length;
-  const keyRows = Math.ceil(keyCount / Math.max(1, Math.floor((Math.min(root.w, 560) - 16) / 104)));
-  const keyBox = wide ? { w: root.h < 380 ? 262 : Math.min(224, root.w * 0.3), h: 0 } : { w: 0, h: keyRows * 50 + 22 };
+  const keyRows = Math.ceil(keyCount / Math.max(1, Math.floor((Math.min(root.w, 560) - 16) / 112)));
+  // key items are 64 px tall (tap targets for ages 5–9)
+  const keyBox = wide ? { w: root.h < 380 ? 262 : Math.min(224, root.w * 0.3), h: 0 } : { w: 0, h: keyRows * 68 + 14 };
   const head = 26;
   const tile = Math.max(34, Math.min(96, Math.floor(Math.min((root.w - keyBox.w - head - 24) / COLS, (root.h - keyBox.h - head - 10) / ROWS))));
 
@@ -309,18 +310,22 @@ function IslandBoard({ st, act, alongIndex, busy, progress, m }: BoardProps & { 
             </span>
           </div>
         </div>
-        <div className="pc-key" role="list" aria-label="Map key" data-testid="pc-key" data-pc-next={m.mode === "key" && canAct ? "true" : undefined}>
+        <div className="pc-key" data-testid="pc-key" data-pc-next={m.mode === "key" && canAct ? "true" : undefined}>
           <span className="pc-key-title" aria-hidden="true">Key</span>
+          <ul className="pc-key-list bz-list" role="list" aria-label="Map key">
           {FEATURES.filter((f) => m.features[f] !== undefined).map((f) => (
+            <li key={f} className="bz-li">
             <button
-              key={f} type="button" role="listitem" className={`pc-key-item ${keyGlow === f ? "is-glow" : ""}`} data-testid="pc-key-item" data-value={f}
+              type="button" className={`pc-key-item ${keyGlow === f ? "is-glow" : ""}`} data-testid="pc-key-item" data-value={f}
               aria-label={`Key: this symbol means ${FEATURE_NAME[f]}. Press to hear it`}
               onClick={() => void audio.speak(`pc.sym.${f}`)}
             >
               <span className="pc-key-sym"><FeatureSymbol f={f} /></span>
               <span className="pc-key-word">{cap(FEATURE_NAME[f])}</span>
             </button>
+            </li>
           ))}
+          </ul>
         </div>
       </div>
       <p className="sr-only" aria-live="polite" data-testid="pc-say">{say}</p>
@@ -626,14 +631,15 @@ function WorldBoard({ st, act, busy, progress, m }: BoardProps & { m: WorldMissi
           )}
           {/* places on the map: one button per continent / ocean (the list of regions for keyboard and screen readers) */}
           {pins.length > 0 && (
-            <div className="pc-pins" role="list" aria-label={kind === "continents" ? "Continents on the map" : "Oceans on the map"}>
+            <ul className="pc-pins bz-list" role="list" aria-label={kind === "continents" ? "Continents on the map" : "Oceans on the map"}>
               {pins.map((p) => {
                 const out = dim.includes(p.id);
                 const isModel = glow.includes(p.id);
                 const right = solved && (correctRegion === p.id || (m.mode === "cards" && Object.values(sh.placed).includes(p.id)));
                 return (
+                  <li key={p.key}>
                   <button
-                    key={p.key} type="button" role="listitem"
+                    type="button"
                     className={`pc-pin ${isOcean(p.id) ? "is-ocean" : "is-land"} ${out ? "is-out" : ""} ${isModel ? "is-model" : ""} ${right ? "is-right" : ""} ${hot === p.id ? "is-hot" : ""}`}
                     style={px(p.at)} data-testid="pc-region" data-value={p.id} data-region={p.id}
                     aria-label={`${regionName(p.id)}${held || m.mode === "side" || m.mode === "continent" || m.mode === "ocean" ? `. ${m.mode === "side" ? "Choose this ocean" : m.mode === "ocean" ? "Sail the boat here" : "Post the card here"}` : ""}`}
@@ -643,9 +649,10 @@ function WorldBoard({ st, act, busy, progress, m }: BoardProps & { m: WorldMissi
                     <span className="pc-pin-dot" aria-hidden="true" />
                     {labels && <span className="pc-pin-label" aria-hidden="true">{regionName(p.id)}</span>}
                   </button>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           )}
           {/* postcards / boat posted on the map */}
           {posted && (m.mode === "continent" || m.mode === "ocean") && (
@@ -844,13 +851,14 @@ function CompassPad({ m, st, sh }: { m: Mission; st: BoardProps["st"]; sh: Retur
       </div>
       {island && (
         <div className="pc-plan-row">
-          <div className="pc-plan" role="list" aria-label={`Plan: ${slots} ${slots === 1 ? "step" : "steps"}`} data-testid="pc-plan" data-pc-next={!full && canAct ? "true" : undefined}>
+          <ul className="pc-plan bz-list" role="list" aria-label={`Plan: ${slots} ${slots === 1 ? "step" : "steps"}`} data-testid="pc-plan" data-pc-next={!full && canAct ? "true" : undefined}>
             {Array.from({ length: slots }, (_, i) => {
               const d = sh.plan[i];
               const ghost = !d && model ? m.moves[i] : undefined;
               return (
+                <li key={i} className="bz-li">
                 <button
-                  key={i} type="button" role="listitem"
+                  type="button"
                   className={`pc-plan-slot ${d ? "is-filled" : ""} ${ghost ? "has-ghost" : ""} ${solved && d ? "is-right" : ""}`}
                   data-testid="pc-plan-slot" data-slot={i} data-dir={d ?? ""}
                   aria-label={`Step ${i + 1} of ${slots}: ${d ? `${DIR_WORD[d]}. Press to take it out` : ghost ? `empty. Glowing: ${DIR_WORD[ghost]}` : "empty"}`}
@@ -859,9 +867,10 @@ function CompassPad({ m, st, sh }: { m: Mission; st: BoardProps["st"]; sh: Retur
                 >
                   {d ? <span className={`pc-arrow dir-${d}`} aria-hidden="true">➜</span> : ghost ? <span className={`pc-arrow dir-${ghost} is-ghost`} aria-hidden="true">➜</span> : <span className="pc-plan-n" aria-hidden="true">{i + 1}</span>}
                 </button>
+                </li>
               );
             })}
-          </div>
+          </ul>
           {slots > 1 && (
             <button
               type="button" className={`pc-walk ${full && canAct ? "is-ready" : ""} ${solved ? "is-right" : ""}`}
