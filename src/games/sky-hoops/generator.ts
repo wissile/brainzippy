@@ -20,8 +20,8 @@ import type { ForceId, PartId } from "./flight";
  *   3  above, below, tipped left, tipped right                                        choice 4 stick moves
  *   4  watch a move: pitch, roll or yaw? (roll/yaw in 6 of 8)                         choice pitch | roll | yaw
  *   5  watch a control move: which part moved? (stick moves in 6 of 8)                choice elevator | ailerons | rudder
- *   6  nose points off the runway line: swing it straight                             choice pedals | stick left/right
- *   7  next hoop far to one side: what does Zephy do FIRST to turn?                   choice tip wings | pedal only | pull back
+ *   6  ON THE GROUND (take-off roll), nose drifts off the line: steer it straight     choice pedals | stick left/right
+ *   7  IN THE AIR, next hoop far to one side: what does Zephy do FIRST to turn?       choice tip wings | pedal only | pull back
  *   8  four forces (5 templates; never about climbing)                                choice of 3 pictures / 4 arrows
  *   9  a course of 3 hoops: plan three stick moves, then fly                          sequence of 3 (exact order)
  */
@@ -46,7 +46,7 @@ export const LEVELS: readonly LevelSpec[] = [
   { label: "Any of four hoops: pitch or roll", skill: SKILL.axes },
   { label: "Name the movement: pitch, roll or yaw", skill: SKILL.axes },
   { label: "Which part moved: elevator, ailerons or rudder", skill: SKILL.axes },
-  { label: "Swing the nose to the runway line (rudder pedals)", skill: SKILL.axes },
+  { label: "On the runway: steer straight with the pedals (nose wheel)", skill: SKILL.axes },
   { label: "To turn, first tip the wings", skill: SKILL.turn },
   { label: "Four forces: lift, weight, thrust, drag", skill: SKILL.forces },
   { label: "Plan a course of three hoops", skill: SKILL.turn },
@@ -142,10 +142,10 @@ export function hoopsExercise(s: Scenario, opts: { id: string; seed: number; rng
       return {
         ...common,
         objectKind: "runway",
-        objective: `Use the ${right === "lpedal" ? "left" : "right"} rudder pedal to yaw the nose onto the runway line`,
+        objective: `On the ground, use the ${right === "lpedal" ? "left" : "right"} rudder pedal to steer the nose wheel back to the runway line`,
         answer: { kind: "choice", correct: right, options: options.map(ctlOption) },
-        prompt: { line: "sh.prompt.line", vars: { side: s.nose }, text: `The nose points ${s.nose} of the runway line. Swing it straight!` },
-        a11yDescription: `A runway is ahead. The plane's nose points a little to the ${s.nose} of the runway's centre line. Choose a pedal or a stick move to swing the nose straight.`,
+        prompt: { line: "sh.prompt.line", vars: { side: s.nose }, text: `Zephy is rolling down the runway. The nose drifts ${s.nose}. Steer it straight!` },
+        a11yDescription: `Zephy's plane is on the ground, rolling down the runway for take-off. Its nose points a little to the ${s.nose} of the runway's centre line. Choose a pedal or a stick move to steer it straight.`,
       };
     }
     case "turn": {

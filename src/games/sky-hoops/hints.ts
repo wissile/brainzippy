@@ -9,7 +9,7 @@ import { type Axis, CTL_AXIS, type Ctl, HOOP_CTL, decode, isPedal } from "./logi
  */
 export const EXPLAIN_BY_LEVEL = [
   "sh.help.pitch", "sh.help.pitch", "sh.help.roll", "sh.help.stick", "sh.help.axes",
-  "sh.help.parts", "sh.help.yaw", "sh.help.turn", "sh.help.forces", "sh.help.course",
+  "sh.help.parts", "sh.help.taxi", "sh.help.turn", "sh.help.forces", "sh.help.course",
 ] as const;
 
 const AXIS_HELP: Record<Axis, string> = { pitch: "sh.help.pitch", roll: "sh.help.roll", yaw: "sh.help.yaw" };
@@ -33,7 +33,7 @@ export function hintFor(st: Pick<ExerciseState, "exercise" | "lastAnswer" | "che
     case "part":
       return `sh.hint.${CTL_AXIS[s.ctl] === "pitch" ? "elevator" : CTL_AXIS[s.ctl] === "roll" ? "ailerons" : "rudder"}`;
     case "line":
-      return pick === "left" || pick === "right" ? "sh.hint.stickTips" : "sh.help.yaw";
+      return pick === "left" || pick === "right" ? "sh.hint.stickTips" : "sh.help.taxi";
     case "turn":
       return isPedal(pick as Ctl) ? "sh.hint.boat" : "sh.help.turn";
     case "force":

@@ -10,7 +10,7 @@ Spec: `docs/curriculum/pilot.md` §4. Code: `src/games/sky-hoops/`. Registry: `s
 
 | Skill | Ages | Levels | Child can… |
 |---|---|---|---|
-| `pilot.controls.axes` | 6–9 | 0–6 | move the stick or a pedal to pitch, roll or yaw; name pitch, roll, yaw and the elevator, ailerons, rudder |
+| `pilot.controls.axes` | 6–9 | 0–6 | move the stick or a pedal to pitch, roll or yaw; name pitch, roll, yaw and the elevator, ailerons, rudder; steer with the pedals on the ground |
 | `pilot.controls.turn` | 7–9 | 7, 9 | say that a plane turns by tipping (banking) its wings, not with the rudder alone; plan a short course |
 | `pilot.flight.four-forces` | 6–9 | 8 | name lift, weight, thrust and drag and their directions; know they balance in steady level flight |
 
@@ -27,8 +27,8 @@ Bands of 8 play in index order with a fixed pattern per level: both directions o
 | 3 | above, below, tipped left, tipped right | choice of 4 stick moves | opposite move, and a move on the other axis |
 | 4 | the plane moves in place: pitch, roll or yaw? (roll or yaw in 6 of 8) | choice | roll ↔ yaw (most confused pair) |
 | 5 | Zephy moves a control by itself; which part moved? (stick in 6 of 8) | elevator / ailerons / rudder | elevator ↔ ailerons for stick moves |
-| 6 | runway ahead, nose points off the centre line: swing it straight | L/R pedal, stick L/R | rolling with the stick instead of yawing with a pedal |
-| 7 | next hoop far to one side: what does Zephy do first? | tip wings (stick) / pedal only / pull back | "the rudder steers, like a boat or a car" |
+| 6 | **on the ground**: Zephy is rolling down the runway for take-off and the nose drifts off the centre line: steer it straight | L/R pedal (steers the nose wheel), stick L/R | "the stick steers" (on the ground the stick only moves the ailerons; the plane keeps drifting) |
+| 7 | **in the air**: next hoop far to one side: what does Zephy do first? | tip wings (stick) / pedal only / pull back | "the rudder steers, like a boat or a car" (true on the ground, L6; not in the air) |
 | 8 | forces (5 templates): level & steady · speed up · slow down · what pulls down · what holds up | 3 force pictures, or tap one of 4 arrows | thrust must "win" to keep going; lift must "win" to stay up; the engine holds the plane up; drag pulls down |
 | 9 | a course of 3 hoops (3 different directions) | sequence of 3 stick moves, then Fly | — (exact order) |
 
@@ -51,10 +51,11 @@ A flying game, not a quiz card:
 ## Accuracy and sources (instructor review required)
 Primary source: FAA, *Pilot's Handbook of Aeronautical Knowledge*, **FAA-H-8083-25** (current edition C), chapters "Aircraft Construction", "Principles of Flight", "Aerodynamics of Flight" and "Flight Controls". https://www.faa.gov/regulations_policies/handbooks_manuals/aviation/phak
 - Controls (PHAK "Flight Controls"): stick back raises the elevator's trailing edge, the tail goes down and the nose pitches up; stick left raises the left aileron and lowers the right, rolling left; the left pedal moves the rudder left and yaws the nose left. Implemented exactly this way in `flight.ts` and checked by unit tests.
-- Turning: a plane turns by banking, which tilts lift so part of it pulls the plane around the turn; the rudder coordinates. "The rudder steers" is the level 7 distractor and gets its own correction.
+- Turning: a plane turns by banking, which tilts lift so part of it pulls the plane around the turn; the rudder coordinates. "An aircraft is not steered like a boat or an automobile" (PHAK ch. 5). "The rudder steers" is the level 7 distractor and gets its own correction ("In the air, a pedal alone skids the nose. Tip the wings to turn.").
+- Ground steering (level 6, revised 2026-11-22 after content review M1): level 6 used to ask the child to line up with the runway *in flight* with a pedal, which taught the misconception level 7 corrects. It now happens **on the ground**, during the take-off roll, where the rudder pedals really do steer (nose-wheel steering linked to the pedals on typical tricycle-gear trainers, plus the rudder as speed builds). The ground simulation (`simulateGround` in `flight.ts`) keeps the wheels on the runway: a pedal turns the path with the nose, the stick only deflects the surfaces and the plane keeps drifting. Every level 6 line says "on the ground" / "rolling down the runway" and every level 7 line says "in the air"; a unit test holds the two levels to that.
 - Four forces: in steady, unaccelerated level flight lift = weight and thrust = drag. Level 8 **never asks about climbing** (in a steady climb "lift is bigger than weight" is not accurate). The one line about unbalanced vertical force says Zephy "would *start* going up" (an acceleration).
 - Lift: explained only as "the wings push air down, and the air pushes the wings up". No "equal transit time" wording anywhere; a unit test rejects it.
-- **Flag for CFI review before wider release:** every prompt and helper line; level 6 (using the rudder to line the nose up with the runway is simplified: real crosswind landings combine rudder and aileron); level 8 force-arrow proportions (drawn lift/weight longer than thrust/drag, not to scale); the term "stick" (many trainers have a yoke; same directions).
+- **Flag for CFI review before wider release:** every prompt and helper line; level 6 (nose-wheel steering by pedal is right for common trainers, but some aircraft use differential braking or a castering nose wheel; crosswind aileron input on the roll is left out); level 8 force-arrow proportions (drawn lift/weight longer than thrust/drag, not to scale); the term "stick" (many trainers have a yoke; same directions).
 
 ## Simplifications (say so to grown-ups)
 - Pulling back climbs without adding power; in reality it trades speed for height.

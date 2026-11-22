@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { INK } from "../../characters/palette";
 import {
-  CAMERAS, type CameraId, FORCE_DIR, FORCE_FROM, type ForceId, HOOP_TUBE, type HoopSpec, type PartId, type Pose, REST, type Vec3,
+  CAMERAS, type CameraId, FORCE_DIR, GROUND_Y, FORCE_FROM, type ForceId, HOOP_TUBE, type HoopSpec, type PartId, type Pose, REST, type Vec3,
   VIEW_H, VIEW_W, bboxOf, bodyToWorld, depthOf, hoopPoints, planePolys, project,
 } from "./flight";
 import type { Axis, Diagram } from "./logic";
@@ -130,7 +130,6 @@ export function HoopSparkle({ spec, cam }: { spec: HoopSpec; cam: CameraId }) {
   );
 }
 
-const GROUND_Y = -5;
 export function Runway({ cam }: { cam: CameraId }) {
   const c = CAMERAS[cam];
   const q = (pts: Vec3[]) => {
@@ -138,17 +137,24 @@ export function Runway({ cam }: { cam: CameraId }) {
     return p.every(Boolean) ? ptsD(p as { x: number; y: number }[]) : "";
   };
   const g = GROUND_Y;
-  const dashes = Array.from({ length: 9 }, (_, i) => 16 + i * 7);
+  // From the ground camera (L6, the take-off roll) the plane sits on a wider runway that starts behind it.
+  const onGround = cam === "ground";
+  const near = onGround ? -6 : 2;
+  const w = onGround ? 5.5 : 2;
+  const from = onGround ? -6 : 9;
+  const dashes = Array.from({ length: onGround ? 18 : 9 }, (_, i) => (onGround ? -4 : 16) + i * 7);
+  const keys = onGround ? [] : [-1.5, -1.0, -0.5, 0.5, 1.0, 1.5];
+  const dw = onGround ? 0.16 : 0.12;
   return (
     <g className="sh-runway" aria-hidden="true">
-      <path d={q([[-160, g, 2], [160, g, 2], [160, g, 260], [-160, g, 260]])} fill={SH.grass} />
+      <path d={q([[-160, g, near], [160, g, near], [160, g, 260], [-160, g, 260]])} fill={SH.grass} />
       <path d={q([[-160, g, 60], [160, g, 60], [160, g, 260], [-160, g, 260]])} fill={SH.grassDark} opacity="0.35" />
-      <path d={q([[-2, g, 9], [2, g, 9], [2, g, 120], [-2, g, 120]])} fill={SH.tarmac} stroke={INK} strokeWidth="3" strokeLinejoin="round" />
-      {[-1.5, -1.0, -0.5, 0.5, 1.0, 1.5].map((x) => (
+      <path d={q([[-w, g, from], [w, g, from], [w, g, 120], [-w, g, 120]])} fill={SH.tarmac} stroke={INK} strokeWidth="3" strokeLinejoin="round" />
+      {keys.map((x) => (
         <path key={x} d={q([[x - 0.17, g, 10], [x + 0.17, g, 10], [x + 0.17, g, 13], [x - 0.17, g, 13]])} fill="#FFFFFF" />
       ))}
-      {dashes.map((z) => (
-        <path key={z} d={q([[-0.12, g, z], [0.12, g, z], [0.12, g, z + 3.5], [-0.12, g, z + 3.5]])} fill="#FFFFFF" data-testid={z === 16 ? "sh-centreline" : undefined} />
+      {dashes.map((z, i) => (
+        <path key={z} d={q([[-dw, g, z], [dw, g, z], [dw, g, z + 3.5], [-dw, g, z + 3.5]])} fill="#FFFFFF" data-testid={i === 0 ? "sh-centreline" : undefined} />
       ))}
     </g>
   );

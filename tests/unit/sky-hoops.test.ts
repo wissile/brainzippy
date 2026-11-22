@@ -12,7 +12,7 @@ import {
   CTLS, CTL_AXIS, DIAGRAM_FORCES, HOOPS, HOOP_CTL, STICKS, TEMPLATE_OPTIONS, TEMPLATES, type Ctl, type Diagram, type Scenario,
   correctFor, decode, demoPose, encode, sceneOf,
 } from "../../src/games/sky-hoops/logic";
-import { REST, bodyToWorld, passOf, planePolys, CAMERAS, poseAt, simulate } from "../../src/games/sky-hoops/flight";
+import { ON_WHEELS_Y, REST, bodyToWorld, passOf, planePolys, CAMERAS, poseAt, simulate } from "../../src/games/sky-hoops/flight";
 import { shBetween, shIntro, shOutro } from "../../src/games/sky-hoops/story";
 import voice from "../../src/games/sky-hoops/voice.json";
 
@@ -84,14 +84,31 @@ describe("hoops: the right move threads the hoop; every wrong move passes clearl
       }
     }
   });
-  it("runway (level 6): the right pedal lines the nose up; the wrong one swings it further away", () => {
+  it("runway (level 6) is ON THE GROUND: the right pedal steers the nose wheel straight; the wrong one steers further away", () => {
     for (const nose of ["left", "right"] as const) {
       const sc = sceneOf({ mode: "line", level: 6, nose });
+      expect(sc.camera).toBe("ground");
       const start = Math.abs(poseAt(sc.track("lpedal"), 0).yaw);
       const r = correctFor({ mode: "line", level: 6, nose }) as Ctl;
       expect(Math.abs(poseAt(sc.track(r), 0.7).yaw)).toBeLessThan(0.08);
       const wrong: Ctl = r === "lpedal" ? "rpedal" : "lpedal";
       expect(Math.abs(poseAt(sc.track(wrong), 0.7).yaw)).toBeGreaterThan(start);
+      for (const c of CTLS) {
+        const t = sc.track(c);
+        // wheels stay on the runway: no climb, no bank, and the runway (half-width 5.5) is never left
+        for (const p of t.poses) {
+          expect(p.y).toBeCloseTo(ON_WHEELS_Y, 6);
+          expect(p.pitch).toBe(0);
+          expect(Math.abs(p.roll)).toBeLessThan(0.05);
+          expect(Math.abs(p.x)).toBeLessThan(5);
+        }
+      }
+      // on the ground the stick does not steer: the heading stays where it was (the plane keeps drifting)
+      for (const c of ["left", "right", "back", "fwd"] as Ctl[]) expect(Math.abs(poseAt(sc.track(c), 0.9).yaw)).toBeCloseTo(start, 6);
+      // the path follows the nose: after the right pedal the plane rolls parallel to the centre line
+      const tr = sc.track(r);
+      const a = poseAt(tr, 0.75), b = poseAt(tr, 0.95);
+      expect(Math.abs(b.x - a.x)).toBeLessThan(0.05 * Math.abs(b.z - a.z));
     }
   });
 });
@@ -174,6 +191,8 @@ describe("hints, praise and voice", () => {
   it("first-miss lines diagnose the misconception", () => {
     expect(hintFor(miss(find(7, () => true), (decode(find(7, () => true)) as { side: string }).side === "left" ? "lpedal" : "rpedal"))).toBe("sh.hint.boat");
     expect(hintFor(miss(find(6, () => true), "left"))).toBe("sh.hint.stickTips");
+    const l6 = find(6, () => true);
+    expect(hintFor(miss(l6, (decode(l6) as { nose: string }).nose === "right" ? "rpedal" : "lpedal"))).toBe("sh.help.taxi");
     expect(hintFor(miss(find(4, (s) => s.mode === "name" && s.axis === "roll"), "yaw"))).toBe("sh.hint.rollYaw");
     expect(hintFor(miss(find(8, (s) => s.mode === "force" && s.t === "level"), "thrustWins"))).toBe("sh.hint.steady");
     expect(hintFor(miss(find(8, (s) => s.mode === "force" && s.t === "up"), "thrust"))).toBe("sh.hint.engine");
@@ -198,7 +217,7 @@ describe("hints, praise and voice", () => {
   it("every line the world can say exists, is short, and praise is about process", () => {
     const ids = new Set<string>([
       ...EXPLAIN_BY_LEVEL, "sh.help.lift", "sh.retry.1", "sh.hint.model", "sh.idle", "sh.ready", "sh.back", "sh.plan.full",
-      "sh.hint.rollYaw", "sh.hint.elevator", "sh.hint.ailerons", "sh.hint.rudder", "sh.hint.stickTips", "sh.hint.boat", "sh.hint.steady",
+      "sh.hint.rollYaw", "sh.hint.elevator", "sh.hint.ailerons", "sh.hint.rudder", "sh.hint.stickTips", "sh.hint.boat", "sh.help.taxi", "sh.hint.steady",
       "sh.hint.liftEq", "sh.hint.faster", "sh.hint.slower", "sh.hint.dragBack", "sh.hint.liftUp", "sh.hint.engine",
       ...[...shIntro, ...shOutro].map((b) => b.line), ...Object.values(shBetween).map((b) => b.line),
     ]);
@@ -217,6 +236,18 @@ describe("hints, praise and voice", () => {
     expect(lines["sh.prompt.hoop"]!.vary!.where).toEqual(Object.values(WHERE));
     expect(lines["sh.prompt.part"]!.vary!.move).toEqual(Object.values(MOVE_SAY));
     expect(renderLine("sh.prompt.turn", { side: "left" })).toBe("The next hoop is far to the left. What does Zephy do first?");
+  });
+  it("levels 6 and 7 agree: pedals steer ON THE GROUND (L6); IN THE AIR a plane turns by banking (L7)", () => {
+    for (const ex of generateBand(skyHoops, 6, 1, 8)) {
+      expect(ex.prompt!.text).toMatch(/rolling down the runway/);
+      expect(ex.objective).toMatch(/^On the ground/);
+    }
+    expect(lines["sh.help.taxi"]!.text).toMatch(/^On the ground/);
+    expect(lines["sh.hint.stickTips"]!.text).toMatch(/^On the ground/);
+    expect(lines["sh.help.turn"]!.text).toMatch(/^In the air/);
+    expect(lines["sh.hint.boat"]!.text).toMatch(/^In the air/);
+    // no line claims that a pedal steers in flight
+    for (const [id, l] of Object.entries(lines)) if (/steer/i.test(l.text)) expect(id === "sh.prompt.line" || /ground|runway/i.test(l.text), id).toBe(true);
   });
   it("lift is never explained with the equal-transit-time myth", () => {
     const text = Object.values(lines).map((l) => l.text).join(" ").toLowerCase();
