@@ -50,7 +50,12 @@
 .trail.crowded .stop-name { display: none; }
 .daily-monster { z-index: 1; transition: left 1100ms var(--ease-out), top 1100ms var(--ease-out); }
 .daily-monster svg { width: 100px; height: auto; }
-.view-explore .map-caption, .view-today .map-caption { z-index: 4; }
+/* the trail / Explore sit above a reserved caption band, so the caption never covers a stop or a card */
+.map-body { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.map-content { position: relative; flex: 1 1 auto; min-height: 0; }
+.map-caption-band { position: relative; z-index: 4; flex: none; min-height: 92px; display: flex; align-items: center; justify-content: center; padding: 4px 12px max(8px, env(safe-area-inset-bottom)); pointer-events: none; }
+.map-caption-band .map-caption { position: relative; inset: auto; transform: none; pointer-events: auto; text-align: center; }
+.map-caption-band .map-caption::after { display: none; }
 
 /* ---------- explore ---------- */
 .explore { position: absolute; z-index: 2; left: 50%; transform: translateX(-50%); top: calc(max(10px, env(safe-area-inset-top)) + 136px); bottom: 12px; width: min(1100px, calc(100% - 24px)); display: flex; flex-direction: column; background: rgba(255, 253, 246, 0.96); border: 5px solid var(--ink); border-radius: var(--r-lg); box-shadow: 0 8px 0 rgba(43, 33, 64, 0.35); overflow: hidden; }
@@ -154,7 +159,9 @@
   .daily-monster svg { width: 66px; }
   .daily-monster .nameplate { display: none; }
   .trail-stop .stop-name { font-size: 0.85rem; margin-top: 2px; }
-  .explore { top: calc(max(10px, env(safe-area-inset-top)) + 64px); bottom: 78px; }
+  .explore { top: calc(max(10px, env(safe-area-inset-top)) + 64px); bottom: 4px; }
+  /* the view tabs sit bottom-left here: the caption band keeps clear of them */
+  .map-caption-band { min-height: 68px; padding: 2px 12px 6px 180px; }
   .explore-head { padding-top: 6px; padding-bottom: 2px; }
   .lib-shelf { margin-top: 10px; }
   .lib-host { width: 52px; height: 52px; border-width: 3px; }
