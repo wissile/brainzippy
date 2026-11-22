@@ -107,7 +107,7 @@
 .rr-target.is-out { opacity: 0.4; filter: grayscale(1); border-style: dotted; }
 .rr-target.is-ok, .rr-chip.is-ok { border-color: #1c8f5a; box-shadow: 0 0 0 3px #8be0b5; }
 .rr-target.is-model, .rr-chip.is-model { border-color: #ffb400; box-shadow: 0 0 0 4px rgba(255, 212, 59, 0.8); }
-.rr-slot-hint { font-weight: 800; font-size: 1.1rem; color: rgba(43, 33, 64, 0.5); }
+.rr-slot-hint { font-weight: 800; font-size: 1.1rem; color: #4f4566; } /* ≥ 4.5:1 on the slot */
 .rr-placed { display: flex; flex-direction: column; align-items: center; gap: 1px; animation: rr-pop 240ms var(--ease-bounce, ease-out) both; pointer-events: none; }
 .rr-card-art { display: block; width: 46px; height: 36px; }
 .rr-card-art svg { width: 100%; height: 100%; display: block; }

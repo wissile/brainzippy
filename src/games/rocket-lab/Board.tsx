@@ -869,7 +869,9 @@ function Shelf({ s, lab, st, canAct, modelling, alongIndex, hot, startDrag, onSh
             ))}
           </tbody>
         </table>
-        <p className={`rl-budget ${cost > s.budget ? "is-over" : ""}`} data-testid="budget">Cost <b>{lab.tanks ? cost : "–"}</b> of {s.budget} coins · target {BAND_FLOORS[s.target]} m+</p>
+        <p className={`rl-budget ${lab.tanks && cost > s.budget ? "is-over" : ""}`} data-testid="budget">
+          {lab.tanks ? <>Cost <b>{cost}</b> of {s.budget} coins</> : <>Budget <b>{s.budget}</b> coins</>} · target {BAND_FLOORS[s.target]} m+
+        </p>
       </div>
     );
   }

@@ -91,7 +91,7 @@
 .ls-row b { font-size: 1.15em; white-space: nowrap; }
 .ls-row-q { border-bottom: 0; border-top: 3px solid var(--ls-ink); margin-top: 2px; }
 .ls-row-q b { color: var(--ls-teal); }
-.ls-row-wait { color: #8a7d9a; font-weight: 600; }
+.ls-row-wait { color: #645878; font-weight: 600; } /* ≥ 4.5:1 on the receipt */
 .ls-row.is-step { background: #fff4b8; animation: ls-in 260ms var(--ease-out) both; }
 .ls-running { font-style: normal; color: var(--ls-teal); font-family: var(--font-display); font-weight: 800; white-space: nowrap; }
 .ls-note { margin: 4px 0 0; color: var(--ls-teal); font-weight: 800; }
