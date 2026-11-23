@@ -123,6 +123,18 @@ describe("paper boat post: reading is reading", () => {
     }
     for (const ex of reads.filter((e) => modeOf(e) === "noteRead")) expect(ex.a11yDescription, ex.id).toContain("Word by word:");
   });
+  it("no line spoken before an answer (help, hint, idle, between, reading prompts) names any reading target or dock picture", () => {
+    const targets = new Set<string>([...CVC]);
+    for (let lv = 0; lv <= 8; lv++) for (const w of targetsOf(lv)) targets.add(w);
+    for (const s of Object.values(READ_SETS)) for (const t of s) t.forEach((w) => targets.add(w));
+    for (const n of NOTES_READ) for (const w of n.words) if (!isTricky(w)) targets.add(w.toLowerCase());
+    for (const w of ["has", "in", "on"]) targets.delete(w);
+    const before = Object.keys(L).filter((id) => /^pb\.(help|hint|idle|mid|retry|intro|back|prompt\.(read|note|sort|compound|tag))/.test(id));
+    expect(before.length).toBeGreaterThan(30);
+    const leaks = before.flatMap((id) => L[id]!.text.toLowerCase().split(/[^a-z]+/).filter((w) => targets.has(w)).map((w) => `${id}: ${w}`));
+    expect(leaks).toEqual([]);
+  });
+
   it("praise speaks the word only after a right answer, and every praise/hint/help line exists", () => {
     for (const ex of ITEMS) {
       for (const id of praiseFor(ex)) expect(L[id], `${ex.id} praise ${id}`).toBeDefined();
@@ -193,7 +205,7 @@ describe("paper boat post: content rules", () => {
     for (const ex of ITEMS) {
       const a = ex.answer;
       if (a.kind !== "choice") continue;
-      const arts = a.options.map((o) => (o.art ?? "").split("*")[0]);
+      const arts = a.options.map((o) => (o.art ?? "").split(":")[0]);
       for (const [x, y] of SAME) expect(arts.includes(x!) && arts.includes(y!), `${ex.id}: ${x}/${y}`).toBe(false);
     }
   });
@@ -206,7 +218,7 @@ describe("paper boat post: content rules", () => {
     }
     for (const ex of ITEMS) {
       const a = ex.answer;
-      if (a.kind === "choice") for (const o of a.options) expect(isBlocked((o.text ?? o.art ?? o.id).split("*")[0]!), `${ex.id} ${o.id}`).toBe(false);
+      if (a.kind === "choice") for (const o of a.options) expect(isBlocked((o.text ?? o.art ?? o.id).split(":")[0]!), `${ex.id} ${o.id}`).toBe(false);
       if (a.kind === "sequence" && modeOf(ex) === "build") {
         const tiles = a.pieces.map((p) => p.text!);
         for (const s of tileStrings(tiles, a.order.length)) expect(isBlocked(s), `${ex.id}: ${s}`).toBe(false);

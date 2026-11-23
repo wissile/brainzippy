@@ -89,10 +89,10 @@ export function ScenePicture({ id }: { id: string }) {
   );
 }
 
-/** One picture, or three of it for plurals ("fox*3"). */
+/** One picture, or three of it for plurals ("fox:3"). */
 export function Picture({ art, className = "" }: { art: string; className?: string }) {
   if (art.startsWith("scene:")) return <ScenePicture id={art.slice(6)} />;
-  const [w, n] = art.split("*") as [string, string | undefined];
+  const [w, n] = art.split(":") as [string, string | undefined];
   if (n === "3") {
     return (
       <svg className={`pb-pic ${className}`} viewBox="0 0 120 100" aria-hidden="true">

@@ -64,7 +64,7 @@ async function readBoard(page: Page) {
   if (mode === "read") return { id, mode, value: (await page.locator(".pb-letters").first().innerText()).replace(/\s/g, "") };
   if (mode === "plural") {
     const w = (await page.locator(".pb-letters").first().innerText()).replace(/\s/g, "");
-    return { id, mode, value: `${PLURALS[w]![0]}*3` };
+    return { id, mode, value: `${PLURALS[w]![0]}:3` };
   }
   if (mode === "noteRead") return { id, mode, value: sceneId(NOTES_READ.find((n) => n.id === parts[2])!.scene) };
   if (mode === "swap") {
@@ -163,9 +163,9 @@ async function finish(page: Page) {
 }
 const touchy = (page: Page) => page.evaluate(() => matchMedia("(pointer: coarse)").matches);
 
-test("story: cinematic beat, then Sarah and Zuzu talk (first visit: Hoot hands over); Skip skips it all", async ({ page }) => {
+test("story: cinematic beat, then Sarah and Zuzu talk (first visit after Rhyme Lanterns: Hoot hands over); Skip skips it all", async ({ page }) => {
   const errors = collectErrors(page);
-  await seed(page, { muted: true, ageBand: "ages-6-8" });
+  await seed(page, { muted: true, ageBand: "ages-6-8", progress: { v: 1, stickers: ["lantern-keeper"], roundsCompleted: 1, skills: {}, levels: { "rhyme-lanterns": 5 } } });
   await page.goto("/play/paper-boat-post");
   const begin = page.getByTestId("story-begin");
   await begin.or(page.getByTestId("story-skip")).first().waitFor({ timeout: 20_000 });

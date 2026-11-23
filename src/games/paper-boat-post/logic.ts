@@ -112,7 +112,7 @@ export function sailWord(ex: Exercise): string | null {
 export function pluralOf(ex: Exercise): string | null {
   const a = ex.answer;
   if (a.kind !== "choice") return null;
-  const [w, n] = a.correct.split("*") as [string, string];
+  const [w, n] = a.correct.split(":") as [string, string];
   if (n !== "3") return null;
   return Object.keys(PLURALS).find((p) => PLURALS[p]![0] === w) ?? null;
 }
@@ -143,9 +143,9 @@ export function modelSteps(ex: Exercise): number {
   return modelUnits(ex).length + 1;
 }
 
-/** Spoken name of a picture option ("fox*3" → foxes). */
+/** Spoken name of a picture option ("fox:3" → foxes). */
 export function pictureWord(art: string): string {
-  const [w, n] = art.split("*") as [string, string | undefined];
+  const [w, n] = art.split(":") as [string, string | undefined];
   if (n === "3") return Object.keys(PLURALS).find((p) => PLURALS[p]![0] === w) ?? w;
   return w;
 }

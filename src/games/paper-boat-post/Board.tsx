@@ -30,12 +30,6 @@ type Zone = { kind: "dock" | "slot" | "gap" | "hook" | "sort"; value: string };
 interface Drag { id: string; startX: number; startY: number; active: boolean; dx: number; dy: number; rect: DOMRect }
 
 const sleep = (ms: number) => new Promise((r) => window.setTimeout(r, ms));
-let lastNavKey = -Infinity;
-if (typeof window !== "undefined") {
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Tab" || e.key.startsWith("Arrow")) lastNavKey = performance.now();
-  }, true);
-}
 const describeScene = (id: string) => {
   const s = parseScene(id);
   return `${s.who} ${s.rel === "has" ? "has a" : `${s.rel} the`} ${s.what}`;
@@ -74,6 +68,9 @@ export function BoatBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
   const suppressClick = useRef(-Infinity);
   const token = useRef(0);
   const zoneKey = (z: Zone) => `${z.kind}:${z.value}`;
+  /** When the child last moved focus with Tab/arrows (focusing a dock then names its picture). */
+  const navAt = useRef(-Infinity);
+  const navRecent = () => performance.now() - navAt.current < 600;
 
   // ---------------------------------------------------------------- sequence state (build, compound, noteBuild)
   const slots = a.kind === "sequence" ? a.order.length : 0;
@@ -229,8 +226,20 @@ export function BoatBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
     setPlaced(next);
     setSelected(null);
     audio.play("drop", { gain: 0.6 });
-    if (next.every(Boolean) && lastKeyboard.current) focusEl('[data-testid="done"]');
+    // keyboard users never drop to <body>: the next free tile after this one, or Send when the sail is full
+    if (lastKeyboard.current) {
+      if (next.every(Boolean)) focusEl('[data-testid="done"]');
+      else focusNextTile(id);
+    }
   };
+  const focusNextTile = (after: string) =>
+    window.setTimeout(() => {
+      const all = [...(rootRef.current?.querySelectorAll<HTMLElement>('.pb-tiles [data-testid="choice"]') ?? [])];
+      const free = (el: HTMLElement) => !el.classList.contains("is-away") && el.getAttribute("aria-disabled") !== "true";
+      const at = all.findIndex((el) => el.dataset.value === after);
+      const next = [...all.slice(at + 1), ...all.slice(0, Math.max(0, at))].find(free);
+      (next ?? rootRef.current?.querySelector<HTMLElement>('[data-testid="slot"][data-filled="true"]'))?.focus({ preventScroll: true });
+    }, 40);
   const unplace = (i: number) => {
     if (!canAct) return;
     const id = placedRef.current[i];
@@ -249,13 +258,14 @@ export function BoatBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
     setSorted((s) => ({ ...s, [item]: bin }));
     setSelected(null);
     audio.play("drop", { gain: 0.6 });
-    if (Object.keys(sorted).length + (sorted[item] ? 0 : 1) === items.length && lastKeyboard.current) focusEl('[data-testid="done"]');
+    if (lastKeyboard.current) focusEl(Object.keys(sorted).length + (sorted[item] ? 0 : 1) === items.length ? '[data-testid="done"]' : '.pb-fleet [data-testid="choice"]');
   };
   const unsort = (item: string) => {
     if (!canAct) return;
     busy();
     audio.play("pickup", { gain: 0.4 });
     setSorted((s) => Object.fromEntries(Object.entries(s).filter(([k]) => k !== item)));
+    if (lastKeyboard.current) focusEl(`.pb-fleet [data-testid="choice"][data-value="${CSS.escape(item)}"]`);
   };
   const sendSort = () => {
     if (!canAct || Object.keys(sorted).length !== items.length) return;
@@ -275,6 +285,7 @@ export function BoatBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
   const lastKeyboard = useRef(false);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Tab" || e.key.startsWith("Arrow")) navAt.current = performance.now();
       lastKeyboard.current = e.key === "Tab" || e.key === "Enter" || e.key === " " || e.key.startsWith("Arrow") || e.key === "Backspace" || lastKeyboard.current;
       if (stRef.current.phase !== "answering" || e.ctrlKey || e.metaKey || e.altKey) return;
       if (a.kind === "sequence" && e.key === "Backspace") {
@@ -457,7 +468,7 @@ export function BoatBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
         {a.options.map((o, i) => {
           const name = o.art?.startsWith("scene:") ? describeScene(o.art.slice(6)) : pictureWord(o.art ?? o.id).replace(/^(\w+)$/, "$1");
           const pic = o.art ?? o.id;
-          const count = pic.endsWith("*3") ? `three ${name}` : pic.endsWith("*1") ? `one ${name}` : name;
+          const count = pic.endsWith(":3") ? `three ${name}` : pic.endsWith(":1") ? `one ${name}` : name;
           const z: Zone = { kind: "dock", value: o.id };
           const state = st.phase === "feedback" && tried === o.id ? (fb?.correct ? "is-right" : "is-wrong") : solved && a.correct === o.id ? "is-right" : "";
           return (
@@ -471,7 +482,7 @@ export function BoatBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
               aria-disabled={out(o.id) || !canAct}
               aria-label={out(o.id) ? `${count} dock, not this one` : `Send the boat to the ${count} dock`}
               {...zoneProps(z)}
-              onFocus={() => mode !== "noteRead" && performance.now() - lastNavKey < 600 && say(wordLine(pictureWord(pic)), o.id)}
+              onFocus={() => mode !== "noteRead" && navRecent() && say(wordLine(pictureWord(pic)), o.id)}
               onClick={(e) => !guard(e) && choose(o.id)}
             >
               <span className="pb-flag"><Picture art={pic} /></span>
@@ -526,7 +537,7 @@ export function BoatBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
               aria-disabled={out(o.id) || !canAct}
               aria-label={mode === "tag" ? `Name tag ${o.text?.split("").join(" ")}` : `Letter ${o.text}, as in ${o.art}`}
               {...dragProps(o.id)}
-              onFocus={() => mode === "swap" && performance.now() - lastNavKey < 600 && o.text && say(keywordLine(o.text), o.id)}
+              onFocus={() => mode === "swap" && navRecent() && o.text && say(keywordLine(o.text), o.id)}
               onClick={(e) => !guard(e) && choose(o.id)}
             >
               <span className="pb-tile-text">{o.text}</span>
@@ -543,9 +554,11 @@ export function BoatBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
     const shown: readonly (string | null)[] = solved && Array.isArray(st.lastAnswer) ? (st.lastAnswer as readonly string[]) : wrongNow && Array.isArray(st.lastAnswer) ? Array.from({ length: slots }, (_, i) => (st.lastAnswer as readonly string[])[i] ?? null) : placed;
     top = (
       <div className={`pb-build-top ${note ? "is-note" : ""}`}>
-        <button type="button" className={`pb-card pb-card-pic ${saying === "pic" ? "is-saying" : ""}`} aria-label={note ? `Picture: ${describeScene(pic.slice(6))}` : `Picture of a ${pic}. Press to hear it`}
+        <button type="button" className={`pb-card pb-card-pic ${saying === "pic" ? "is-saying" : ""} ${note ? "" : "can-hear"}`} data-testid="picture"
+          aria-label={note ? `Picture: ${describeScene(pic.slice(6))}` : `Picture of a ${pic}. Press to hear it`}
           onClick={() => !note && heard && say(wordLine(heard), "pic")}>
           <Picture art={pic} />
+          {!note && <span className="pb-hear" aria-hidden="true"><HearIcon /></span>}
         </button>
         <div className={`pb-boat is-static ${note ? "is-note" : ""} ${solved ? "is-sailing-off" : ""}`} data-pb-idle>
           <span className="pb-mast" aria-hidden="true" />
@@ -699,6 +712,15 @@ export function BoatBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
           document.body,
         )}
     </div>
+  );
+}
+
+function HearIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="currentColor" />
+      <path d="M16 9 Q18.5 12 16 15 M18.5 6.5 Q23 12 18.5 17.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    </svg>
   );
 }
 

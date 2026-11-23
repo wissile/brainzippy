@@ -135,6 +135,8 @@ button.pb-boat { cursor: grab; border-radius: 24px; }
 .pb-build-top.is-note .pb-boat { --bw: clamp(240px, min(80cqw, 64cqh * 2.4), 820px); }
 .pb-card-pic { width: clamp(72px, min(20cqw, 30cqh), 180px); cursor: pointer; }
 .pb-card-pic.is-saying { box-shadow: 0 0 0 5px #9fe3ff; }
+.pb-card-pic { position: relative; }
+.pb-hear { position: absolute; right: -10px; top: -10px; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: #4d96ff; color: #fff; border: 3px solid var(--ink); }
 .is-note .pb-card-pic { width: clamp(84px, min(22cqw, 32cqh), 220px); }
 .pb-slots { --n: 3; list-style: none; margin: 0; padding: 4px 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 1.2cqh 1.4cqw; }
 .pb-slot-btn {
@@ -156,10 +158,10 @@ button.pb-boat { cursor: grab; border-radius: 24px; }
 .pb-send {
   min-width: 112px; min-height: 72px; padding: 0 18px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   border: 0; border-radius: 26px; background: linear-gradient(var(--go-top), var(--go-bottom)); box-shadow: 0 7px 0 var(--go-shadow);
-  color: #fff !important; font-family: var(--font-display); font-weight: 800; font-size: 1.35rem;
+  color: var(--ink) !important; font-family: var(--font-display); font-weight: 800; font-size: 1.35rem;
 }
 .pb-send svg { color: var(--ink); }
-.pb-send[aria-disabled="true"] { filter: grayscale(0.7); opacity: 0.55; }
+.pb-send[aria-disabled="true"] { filter: grayscale(0.6); opacity: 0.7; }
 .pb-send:active { transform: translateY(5px); box-shadow: 0 2px 0 var(--go-shadow); }
 .pb-send.is-model { animation: pb-model 1s ease-in-out infinite; }
 
@@ -201,6 +203,16 @@ button.pb-boat { cursor: grab; border-radius: 24px; }
 .pb-talk .dlg-skip { display: none; }
 .story:has(.pb-talk) .subtitle { visibility: hidden; } /* the conversation captions itself; no stale story line under it */ /* the story's own Skip skips everything; Escape still ends just the talk */
 .pb-talk .dlg-stage .dlg-actor { width: clamp(84px, min(26vw, 32vh), 230px); }
+
+/* ---------- tall boards (phones, tablets in portrait): the picture that is the only clue gets the room ---------- */
+@container (max-aspect-ratio: 4 / 5) {
+  .mode-noteRead .pb-docks { flex-wrap: wrap; gap: 2cqh 3cqw; }
+  .mode-noteRead .pb-dock { --dw: clamp(110px, min(44cqw, 24cqh * 1.2), 300px); }
+  .mode-noteRead .pb-flag { padding: 3%; }
+  .pb-build-top { flex-direction: column; gap: 1.5cqh; }
+  .pb-card-pic { width: clamp(110px, min(40cqw, 22cqh), 260px); }
+  .is-note .pb-card-pic { width: clamp(110px, min(40cqw, 20cqh), 260px); }
+}
 
 /* ---------- wide boards (landscape phones, desktops): boat on the left, answers on the right ---------- */
 @container (min-aspect-ratio: 6 / 5) {
@@ -260,4 +272,8 @@ button.pb-boat { cursor: grab; border-radius: 24px; }
   .pb-dock.is-model .pb-flag, .pb-tile.is-model, .pb-mini.is-model, .pb-send.is-model { outline: 6px solid #fff; outline-offset: 3px; }
   .pb-boat.is-picked { transform: none; outline: 5px dashed #ffd43b; outline-offset: 4px; }
 }
-.pb-stage.still .pb-boat, .pb-stage.still .pb-tile, .pb-stage.still .pb-dock .pb-flag, .pb-stage.still .pb-mini { animation: none; }
+.pb-stage.still .pb-boat, .pb-stage.still .pb-tile, .pb-stage.still .pb-dock, .pb-stage.still .pb-dock .pb-flag, .pb-stage.still .pb-mini,
+.pb-stage.still .pb-send, .pb-stage.still .pb-slot-btn, .pb-stage.still .pb-pop { animation: none !important; }
+.pb-stage.still .pb-boat { transition: opacity 200ms linear; }
+.pb-stage.still .pb-boat.is-sailing { transform: none; opacity: 0.25; }
+.pb-stage.still .pb-dock.is-model .pb-flag, .pb-stage.still .pb-tile.is-model, .pb-stage.still .pb-send.is-model { outline: 6px solid #fff; outline-offset: 3px; }

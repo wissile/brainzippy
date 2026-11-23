@@ -45,7 +45,9 @@ export default function PaperBoatPost() {
   const skin = useMemo(() => {
     const p = loadState().progress;
     const firstVisit = p.levels?.[paperBoatPost.id] === undefined && !p.stickers.includes(paperBoatPost.achievement.id);
-    return makeSkin(firstVisit);
+    // Hoot's hand-over only makes sense for a child who has actually played his Rhyme Lanterns
+    const cameFromRhymes = p.levels?.["rhyme-lanterns"] !== undefined || p.stickers.includes("lantern-keeper");
+    return makeSkin(firstVisit && cameFromRhymes);
   }, []);
   return <GameRunner game={paperBoatPost} skin={skin} />;
 }

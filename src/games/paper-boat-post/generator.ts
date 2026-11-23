@@ -197,7 +197,7 @@ function genBuild(level: number, rng: Rng, slot: number, slots: number, tag: str
     answer: { kind: "sequence", order: g.map((_, i) => `t${i}`), pieces },
     objectKind: w,
     params: { m: MODE.build, n: g.length, e: word(w).magic ? 1 : 0 },
-    prompt: { line: "pb.prompt.build", vars: { word: w }, text: `Build ${w}!` },
+    prompt: { line: "pb.prompt.build", vars: { word: w }, text: `Build ${w}! Tap the picture to hear it.` },
     a11yDescription: `A picture of a ${w} and an empty sail with ${g.length} spaces. Letter tiles: ${pieces.map((p) => p.text).join(", ")}. Put the tiles for ${w} on the sail in order, then press Send.`,
   } as Gen;
 }
@@ -226,13 +226,13 @@ function genPlural(rng: Rng, slot: number, tag: string, base: Partial<Gen>): Gen
   const plural = bucketPick(Object.keys(PLURALS), slot, 2, rng);
   const [one, alike] = PLURALS[plural]!;
   const alikeMany = rng.chance(0.5);
-  const opts = rng.shuffle([`${one}*3`, `${one}*1`, `${alike}*${alikeMany ? 3 : 1}`]).map((id) => ({ id, art: id }));
-  const name = (id: string) => (id.endsWith("*3") ? `three ${Object.keys(PLURALS).find((p) => PLURALS[p]![0] === id.slice(0, -2))}` : `one ${id.slice(0, -2)}`);
+  const opts = rng.shuffle([`${one}:3`, `${one}:1`, `${alike}:${alikeMany ? 3 : 1}`]).map((id) => ({ id, art: id }));
+  const name = (id: string) => (id.endsWith(":3") ? `three ${Object.keys(PLURALS).find((p) => PLURALS[p]![0] === id.slice(0, -2))}` : `one ${id.slice(0, -2)}`);
   return {
     ...base,
     id: `pb-plural-${plural}-${tag}`,
     objective: `Read the plural ${plural} and tell it from ${one}`,
-    answer: { kind: "choice", correct: `${one}*3`, options: opts },
+    answer: { kind: "choice", correct: `${one}:3`, options: opts },
     objectKind: "boat",
     params: { m: MODE.plural },
     prompt: { line: "pb.prompt.read", text: "Read the word. Who should get it?" },
@@ -251,7 +251,7 @@ function genCompound(rng: Rng, slot: number, tag: string, base: Partial<Gen>): G
     answer: { kind: "sequence", order: [a, b], pieces },
     objectKind: w,
     params: { m: MODE.compound, n: 2 },
-    prompt: { line: "pb.prompt.compound", vars: { word: w }, text: "Make a word for this picture with two cards." },
+    prompt: { line: "pb.prompt.compound", vars: { word: w }, text: "Use two cards to name this picture. Tap the picture to hear it." },
     a11yDescription: `A picture of a ${w} and an empty sail with two spaces. Word cards: ${pieces.map((p) => p.text).join(", ")}. Put two cards in order to make the word for the picture, then press Send.`,
   } as Gen;
 }

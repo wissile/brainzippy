@@ -269,7 +269,7 @@ export const GAME_COPY: Record<string, GameCopy> = {
     noReading: false,
     misconceptions: [
       { idea: "Reading the first letter and guessing the rest (frog read as fog, cap as cat)", how: "Decoys differ by one letter: the middle vowel, the last letter, or a dropped consonant in a blend. After a miss, the letters light up front to back." },
-      { idea: "Spelling sh, ch or th as two separate sounds", how: "Digraphs come on one tile; separate s and h tiles are there too but can't fit the spaces, and the hint explains that two letters make one sound." },
+      { idea: "Spelling sh, ch or th as two separate sounds", how: "Digraphs come on one tile. Separate s and h tiles are offered too; a word built with them is not accepted, and the hint explains that sh is one sound on one tile." },
       { idea: "Ignoring the quiet e at the end (cap and cape)", how: "Final -e puzzles always show the short-vowel partner as a decoy, and the spelling version lets your child send the word without the e so the hint can point at the empty space." },
       { idea: "Thinking each sound has only one spelling", how: "Vowel-team puzzles sort words with the same sound but different letters (bee and leaf) into two docks." },
     ],
