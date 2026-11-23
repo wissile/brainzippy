@@ -406,7 +406,8 @@
    "speaker": "sarah",
    "vary": {
     "to": [
-     "pen"
+     "pen",
+     "ten"
     ]
    }
   },
@@ -415,12 +416,23 @@
    "speaker": "sarah",
    "vary": {
     "to": [
-     "hen"
+     "hen",
+     "ten"
+    ]
+   }
+  },
+  "pb.prompt.swap.ten": {
+   "text": "This is a ten. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "hen",
+     "pen"
     ]
    }
   },
   "pb.prompt.read": {
-   "text": "Read the sail. Who gets this boat?",
+   "text": "Read the word. Who should get it?",
    "speaker": "sarah"
   },
   "pb.prompt.tag": {
@@ -491,7 +503,6 @@
      "cane",
      "cone",
      "bone",
-     "bike",
      "kite",
      "rope",
      "rose",
@@ -1104,6 +1115,9 @@
   "pb.w.tail": {
    "text": "tail"
   },
+  "pb.w.ten": {
+   "text": "ten"
+  },
   "pb.w.tent": {
    "text": "tent"
   },
@@ -1188,10 +1202,6 @@
   },
   "pb.slow.bib": {
    "text": "bib",
-   "speed": 0.6
-  },
-  "pb.slow.bike": {
-   "text": "bike",
    "speed": 0.6
   },
   "pb.slow.bin": {
@@ -1622,10 +1632,6 @@
    "text": "seal",
    "speed": 0.6
   },
-  "pb.slow.seed": {
-   "text": "seed",
-   "speed": 0.6
-  },
   "pb.slow.shed": {
    "text": "shed",
    "speed": 0.6
@@ -1664,6 +1670,10 @@
   },
   "pb.slow.sun": {
    "text": "sun",
+   "speed": 0.6
+  },
+  "pb.slow.ten": {
+   "text": "ten",
    "speed": 0.6
   },
   "pb.slow.tent": {
@@ -1754,9 +1764,6 @@
   },
   "pb.got.bib": {
    "text": "Bib! You read every letter, front to back."
-  },
-  "pb.got.bike": {
-   "text": "Bike! You noticed the quiet e at the end!"
   },
   "pb.got.bin": {
    "text": "Bin! You read every letter, front to back."
@@ -2079,9 +2086,6 @@
   "pb.got.seal": {
    "text": "Seal! Two vowels, one sound!"
   },
-  "pb.got.seed": {
-   "text": "Seed! Two vowels, one sound!"
-  },
   "pb.got.shed": {
    "text": "Shed! Two letters, one sound!"
   },
@@ -2111,6 +2115,9 @@
   },
   "pb.got.sun": {
    "text": "Sun! You read every letter, front to back."
+  },
+  "pb.got.ten": {
+   "text": "Ten! You read every letter, front to back."
   },
   "pb.got.tent": {
    "text": "Tent! You blended every sound."

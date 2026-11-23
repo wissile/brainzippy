@@ -193,6 +193,14 @@ export const PICTURES_A: Record<string, React.JSX.Element> = {
       {shine("M66 22 L34 54")}
     </g>
   ),
+  ten: (
+    <g>
+      <rect x="10" y="20" width="80" height="60" rx="14" fill="#FFF1C7" {...S} />
+      <path d="M30 34 L36 30 L36 68" {...N} strokeWidth={7} />
+      <ellipse cx="60" cy="49" rx="11" ry="18" {...N} strokeWidth={7} />
+      <path d="M18 88 L26 80 M82 88 L74 80" {...N} strokeWidth={3} />
+    </g>
+  ),
   pin: (
     <g>
       <path d="M50 52 L50 92" {...N} strokeWidth={5} />

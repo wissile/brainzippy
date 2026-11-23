@@ -40,12 +40,12 @@ const LIST: Word[] = [
   ...["c a t", "h a t", "b a t", "r a t", "m a t", "f a n", "v a n", "c a n", "p a n", "c a p", "m a p", "c a b", "b a g", "h a m",
     "b u g", "r u g", "m u g", "j u g", "s u n", "b u n", "b u s", "c u p", "c u b", "t u b", "h u t",
     "m o p", "t o p", "p o t", "d o t", "d o g", "l o g", "b o x", "f o x",
-    "p i g", "w i g", "p i n", "f i n", "b i n", "f i g", "b i b", "j e t", "n e t", "h e n", "p e n", "w e b", "l e g", "b e d"].map((s) => W(s)),
+    "p i g", "w i g", "p i n", "f i n", "b i n", "f i g", "b i b", "j e t", "n e t", "h e n", "p e n", "t e n", "w e b", "l e g", "b e d"].map((s) => W(s)),
   // digraphs (L4)
   ...["ch i p", "sh i p", "sh o p", "ch i n", "ch i ck", "f i sh", "d i sh", "sh e d", "sh e ll", "b a th", "p a th", "d u ck", "s o ck", "r o ck", "d o ck", "m o th",
     "b e ll"].map((s) => W(s)),
   // blends (L5)
-  ...["f r o g", "f o g", "c r a b", "c r i b", "n e s t", "v e s t", "p l u m", "p l u g", "s l u g", "d r u m", "t w i g", "b e l t", "t e n t"].map((s) => W(s)),
+  ...["f r o g", "f o g", "c r a b", "c r i b", "n e s t", "v e s t", "p l u m", "p l u g", "s l u g", "d r u m", "t w i g", "b e l t", "t e n t", "s l e d"].map((s) => W(s)),
   // final -e (L6)
   ...["c a p +e", "c u b +e", "t u b +e", "c a n +e", "c o n +e", "b o n +e", "b i k +e", "k i t +e", "r o p +e", "r o s +e", "n o s +e",
     "c a k +e", "l a k +e", "p l a t +e", "p l a n +e", "s n a k +e"].map((s) => W(s)),

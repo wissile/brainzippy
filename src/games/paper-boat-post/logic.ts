@@ -29,7 +29,8 @@ export function classify(target: string, decoy: string): Misconception {
   if (!WORDS.has(target) || !WORDS.has(decoy)) return "other";
   const t = word(target);
   const d = word(decoy);
-  if (t.magic && !d.magic && target === decoy + "e") return "short-partner";
+  // the short-vowel partner (cap / cape), or a word that starts with it (kitten for kite)
+  if (t.magic && !d.magic && (target === decoy + "e" || decoy.startsWith(target.slice(0, -1)))) return "short-partner";
   if (!t.magic && d.magic && decoy === target + "e") return "short-partner";
   const tg = t.g;
   const dg = d.g;
@@ -37,6 +38,10 @@ export function classify(target: string, decoy: string): Misconception {
   // dropped consonant: the decoy is the target with one consonant grapheme removed (frog → fog, bath → bat)
   if (dg.length === tg.length - 1) {
     for (let i = 0; i < tg.length; i++) if (tg.filter((_, k) => k !== i).join("") === d.w) return DIGRAPH.has(tg[i]!) ? "digraph-swap" : "dropped-consonant";
+  }
+  // …or the target with one consonant added (rain → train): the same blend misconception, the other way round
+  if (dg.length === tg.length + 1) {
+    for (let i = 0; i < dg.length; i++) if (dg.filter((_, k) => k !== i).join("") === t.w) return "dropped-consonant";
   }
   if (tg.length === dg.length) {
     const diff = tg.map((x, i) => (x === dg[i] ? -1 : i)).filter((i) => i >= 0);
@@ -53,6 +58,9 @@ export function classify(target: string, decoy: string): Misconception {
     if (diff.length === 2 && diff[0] === 0 && diff[1] === 1 && !VOWEL_LIKE(tg[1]!)) return "blend-swap";
   }
   if (t.parts && d.parts) return "syllable-swap";
+  // a vowel team against a final -e spelling of the same sound (soap / rope)
+  const team = (g: readonly string[]) => g.some((x) => x.length === 2 && VOWEL_LIKE(x));
+  if ((t.magic && team(dg)) || (d.magic && team(tg))) return "team-swap";
   return "other";
 }
 

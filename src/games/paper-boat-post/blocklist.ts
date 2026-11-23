@@ -11,7 +11,7 @@
 export const BLOCKLIST: ReadonlySet<string> = new Set([
   // English: rude, sexual, toilet, slurs
   "ass", "arse", "butt", "bum", "poo", "poop", "pee", "wee", "fart", "crap", "damn", "hell", "piss", "shit", "shat", "fuck", "fuk", "cock", "dick",
-  "tit", "tits", "titty", "cum", "jizz", "fag", "fags", "nob", "knob", "twat", "cunt", "slut", "whore", "ho", "hoe", "sex", "sexy", "nude", "porn",
+  "tit", "tits", "titty", "cum", "jizz", "fag", "fags", "knob", "twat", "cunt", "slut", "whore", "ho", "hoe", "sex", "sexy", "nude", "porn",
   "boob", "boobs", "puss", "pussy", "wank", "bitch", "bastard", "dyke", "homo", "spaz", "retard", "nazi", "pube", "anus", "anal", "rape",
   "kill", "die", "dead", "gun", "guns", "puke", "barf", "snot", "turd", "dung", "sod", "git", "coon", "gook", "chink", "spic", "kike",
   "wop", "jap", "paki", "nig", "nigga", "nigger", "negro", "tard", "shag", "slag", "tosser", "prat", "dork", "suck", "sucks", "bong", "weed",

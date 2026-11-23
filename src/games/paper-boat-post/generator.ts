@@ -115,7 +115,7 @@ function readItem(target: string, decoys: readonly string[], rng: Rng, tag: stri
     answer: { kind: "choice", correct: target, options: words.map(picture) },
     objectKind: "boat",
     params: { m: MODE.read },
-    prompt: { line: "pb.prompt.read", text: "Read the sail. Who gets this boat?" },
+    prompt: { line: "pb.prompt.read", text: "Read the word. Who should get it?" },
     a11yDescription: `A boat with ${target.length} letters on its sail: ${target.split("").join(", ")}. ${words.length} docks with pictures: ${words.join(", ")}. Choose the dock that matches the word.`,
   } as Gen;
 }
@@ -233,7 +233,7 @@ function genPlural(rng: Rng, slot: number, tag: string, base: Partial<Gen>): Gen
     answer: { kind: "choice", correct: `${one}*3`, options: opts },
     objectKind: "boat",
     params: { m: MODE.plural },
-    prompt: { line: "pb.prompt.read", text: "Read the sail. Who gets this boat?" },
+    prompt: { line: "pb.prompt.read", text: "Read the word. Who should get it?" },
     a11yDescription: `A boat with ${plural.length} letters on its sail: ${plural.split("").join(", ")}. Three docks: ${opts.map((o) => name(o.id)).join(", ")}. Choose the dock that matches the word.`,
   } as Gen;
 }
@@ -309,8 +309,11 @@ function generateAt(level: number, rng: Rng, index: number, tag: string): Gen {
     case 4:
     case 5:
     case 6: {
+      // read slot k and build slot k use different quarters of the list (k vs k + 2), so a band never repeats a
+      // word while every word can be read in one round and built in another
       const list = level === 3 ? NEAR_TARGETS : BUILD_WORDS[level]!;
-      return even ? genRead(level, rng, slot8, 8, tag, base, list) : genBuild(level, rng, slot8, 8, tag, base, list);
+      const k = slot8 >> 1;
+      return even ? genRead(level, rng, k, 4, tag, base, list) : genBuild(level, rng, (k + 2) % 4, 4, tag, base, list);
     }
     case 7:
       return even ? genRead(7, rng, slot8 >> 1, 4, tag, base) : genSort(rng, slot8 >> 1, tag, base);

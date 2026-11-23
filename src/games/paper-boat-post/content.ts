@@ -19,7 +19,7 @@ export const FAMILIES: Readonly<Record<string, readonly string[]>> = {
   ig: ["pig", "wig"],
   in: ["pin", "fin", "bin"],
   et: ["jet", "net"],
-  en: ["hen", "pen"],
+  en: ["hen", "pen", "ten"],
 };
 /** Onsets a distractor tile may use (each has a keyword picture). */
 export const SWAP_ONSETS = ["b", "c", "d", "f", "h", "j", "l", "m", "n", "p", "r", "s", "t", "v", "w"] as const;
@@ -29,7 +29,7 @@ export const CVC: readonly string[] = [
   "cat", "hat", "bat", "rat", "mat", "fan", "van", "can", "pan", "cap", "map", "cab", "bag", "ham",
   "bug", "rug", "mug", "jug", "sun", "bun", "bus", "cup", "cub", "tub", "hut",
   "mop", "top", "pot", "dot", "dog", "log", "box", "fox",
-  "pig", "wig", "pin", "fin", "bin", "fig", "bib", "jet", "net", "hen", "pen", "web", "leg", "bed",
+  "pig", "wig", "pin", "fin", "bin", "fig", "bib", "jet", "net", "hen", "pen", "ten", "web", "leg", "bed",
 ];
 
 // ---------------------------------------------------------------- L2: critter tags (printed pseudo-words)
@@ -55,17 +55,17 @@ export const READ_SETS: Readonly<Record<number, readonly (readonly [string, stri
   ],
   5: [
     ["frog", "fog", "log"], ["crab", "cab", "crib"], ["crib", "crab", "bib"], ["nest", "net", "vest"], ["vest", "nest", "net"], ["plum", "plug", "drum"],
-    ["plug", "plum", "slug"], ["slug", "plug", "bug"], ["drum", "plum", "mug"], ["twig", "wig", "pig"], ["belt", "bell", "bat"], ["tent", "nest", "net"],
+    ["plug", "plum", "slug"], ["slug", "plug", "bug"], ["drum", "plum", "mug"], ["twig", "wig", "pig"], ["belt", "bell", "bat"], ["tent", "ten", "net"],
   ],
   6: [
     ["cape", "cap", "cake"], ["cube", "cub", "tube"], ["tube", "tub", "cube"], ["cane", "can", "cone"], ["cone", "cane", "bone"], ["bone", "cone", "bun"],
-    ["bike", "kite", "bib"], ["kite", "bike", "kitten"], ["rope", "rose", "cone"], ["rose", "nose", "rope"], ["nose", "rose", "bone"], ["cake", "cape", "lake"],
+    ["kite", "bike", "kitten"], ["rope", "rose", "cone"], ["rose", "nose", "rope"], ["nose", "rose", "bone"], ["cake", "cape", "lake"],
     ["lake", "cake", "snake"], ["plate", "plane", "plum"], ["plane", "plate", "pan"], ["snake", "lake", "snail"],
   ],
   7: [
     ["sheep", "ship", "shop"], ["leaf", "loaf", "leg"], ["loaf", "leaf", "log"], ["coat", "cat", "goat"], ["goat", "coat", "boat"], ["boat", "bat", "coat"],
     ["seal", "sail", "seed"], ["sail", "seal", "nail"], ["nail", "sail", "tail"], ["rain", "train", "sail"], ["train", "rain", "tray"], ["tray", "train", "tree"],
-    ["tree", "tray", "bee"], ["bee", "bed", "tree"], ["seed", "seal", "bed"], ["peach", "beach", "sheep"], ["beach", "peach", "bee"], ["toad", "road", "coat"],
+    ["tree", "tray", "bee"], ["bee", "bed", "tree"], ["peach", "beach", "sheep"], ["beach", "peach", "bee"], ["toad", "road", "coat"],
     ["road", "toad", "rock"], ["soap", "rope", "sock"], ["hay", "hat", "tray"],
   ],
   8: [
@@ -80,7 +80,7 @@ export const READ_SETS: Readonly<Record<number, readonly (readonly [string, stri
 export const BUILD_WORDS: Readonly<Record<number, readonly string[]>> = {
   4: ["chip", "ship", "shop", "chin", "chick", "fish", "dish", "shed", "shell", "bath", "path", "duck", "sock", "rock", "dock", "moth"],
   5: ["frog", "crab", "crib", "nest", "vest", "plum", "plug", "slug", "drum", "twig", "belt", "tent"],
-  6: ["cape", "cube", "tube", "cane", "cone", "bone", "bike", "kite", "rope", "rose", "nose", "cake", "lake", "plate", "plane", "snake"],
+  6: ["cape", "cube", "tube", "cane", "cone", "bone", "kite", "rope", "rose", "nose", "cake", "lake", "plate", "plane", "snake"],
 };
 
 // ---------------------------------------------------------------- L7 sort: same sound, different spelling
@@ -138,8 +138,8 @@ const READ_NOTES = [
   "The dog has a bone.|dog has bone|dog has bun|frog has bone",
   "Zuzu has a drum.|zuzu has drum|zuzu has plum|bobbo has drum",
   "Bobbo has a kite.|bobbo has kite|bobbo has bike|zuzu has kite",
-  "The bug is on the cake.|bug on cake|bug in cup|slug on cake",
-  "The duck is in the lake.|duck in lake|duck on rock|snake in lake",
+  "The bug is on the cake.|bug on cake|bug on cup|slug on cake",
+  "The duck is in the lake.|duck in lake|duck in tub|snake in lake",
   "A goat is on the rock.|goat on rock|goat on log|coat on rock",
   "The fox is in the box.|fox in box|fox on box|fox in bus",
   "The pig is in the tub.|pig in tub|pig on tub|wig in tub",
