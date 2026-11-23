@@ -48,7 +48,7 @@ export const EXERCISE_PREFIX: Record<string, string> = {
   "counting-adventure": "ca", "glow-cave-hops": "gc", "sky-balloon-race": "sb", "cookie-kitchen": "ck", "rhyme-lanterns": "rl",
   "garden-path": "gp", "message-mystery": "mm", "budget-bridge": "bb", "postcard-trip": "pc", "lemonade-stand": "ls",
   "reef-rescue": "rr", "sky-hoops": "sh", "rocket-lab": "rl", "feelings-garden": "fg", "balance-island": "bi",
-  "pattern-parade": "pp", "shape-squish": "ss", "sleepy-trail": "st",
+  "pattern-parade": "pp", "shape-squish": "ss", "sleepy-trail": "st", "paper-boat-post": "pb",
 };
 
 /**
