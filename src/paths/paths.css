@@ -72,6 +72,7 @@
 .path-change:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
 
 /* "My path" tab: the host's face as the icon */
+.view-tabs.with-path button span { white-space: nowrap; }
 .view-tabs .tab-host { width: 30px; height: 30px; display: grid; place-items: center; }
 .view-tabs .tab-host .critter { width: 100%; height: auto; }
 
@@ -112,7 +113,7 @@
 /* three tabs on a phone: tighter padding so the bar fits 390 px */
 @media (max-width: 480px) {
   .view-tabs.with-path { gap: 2px; }
-  .view-tabs.with-path button { padding: 0 10px; gap: 4px; font-size: 1rem; }
+  .view-tabs.with-path button { padding: 0 10px; gap: 4px; font-size: 1rem; white-space: nowrap; }
   .view-tabs.with-path button svg { width: 22px; height: 22px; }
   .view-tabs.with-path .tab-host { width: 24px; height: 24px; }
 }
