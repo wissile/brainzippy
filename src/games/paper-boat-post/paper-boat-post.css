@@ -203,7 +203,7 @@ button.pb-boat { cursor: grab; border-radius: 24px; }
 .pb-talk .dlg-actor { width: clamp(90px, min(26vw, 30vh), 230px); }
 
 /* ---------- wide boards (landscape phones, desktops): boat on the left, answers on the right ---------- */
-@container (min-aspect-ratio: 8 / 5) {
+@container (min-aspect-ratio: 6 / 5) {
   .pb-stage { flex-direction: row; gap: 3cqw; }
   .pb-top, .pb-lower { flex: 1 1 50%; height: 100%; }
   .pb-lower { flex-direction: column; flex-wrap: nowrap; }
