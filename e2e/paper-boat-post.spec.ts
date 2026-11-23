@@ -314,6 +314,12 @@ test("layout: targets ≥64px and on screen at the four viewports, every mode; s
         expect(box.x + box.width, `${what} right`).toBeLessThanOrEqual(vp.width + 1);
         expect(box.y + box.height, `${what} bottom`).toBeLessThanOrEqual(vp.height + 1);
       }
+      // the board never covers the prompt pill (the picture clue sits below it)
+      const pill = await page.getByTestId("prompt").boundingBox();
+      for (const loc of await page.locator(".pb-card, .pb-boat, .pb-fleet, .pb-docks").all()) {
+        const box = await loc.boundingBox();
+        if (pill && box && box.x < pill.x + pill.width && box.x + box.width > pill.x) expect(box.y, `${label} ${vp.name} board under the prompt`).toBeGreaterThanOrEqual(pill.y + pill.height - 4);
+      }
       await page.screenshot({ path: `${REVIEW}/${label}-${vp.name}.png` });
     }
     await page.setViewportSize({ width: 1280, height: 800 });
