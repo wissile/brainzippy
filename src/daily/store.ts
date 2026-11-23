@@ -8,6 +8,9 @@ import { type LocalDate, addDays, localDate } from "./date";
 import { recordRound, roundsOn } from "./memory";
 import { type AgeRange, type PlanInput, litStops, planDay, registryFingerprint, roundSeed, stopWorlds, toStored } from "./planner";
 import { getDailySettings } from "./settings";
+import { hashSeed } from "../engine/rng";
+import { pathFocus } from "../paths/state";
+import { preferPathWorld } from "../paths/plan";
 
 /**
  * Glue between the pure daily rules (planner, memory) and the app: registry, local storage, the clock.
@@ -49,10 +52,14 @@ function plannerInput(day: LocalDate, log: DailyLog, limit: number): PlanInput {
 export function ensurePlan(day: LocalDate = today()): DailyPlan {
   const log = getLog();
   const limit = getDailySettings().limit;
-  const reg = registryFingerprint(playableWorlds());
+  // D-034 PP1: a visible chosen path puts its current world first; choosing another path re-plans (kept stops stay)
+  const focus = pathFocus();
+  const reg = focus ? hashSeed(registryFingerprint(playableWorlds()), "path", focus.path) : registryFingerprint(playableWorlds());
   const old = log.plan;
   if (old && old.day === day && old.k === limit && old.reg === reg) return old;
-  const fresh = planDay(plannerInput(day, log, limit)).map(toStored);
+  const input = plannerInput(day, log, limit);
+  const planned = planDay(input).map(toStored);
+  const fresh = focus ? preferPathWorld(planned, focus.world, input.levels[focus.world] === undefined && log.seen[focus.world] === undefined) : planned;
   let stops: DailyPlanStop[] = fresh;
   if (old && old.day === day) {
     const lit = litStops(old.stops, roundsOn(log, day));

@@ -59,6 +59,24 @@ export interface Library extends Subject {
   order: number;
   /** Optional key of the library's island/map art (e.g. "island-number-hill"); unused keys fall back to the default. */
   art?: string;
+  /** The library as a child-facing learning path ("Learn to fly with Zephy", docs/PATHS.md, D-034). */
+  path?: LibraryPath;
+}
+
+/**
+ * A library seen as a path for every age (D-034): a title naming the host, a spoken line, and a `live` flag.
+ * Owner decision: a path goes live only when every age 3–14 has at least one of its worlds (checked by
+ * tests/unit/paths.test.ts); until then its path UI stays hidden and the library's shelf keeps working.
+ */
+export interface LibraryPath {
+  /** Child-facing title with `{host}` for the host's name: "Learn to fly with {host}". Swapping `Library.host` renames it. */
+  title: string;
+  /** Voice line that says the title (src/paths/voice.json, text = title + "!", `vary.host` lists the host's name). */
+  line: string;
+  /** Show this path to children. Flip to true once every age 3–14 has a world (the test lists missing ages). */
+  live: boolean;
+  /** Optional explicit trail order of world ids (default: by youngest age, then oldest age, then id). */
+  worlds?: readonly string[];
 }
 
 export interface Topic {

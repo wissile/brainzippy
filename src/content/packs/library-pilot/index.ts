@@ -23,6 +23,8 @@ const pack: ContentPack = {
       description: "How planes fly, weather, maps and checklists, aligned with the FAA Private Pilot knowledge areas. Educational only: not FAA-approved training and not for navigation.",
       status: "live",
       order: 11,
+      // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
+      path: { title: "Learn to fly with {host}", line: "path.pilot.title", live: false },
     },
   ],
   topics: [

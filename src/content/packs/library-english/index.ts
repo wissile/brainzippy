@@ -20,6 +20,8 @@ const pack: ContentPack = {
       description: "Listening, phonics, reading, spelling and vocabulary through story games, starting with rhymes and sounds for children who can't read yet.",
       status: "live",
       order: 2,
+      // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
+      path: { title: "Learn English with {host}", line: "path.english.title", live: false },
       art: "island-word-woods",
     },
   ],

@@ -1,0 +1,22 @@
+{
+  "_comment": "Learning paths (docs/PATHS.md, D-034). Title lines say the path's title with its host's name; vary.host must list the CURRENT host's name (tests/unit/paths.test.ts), so swapping a library's host flags the clip to render.",
+  "lines": {
+    "path.math.title": { "text": "Count and build with {host}!", "vary": { "host": ["Bobbo"] } },
+    "path.english.title": { "text": "Learn English with {host}!", "vary": { "host": ["Hoot"] } },
+    "path.pilot.title": { "text": "Learn to fly with {host}!", "vary": { "host": ["Zephy"] } },
+    "path.cs.title": { "text": "Learn to code with {host}!", "vary": { "host": ["Toggle"] } },
+    "path.cyber.title": { "text": "Stay safe online with {host}!", "vary": { "host": ["Fenn"] } },
+    "path.engr.title": { "text": "Build like an engineer with {host}!", "vary": { "host": ["Brix"] } },
+    "path.geo.title": { "text": "Explore the world with {host}!", "vary": { "host": ["Yonder"] } },
+    "path.money.title": { "text": "Learn about money with {host}!", "vary": { "host": ["Budge"] } },
+    "path.nature.title": { "text": "Discover nature with {host}!", "vary": { "host": ["Ripple"] } },
+    "path.sci.title": { "text": "Experiment like a scientist with {host}!", "vary": { "host": ["Dabble"] } },
+    "path.sel.title": { "text": "Understand feelings with {host}!", "vary": { "host": ["Snug"] } },
+    "path.pick.hello": { "text": "Choose your adventure! Tap a friend to hear their path." },
+    "path.view.hello": { "text": "Here is your path! Tap the big button for your next stop." },
+    "path.view.end": { "text": "You explored this whole path! Play again, or choose a new adventure." },
+    "path.offer.tired": { "text": "Great playing! Want to try another path for a while? You can come back anytime." },
+    "path.offer.tricky": { "text": "Shall we try another path for a bit? This one will wait for you." },
+    "path.offer.end": { "text": "You explored this whole path! Want to try another one?" }
+  }
+}

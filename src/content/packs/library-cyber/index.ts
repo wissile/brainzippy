@@ -22,6 +22,8 @@ const pack: ContentPack = {
       description: "Recognising tricky messages, keeping personal information private, strong passwords and kind online habits, aligned with CISA and FTC guidance. Every name, message and web address is fictional.",
       status: "live",
       order: 10,
+      // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
+      path: { title: "Stay safe online with {host}", line: "path.cyber.title", live: false },
     },
   ],
   topics: [

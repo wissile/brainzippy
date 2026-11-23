@@ -21,6 +21,8 @@ const pack: ContentPack = {
       description: "Virtual science experiments about forces, materials, living things, light, sound and energy, aligned with the Next Generation Science Standards. Children never handle heat, flames or chemicals.",
       status: "live",
       order: 3,
+      // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
+      path: { title: "Experiment like a scientist with {host}", line: "path.sci.title", live: false },
     },
   ],
   topics: [{ id: "sci.force", subject: "sci", title: "Forces and motion", description: "Pushes and pulls, balanced and unbalanced forces, gravity, weight and mass, net force and acceleration." }],

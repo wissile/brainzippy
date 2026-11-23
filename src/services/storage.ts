@@ -4,6 +4,7 @@ import { type MonsterConfig, isMonsterConfig } from "../characters/Monster";
 import { HISTORY_CAP, parseRoundRecord, parseSettings, type ChildSettings, type RoundRecord } from "../account/schema";
 import { localDay, roundStars } from "../account/points";
 import { UUID_RE } from "../account/schema";
+import { type PathsState, emptyPathsState, parsePathsState } from "../engine/pathProgress";
 
 /**
  * Local guest storage. Holds no personal data: a random device-local id, coarse settings, progress.
@@ -93,6 +94,8 @@ export interface LocalState {
   challenge: ActiveChallenge | null;
   /** Parent setting: completed rounds per local day before play pauses until tomorrow (src/daily/settings.ts). */
   dailyLimit: number;
+  /** Learning paths (D-034): chosen path, each path's current stop and streaks. Device-only, no personal data. */
+  paths: PathsState;
 }
 
 export const DAILY_LIMIT = { min: 3, max: 10, default: 5 } as const;
@@ -112,6 +115,7 @@ const defaults = (): LocalState => ({
   account: null,
   challenge: null,
   dailyLimit: DAILY_LIMIT.default,
+  paths: emptyPathsState(),
 });
 
 function parseHistory(x: unknown): RoundRecord[] {
@@ -172,6 +176,8 @@ export function loadState(): LocalState {
         account: parseAccount(o.account),
         challenge: parseChallenge(o.challenge),
         dailyLimit: clampDailyLimit(o.dailyLimit),
+        // migration: state saved before paths existed (or a corrupt entry) gets an empty path state
+        paths: parsePathsState(o.paths),
       };
       return memory;
     }
