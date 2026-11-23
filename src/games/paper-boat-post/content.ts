@@ -123,27 +123,27 @@ const READ_NOTES = [
   "The hen is in the box.|hen in box|hen on box|fox in box",
   "The cat is on the bed.|cat on bed|cat in bed|rat on bed",
   "The dog is on the rug.|dog on rug|dog on bed|frog on rug",
-  "A fox is in the van.|fox in van|fox on van|fox in bus",
-  "Zuzu is on the bus.|zuzu on bus|zuzu in bus|bobbo on bus",
+  "A fox is in the bag.|fox in bag|fox on bag|fox in tub",
+  "Zuzu is on the bus.|zuzu on bus|zuzu on van|bobbo on bus",
   "Bobbo is in the tub.|bobbo in tub|bobbo on tub|bobbo in box",
-  "The bug is in a cup.|bug in cup|bug in mug|pig in cup",
+  "The bug is in a cup.|bug in cup|bug on cup|pig in cup",
   "The frog is on a log.|frog on log|frog on box|dog on log",
-  "The goat is in the boat.|goat in boat|goat on boat|coat in boat",
+  "The goat is in the boat.|goat in boat|goat in box|goat in tub",
   "A duck is on the sled.|duck on sled|duck on rug|dog on sled",
-  "The cat has a hat.|cat has hat|cat has cap|rat has hat",
+  "The cat has a hat.|cat has hat|cat has bag|rat has hat",
   "The pig has a bag.|pig has bag|pig has bug|pig in bag",
-  "My cat is in the bag.|cat in bag|cat on bag|rat in bag",
+  "My cat is in the bag.|cat in bag|cat on bag|cat in box",
   "The hen was on the log.|hen on log|hen on rug|fox on log",
-  "A rat is on the hat.|rat on hat|rat in hat|cat on hat",
+  "A rat is on the hat.|rat on hat|rat on rug|cat on hat",
   "The dog has a bone.|dog has bone|dog has bun|frog has bone",
   "Zuzu has a drum.|zuzu has drum|zuzu has plum|bobbo has drum",
   "Bobbo has a kite.|bobbo has kite|bobbo has bike|zuzu has kite",
   "The bug is on the cake.|bug on cake|bug on cup|slug on cake",
-  "The duck is in the lake.|duck in lake|duck in tub|snake in lake",
+  "The duck is in the tub.|duck in tub|duck in box|frog in tub",
   "A goat is on the rock.|goat on rock|goat on log|coat on rock",
-  "The fox is in the box.|fox in box|fox on box|fox in bus",
+  "The fox is in the box.|fox in box|fox on box|fox in bag",
   "The pig is in the tub.|pig in tub|pig on tub|wig in tub",
-  "The frog is in the jug.|frog in jug|frog in mug|dog in jug",
+  "The frog is in the jug.|frog in jug|frog in cup|dog in jug",
   "Bobbo is on the bed.|bobbo on bed|bobbo in bed|zuzu on bed",
 ];
 
@@ -154,7 +154,7 @@ const BUILD_NOTES = [
   "Bobbo is in the tub .|bobbo in tub|bobbo",
   "Zuzu is on the bus .|zuzu on bus|zuzu",
   "The hen is on the bed .|hen on bed|pen",
-  "A pig is in the van .|pig in van|wig",
+  "A pig is in the bag .|pig in bag|wig",
   "The dog has a bone .|dog has bone|log",
   "Is the cat in the box ?|cat in box|.",
   "Is the frog on the log ?|frog on log|.",
@@ -164,7 +164,7 @@ const BUILD_NOTES = [
   "The rat is on the hat .|rat on hat|cat",
   "Zuzu has a kite .|zuzu has kite|zuzu",
   "Bobbo has a drum .|bobbo has drum|bobbo",
-  "The bug is in the jug .|bug in jug|mug",
+  "The bug is in the cup .|bug in cup|jug",
   "Is Zuzu in the tub ?|zuzu in tub|zuzu",
   "The pig has a bag .|pig has bag|bug",
   "My dog is on the rug .|dog on rug|frog",
@@ -173,7 +173,7 @@ const BUILD_NOTES = [
   "The cat has a cap .|cat has cap|map",
   "Bobbo is on the bus .|bobbo on bus|bobbo",
   "The goat is on the log .|goat on log|boat",
-  "Is the duck in the lake ?|duck in lake|.",
+  "Is the duck in the tub ?|duck in tub|.",
 ];
 
 const scene = (s: string): Scene => {
@@ -202,6 +202,10 @@ export const NOTES_BUILD: readonly BuildNote[] = BUILD_NOTES.map((row, i) => {
 });
 /** The note as it is read aloud / shown: "The bug is on a rug." */
 export const buildText = (n: BuildNote) => n.cards.join(" ").replace(/ ([.?])$/, "$1");
+
+/** Pictures a 6-year-old could name the same way or not tell apart: never offered together (QA review). */
+export const CONFUSABLE: readonly (readonly [string, string])[] = [["cup", "mug"], ["mat", "rug"], ["dot", "pin"], ["pot", "pan"], ["hat", "cap"], ["tube", "pen"], ["hut", "house"]];
+export const confusable = (a: string, b: string) => CONFUSABLE.some(([x, y]) => (a === x && b === y) || (a === y && b === x));
 
 /** Tricky words (RF.1.3.G): dotted underline, tap to hear (not "assisted"). */
 export const TRICKY = ["the", "a", "is", "to", "i", "was", "said", "he", "she", "we", "my", "you"] as const;

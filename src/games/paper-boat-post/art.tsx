@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { Bobbo } from "../../characters/Bobbo";
 import { Zuzu } from "../../characters/Crew";
 import { INK } from "../../characters/palette";
@@ -26,16 +27,63 @@ function Figure({ who }: { who: string }) {
   return PICTURES[who] ?? <g />;
 }
 
-/** A note's scene: who is in / on / has what. Drawn from the same pictures so a picture child can read it. */
+/** Measured bounds [left, top, right, bottom] of scene pictures in their 100-unit box (Crew: as drawn by Figure). */
+const BOX: Record<string, readonly [number, number, number, number]> = {
+  hen: [24, 15, 88, 94], cat: [20, 16, 89, 93], rat: [8, 34, 95, 88], dog: [11, 22, 89, 75], frog: [13, 24, 87, 86], fox: [14, 12, 86, 86],
+  goat: [8, 11, 92, 86], coat: [6, 12, 94, 92], duck: [21, 22, 90, 86], bug: [8, 10, 92, 90], pig: [16, 12, 84, 86], wig: [13, 9, 87, 94],
+  slug: [10, 17, 92, 82], snake: [16, 13, 90, 84], box: [4, 12, 96, 92], bed: [10, 18, 90, 88], rug: [6, 34, 94, 86], van: [8, 30, 94, 86],
+  bus: [8, 24, 92, 89], tub: [8, 11, 92, 90], cup: [18, 23, 88, 86], mug: [20, 6, 88, 90], jug: [25, 14, 87, 90], log: [4, 15, 86, 74],
+  boat: [4, 10, 100, 93], sled: [6, 34, 94, 88], hat: [8, 30, 92, 83], cap: [18, 19, 96, 75], bag: [14, 14, 86, 88], bone: [8, 12, 92, 88],
+  bun: [10, 24, 90, 80], drum: [16, 1, 84, 84], plum: [18, 8, 82, 88], kite: [20, 8, 80, 98], bike: [6, 24, 94, 84], cake: [10, 4, 90, 84],
+  rock: [6, 28, 94, 82], bobbo: [10, 6, 90, 99], zuzu: [24, 5, 93, 99],
+};
+/** Where a figure stands ON a thing (its top surface) and where the front RIM of a container is (in 100-unit picture y). */
+const SURFACE: Record<string, { on?: number; rim?: number }> = {
+  box: { on: 30, rim: 36 }, bed: { on: 52, rim: 56 }, rug: { on: 60 }, van: { on: 32 }, bus: { on: 26 }, tub: { on: 42, rim: 46 },
+  cup: { rim: 32 }, jug: { rim: 40 }, log: { on: 26 }, boat: { rim: 64 }, sled: { on: 40 }, hat: { on: 32 }, bag: { on: 32, rim: 40 },
+  rock: { on: 34 }, cake: { on: 30 },
+};
+const bx = (w: string) => BOX[w] ?? ([10, 10, 90, 90] as const);
+
+/**
+ * A note's scene: who is IN / ON / HAS what, composed from the same pictures. ON: the figure's feet rest on the
+ * thing's top surface. IN: the figure sits behind the container and the container's front (clipped below its rim)
+ * is drawn again over it, so it is visibly inside. HAS: the thing stands next to the figure.
+ */
 export function ScenePicture({ id }: { id: string }) {
   const s = parseScene(id);
+  const clip = `pb-clip-${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
+  const [wl, , wr, wb] = bx(s.what);
+  const [hl, ht, hr, hb] = bx(s.who);
+  const sW = s.rel === "has" ? 0.5 : 0.74;
+  const sH = s.rel === "has" ? 0.8 : CREW[s.who] ? 0.56 : 0.54;
   let body: React.ReactNode;
-  if (s.rel === "on") body = (<>{at(<Figure who={s.what} />, 0.66, 27, 48)}{at(<Figure who={s.who} />, 0.56, 32, -2)}</>);
-  else if (s.rel === "in") body = (<>{at(<Figure who={s.who} />, 0.5, 35, 20)}{at(<Figure who={s.what} />, 0.8, 20, 34)}</>);
-  else body = (<>{at(<Figure who={s.who} />, 0.8, 2, 14)}{at(<Figure who={s.what} />, 0.56, 64, 40)}</>);
+  if (s.rel === "has") {
+    body = (<>{at(<Figure who={s.who} />, sH, 4 - sH * hl, 98 - sH * hb)}{at(<Figure who={s.what} />, sW, 116 - sW * wr, 98 - sW * wb)}</>);
+  } else {
+    const x0 = 60 - (sW * (wl + wr)) / 2;
+    const y0 = 98 - sW * wb;
+    const hx = 60 - (sH * (hl + hr)) / 2;
+    const surf = SURFACE[s.what] ?? {};
+    if (s.rel === "on") {
+      const feet = y0 + sW * (surf.on ?? bx(s.what)[1]) + 2;
+      body = (<>{at(<Figure who={s.what} />, sW, x0, y0)}{at(<Figure who={s.who} />, sH, hx, feet - sH * hb)}</>);
+    } else {
+      const rim = y0 + sW * (surf.rim ?? (bx(s.what)[1] + bx(s.what)[3]) / 2);
+      const top = rim - 0.5 * sH * (hb - ht);
+      body = (
+        <>
+          <defs><clipPath id={clip}><rect x="0" y={rim} width="120" height={100 - rim + 4} /></clipPath></defs>
+          {at(<Figure who={s.what} />, sW, x0, y0)}
+          {at(<Figure who={s.who} />, sH, hx, top - sH * ht)}
+          <g clipPath={`url(#${clip})`}>{at(<Figure who={s.what} />, sW, x0, y0)}</g>
+        </>
+      );
+    }
+  }
   return (
     <svg className="pb-pic pb-scene-pic" viewBox="0 0 120 100" aria-hidden="true">
-      <ellipse cx="60" cy="96" rx="50" ry="4" fill={INK} opacity="0.12" />
+      <ellipse cx="60" cy="97" rx="50" ry="3" fill={INK} opacity="0.12" />
       {body}
     </svg>
   );

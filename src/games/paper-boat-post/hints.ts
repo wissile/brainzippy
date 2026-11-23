@@ -2,7 +2,7 @@ import type { Exercise } from "../../engine/types";
 import type { ExerciseState } from "../../engine/session";
 import { SKILLS } from "./generator";
 import { classify, gotLine, modeOf, noteOf, pluralOf, sailWord, sentenceLine, spokenWord } from "./logic";
-import { graphemes, word } from "./words";
+import { graphemes, word, wordLevel } from "./words";
 
 /** Paper Boat Post — which helper line, hint and praise fit an exercise (pure; used by the skin, unit-tested). */
 
@@ -59,12 +59,23 @@ export function hintFor(s: ExerciseState): string {
   }
 }
 
+/** Spelling praise names what the child did with the word's pattern (built, not read). */
+export function builtLine(w: string): string {
+  const x = word(w);
+  if (x.magic) return "pb.built.e";
+  if (x.g.some((g) => g.length === 2)) return "pb.built.digraph";
+  if (wordLevel(w) === 5) return "pb.built.blend";
+  return "pb.built.cvc";
+}
+
 /** After a right answer: the word (or note) is spoken now for the first time, with process praise. */
 export function praiseFor(ex: Exercise): string[] {
   const m = modeOf(ex);
   if (m === "read") return [gotLine(sailWord(ex)!)];
   if (m === "plural") return [gotLine(pluralOf(ex)!)];
-  if (m === "swap" || m === "build" || m === "compound") return [gotLine(spokenWord(ex)!)];
+  if (m === "swap") return ["pb.praise.swap"];
+  if (m === "compound") return [gotLine(spokenWord(ex)!)];
+  if (m === "build") return [builtLine(spokenWord(ex)!)];
   if (m === "tag") return [`pb.tag.ok.${spokenWord(ex)}`];
   if (m === "noteRead") return [sentenceLine(noteOf(ex).id)];
   if (m === "noteBuild") return ["pb.praise.6"];

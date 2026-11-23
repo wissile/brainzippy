@@ -1,7 +1,7 @@
 import type { AnswerOption, Exercise, ExerciseGenerator } from "../../engine/types";
 import type { Rng } from "../../engine/rng";
 import { isBlocked } from "./blocklist";
-import { BUILD_WORDS, COMPOUNDS, CVC, FAMILIES, NOTES_BUILD, NOTES_READ, PLURALS, READ_SETS, SORTS, SWAP_ONSETS, TAGS, sceneId } from "./content";
+import { BUILD_WORDS, COMPOUNDS, CVC, confusable, FAMILIES, NOTES_BUILD, NOTES_READ, PLURALS, READ_SETS, SORTS, SWAP_ONSETS, TAGS, sceneId } from "./content";
 import { MODE, oneGraphemeApart, safeTiles } from "./logic";
 import { KEYWORDS, REAL_WORDS, graphemes, word } from "./words";
 
@@ -83,7 +83,7 @@ function genSwap(rng: Rng, index: number, tag: string, base: Partial<Gen>): Gen 
     answer: { kind: "choice", correct: on, options: tiles },
     objectKind: pair.from,
     params: { m: MODE.swap },
-    prompt: { line: `pb.prompt.swap.${pair.from}`, vars: { from: pair.from, to: pair.to }, text: `This is a ${pair.from}. Can you make ${pair.to}?` },
+    prompt: { line: `pb.prompt.swap.${pair.from}`, vars: { from: pair.from, to: pair.to }, text: `This is ${pair.from === "ten" ? "" : "a "}${pair.from}. Can you make ${pair.to}?` },
     a11yDescription: `A boat card shows a ${pair.from}, spelled ${spell(pair.from)}. The sail shows a gap, then ${rime.split("").join(", ")}. Two letter tiles: ${tiles.map((t) => `${t.text} for ${t.art}`).join(" and ")}. Put the first letter of ${pair.to} in the gap.`,
   } as Gen;
 }
@@ -97,8 +97,8 @@ const pinPen = (a: string, b: string) => {
 };
 export function nearMisses(target: string): { vowel: string[]; final: string[] } {
   const g = graphemes(target);
-  const vowel = CVC.filter((w) => w !== target && graphemes(w)[0] === g[0] && graphemes(w)[2] === g[2] && !pinPen(target, w));
-  const final = CVC.filter((w) => w !== target && graphemes(w)[0] === g[0] && graphemes(w)[1] === g[1]);
+  const vowel = CVC.filter((w) => w !== target && !confusable(w, target) && graphemes(w)[0] === g[0] && graphemes(w)[2] === g[2] && !pinPen(target, w));
+  const final = CVC.filter((w) => w !== target && !confusable(w, target) && graphemes(w)[0] === g[0] && graphemes(w)[1] === g[1]);
   return { vowel, final };
 }
 export const NEAR_TARGETS: readonly string[] = CVC.filter((w) => {
@@ -123,13 +123,15 @@ function readItem(target: string, decoys: readonly string[], rng: Rng, tag: stri
 function genRead(level: number, rng: Rng, slot: number, slots: number, tag: string, base: Partial<Gen>, list?: readonly string[]): Gen {
   if (level === 1) {
     const target = bucketPick(list ?? CVC, slot, slots, rng);
-    const far = CVC.filter((w) => w !== target && !graphemes(w).some((g) => graphemes(target).includes(g)));
+    const far = CVC.filter((w) => w !== target && !confusable(w, target) && !graphemes(w).some((g) => graphemes(target).includes(g)));
     return readItem(target, [rng.pick(far)], rng, tag, base, "and match it to its picture");
   }
   if (level <= 3) {
     const target = bucketPick(list ?? NEAR_TARGETS, slot, slots, rng);
     const n = nearMisses(target);
-    return readItem(target, [rng.pick(n.vowel), rng.pick(n.final)], rng, tag, base, "and tell it from words one letter away");
+    const vowel = rng.pick(n.vowel);
+    const finals = n.final.filter((w) => !confusable(w, vowel));
+    return readItem(target, [vowel, rng.pick(finals.length ? finals : n.final)], rng, tag, base, "and tell it from words one letter away");
   }
   const sets = READ_SETS[level]!;
   const target = bucketPick(list ?? sets.map((s) => s[0]), slot, slots, rng);

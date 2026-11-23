@@ -75,10 +75,6 @@
    "text": "Take your time. Look at every letter, front to back.",
    "speaker": "sarah"
   },
-  "pb.basket": {
-   "text": "Tap a boat first, then tap a dock.",
-   "speaker": "sarah"
-  },
   "pb.prompt.swap.cat": {
    "text": "This is a cat. Can you make {to}?",
    "speaker": "sarah",
@@ -422,7 +418,7 @@
    }
   },
   "pb.prompt.swap.ten": {
-   "text": "This is a ten. Can you make {to}?",
+   "text": "This is ten. Can you make {to}?",
    "speaker": "sarah",
    "vary": {
     "to": [
@@ -520,7 +516,7 @@
    "speaker": "sarah"
   },
   "pb.prompt.compound": {
-   "text": "Make a word for this picture with two cards.",
+   "text": "Make a word for this picture with two cards. Tap the picture to hear it.",
    "speaker": "sarah"
   },
   "pb.prompt.note.read": {
@@ -552,7 +548,7 @@
    "speaker": "zuzu"
   },
   "pb.help.blend": {
-   "text": "In frog, you can hear f and r at the start.",
+   "text": "Two sounds may sit side by side, like f and r: fr!",
    "speaker": "zuzu"
   },
   "pb.help.e": {
@@ -560,7 +556,7 @@
    "speaker": "zuzu"
   },
   "pb.help.team": {
-   "text": "Two vowels can team up to make one sound.",
+   "text": "Two vowels may team up to make one sound.",
    "speaker": "zuzu"
   },
   "pb.help.sort": {
@@ -576,7 +572,7 @@
    "speaker": "zuzu"
   },
   "pb.hint.read.1": {
-   "text": "Touch each letter, front to back.",
+   "text": "Look at each letter, front to back.",
    "speaker": "zuzu"
   },
   "pb.hint.vowel": {
@@ -648,7 +644,7 @@
    "speaker": "zuzu"
   },
   "pb.hint.sort.1": {
-   "text": "Look at the middle letters. Which dock has the same ones?",
+   "text": "Look at the middle letters. Which sign has the same ones?",
    "speaker": "zuzu"
   },
   "pb.hint.show": {
@@ -697,6 +693,26 @@
   },
   "pb.tag.ok.jet": {
    "text": "Its name rhymes with jet!",
+   "speaker": "sarah"
+  },
+  "pb.praise.swap": {
+   "text": "You changed the first sound and made a new word!",
+   "speaker": "sarah"
+  },
+  "pb.built.cvc": {
+   "text": "You built it, sound by sound!",
+   "speaker": "sarah"
+  },
+  "pb.built.digraph": {
+   "text": "Two letters, one sound, one tile!",
+   "speaker": "sarah"
+  },
+  "pb.built.blend": {
+   "text": "You heard both sounds and built them!",
+   "speaker": "sarah"
+  },
+  "pb.built.e": {
+   "text": "You remembered the quiet e at the end!",
    "speaker": "sarah"
   },
   "pb.praise.6": {
@@ -2240,7 +2256,7 @@
    "text": "The dog is on the rug."
   },
   "pb.s.r04": {
-   "text": "A fox is in the van."
+   "text": "A fox is in the bag."
   },
   "pb.s.r05": {
    "text": "Zuzu is on the bus."
@@ -2288,7 +2304,7 @@
    "text": "The bug is on the cake."
   },
   "pb.s.r20": {
-   "text": "The duck is in the lake."
+   "text": "The duck is in the tub."
   },
   "pb.s.r21": {
    "text": "A goat is on the rock."
@@ -2321,7 +2337,7 @@
    "text": "The hen is on the bed."
   },
   "pb.s.b06": {
-   "text": "A pig is in the van."
+   "text": "A pig is in the bag."
   },
   "pb.s.b07": {
    "text": "The dog has a bone."
@@ -2351,7 +2367,7 @@
    "text": "Bobbo has a drum."
   },
   "pb.s.b16": {
-   "text": "The bug is in the jug."
+   "text": "The bug is in the cup."
   },
   "pb.s.b17": {
    "text": "Is Zuzu in the tub?"
@@ -2378,7 +2394,7 @@
    "text": "The goat is on the log."
   },
   "pb.s.b25": {
-   "text": "Is the duck in the lake?"
+   "text": "Is the duck in the tub?"
   },
   "pb.t.a": {
    "text": "a."

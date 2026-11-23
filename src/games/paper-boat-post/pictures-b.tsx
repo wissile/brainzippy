@@ -238,10 +238,11 @@ export const PICTURES_B: Record<string, React.JSX.Element> = {
   ),
   tube: (
     <g>
-      <path d="M18 70 L70 18 L84 32 L32 84 Z" fill="#fff" {...S} />
-      <path d="M70 18 L80 8 L94 22 L84 32 Z" fill="#E04F5F" {...S} />
-      <path d="M18 70 L10 78 L22 90 L32 84" fill="#fff" {...T} />
-      <path d="M34 62 L58 38 M42 70 L66 46" {...N} strokeWidth={3} stroke="#4D96FF" />
+      <path d="M14 30 L62 30 Q70 30 72 38 L72 62 Q70 70 62 70 L14 70 L20 50 Z" fill="#fff" {...S} />
+      <path d="M14 30 L20 50 L14 70" fill="#4D96FF" {...T} />
+      <rect x="72" y="42" width="10" height="16" rx="2" fill="#E04F5F" {...T} />
+      <path d="M82 50 Q90 44 94 50 Q90 58 84 54" fill="#9FE3FF" {...T} />
+      <path d="M30 42 L58 42 M30 58 L50 58" {...N} strokeWidth={4} stroke="#4D96FF" />
     </g>
   ),
   cane: (
@@ -428,10 +429,11 @@ export const PICTURES_B: Record<string, React.JSX.Element> = {
   // ---------------------------------------------------------------- two-syllable words (L8)
   napkin: (
     <g>
-      <path d="M16 30 L84 30 L84 84 L16 84 Z" fill="#9FE3FF" {...S} />
-      <path d="M16 30 L84 84 M84 30 L16 84" stroke="#fff" strokeWidth="3" />
-      <path d="M16 30 L50 56 L84 30" fill="#C7EFFF" {...T} />
-      <path d="M22 78 L30 70 M70 78 L78 70" {...N} strokeWidth={2.5} stroke="#4D96FF" />
+      <path d="M8 76 L50 34 L92 76 Z" fill="#9FE3FF" {...S} />
+      <path d="M50 34 L50 76" stroke={INK} strokeWidth="2.5" strokeOpacity="0.4" />
+      <path d="M8 76 L92 76 L88 84 L12 84 Z" fill="#6EC8F5" {...T} />
+      <path d="M68 14 L66 50 M60 14 L60 24 Q60 30 66 30 Q72 30 72 24 L72 14" {...N} strokeWidth={3.5} stroke="#9AA8BE" />
+      <path d="M68 14 L66 50 M60 14 L60 24 Q60 30 66 30 Q72 30 72 24 L72 14" {...N} strokeWidth={1.5} />
     </g>
   ),
   pumpkin: (
