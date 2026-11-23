@@ -209,9 +209,15 @@ export function BoatBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
     setSelected(null);
     act({ type: "SUBMIT", value });
   };
+  /** One pending focus move at a time: a newer move cancels an older one, so they can never race. */
+  const focusTimer = useRef(0);
+  const later = (fn: () => void, ms: number) => {
+    window.clearTimeout(focusTimer.current);
+    focusTimer.current = window.setTimeout(fn, ms);
+  };
   const focusEl = (sel: string) => {
     const from = document.activeElement;
-    window.setTimeout(() => {
+    later(() => {
       // only if focus hasn't moved on since (the child may already have tabbed somewhere else)
       if (document.activeElement !== from && document.activeElement !== document.body) return;
       (rootRef.current?.querySelector(sel) as HTMLElement | null)?.focus({ preventScroll: true });
@@ -240,7 +246,7 @@ export function BoatBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
     }
   };
   const focusNextTile = (after: string) =>
-    window.setTimeout(() => {
+    later(() => {
       // never steal focus the child has already moved: only rescue it from the tile that just left (or <body>)
       const ae = document.activeElement as HTMLElement | null;
       if (ae && ae !== document.body && ae.dataset.value !== after) return;
