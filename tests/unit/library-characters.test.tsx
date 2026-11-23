@@ -11,10 +11,10 @@ const EXISTING = ["bobbo", "zuzu", "gloop", "hoot", "rumble", "puff"];
 afterEach(cleanup);
 
 describe("library host characters", () => {
-  it("are nine distinct hosts with unique ids that do not clash with the Critter Crew", () => {
+  it("are eleven distinct hosts with unique ids that do not clash with the Critter Crew", () => {
     const ids = LIBRARY_HOSTS.map((h) => h.id);
-    expect(ids).toHaveLength(9);
-    expect(new Set(ids).size).toBe(9);
+    expect(ids).toHaveLength(11);
+    expect(new Set(ids).size).toBe(11);
     for (const id of ids) expect(EXISTING).not.toContain(id);
   });
 
@@ -25,7 +25,7 @@ describe("library host characters", () => {
       expect(c!.name).toBe(h.name);
       expect(c!.blurb?.trim(), `${h.id} blurb`).toBeTruthy();
     }
-    expect(registry.characters.filter((c) => LIBRARY_HOSTS.some((h) => h.id === c.id))).toHaveLength(9);
+    expect(registry.characters.filter((c) => LIBRARY_HOSTS.some((h) => h.id === c.id))).toHaveLength(11);
   });
 
   for (const { id, name, Component } of LIBRARY_HOSTS) {

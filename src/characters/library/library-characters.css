@@ -108,6 +108,61 @@
 .ripple.state-retry .critter-body { animation: float-bob 3.6s ease-in-out infinite; }
 .ripple.state-sleeping .critter-body { animation: float-bob 4s ease-in-out infinite; }
 
+/* ---------- Ziggy (pilot path): the windsock shows the "weather" of each state ---------- */
+.ziggy .ziggy-sock, .sarah .sarah-quills, .sarah .sarah-book, .sarah .sarah-page, .sarah .sarah-pen {
+  transform-box: fill-box;
+  transition: transform 220ms var(--ease-out), opacity 220ms var(--ease-out);
+}
+.ziggy .ziggy-sock { transform-origin: 0% 50%; animation: ziggy-sock-flutter 2.4s ease-in-out infinite; }
+.ziggy.state-greeting .ziggy-sock { animation-duration: 0.9s; }
+.ziggy.state-celebrating .ziggy-sock { animation-duration: 0.4s; } /* brisk tailwind */
+.ziggy.state-thinking .ziggy-sock { animation: ziggy-sock-scan 2.6s ease-in-out infinite; } /* checks the wind */
+.ziggy.state-retry .ziggy-sock, .ziggy.state-sleeping .ziggy-sock { animation: none; transform: rotate(64deg) scaleX(0.9); } /* calm air: limp */
+
+/* ---------- Sarah (English path): quills fluff and fan; the book's page turns ---------- */
+.sarah .sarah-quills { transform-origin: 50% 100%; }
+.sarah .sarah-book { transform-origin: 50% 100%; }
+.sarah .sarah-pen { transform-origin: 0% 100%; }
+.sarah .sarah-page { transform-origin: 0% 50%; animation: sarah-page-turn 8s ease-in-out infinite; } /* idle: she keeps reading */
+.host.sarah .arm-l { transform-origin: 25% 0%; } /* her arms curve in to the book: pivot at the shoulder */
+.host.sarah .arm-r { transform-origin: 75% 0%; }
+.sarah.state-greeting .sarah-quills { animation: sarah-quill-fluff 0.9s var(--ease-bounce) infinite; }
+.sarah.state-thinking .sarah-quills { transform: rotate(-3deg) scale(1.03); }
+.sarah.state-thinking .sarah-pen { transform: rotate(-8deg); }
+.host.sarah.state-thinking .arm-r { transform: rotate(70deg); } /* taps her cheek */
+.host.sarah.state-encouraging .arm-r { transform: none; }
+.sarah.state-encouraging .sarah-book { transform: rotate(-5deg) translateY(-3px); } /* shows the child the page */
+.host.sarah.state-celebrating .arm-l { transform: none; } /* keeps hold of her book */
+.host.sarah.state-celebrating .arm-r { transform: rotate(-165deg); }
+.sarah.state-celebrating .sarah-quills { animation: sarah-quill-fan 0.75s var(--ease-bounce) infinite; }
+.sarah.state-celebrating .sarah-page { animation-duration: 1.6s; }
+.sarah.state-retry .sarah-quills { transform: translateY(3px) scale(0.96); } /* smooths her quills down */
+.sarah.state-retry .sarah-book { transform: rotate(3deg) translateY(2px); }
+.sarah.state-sleeping .sarah-quills { transform: translateY(4px) scale(0.94); }
+.sarah.state-sleeping .sarah-book { transform: rotate(-7deg) translateY(4px); }
+.sarah.state-retry .sarah-page, .sarah.state-sleeping .sarah-page, .sarah.state-thinking .sarah-page { animation: none; }
+
+@keyframes ziggy-sock-flutter { 0%, 100% { transform: rotate(0) scaleX(1); } 50% { transform: rotate(6deg) scaleX(0.92); } }
+@keyframes ziggy-sock-scan { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(18deg) scaleX(0.94); } }
+@keyframes sarah-quill-fluff { 0%, 100% { transform: scale(1); } 45% { transform: scale(1.07, 1.1); } }
+@keyframes sarah-quill-fan { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.12, 1.16); } }
+@keyframes sarah-page-turn {
+  0%, 70% { transform: scaleX(1); opacity: 1; }
+  82% { transform: scaleX(-1); opacity: 1; }
+  90% { transform: scaleX(-1); opacity: 0; }
+  91% { transform: scaleX(1); opacity: 0; }
+  100% { transform: scaleX(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ziggy .ziggy-sock, .sarah .sarah-quills, .sarah .sarah-book, .sarah .sarah-page, .sarah .sarah-pen { animation: none !important; }
+  .ziggy.state-greeting .ziggy-sock, .ziggy.state-celebrating .ziggy-sock { transform: rotate(-6deg); } /* held "streaming" */
+  .ziggy.state-thinking .ziggy-sock { transform: rotate(16deg); }
+  .sarah.state-greeting .sarah-quills { transform: scale(1.05, 1.07); }
+  .sarah.state-celebrating .sarah-quills { transform: scale(1.1, 1.13); }
+  .host.sarah.state-greeting .arm-r { transform: rotate(-150deg); }
+}
+
 @keyframes host-antenna { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(10deg); } }
 @keyframes bulb-think { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.75; } }
 @keyframes seg-wave { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-9px) scale(1.04, 0.98); } }
