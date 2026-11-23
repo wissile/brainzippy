@@ -209,9 +209,15 @@ button.pb-boat { cursor: grab; border-radius: 24px; }
   .mode-noteRead .pb-docks { flex-wrap: wrap; gap: 2cqh 3cqw; }
   .mode-noteRead .pb-dock { --dw: clamp(110px, min(44cqw, 24cqh * 1.2), 300px); }
   .mode-noteRead .pb-flag { padding: 3%; }
-  .pb-build-top { flex-direction: column; gap: 1.5cqh; }
-  .pb-card-pic { width: clamp(110px, min(40cqw, 22cqh), 260px); }
-  .is-note .pb-card-pic { width: clamp(110px, min(40cqw, 20cqh), 260px); }
+  .pb-build-top { flex-direction: column; gap: 1cqh; }
+  .pb-build-top .pb-boat { --bw: clamp(220px, 90cqw, 560px); }
+  .pb-build-top.is-note .pb-boat { --bw: clamp(240px, 96cqw, 660px); }
+  .pb-build-top .pb-hull { width: 64%; max-height: 9cqh; }
+  .pb-build-top .pb-mast { height: 1.5cqh; }
+  .pb-card-pic { width: clamp(100px, min(36cqw, 17cqh), 240px); }
+  .is-note .pb-card-pic { width: clamp(96px, min(34cqw, 15cqh), 220px); }
+  .pb-slot-btn { --sw: clamp(64px, min(17cqw, 11cqh), 104px); }
+  .is-note .pb-slot-btn { --sw: 64px; }
 }
 
 /* ---------- wide boards (landscape phones, desktops): boat on the left, answers on the right ---------- */
