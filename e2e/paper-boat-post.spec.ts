@@ -335,6 +335,12 @@ test("layout: targets ≥64px and on screen at the four viewports, every mode; s
     for (let i = 0; i < 7; i++) {
       const b = await readBoard(page);
       if (b.mode === mode) return true;
+      // one miss first on picture items, so the round doesn't step up a level before the wanted mode (R2)
+      if ("value" in b && b.value && ["read", "plural", "noteRead", "tag"].includes(b.mode)) {
+        const wrong = await page.locator(`[data-testid="choice"]:not([data-value="${b.value}"])`).first().getAttribute("data-value");
+        await press(page, choice(wrong!));
+        await answering(page);
+      }
       await give(page, b, "tap");
       await nextExercise(page, b.id);
       if ((await screen(page).count()) === 0) return false;

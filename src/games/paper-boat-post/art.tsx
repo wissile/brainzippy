@@ -30,8 +30,8 @@ function Figure({ who }: { who: string }) {
 export function ScenePicture({ id }: { id: string }) {
   const s = parseScene(id);
   let body: React.ReactNode;
-  if (s.rel === "on") body = (<>{at(<Figure who={s.what} />, 0.7, 25, 44)}{at(<Figure who={s.who} />, 0.62, 29, -4)}</>);
-  else if (s.rel === "in") body = (<>{at(<Figure who={s.who} />, 0.6, 30, 6)}{at(<Figure who={s.what} />, 0.8, 20, 34)}</>);
+  if (s.rel === "on") body = (<>{at(<Figure who={s.what} />, 0.66, 27, 48)}{at(<Figure who={s.who} />, 0.56, 32, -2)}</>);
+  else if (s.rel === "in") body = (<>{at(<Figure who={s.who} />, 0.5, 35, 20)}{at(<Figure who={s.what} />, 0.8, 20, 34)}</>);
   else body = (<>{at(<Figure who={s.who} />, 0.8, 2, 14)}{at(<Figure who={s.what} />, 0.56, 64, 40)}</>);
   return (
     <svg className="pb-pic pb-scene-pic" viewBox="0 0 120 100" aria-hidden="true">
