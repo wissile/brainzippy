@@ -37,7 +37,7 @@ button.pb-boat { cursor: grab; border-radius: 24px; }
   background: #fffdf6; border: 5px solid var(--ink); border-radius: 22px 22px 8px 8px; box-shadow: 0 6px 0 rgba(43, 33, 64, 0.18);
 }
 .pb-mast { order: 1; width: 7px; height: clamp(8px, 3cqh, 22px); background: var(--ink); border-radius: 4px; }
-.pb-hull { order: 2; display: block; width: 100%; height: auto; margin-top: -2px; }
+.pb-hull { order: 2; display: block; width: 82%; max-height: 24cqh; height: auto; margin-top: -2px; }
 .pb-boat.is-picked { animation: none; transform: translateY(-8%) rotate(-3deg) scale(1.04); filter: drop-shadow(0 0 14px #ffd43b); }
 .pb-boat.is-dragging { opacity: 0.3; }
 .pb-boat.is-hot, .pb-boat.is-ready .pb-sail { filter: drop-shadow(0 0 14px #ffd43b); }
@@ -197,7 +197,8 @@ button.pb-boat { cursor: grab; border-radius: 24px; }
 @keyframes pb-float-off { from { transform: translate(0, 0) rotate(-10deg); } to { transform: translate(20px, -26px) rotate(14deg); } }
 .pb-talk { display: flex; align-items: flex-end; justify-content: center; }
 .pb-talk .pb-dlg { position: relative; z-index: 1; height: 100%; justify-content: flex-end; padding-bottom: 8px; }
-.pb-talk .dlg-skip { display: none; } /* the story's own Skip skips everything; Escape still ends just the talk */
+.pb-talk .dlg-skip { display: none; }
+.story:has(.pb-talk) .subtitle { visibility: hidden; } /* the conversation captions itself; no stale story line under it */ /* the story's own Skip skips everything; Escape still ends just the talk */
 .pb-talk .dlg-actor { width: clamp(90px, min(26vw, 30vh), 230px); }
 
 /* ---------- wide boards (landscape phones, desktops): boat on the left, answers on the right ---------- */
@@ -205,7 +206,7 @@ button.pb-boat { cursor: grab; border-radius: 24px; }
   .pb-stage { flex-direction: row; gap: 3cqw; }
   .pb-top, .pb-lower { flex: 1 1 50%; height: 100%; }
   .pb-lower { flex-direction: column; flex-wrap: nowrap; }
-  .pb-boat { --bw: clamp(160px, min(44cqw, 90cqh), 520px); }
+  .pb-boat { --bw: clamp(160px, min(38cqw, 70cqh), 440px); }
   .pb-boat.is-note { --bw: clamp(220px, min(48cqw, 100cqh), 620px); }
   .pb-note { font-size: clamp(20px, min(7cqh, 3cqw), 44px); }
   .pb-letters { font-size: clamp(40px, min(17cqh, 8cqw), 120px); }
