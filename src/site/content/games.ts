@@ -286,7 +286,7 @@ export const GAME_COPY: Record<string, GameCopy> = {
       refs: ["foorman2016", "ccssela"],
     },
     guides: [],
-    screenshotAlt: "Paper Boat Post: a paper boat with the word cap on its sail floats on a river above three picture docks showing a cap, a cup and a cat.",
+    screenshotAlt: "Paper Boat Post, level 1: a card shows a cat, a paper boat's sail shows a gap and then a, t, and two letter tiles offer h with a horse and m with a moon, while Sarah the porcupine and Zuzu watch.",
   },
   "pattern-parade": {
     id: "pattern-parade",
