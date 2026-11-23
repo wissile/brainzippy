@@ -9,7 +9,7 @@
   },
   "bobbo": {
    "name": "Bobbo", "color": "#FF9F43", "group": "crew",
-   "kokoroVoice": "am_puck:0.65+af_nicole:0.35", "lang": "en-us", "speed": 1.05, "pitchSemitones": 9.5, "formantSemitones": 3.5, "tempo": 1.0,
+   "kokoroVoice": "am_puck:0.65+af_nicole:0.35", "lang": "en-us", "speed": 1.05, "pitchSemitones": 10.5, "formantSemitones": 3.5, "tempo": 1.0,
    "eq": { "warmthDb": 1.5 },
    "description": "Little boy, warm and eager, a touch breathless; quick bursts of words."
   },
@@ -92,8 +92,9 @@
   },
   "ziggy": {
    "name": "Ziggy", "color": "#1C7ED6", "group": "host", "provisional": true,
-   "kokoroVoice": "am_echo:0.5+af_river:0.5", "lang": "en-us", "speed": 1.0, "pitchSemitones": 6.5, "formantSemitones": 3.5, "tempo": 1.0,
-   "description": "PROVISIONAL (pilot path; character in design): upbeat, adventurous kid co-pilot."
+   "kokoroVoice": "am_echo:0.5+af_river:0.5", "lang": "en-us", "speed": 0.97, "pitchSemitones": 5, "formantSemitones": 3.5, "tempo": 1.0,
+   "eq": { "presenceDb": 2 },
+   "description": "PROVISIONAL (pilot path; character in design): upbeat, adventurous older-kid co-pilot; steady and sure."
   },
   "sarah": {
    "name": "Sarah", "color": "#D6336C", "group": "host", "provisional": true,
