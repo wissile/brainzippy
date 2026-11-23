@@ -8,6 +8,9 @@
  * - Muted: the caption stays up for readingTimeMs, then the next beat starts.
  * - A beat lasts at least MIN_BEAT_MS so a caption never flashes by.
  * - next() jumps to the next beat at once; skip()/cancel() stop the voice and end the dialogue.
+ * - pause() holds auto-advance (WCAG 2.2.1/2.2.2: the child is reading, hovering or focused on the caption): reading
+ *   and pause timers stop and keep their remaining time; a spoken line plays to its end, then the beat waits.
+ *   resume() carries on. next()/skip() still work while paused.
  * - Starting a new dialogue cancels the one playing (only one conversation at a time).
  */
 import type { Dialogue, DialogueBeat, DialogueCaption, DialogueEnd, DialogueVoice } from "./types";
@@ -45,8 +48,12 @@ export interface DialogueHandle {
   skip(): void;
   /** Stop silently (unmount, navigation). */
   cancel(): void;
+  /** Hold auto-advance until resume(). */
+  pause(): void;
+  resume(): void;
   readonly done: Promise<DialogueEnd>;
   readonly ended: boolean;
+  readonly paused: boolean;
 }
 
 let current: { cancel(): void } | null = null;
@@ -58,6 +65,9 @@ export function playDialogue(dialogue: Dialogue, opts: PlayOptions): DialogueHan
   let ended = false;
   let audioActive = false;
   let interruptBeat: (() => void) | null = null;
+  let paused = false;
+  interface HoldTimer { remaining: number; started: number; t: ReturnType<typeof setTimeout> | null; resolve: () => void }
+  const holdTimers = new Set<HoldTimer>();
   let resolveDone!: (r: DialogueEnd) => void;
   const done = new Promise<DialogueEnd>((r) => (resolveDone = r));
 
@@ -70,11 +80,47 @@ export function playDialogue(dialogue: Dialogue, opts: PlayOptions): DialogueHan
       timers.add(t);
     });
 
+  const startHold = (h: HoldTimer) => {
+    h.started = Date.now();
+    h.t = setTimeout(() => {
+      if (h.t) timers.delete(h.t);
+      h.t = null;
+      holdTimers.delete(h);
+      h.resolve();
+    }, h.remaining);
+    timers.add(h.t);
+  };
+  /** A timer that stops while paused and keeps its remaining time. */
+  const holdableSleep = (ms: number) =>
+    new Promise<void>((resolve) => {
+      const h: HoldTimer = { remaining: ms, started: 0, t: null, resolve };
+      holdTimers.add(h);
+      if (!paused) startHold(h);
+    });
+
+  const pause = () => {
+    if (paused || ended) return;
+    paused = true;
+    for (const h of holdTimers) {
+      if (!h.t) continue;
+      clearTimeout(h.t);
+      timers.delete(h.t);
+      h.t = null;
+      h.remaining = Math.max(0, h.remaining - (Date.now() - h.started));
+    }
+  };
+  const resume = () => {
+    if (!paused) return;
+    paused = false;
+    for (const h of holdTimers) if (!h.t) startHold(h);
+  };
+
   const finish = (reason: DialogueEnd) => {
     if (ended) return;
     ended = true;
     for (const t of timers) clearTimeout(t);
     timers.clear();
+    holdTimers.clear();
     if (audioActive && reason !== "completed") {
       try {
         opts.voice.stop();
@@ -110,7 +156,7 @@ export function playDialogue(dialogue: Dialogue, opts: PlayOptions): DialogueHan
       /* treat as muted */
     }
     if (muted) {
-      await Promise.race([sleep(readingTimeMs(caption.text)), interrupted]);
+      await Promise.race([holdableSleep(readingTimeMs(caption.text)), interrupted]);
     } else {
       audioActive = true;
       let spoken: Promise<void>;
@@ -131,16 +177,22 @@ export function playDialogue(dialogue: Dialogue, opts: PlayOptions): DialogueHan
     }
     if (ended) return;
     opts.onLineEnd?.(caption);
-    if (!skipped) await Promise.race([sleep(beat.pauseAfterMs ?? DEFAULT_PAUSE_MS), interrupted]);
+    // holdable: if paused (even during the spoken line) this pause only starts on resume, so the beat waits
+    if (!skipped) await Promise.race([holdableSleep(beat.pauseAfterMs ?? DEFAULT_PAUSE_MS), interrupted]);
   };
 
   const handle: DialogueHandle = {
     next: () => interruptBeat?.(),
     skip: () => finish("skipped"),
     cancel: () => finish("cancelled"),
+    pause,
+    resume,
     done,
     get ended() {
       return ended;
+    },
+    get paused() {
+      return paused;
     },
   };
   current = handle;

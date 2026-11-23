@@ -14,6 +14,9 @@ export interface DialogueState {
   ended: DialogueEnd | null;
   next: () => void;
   skip: () => void;
+  /** Hold / release auto-advance (caption focused or hovered). */
+  pause: () => void;
+  resume: () => void;
 }
 
 export interface UseDialogueOptions {
@@ -75,5 +78,7 @@ export function useDialogue(dialogue: Dialogue | undefined, { play = true, voice
 
   const next = useCallback(() => handle.current?.next(), []);
   const skip = useCallback(() => handle.current?.skip(), []);
-  return { caption, talking, ended, next, skip };
+  const pause = useCallback(() => handle.current?.pause(), []);
+  const resume = useCallback(() => handle.current?.resume(), []);
+  return { caption, talking, ended, next, skip, pause, resume };
 }
