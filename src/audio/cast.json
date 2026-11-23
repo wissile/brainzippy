@@ -59,7 +59,7 @@
   },
   "fenn": {
    "name": "Fenn", "color": "#4F5BD5", "group": "host",
-   "kokoroVoice": "am_liam:0.6+af_kore:0.4", "lang": "en-us", "speed": 1.0, "pitchSemitones": 9, "formantSemitones": 3.5, "tempo": 1.0,
+   "kokoroVoice": "am_liam", "lang": "en-us", "speed": 1.0, "pitchSemitones": 9.5, "formantSemitones": 3.5, "tempo": 1.0,
    "description": "Quick, curious, reassuring boy; drops a little quieter for 'look closer', never spooky."
   },
   "dabble": {
