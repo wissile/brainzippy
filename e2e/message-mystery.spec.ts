@@ -1,6 +1,6 @@
 import { type Page, expect, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
-import { collectErrors, press, screen, seed } from "./helpers";
+import { collectErrors, press, screen, seed, whenReady } from "./helpers";
 import { reviewDir } from "./helpers";
 
 /** Fenn's Message Mystery: story → sort by drag, tap-tap, keyboard and tap → outro → Detective Badge + level up; every mode. */
@@ -29,6 +29,7 @@ async function nextExercise(page: Page, id: string) {
     .not.toBe(id);
 }
 async function key(page: Page, sel: string) {
+  await whenReady(page.locator(sel).first());
   await page.locator(sel).first().focus();
   await page.keyboard.press("Enter");
 }
@@ -117,6 +118,7 @@ async function solve(page: Page, way: Way) {
   for (let i = 0; i < n; i++) {
     const env = page.getByTestId("mm-envelope").nth(i);
     if ((await env.getAttribute("data-bin")) !== "") continue;
+    await whenReady(env);
     await (way === "keyboard" ? env.focus().then(() => page.keyboard.press("Enter")) : env.click({ force: true }));
     await expect(page.getByTestId("mm-card")).toHaveAttribute("data-msg", (await env.getAttribute("data-msg"))!);
     await sortOne(page, way);

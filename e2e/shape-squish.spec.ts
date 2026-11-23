@@ -1,6 +1,6 @@
 import { mkdirSync } from "node:fs";
 import { type Locator, type Page, expect, test } from "@playwright/test";
-import { collectErrors, press, screen, seed } from "./helpers";
+import { collectErrors, press, screen, seed, whenReady } from "./helpers";
 import { fillingSubsets, nameOf, partition, type OutlineType, type PieceKind, type ShapeKind } from "../src/games/shape-squish/shapes";
 import { reviewDir } from "./helpers";
 
@@ -43,6 +43,7 @@ async function drag(page: Page, from: Locator, to: Locator) {
 }
 const sel = (testid: string, value: string) => `[data-testid="${testid}"][data-value="${value}"]`;
 async function keyPress(page: Page, selector: string) {
+  await whenReady(page.locator(selector).first());
   await page.locator(selector).first().focus();
   await page.keyboard.press("Enter");
 }

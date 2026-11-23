@@ -1,4 +1,4 @@
-import { type Page, expect } from "@playwright/test";
+import { type Locator, type Page, expect } from "@playwright/test";
 
 /** Seed local state before the app boots (e.g. muted for faster, quieter runs). Contains no personal data. */
 /** A finished-onboarding profile (synthetic test data only). */
@@ -21,9 +21,19 @@ export async function seed(page: Page, state: Record<string, unknown> = {}, opts
 }
 
 /** Tap/click. `force` because breathing/drop-in animations never settle for Playwright's stability check. */
+/**
+ * Boards mark controls aria-disabled="true" for a moment while busy (feedback, animation) and ignore input then.
+ * Wait briefly for the control to be ready, as a child would, so a slow CI machine doesn't press during that window.
+ * A control that stays disabled is still pressed (some specs check that a disabled control does nothing).
+ */
+export async function whenReady(loc: Locator): Promise<void> {
+  await expect(loc).not.toHaveAttribute("aria-disabled", "true", { timeout: 5_000 }).catch(() => undefined);
+}
+
 export async function press(page: Page, selector: string) {
   const loc = page.locator(selector).first();
   await loc.waitFor({ state: "visible" });
+  await whenReady(loc);
   const touch = await page.evaluate(() => matchMedia("(pointer: coarse)").matches);
   if (touch) await loc.tap({ force: true });
   else await loc.click({ force: true });
