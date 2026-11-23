@@ -31,11 +31,42 @@ Each game has a 4-beat intro and 3-beat outro (letterbox bars, camera moves: ris
 ## Voice
 Priority order at runtime: **human recording → pre-rendered neural voice → browser speech synthesis (last resort)**.
 
-1. **Pre-rendered neural voice (shipping now).** `scripts/gen_voice.py` renders every line in `src/audio/voiceLines.json` — including every snack/number variant (190 clips, 2.9 MB, loaded on demand; numbers 1–10 preloaded) — with Kokoro v1.0 (Apache-2.0, runs offline on CPU), voice `af_bella` (chosen by the owner), speed 0.95; ffmpeg trims silence and normalises to −16 LUFS (mono 24 kHz, 64 kbps MP3). Switch voice: `python3 scripts/gen_voice.py --model-dir <dir> --voice am_puck --force`. Before commercial launch, have counsel confirm the voice model's licence and training-data provenance.
+1. **Pre-rendered neural voice (shipping now).** `scripts/gen_voice.py` renders every line in `src/audio/voiceLines.json` — including every snack/number variant (190 clips, 2.9 MB, loaded on demand; numbers 1–10 preloaded) — with Kokoro v1.0 (Apache-2.0, runs offline on CPU), voice `af_bella` (chosen by the owner), speed 0.95; ffmpeg trims silence and normalises to −16 LUFS (mono 24 kHz, 64 kbps MP3). Lines with a `speaker` use that character's cast voice (see Character voices). Switch the narrator voice: `python3 scripts/gen_voice.py --model-dir <dir> --voice am_puck --force`. Before commercial launch, have counsel confirm the voice model's licence and training-data provenance.
 2. **Real human voice (recommended for launch).** `npm run dev` → open **/studio**: every line is listed; press ● Record, ▶ to review, Save. Takes are written to `public/audio/voice/human/` and override the generated clip immediately. Works for you, a family member reading as Bobbo, or a hired voice actor (≈1–2 hours for all 190 lines). Recording tips are on the page.
 3. **Browser speech synthesis** only if a clip is missing or fails to load.
 - Names typed by children are never spoken (they can't be pre-recorded); they appear as text only.
 - Captions: every line is captioned in a speech bubble (lingers 1.8 s) and an `aria-live` region.
+
+## Character voices (cast, pending owner approval)
+Each character has its own young, cartoon-like voice built from a different Kokoro voice (or a blend of two) and tuned in ffmpeg. The narrator stays `af_bella`, unprocessed, and the existing narrator clips are untouched. Data: `src/audio/cast.json` (shared by `scripts/gen_voice.py` and `src/audio/cast.ts`). Chain (`scripts/voice_cast.py`): `asetrate` moves pitch and formants together by `formantSemitones` (a smaller vocal tract, with no artefacts), `rubberband` (formants preserved) adds the rest of `pitchSemitones` and restores the tempo, then EQ, trim, light compression, measured gain to −16 LUFS, and an oversampled limiter at −4 dBFS. Limits for intelligibility (test-enforced): pitch ≤ +11 st, formants ≤ +4 st, effective speed 0.8–1.1.
+
+| Speaker | Base voice | Pitch / formant (st) | Speed | Character |
+|---|---|---|---|---|
+| narrator | af_bella | 0 / 0 | 0.95 | owner's guide voice (D-014) |
+| bobbo | am_puck 65% + af_nicole 35% | +10.5 / +3.5 | 1.05 | little boy, warm, eager, a touch breathless |
+| zuzu | bf_lily | +6 / +2.5 | 0.95 | dramatic British girl, the widest pitch swoops |
+| gloop | af_jessica | +5.5 / +3 | 0.95 | smallest, highest voice, giggly questions |
+| hoot | bm_fable | +9 / +3.5 | 0.92 | older British boy storyteller |
+| rumble | am_michael | +6.5 / +3 | 0.86 | big gentle sleepy kid, the lowest voice |
+| puff | af_aoede | +7 / +3 | 0.95 | airy, sparkly girl |
+| toggle | af_alloy | +9 / +3.5 | 1.00 | crisp, bouncy, neutral kid voice |
+| zephy | bf_emma | +4.5 / +2 | 0.95 | calm, confident British girl |
+| budge | af_sky | +5 / +2.5 | 0.93 | friendly, unhurried girl |
+| fenn | am_liam | +9.5 / +3.5 | 1.00 | quick, curious, reassuring boy |
+| dabble | af_heart | +5 / +2.5 | 1.00 | enthusiastic, clear girl |
+| yonder | am_eric | +5.5 / +3.5 | 0.90 | wondering boy, careful with names |
+| snug | af_nova | +5 / +2 | 0.88 | soft, warm, slow girl |
+| brix | bm_george | +5.5 / +3.5 | 1.00 | hearty British boy |
+| ripple | bf_isabella | +4 / +2 | 0.97 | calm, bright British girl |
+| ziggy *(provisional)* | am_echo 50% + af_river 50% | +5 / +3.5 | 0.97 | steady, adventurous older-kid co-pilot |
+| sarah *(provisional)* | af_sarah | +4.5 / +2 | 0.95 | warm, expressive girl who loves words |
+
+Listening-proxy QC (`python3 scripts/voice_qc.py public/audio/samples/cast-*.mp3`, 2026-11-23): every cast sample is −16.3 to −17.0 LUFS with true peak ≤ −4.2 dBTP and no clipped samples. Median F0 runs from 173 Hz (Rumble) to 289 Hz (Gloop). On a mean-MFCC + pitch distance, every pair of characters is ≥ 2.06 apart; distinct stock Kokoro voices measure 2.0–4.3 apart. In the dialogue clips, each clip's nearest neighbour is another line by the same speaker, so each voice is consistent from line to line. These numbers are proxies. A human must still listen for artefacts and judge whether a 3-year-old can understand each voice.
+
+Workflow: `python3 scripts/gen_voice_samples.py --model-dir <dir>` writes `public/audio/samples/cast-<id>.mp3` (all saying the cast's `testSentence`) and `dialogue-<id>.mp3` (stitched from the real clips). After the owner approves a voice or changes it, re-render that speaker's lines only: `python3 scripts/gen_voice.py --model-dir <dir> --speaker <id> --force`. Delete `public/audio/samples/` before launch (about 1 MB, not precached). Human takes recorded in /studio still override any generated clip.
+
+## Dialogue (`src/dialogue/`)
+Short conversations between 2–3 characters. Data: `dialogues.json`. Each beat has a `speaker`, a `line` (a voice-line id that has the same `speaker`), and optional `pauseAfterMs` (default 350) and `emote` (a MascotState). The player (`player.ts`, pure) captions every beat with the speaker's name and colour. With sound on it waits for the clip, capped by `speechCapMs`; muted, it waits `readingTimeMs` (1.8–8 s). Each beat lasts at least 1 s. Skip, unmount or starting a new dialogue cancels it at once. `DialogueScene` shows the speaker hopping (a 460 ms `dlg-hop`; under reduced motion, a ring in their colour instead) while the others stand idle at 82 % opacity. Captions go in an `aria-live` region ("Bobbo says: …") and are kept out of the shared app caption (`speak(..., { emitCaption: false })`) so nothing is announced twice. The 64 px Skip button can also be triggered with Escape. Sample dialogues: `welcome` (Bobbo, Zuzu, Gloop), `pilot-intro` (Ziggy, Bobbo), `english-intro` (Sarah, Hoot). Writing rules: lines ≤ 72 characters, no typed names, praise effort not ability, and each dialogue's lines are checked by the curriculum designer.
 
 ## Behaviour
 - Audio context unlocks on the first tap (browser policy). Mute toggle persists locally; muted mode keeps captions and shortens waits.

@@ -1,0 +1,105 @@
+{
+ "_comment": "Voice cast (docs/ANIMATION_AUDIO.md > Character voices). speaker id -> Kokoro base voice or blend ('a:0.6+b:0.4') + post-processing in scripts/voice_cast.py. Shared by scripts/gen_voice.py and src/audio/cast.ts. speed = Kokoro speaking rate; pitchSemitones = total pitch shift; formantSemitones = the part of it that also moves formants (smaller vocal tract = younger); tempo = final tempo after processing. Every voice is original synthetic speech and imitates no real performer or existing character. 'provisional' = character still in design; voice may change.",
+ "testSentence": "Hi there! I'm so happy you're here. Shall we play a game together?",
+ "speakers": {
+  "narrator": {
+   "name": "Narrator", "color": "#5A5070", "group": "narrator",
+   "kokoroVoice": "af_bella", "lang": "en-us", "speed": 0.95,
+   "description": "The BrainZippy guide voice chosen by the owner (2026-11-17). Unprocessed; every existing clip uses it."
+  },
+  "bobbo": {
+   "name": "Bobbo", "color": "#FF9F43", "group": "crew",
+   "kokoroVoice": "am_puck:0.65+af_nicole:0.35", "lang": "en-us", "speed": 1.05, "pitchSemitones": 10.5, "formantSemitones": 3.5, "tempo": 1.0,
+   "eq": { "warmthDb": 1.5 },
+   "description": "Little boy, warm and eager, a touch breathless; quick bursts of words."
+  },
+  "zuzu": {
+   "name": "Zuzu", "color": "#8E6CEF", "group": "crew",
+   "kokoroVoice": "bf_lily", "lang": "en-gb", "speed": 0.95, "pitchSemitones": 6, "formantSemitones": 2.5, "tempo": 1.0,
+   "description": "Girl with a dramatic, sing-song British lilt; the widest pitch swoops in the cast."
+  },
+  "gloop": {
+   "name": "Gloop", "color": "#2EC4B6", "group": "crew",
+   "kokoroVoice": "af_jessica", "lang": "en-us", "speed": 0.95, "pitchSemitones": 5.5, "formantSemitones": 3, "tempo": 1.0,
+   "eq": { "brightnessDb": 1.5 },
+   "description": "The smallest, highest voice: curious and giggly, questions that bounce up at the end."
+  },
+  "hoot": {
+   "name": "Hoot", "color": "#6BCB77", "group": "crew",
+   "kokoroVoice": "bm_fable", "lang": "en-gb", "speed": 0.92, "pitchSemitones": 9, "formantSemitones": 3.5, "tempo": 1.0,
+   "description": "Older boy storyteller with a British lilt; warm, a bit theatrical, very clear words."
+  },
+  "rumble": {
+   "name": "Rumble", "color": "#4D96FF", "group": "crew",
+   "kokoroVoice": "am_michael", "lang": "en-us", "speed": 0.86, "pitchSemitones": 6.5, "formantSemitones": 3, "tempo": 1.0,
+   "eq": { "warmthDb": 2, "brightnessDb": -2 },
+   "description": "Big gentle kid: slow, sleepy, soft and round; the lowest voice in the cast."
+  },
+  "puff": {
+   "name": "Puff", "color": "#FF8FB1", "group": "crew",
+   "kokoroVoice": "af_aoede", "lang": "en-us", "speed": 0.95, "pitchSemitones": 7, "formantSemitones": 3, "tempo": 1.0,
+   "eq": { "brightnessDb": 2 },
+   "description": "Airy, sparkly girl; floaty and light, smiling through every word."
+  },
+  "toggle": {
+   "name": "Toggle", "color": "#A8D83F", "group": "host",
+   "kokoroVoice": "af_alloy", "lang": "en-us", "speed": 1.0, "pitchSemitones": 9, "formantSemitones": 3.5, "tempo": 1.0,
+   "eq": { "presenceDb": 2 },
+   "description": "Crisp, bouncy kid with a neutral voice; short sentences in step order; never robotic."
+  },
+  "zephy": {
+   "name": "Zephy", "color": "#E5484D", "group": "host",
+   "kokoroVoice": "bf_emma", "lang": "en-gb", "speed": 0.95, "pitchSemitones": 4.5, "formantSemitones": 2, "tempo": 1.0,
+   "description": "Calm, confident older girl with a British accent; steady like a kind flight instructor."
+  },
+  "budge": {
+   "name": "Budge", "color": "#E9A93B", "group": "host",
+   "kokoroVoice": "af_sky", "lang": "en-us", "speed": 0.93, "pitchSemitones": 5, "formantSemitones": 2.5, "tempo": 1.0,
+   "description": "Friendly, clear, unhurried girl; says amounts slowly."
+  },
+  "fenn": {
+   "name": "Fenn", "color": "#4F5BD5", "group": "host",
+   "kokoroVoice": "am_liam", "lang": "en-us", "speed": 1.0, "pitchSemitones": 9.5, "formantSemitones": 3.5, "tempo": 1.0,
+   "description": "Quick, curious, reassuring boy; drops a little quieter for 'look closer', never spooky."
+  },
+  "dabble": {
+   "name": "Dabble", "color": "#FF6B6B", "group": "host",
+   "kokoroVoice": "af_heart", "lang": "en-us", "speed": 1.0, "pitchSemitones": 5, "formantSemitones": 2.5, "tempo": 1.0,
+   "eq": { "presenceDb": 1.5 },
+   "description": "Enthusiastic, clear girl; asks a question before she gives an answer."
+  },
+  "yonder": {
+   "name": "Yonder", "color": "#A8714A", "group": "host",
+   "kokoroVoice": "am_eric", "lang": "en-us", "speed": 0.9, "pitchSemitones": 5.5, "formantSemitones": 3.5, "tempo": 1.0,
+   "description": "Friendly, wondering boy; slow and careful with every place name."
+  },
+  "snug": {
+   "name": "Snug", "color": "#FFBE98", "group": "host",
+   "kokoroVoice": "af_nova", "lang": "en-us", "speed": 0.88, "pitchSemitones": 5, "formantSemitones": 2, "tempo": 1.0,
+   "eq": { "warmthDb": 2, "brightnessDb": -1.5 },
+   "description": "Soft, warm, slow girl with pauses; never sing-song about feelings."
+  },
+  "brix": {
+   "name": "Brix", "color": "#34557A", "group": "host",
+   "kokoroVoice": "bm_george", "lang": "en-gb", "speed": 1.0, "pitchSemitones": 5.5, "formantSemitones": 3.5, "tempo": 1.0,
+   "eq": { "warmthDb": 1.5 },
+   "description": "Hearty, practical older boy with a British accent."
+  },
+  "ripple": {
+   "name": "Ripple", "color": "#8EE3C8", "group": "host",
+   "kokoroVoice": "bf_isabella", "lang": "en-gb", "speed": 0.97, "pitchSemitones": 4, "formantSemitones": 2, "tempo": 1.0,
+   "description": "Calm, bright girl with a British accent; notices tiny things."
+  },
+  "ziggy": {
+   "name": "Ziggy", "color": "#1C7ED6", "group": "host", "provisional": true,
+   "kokoroVoice": "am_echo:0.5+af_river:0.5", "lang": "en-us", "speed": 0.97, "pitchSemitones": 5, "formantSemitones": 3.5, "tempo": 1.0,
+   "eq": { "presenceDb": 2 },
+   "description": "PROVISIONAL (pilot path; character in design): upbeat, adventurous older-kid co-pilot; steady and sure."
+  },
+  "sarah": {
+   "name": "Sarah", "color": "#D6336C", "group": "host", "provisional": true,
+   "kokoroVoice": "af_sarah", "lang": "en-us", "speed": 0.95, "pitchSemitones": 4.5, "formantSemitones": 2, "tempo": 1.0,
+   "description": "PROVISIONAL (English path; character in design): warm, expressive girl who loves words."
+  }
+ }
+}

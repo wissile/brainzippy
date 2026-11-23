@@ -8,6 +8,10 @@ import data from "./voiceLines.json";
 export interface VoiceLine {
   text: string;
   vary?: Record<string, (string | number)[]>;
+  /** Who says it (id in cast.json). Default: the narrator. gen_voice.py renders the clip in that speaker's voice. */
+  speaker?: string;
+  /** Absolute Kokoro speed for this line (e.g. slowed words for rhyme hints). */
+  speed?: number;
 }
 interface Catalogue {
   objects?: Record<string, { one: string; many: string }>;
@@ -22,6 +26,9 @@ const gameCatalogues = Object.values(import.meta.glob<Catalogue>(["../games/*/vo
 export const VOICE_LINES: Record<string, VoiceLine> = Object.assign({}, data.lines as Record<string, VoiceLine>, ...gameCatalogues.map((c) => c.lines));
 export const OBJECT_NAMES: Record<string, { one: string; many: string }> = Object.assign({}, data.objects, ...gameCatalogues.map((c) => c.objects ?? {}));
 export const numberWord = (n: number) => data.numberWords[n] ?? String(n);
+
+/** Speaker id for a line ("narrator" unless the catalogue says otherwise). */
+export const lineSpeaker = (id: string): string => VOICE_LINES[id]?.speaker ?? "narrator";
 
 /** Stable audio key for a line + the variables that change its wording (mirrors gen_voice.py). */
 export function voiceKey(id: string, vars: Record<string, string | number> = {}): string {

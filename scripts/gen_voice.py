@@ -6,12 +6,19 @@ public/audio/voice/<key>.mp3 plus public/audio/voice/manifest.json.
 Human recordings made in /studio are saved as public/audio/voice/human/<key>.<ext> and always take priority:
 this script keeps them in the manifest and never overwrites them.
 
+Speakers (character voices): a line may set "speaker": "<id>" (default "narrator"). Non-narrator lines are rendered
+with that speaker's Kokoro voice + pitch/formant/tempo/EQ from src/audio/cast.json (see scripts/voice_cast.py);
+narrator lines use --voice/--speed and the original processing chain, so existing clips never change.
+A line's own "speed" is an absolute Kokoro speed for whichever speaker says it.
+After re-casting a speaker, re-render only their lines:  --speaker bobbo --force
+Casting samples for approval: scripts/gen_voice_samples.py; listening-proxy QC: scripts/voice_qc.py.
+
 Setup (once):
   pip install kokoro-onnx soundfile
   curl -LO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx
   curl -LO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
 Run:
-  python3 scripts/gen_voice.py --model-dir /path/to/models [--voice af_heart] [--speed 0.95] [--only prefix]
+  python3 scripts/gen_voice.py --model-dir /path/to/models [--voice af_heart] [--speed 0.95] [--only prefix] [--speaker id]
 Requires ffmpeg.
 """
 
@@ -24,7 +31,12 @@ import json
 import os
 import re
 import subprocess
+import sys
 import tempfile
+
+sys.dont_write_bytecode = True  # keep scripts/ free of __pycache__
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from voice_cast import encode as encode_cast, load_cast, synth as synth_cast  # noqa: E402
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 CATALOGUE = os.path.join(ROOT, "src", "audio", "voiceLines.json")
@@ -70,6 +82,7 @@ def main() -> None:
     ap.add_argument("--speed", type=float, default=0.95)
     ap.add_argument("--only", default="", help="only regenerate keys starting with this prefix")
     ap.add_argument("--force", action="store_true", help="regenerate files that already exist")
+    ap.add_argument("--speaker", default="", help="only (re)render lines spoken by this speaker id (e.g. bobbo, narrator)")
     args = ap.parse_args()
 
     import soundfile as sf  # noqa: PLC0415
@@ -86,6 +99,10 @@ def main() -> None:
         data["lines"].update(game["lines"])
     kokoro = Kokoro(os.path.join(args.model_dir, "kokoro-v1.0.onnx"), os.path.join(args.model_dir, "voices-v1.0.bin"))
     lang = "en-us" if args.voice.startswith("a") else "en-gb"
+    cast = load_cast()
+    unknown = sorted({ln.get("speaker") for ln in data["lines"].values() if ln.get("speaker") and ln["speaker"] not in cast})
+    if unknown:
+        raise SystemExit(f"unknown speaker(s) {unknown}: add them to src/audio/cast.json")
     os.makedirs(OUT, exist_ok=True)
 
     manifest: dict[str, str] = {}
@@ -94,13 +111,23 @@ def main() -> None:
         key = key_for(line_id, data["lines"][line_id].get("vary"), vars)
         dest = os.path.join(OUT, f"{key}.mp3")
         manifest[key] = f"{key}.mp3"
+        speaker = data["lines"][line_id].get("speaker", "narrator")
         if args.only and not key.startswith(args.only):
+            continue
+        if args.speaker and speaker != args.speaker:
             continue
         if os.path.exists(dest) and not args.force:
             continue
         spoken = render(text, vars, data)
+        line_speed = data["lines"][line_id].get("speed")
+        if speaker != "narrator":
+            samples, sr = synth_cast(kokoro, spoken, cast[speaker], speed=line_speed)
+            encode_cast(samples, sr, cast[speaker], dest)
+            made += 1
+            print(f"  {key} [{speaker}]: {spoken}")
+            continue
         # a line may ask for its own speed (e.g. slowed words for rhyme hints); default = --speed
-        speed = float(data["lines"][line_id].get("speed", args.speed))
+        speed = float(line_speed if line_speed is not None else args.speed)
         samples, sr = kokoro.create(spoken, voice=args.voice, speed=speed, lang=lang)
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
             sf.write(tmp.name, samples, sr)

@@ -1,0 +1,146 @@
+/* Dialogue scene (src/dialogue/DialogueScene.tsx). Keyframes are prefixed dlg- (names are global). */
+.dlg-scene {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 8px 12px calc(var(--tap-min) + 20px);
+  box-sizing: border-box;
+}
+
+.dlg-stage {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: clamp(8px, 3vw, 32px);
+  width: 100%;
+}
+
+.dlg-actor {
+  --dlg-color: var(--ink-soft);
+  position: relative;
+  flex: 0 1 auto;
+  width: clamp(96px, 27vw, 220px);
+  aspect-ratio: 1 / 1.15;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transition: opacity var(--t-med) var(--ease-out), filter var(--t-med) var(--ease-out);
+}
+.dlg-count-2 .dlg-actor { width: clamp(110px, 36vw, 240px); }
+
+/* a soft floor spot in the speaker's colour: who is talking, readable without motion */
+.dlg-actor::before {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -6px;
+  height: 18%;
+  border-radius: 50%;
+  background: var(--dlg-color);
+  opacity: 0;
+  transition: opacity var(--t-med) var(--ease-out);
+}
+.dlg-actor.is-speaking::before { opacity: 0.35; }
+.dlg-actor.is-listening { opacity: 0.82; }
+
+.dlg-body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transform-origin: 50% 100%;
+}
+.dlg-actor.is-speaking .dlg-body { animation: dlg-hop 460ms var(--ease-bounce) both; }
+
+@keyframes dlg-hop {
+  0% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(-10%) scale(0.97, 1.04); }
+  62% { transform: translateY(0) scale(1.04, 0.96); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+.dlg-caption {
+  min-height: 4.2em;
+  width: min(100%, 680px);
+  display: flex;
+  justify-content: center;
+}
+.dlg-line {
+  margin: 0;
+  padding: 10px 16px 12px;
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: var(--r-md);
+  box-shadow: 0 4px 0 rgba(43, 33, 64, 0.18);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: clamp(1.05rem, 2.6vw, 1.35rem);
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: center;
+  animation: dlg-caption-in var(--t-med) var(--ease-out) both;
+}
+.dlg-name {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 1px 12px 3px;
+  border: 3px solid var(--ink);
+  border-radius: var(--r-pill);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.9em;
+  vertical-align: 0.06em;
+}
+
+@keyframes dlg-caption-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dlg-skip {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 4px solid var(--ink);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 5px 0 var(--ink);
+  transition: transform var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out);
+}
+.dlg-skip:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
+.dlg-skip:focus-visible { outline: 4px solid var(--rumble); outline-offset: 3px; }
+
+@media (max-width: 420px) {
+  .dlg-skip-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .dlg-skip { padding: 0; }
+}
+
+/* Reduced motion: no hop or slide; the speaker is shown by a ring in their colour and full opacity */
+@media (prefers-reduced-motion: reduce) {
+  .dlg-actor.is-speaking .dlg-body,
+  .dlg-line { animation: none; }
+  .dlg-actor,
+  .dlg-actor::before,
+  .dlg-skip { transition: none; }
+  .dlg-actor.is-speaking::before { opacity: 0.55; box-shadow: 0 0 0 4px var(--dlg-color); }
+}

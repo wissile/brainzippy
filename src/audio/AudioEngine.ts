@@ -1,5 +1,6 @@
 import type { SfxId } from "../engine/types";
-import { renderLine, voiceKey } from "./voiceLines";
+import { synthVoiceFor } from "./cast";
+import { lineSpeaker, renderLine, voiceKey } from "./voiceLines";
 
 /**
  * Audio engine: Web Audio for SFX (decoded buffers, pitch via playbackRate) and for voice clips
@@ -265,9 +266,9 @@ class AudioEngine {
     this.voice = voices[0] ?? null;
   }
 
-  private emit(speaking: boolean, caption: string) {
+  private emit(speaking: boolean, caption: string, notify = true) {
     this.duck(speaking);
-    for (const l of this.listeners) l(speaking, caption);
+    if (notify) for (const l of this.listeners) l(speaking, caption);
   }
 
   stopVoice() {
@@ -293,21 +294,24 @@ class AudioEngine {
   /**
    * Speak a catalogue line. Resolves when speech ends, or after a length-based cap (so a missing
    * voice never stalls the game). Captions are emitted even when muted.
+   * `emitCaption: false` keeps the line out of the shared caption (speech bubbles + app live region): used by
+   * dialogue scenes, which caption each line themselves with the speaker's name. Music still ducks.
    */
-  speak(id: string, vars: Record<string, string | number> = {}, opts: { interrupt?: boolean } = {}): Promise<void> {
+  speak(id: string, vars: Record<string, string | number> = {}, opts: { interrupt?: boolean; emitCaption?: boolean } = {}): Promise<void> {
     const text = renderLine(id, vars);
     if (!text) return Promise.resolve();
     if (opts.interrupt !== false) this.stopVoice();
     const token = ++this.speakToken;
     const capMs = Math.min(9000, 900 + text.length * 70);
-    this.emit(true, text);
+    const notify = opts.emitCaption !== false;
+    this.emit(true, text, notify);
 
     return new Promise<void>((resolve) => {
       let settled = false;
       const done = () => {
         if (settled) return;
         settled = true;
-        if (token === this.speakToken) this.emit(false, text);
+        if (token === this.speakToken) this.emit(false, text, notify);
         resolve();
       };
       window.setTimeout(done, this.muted ? Math.min(capMs, Math.max(1800, text.length * 45)) : capMs);
@@ -324,20 +328,22 @@ class AudioEngine {
             return;
           }
         }
-        this.synth(text, token, done);
+        this.synth(text, token, done, lineSpeaker(id));
       })();
       return;
     });
   }
 
-  private synth(text: string, token: number, done: () => void) {
+  private synth(text: string, token: number, done: () => void, speaker?: string) {
     if (!("speechSynthesis" in window) || token !== this.speakToken) return;
     try {
       const u = new SpeechSynthesisUtterance(text);
       if (this.voice) u.voice = this.voice;
       u.lang = this.voice?.lang ?? "en-US";
-      u.rate = 0.92;
-      u.pitch = 1.2;
+      // each character keeps a recognisably different pitch/rate even in the last-resort browser voice
+      const { pitch, rate } = synthVoiceFor(speaker);
+      u.rate = rate;
+      u.pitch = pitch;
       u.onend = done;
       // onerror: leave resolution to the cap timer so the caption stays readable when no voice is available
       window.speechSynthesis.speak(u);
