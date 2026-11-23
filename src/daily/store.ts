@@ -10,7 +10,7 @@ import { type AgeRange, type PlanInput, litStops, planDay, registryFingerprint, 
 import { getDailySettings } from "./settings";
 import { hashSeed } from "../engine/rng";
 import { pathFocus } from "../paths/state";
-import { preferPathWorld } from "../paths/plan";
+import { planWithPath } from "../paths/plan";
 
 /**
  * Glue between the pure daily rules (planner, memory) and the app: registry, local storage, the clock.
@@ -59,7 +59,7 @@ export function ensurePlan(day: LocalDate = today()): DailyPlan {
   if (old && old.day === day && old.k === limit && old.reg === reg) return old;
   const input = plannerInput(day, log, limit);
   const planned = planDay(input).map(toStored);
-  const fresh = focus ? preferPathWorld(planned, focus.world, input.levels[focus.world] === undefined && log.seen[focus.world] === undefined) : planned;
+  const fresh = planWithPath(planned, focus, input.levels[focus?.world ?? ""] === undefined && log.seen[focus?.world ?? ""] === undefined); // + one owed warm-up stop (D1)
   let stops: DailyPlanStop[] = fresh;
   if (old && old.day === day) {
     const lit = litStops(old.stops, roundsOn(log, day));
