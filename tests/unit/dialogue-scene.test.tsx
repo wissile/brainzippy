@@ -65,12 +65,113 @@ describe("DialogueScene", () => {
     expect(screen.getByTestId("dialogue-caption").textContent).toBe("");
   });
 
-  it("Escape skips from the keyboard", async () => {
+  it("Escape skips from the keyboard and marks the event handled", async () => {
     const onDone = vi.fn();
     render(<DialogueScene dialogue="english-intro" renderCharacter={actor} voice={voice(true)} onDone={onDone} />);
     await tick(0);
+    const e = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+    window.dispatchEvent(e);
+    expect(onDone).toHaveBeenCalledWith("skipped");
+    expect(e.defaultPrevented).toBe(true);
+  });
+
+  it("Escape is ignored when already handled, on key repeat, while typing, or while a modal is open", async () => {
+    const onDone = vi.fn();
+    render(
+      <>
+        <input data-testid="field" />
+        <DialogueScene dialogue="english-intro" renderCharacter={actor} voice={voice(true)} onDone={onDone} />
+      </>,
+    );
+    await tick(0);
+    const handled = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+    handled.preventDefault();
+    window.dispatchEvent(handled);
+    fireEvent.keyDown(window, { key: "Escape", repeat: true });
+    fireEvent.keyDown(screen.getByTestId("field"), { key: "Escape" });
+    const modal = document.createElement("div");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    document.body.appendChild(modal);
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(onDone).not.toHaveBeenCalled();
+    modal.remove();
     fireEvent.keyDown(window, { key: "Escape" });
     expect(onDone).toHaveBeenCalledWith("skipped");
+  });
+
+  it("Next (64px button) and tapping the caption advance to the next line", async () => {
+    render(<DialogueScene dialogue="welcome" renderCharacter={actor} voice={voice(true)} />);
+    await tick(0);
+    const nextBtn = screen.getByTestId("dialogue-next");
+    expect(nextBtn.tagName).toBe("BUTTON");
+    expect(nextBtn.getAttribute("aria-label")).toBe("Next line");
+    fireEvent.click(nextBtn);
+    await tick(0);
+    expect(screen.getByTestId("dialogue-caption").textContent).toContain("Zuzu");
+    fireEvent.click(screen.getByTestId("dialogue-caption"));
+    await tick(0);
+    expect(screen.getByTestId("dialogue-caption").textContent).toContain("Gloop");
+  });
+
+  it("hovering the caption holds the line; leaving resumes auto-advance", async () => {
+    render(<DialogueScene dialogue="welcome" renderCharacter={actor} voice={voice(true)} />);
+    await tick(0);
+    const panel = document.querySelector(".dlg-panel")!;
+    fireEvent.pointerEnter(panel, { pointerType: "mouse" });
+    await tick(60000);
+    expect(screen.getByTestId("dialogue-caption").textContent).toContain("Bobbo");
+    fireEvent.pointerLeave(panel, { pointerType: "mouse" });
+    await tick(readingTimeMs(renderLine("dlg.welcome.1")) + 400);
+    expect(screen.getByTestId("dialogue-caption").textContent).toContain("Zuzu");
+  });
+
+  it("focusing Next holds the line until focus leaves the panel", async () => {
+    render(
+      <>
+        <button data-testid="outside">elsewhere</button>
+        <DialogueScene dialogue="welcome" renderCharacter={actor} voice={voice(true)} />
+      </>,
+    );
+    await tick(0);
+    act(() => screen.getByTestId("dialogue-next").focus());
+    await tick(60000);
+    expect(screen.getByTestId("dialogue-caption").textContent).toContain("Bobbo");
+    act(() => screen.getByTestId("outside").focus());
+    await tick(readingTimeMs(renderLine("dlg.welcome.1")) + 400);
+    expect(screen.getByTestId("dialogue-caption").textContent).toContain("Zuzu");
+  });
+
+  it("after Skip, keyboard focus moves to the scene instead of dropping to <body>", async () => {
+    render(<DialogueScene dialogue="welcome" renderCharacter={actor} voice={voice(true)} />);
+    await tick(0);
+    const skip = screen.getByTestId("dialogue-skip");
+    act(() => skip.focus());
+    fireEvent.click(skip);
+    await tick(0);
+    expect(screen.queryByTestId("dialogue-skip")).toBeNull();
+    expect(document.activeElement).toBe(screen.getByTestId("dialogue-scene"));
+    expect(screen.getByTestId("dialogue-scene").getAttribute("tabindex")).toBe("-1");
+  });
+
+  it("on completion focus moves to the scene only if it was inside, and never overrides onDone's own focus", async () => {
+    const { unmount } = render(<DialogueScene dialogue="welcome" renderCharacter={actor} voice={voice(true)} />);
+    await tick(0);
+    act(() => screen.getByTestId("dialogue-next").focus());
+    act(() => screen.getByTestId("dialogue-next").blur()); // let it auto-advance, focus on body
+    await tick(120000);
+    expect(document.activeElement).toBe(document.body);
+    unmount();
+
+    const target = document.createElement("button");
+    document.body.appendChild(target);
+    render(<DialogueScene dialogue="welcome" renderCharacter={actor} voice={voice(true)} onDone={() => target.focus()} />);
+    await tick(0);
+    act(() => screen.getByTestId("dialogue-skip").focus());
+    fireEvent.click(screen.getByTestId("dialogue-skip"));
+    await tick(0);
+    expect(document.activeElement).toBe(target);
+    target.remove();
   });
 
   it("completes and reports 'completed' when every beat has played", async () => {
@@ -102,6 +203,12 @@ describe("DialogueScene", () => {
 });
 
 describe("dialogue.css", () => {
+  it("focus rings use ink (>= 3:1 on paper), not --rumble", () => {
+    const ring = /\.dlg-next:focus-visible \{ outline: 4px solid var\(--ink\)/;
+    expect(css).toMatch(ring);
+    expect(css).toMatch(/\.dlg-skip:focus-visible,/);
+    expect(css).not.toMatch(/outline:[^;]*--rumble/);
+  });
   const css = readFileSync("src/dialogue/dialogue.css", "utf8");
   it("prefixes keyframes with dlg- and has a reduced-motion path", () => {
     const names = [...css.matchAll(/@keyframes\s+([\w-]+)/g)].map((m) => m[1]);
@@ -109,8 +216,9 @@ describe("dialogue.css", () => {
     for (const n of names) expect(n).toMatch(/^dlg-/);
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*\.dlg-actor\.is-speaking \.dlg-body[\s\S]*animation: none/);
   });
-  it("Skip meets the 64px child tap target", () => {
+  it("Skip and Next meet the 64px child tap target", () => {
     expect(css).toMatch(/\.dlg-skip \{[^}]*min-width: var\(--tap-min\)[^}]*min-height: var\(--tap-min\)/);
+    expect(css).toMatch(/\.dlg-next \{[^}]*min-width: var\(--tap-min\)[^}]*min-height: var\(--tap-min\)/);
     expect(readFileSync("src/styles/tokens.css", "utf8")).toMatch(/--tap-min:\s*64px/);
   });
 });

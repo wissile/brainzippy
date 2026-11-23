@@ -224,6 +224,55 @@ describe("dialogue player: skip, next, cancel", () => {
   });
 });
 
+describe("dialogue player: pause holds auto-advance (WCAG 2.2.1)", () => {
+  it("muted: pausing stops the reading timer and resume continues with the remaining time", async () => {
+    const r = run(DLG, fakeVoice({ muted: true }));
+    await tick(0);
+    const read0 = readingTimeMs(r.captions[0]!.text);
+    await tick(1000);
+    r.h.pause();
+    expect(r.h.paused).toBe(true);
+    await tick(60000);
+    expect(r.log).toEqual(["beat:0"]); // held as long as needed
+    r.h.resume();
+    await tick(read0 - 1000 - 1);
+    expect(r.log).toEqual(["beat:0"]);
+    await tick(1);
+    expect(r.log).toEqual(["beat:0", "end:0"]);
+  });
+
+  it("sound on: the line plays to its end, then the beat waits until resumed", async () => {
+    const voice = fakeVoice({ lineMs: 1500 });
+    const r = run(DLG, voice);
+    await tick(200);
+    r.h.pause();
+    await tick(1300);
+    expect(r.log).toEqual(["beat:0", "end:0"]); // the speaker finished talking
+    expect(voice.stop).not.toHaveBeenCalled();
+    await tick(30000);
+    expect(r.log).toEqual(["beat:0", "end:0"]);
+    r.h.resume();
+    await tick(500); // the 500 ms pause runs after resume
+    expect(r.log.at(-1)).toBe("beat:1");
+  });
+
+  it("next() and skip() still work while paused", async () => {
+    const r = run(DLG, fakeVoice({ muted: true }));
+    await tick(0);
+    r.h.pause();
+    r.h.next();
+    await tick(0);
+    expect(r.log).toEqual(["beat:0", "end:0", "beat:1"]);
+    await tick(60000);
+    expect(r.log.at(-1)).toBe("beat:1"); // still held on the new beat
+    r.h.skip();
+    expect(r.end()).toBe("skipped");
+    r.h.resume(); // no-op after the end
+    await tick(60000);
+    expect(r.captions).toHaveLength(2);
+  });
+});
+
 describe("dialogue timing helpers", () => {
   it("reading time is bounded and grows with length", () => {
     expect(readingTimeMs("Hi!")).toBe(1800);
