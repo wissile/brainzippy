@@ -13,6 +13,9 @@ import { loadState } from "../services/storage";
 import { AudioButtons, SpeechBubble } from "../ui/controls";
 import { IconLock } from "../ui/icons";
 import { useApp } from "./AppContext";
+import { pathsEnabled, visiblePaths } from "../paths/flags";
+import { PathPicker, PathView } from "../paths/PathScreens";
+import { currentPath, setPathPlay } from "../paths/state";
 import "../daily/daily.css";
 
 /**
@@ -21,11 +24,19 @@ import "../daily/daily.css";
  * library shelves (src/daily/Explore.tsx, D-029). When today's rounds are done, the end-of-day scene replaces the
  * island until tomorrow.
  */
-export function MapScreen({ view = "today" }: { view?: "today" | "explore" }) {
+export type MapView = "today" | "explore" | "path" | "paths";
+
+export function MapScreen({ view = "today" }: { view?: MapView }) {
   const day = useToday();
   const status = dailyStatus(day);
+  const { navigate } = useApp();
+  // learning paths (D-034) exist only while at least one is visible (live, or the dev override)
+  const hidden = (view === "path" || view === "paths") && !pathsEnabled();
+  useEffect(() => {
+    if (hidden) navigate("/map", { replace: true });
+  }, [hidden, navigate]);
   if (status.locked) return <EndOfDay key={day} />;
-  return <Island key={day} status={status} view={view} />;
+  return <Island key={day} status={status} view={hidden ? "today" : view} />;
 }
 
 const KIND_LABEL: Record<DailyPlanStop["k"], string> = {
@@ -90,7 +101,7 @@ function KindBadge({ kind, done }: { kind: DailyPlanStop["k"]; done: boolean }) 
   return null;
 }
 
-function Island({ status, view }: { status: DailyStatus; view: "today" | "explore" }) {
+function Island({ status, view }: { status: DailyStatus; view: MapView }) {
   const { navigate, caption } = useApp();
   const st = loadState();
   const p = st.profile;
@@ -106,6 +117,13 @@ function Island({ status, view }: { status: DailyStatus; view: "today" | "explor
   const [at, setAt] = useState(done > 0 && next > 0 ? from : Math.max(0, next));
   const firstEver = st.progress.roundsCompleted === 0 && done === 0;
   const goingRef = useRef(false);
+  const showPaths = pathsEnabled();
+  const myPath = showPaths ? currentPath(visiblePaths()) : null;
+  const onPathView = view === "path" || view === "paths";
+  // rounds started from Today or Explore return here, not to the path view
+  useEffect(() => {
+    if (!onPathView) setPathPlay(null);
+  }, [onPathView]);
 
   useEffect(() => {
     void audio.playMusic("island");
@@ -115,7 +133,7 @@ function Island({ status, view }: { status: DailyStatus; view: "today" | "explor
 
   // welcome line; queued until the first tap if audio is still locked (full page load), skipped if that tap opens a stop
   useSpeakWhenReady(
-    () => [
+    () => onPathView ? [] : [ // the path panels speak their own lines (with the host's name)
       view === "explore" ? "daily.explore.hello"
       : firstEver ? "daily.map.first"
       : done === 0 ? "daily.map.hello"
@@ -176,11 +194,21 @@ function Island({ status, view }: { status: DailyStatus; view: "today" | "explor
         <AudioButtons />
       </div>
 
-      <nav className="view-tabs" aria-label="Choose a view">
+      <nav className={`view-tabs ${showPaths ? "with-path" : ""}`} aria-label="Choose a view">
         <button type="button" className={view === "today" ? "on" : ""} aria-pressed={view === "today"} data-testid="view-today" aria-label="Today's adventure" onClick={() => view !== "today" && navigate("/map")}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19 C8 19 6 12 11 12 C16 12 14 5 20 5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="1 4.5" /><circle cx="4" cy="19" r="2.6" fill="currentColor" /><circle cx="20" cy="5" r="2.6" fill="currentColor" /></svg>
           <span>Today</span>
         </button>
+        {showPaths && (
+          <button type="button" className={onPathView ? "on" : ""} aria-pressed={onPathView} data-testid="view-path" aria-label={myPath ? `My path: ${myPath.title}` : "Choose your adventure"} onClick={() => !onPathView && navigate(myPath ? "/path" : "/paths")}>
+            {myPath ? (
+              <span className="tab-host" aria-hidden="true"><Critter id={myPath.host} color={myPath.library.theme.main} /></span>
+            ) : (
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21 V4" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /><path d="M6 4 H18 L15 8 L18 12 H6 Z" fill="currentColor" /></svg>
+            )}
+            <span>My path</span>
+          </button>
+        )}
         <button type="button" className={view === "explore" ? "on" : ""} aria-pressed={view === "explore"} data-testid="view-explore" aria-label="Explore all adventures" onClick={() => view !== "explore" && navigate("/explore")}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" fill="currentColor" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" fill="currentColor" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" fill="currentColor" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" fill="currentColor" /></svg>
           <span>Explore</span>
@@ -192,6 +220,10 @@ function Island({ status, view }: { status: DailyStatus; view: "today" | "explor
       <div className="map-content">
       {view === "explore" ? (
         <Explore band={bandOf(st.ageBand)} />
+      ) : view === "paths" ? (
+        <PathPicker />
+      ) : view === "path" ? (
+        <PathView />
       ) : (
         <div className={`map-stops trail ${stops.length > (portrait ? 5 : 7) ? "crowded" : ""}`} data-testid="trail" data-stops={stops.length}>
           <svg className="trail-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">

@@ -22,6 +22,10 @@ const Insights = lazy(() => import("../analytics/Insights"));
 void startFeatures();
 startAccountSync();
 import { DailyGate } from "../daily/DailyGate";
+import { PathGate } from "../paths/PathGate";
+import { initPathsOverride } from "../paths/flags";
+// Learning paths (D-034): `?paths=all` shows every path on localhost / dev builds only (docs/PATHS.md).
+initPathsOverride();
 
 // Worlds come from the content registry (src/content/packs/*); game code + art is lazy-loaded so the home screen stays light.
 const lazyGames = new Map<string, React.LazyExoticComponent<React.ComponentType>>();
@@ -44,6 +48,8 @@ const TITLES: Record<string, string> = {
   "/map": "Monster Island — BrainZippy",
   "/parents": "Parents — BrainZippy",
   "/explore": "Explore — BrainZippy",
+  "/path": "My path — BrainZippy",
+  "/paths": "Choose your adventure — BrainZippy",
   "/plan": "Keep playing — BrainZippy",
 };
 
@@ -83,6 +89,8 @@ function Router() {
       </Suspense>
     );
   if (path === "/explore") return <MapScreen view="explore" />;
+  if (path === "/path") return <MapScreen view="path" />;
+  if (path === "/paths") return <MapScreen view="paths" />;
   if (path === "/insights")
     return (
       <Suspense fallback={<Loading />}>
@@ -105,7 +113,10 @@ function Router() {
       <Suspense fallback={<Loading />}>
         <PlayGate key={game}>
           <DailyGate key={game} worldId={game!}>
-            <Game key={game} />
+            {/* learning paths: records rounds in the path rules, offers another path between rounds (pass-through when no path is visible) */}
+            <PathGate key={game}>
+              <Game key={game} />
+            </PathGate>
           </DailyGate>
         </PlayGate>
       </Suspense>

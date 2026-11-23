@@ -22,6 +22,8 @@ const pack: ContentPack = {
       description: "Unplugged-style puzzles about sequences, loops, conditions, debugging and data, aligned with the CSTA computer science standards. No typing or real devices needed.",
       status: "live",
       order: 4,
+      // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
+      path: { title: "Learn to code with {host}", line: "path.cs.title", live: false },
     },
   ],
   topics: [

@@ -20,6 +20,8 @@ const pack: ContentPack = {
       description: "US coins and bills, needs and wants, saving goals and smart choices, aligned with the National Standards for Personal Financial Education. No real money, purchases or product recommendations.",
       status: "live",
       order: 7,
+      // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
+      path: { title: "Learn about money with {host}", line: "path.money.title", live: false },
     },
   ],
   topics: [

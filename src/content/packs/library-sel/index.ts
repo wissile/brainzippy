@@ -21,6 +21,8 @@ const pack: ContentPack = {
       description: "Practises naming feelings, calm-down strategies and kind choices through stories, aligned with the CASEL 5 competencies. It is skill practice, not therapy or assessment.",
       status: "live",
       order: 8,
+      // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
+      path: { title: "Understand feelings with {host}", line: "path.sel.title", live: false },
     },
   ],
   topics: [

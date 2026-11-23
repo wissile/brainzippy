@@ -22,6 +22,8 @@ const pack: ContentPack = {
       description: "Habitats, food webs, oceans and caring for the environment, aligned with NGSS life and earth science. Facts first, always with what people are doing to help.",
       status: "live",
       order: 5,
+      // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
+      path: { title: "Discover nature with {host}", line: "path.nature.title", live: false },
     },
   ],
   topics: [

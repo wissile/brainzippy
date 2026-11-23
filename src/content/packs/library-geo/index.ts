@@ -21,6 +21,8 @@ const pack: ContentPack = {
       description: "Maps, continents, places and the ways people live around the world, aligned with the National Geography Standards. Maps in the games are for learning, not navigation.",
       status: "live",
       order: 6,
+      // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
+      path: { title: "Explore the world with {host}", line: "path.geo.title", live: false },
     },
   ],
   topics: [

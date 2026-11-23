@@ -22,6 +22,8 @@ const pack: ContentPack = {
       description: "Virtual design challenges: define a problem, build, test and improve, aligned with the NGSS engineering design standards. Strengths in the games are teaching values, not real engineering data.",
       status: "live",
       order: 9,
+      // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
+      path: { title: "Build like an engineer with {host}", line: "path.engr.title", live: false },
     },
   ],
   topics: [

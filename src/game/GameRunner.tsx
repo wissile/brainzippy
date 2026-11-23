@@ -522,7 +522,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
 
   const { Mascot, Background, ObjectArt, Basket, Sticker } = skin;
   const profile = loadState().profile;
-  const backTo = profile.step === "done" ? "/map" : `/play/${loadState().ageBand ?? "ages-3-5"}`;
+  const backTo = hooks.backTo?.(game.id) ?? (profile.step === "done" ? "/map" : `/play/${loadState().ageBand ?? "ages-3-5"}`);
   const ex = st?.exercise;
   const doneCount = prog.results.length;
   const bubble = helper ? "" : caption; // while a helper talks, only the helper's bubble shows
@@ -584,7 +584,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
               </div>
             )}
             <h2 className="reward-title">{game.achievement.title}</h2>
-            <p className="level-up" data-testid="level-up">{leveledUp ? `Level up! Next time: Level ${level + 2}` : "Great practice! Let's play this level again."}</p>
+            <p className="level-up" data-testid="level-up">{hooks.levelNote?.(game.id) ?? (leveledUp ? `Level up! Next time: Level ${level + 2}` : "Great practice! Let's play this level again.")}</p>
             <p className="reward-sub">{profile.monsterName ? `${profile.monsterName} saw you keep trying!` : newSticker ? "New sticker!" : "Another great round!"}</p>
             <div className="reward-actions">
               {hooks.canPlayAgain?.() !== false && <button
@@ -615,6 +615,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
               </button>
             </div>
             {!reducedMotion && <Burst seed={7} big />}
+            {hooks.rewardExtra?.(game.id)}
           </div>
         )}
       </main>
