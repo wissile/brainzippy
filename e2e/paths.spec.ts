@@ -23,10 +23,11 @@ async function start(page: Page, extra: Record<string, unknown> = {}) {
 const stored = (page: Page) => page.evaluate(() => JSON.parse(localStorage.getItem("bz.v1")!));
 const progress = (levels: Record<string, number>) => ({ v: 1, stickers: [], roundsCompleted: 3, skills: {}, levels });
 
-async function playRound(page: Page) {
+/** Play a whole round; the first `wrong` exercises get one wrong answer first. */
+async function playRound(page: Page, wrong = 0) {
   await enterGame(page);
   for (let i = 0; i < 8; i++) {
-    const id = await solve(page);
+    const id = await solve(page, { wrongFirst: i < wrong });
     await waitForNext(page, id);
   }
   await expect(page.getByTestId("outro")).toBeVisible({ timeout: 30_000 });
@@ -86,6 +87,7 @@ test("pick a path, hear its title, play from it, come back to the path", async (
   await expect(page).toHaveURL(/\/path$/);
   const view = page.getByTestId("path-view");
   await expect(page.getByTestId("path-title")).toHaveText("Count and build with Bobbo");
+  await expect(page.getByTestId("path-title")).toBeFocused(); // focus moves to the new screen
   await expect(view).toHaveAttribute("data-world", "counting-adventure"); // age band 3–5 → age 4 → first maths world for 4
   await expect(view).toHaveAttribute("data-level", "0");
   await expect(page.getByTestId("path-stop-counting-adventure")).toHaveAttribute("aria-current", "step");
@@ -105,52 +107,89 @@ test("pick a path, hear its title, play from it, come back to the path", async (
   await press(page, '[data-testid="path-play"]');
   await expect(page).toHaveURL(/\/play\/counting-adventure$/);
   await playRound(page);
+  await expect(page.getByTestId("nav-back")).toHaveAttribute("aria-label", "Back to my path");
+  // placement (A3): one easy round in a new world skips ahead, as far as the round showed (≤ level + 2)
+  await expect(page.getByTestId("level-up")).toHaveText("Zoom! You're ready for a bigger challenge!");
+  await expect(page.getByTestId("live-caption")).toHaveText("Zoom! You're ready for a bigger challenge!", { timeout: 25_000 }); // the note is spoken
   await press(page, '[data-testid="more-games"]');
   await expect(page).toHaveURL(/\/path$/); // a round started from the path returns to it
   await expect(page.getByTestId("path-view")).toBeVisible();
   const st = await stored(page);
-  expect(st.paths.run).toEqual({ p: "math", day: DAY, n: 1 });
-  expect(st.progress.levels["counting-adventure"]).toBe(1); // R0 for a first-try round
+  expect(st.paths.run).toEqual({ p: "math", day: DAY, n: 1, r: 100 });
+  expect(st.progress.levels["counting-adventure"]).toBe(2);
 });
 
-test("two easy rounds in a row skip ahead; the 3rd path round of the day brings the host's offer", async ({ page }, info) => {
+test("two easy rounds in a row skip ahead (evidence-capped) and the note is spoken; steady play brings no offer", async ({ page }) => {
   await start(page, {
     progress: progress({ "counting-adventure": 2 }),
-    paths: { v: 1, cur: "math", by: { math: { w: "counting-adventure", easy: 1, hard: 0 } }, run: { p: "math", day: DAY, n: 2 } },
+    paths: { v: 1, cur: "math", by: { math: { w: "counting-adventure", easy: 1, hard: 0, n: 5 } }, run: { p: "math", day: DAY, n: 2, r: 100 } },
   });
   await page.goto("/path?paths=all");
   await expect(page.getByTestId("path-view")).toHaveAttribute("data-level", "2");
   await press(page, '[data-testid="path-play"]');
-  await playRound(page); // every item first try = an easy round (the 2nd in a row)
-  await expect(page.getByTestId("level-up")).toHaveText("Zoom! You're ready for Level 5!");
-  expect((await stored(page)).progress.levels["counting-adventure"]).toBe(4); // R0 +1, plus the skip
-  // the offer waits until the reward lines are over, then the host asks (never forces)
+  await playRound(page); // every item first try = the 2nd easy round in a row
+  await expect(page.getByTestId("level-up")).toHaveText("Zoom! You're ready for a bigger challenge!");
+  expect((await stored(page)).progress.levels["counting-adventure"]).toBe(4); // round level 2 + 2 (the round reached higher items)
+  await expect(page.getByTestId("live-caption")).toHaveText("Zoom! You're ready for a bigger challenge!", { timeout: 25_000 });
+  await page.waitForTimeout(2500);
+  await expect(page.getByTestId("path-offer")).toHaveCount(0); // 3rd round of the run, but no drop: no offer
+});
+
+/** Seed the 3rd round of a run whose first round was perfect, so a drop of ≥ 20 points brings the offer (T1). */
+const tiredRun = (extraLevels: Record<string, number> = {}) => ({
+  progress: progress({ "counting-adventure": 1, ...extraLevels }),
+  paths: { v: 1, cur: "math", by: { math: { w: "counting-adventure", easy: 0, hard: 0, n: 5 } }, run: { p: "math", day: DAY, n: 2, r: 100 } },
+});
+
+test("a drop in the 3rd round brings the host's offer: full spoken text, Keep going first, app inert, fits small screens", async ({ page }, info) => {
+  await start(page, tiredRun());
+  await page.goto("/path?paths=all");
+  await press(page, '[data-testid="path-play"]');
+  await playRound(page, 2); // 6 of 8 first try = 75 %, 25 points below the run's first round
   const offer = page.getByTestId("path-offer");
-  await expect(offer).toBeVisible({ timeout: 20_000 });
+  await expect(offer).toBeVisible({ timeout: 25_000 });
   await expect(offer).toHaveAttribute("data-reason", "tired");
+  await expect(page.getByTestId("path-offer-text")).toHaveText("Great playing! Want to try another path for a while? You can come back anytime.");
   await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(page.getByTestId("path-offer-no")).toBeFocused(); // the default is to keep going
+  await expect(page.locator("#root")).toHaveAttribute("inert", "");
+  await page.keyboard.press("Tab");
   await expect(page.getByTestId("path-offer-yes")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.getByTestId("path-offer-no")).toBeFocused(); // focus stays in the dialog
   await page.waitForTimeout(700);
   await page.screenshot({ path: `${SHOTS}/${info.project.name}-03-offer.png` });
-  await press(page, '[data-testid="path-offer-no"]');
+  for (const vp of [{ width: 915, height: 412 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(vp);
+    await page.waitForTimeout(300);
+    await page.screenshot({ path: `${SHOTS}/${info.project.name}-03-offer-${vp.width}x${vp.height}.png` });
+    for (const b of await page.locator('[data-testid="path-offer-yes"], [data-testid="path-offer-no"], [data-testid="path-offer-text"]').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()))) {
+      expect(b.left).toBeGreaterThanOrEqual(-1);
+      expect(b.top).toBeGreaterThanOrEqual(-1);
+      expect(b.right).toBeLessThanOrEqual(vp.width + 1);
+      expect(b.bottom).toBeLessThanOrEqual(vp.height + 1);
+    }
+    for (const h of await page.locator('[data-testid="path-offer-yes"], [data-testid="path-offer-no"]').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))) expect(h).toBeGreaterThanOrEqual(64);
+  }
+  await page.keyboard.press("Escape");
   await expect(offer).toHaveCount(0);
+  await expect(page.locator("#root")).not.toHaveAttribute("inert", "");
   await expect(page.getByTestId("achievement")).toBeVisible(); // still on the reward screen: nothing moved
-  expect((await stored(page)).paths.run.n).toBe(0);
+  expect((await stored(page)).paths.offered).toEqual({ day: DAY, p: ["math"] });
 });
 
 test("accepting the offer opens the picker; switching path keeps each path's stop", async ({ page }) => {
-  await start(page, {
-    progress: progress({ "counting-adventure": 1, "shape-squish": 3 }),
-    paths: { v: 1, cur: "math", by: { math: { w: "counting-adventure", easy: 0, hard: 0 } }, run: { p: "math", day: DAY, n: 2 } },
-  });
+  await start(page, tiredRun({ "shape-squish": 3 }));
   await page.goto("/path?paths=all");
   await press(page, '[data-testid="path-play"]');
-  await playRound(page);
-  await expect(page.getByTestId("path-offer")).toBeVisible({ timeout: 20_000 });
+  await playRound(page, 2);
+  await expect(page.getByTestId("path-offer")).toBeVisible({ timeout: 25_000 });
   await press(page, '[data-testid="path-offer-yes"]');
   await expect(page).toHaveURL(/\/paths$/);
   await expect(page.getByTestId("path-card-math")).toHaveAttribute("aria-pressed", "true"); // the current path is preselected
+  await expect(page.getByTestId("path-card-math")).toBeFocused();
   await expect(page.getByTestId("path-card-math")).toContainText("Your path");
+  await expect(page.getByTestId("path-card-math").getByTestId("path-card-tick")).toBeVisible();
 
   await press(page, '[data-testid="path-card-english"]');
   await press(page, '[data-testid="path-go"]');
@@ -173,6 +212,7 @@ test("keyboard only: choose a path, start it and open the game", async ({ page }
   await start(page);
   await page.goto("/paths?paths=all");
   await expect(page.getByTestId("path-picker")).toBeVisible();
+  await expect(page.locator("#path-picker-title")).toBeFocused();
   await tabTo(page, "path-card-pilot");
   await page.keyboard.press("Enter");
   await expect(page.getByTestId("path-card-pilot")).toHaveAttribute("aria-pressed", "true");
@@ -198,7 +238,7 @@ for (const vp of [{ width: 390, height: 844 }, { width: 915, height: 412 }, { wi
     await page.screenshot({ path: `${SHOTS}/vp-${vp.width}x${vp.height}-picker.png` });
     await noOverflow(page, '[data-testid="path-go"], [data-testid="view-today"], [data-testid="view-path"], [data-testid="view-explore"], [data-testid="path-picker"], [data-testid="sound-toggle"]');
     // targets: every path card and the Go button are at least 64 px tall
-    for (const h of await page.locator('[data-testid^="path-card-"], [data-testid="path-go"]').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))) expect(h).toBeGreaterThanOrEqual(64);
+    for (const h of await page.locator('button.path-card, [data-testid="path-go"]').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))) expect(h).toBeGreaterThanOrEqual(64);
 
     await page.goto("/path");
     await expect(page.getByTestId("path-view")).toBeVisible();
