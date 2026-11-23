@@ -313,8 +313,8 @@
 .stop-meta { font-weight: 800; font-size: 0.8rem; background: rgba(255, 255, 255, 0.9); padding: 0 8px; border-radius: var(--r-pill); }
 .stop-meta b { color: #8a5a00; }
 .stop-critter .critter { width: 76%; height: auto; }
-.wave { animation: wave 4s ease-in-out infinite alternate; }
-@keyframes wave { to { transform: translateX(30px); } }
+.wave { animation: sea-wave 4s ease-in-out infinite alternate; }
+@keyframes sea-wave { to { transform: translateX(30px); } }
 @media (orientation: portrait) { .map-tree { width: 46vw; top: 52%; } .stop-meta { font-size: 0.7rem; } }
 @media (max-height: 520px) { .map-tree { width: 24vw; } .stop-meta { display: none; } }
 .how-it-works { background: #f6f2ff; border-radius: 14px; padding: 8px 12px; }

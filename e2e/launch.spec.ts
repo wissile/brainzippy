@@ -64,6 +64,20 @@ test("onboarding goes from age straight to the map and never asks for an email",
   await expect(onb).toHaveAttribute("data-step", "intro");
   await press(page, '[data-testid="opening-skip"]');
   await expect(onb).toHaveAttribute("data-step", "pop");
+  // Bubbles must actually float up into view (a clashing @keyframes name once left them all below the screen).
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() => {
+          const f = document.querySelector(".bubble-field")!.getBoundingClientRect();
+          return Array.from(document.querySelectorAll("[data-testid=bubble]")).filter((b) => {
+            const r = b.getBoundingClientRect();
+            return r.bottom > f.top + 20 && r.top < f.bottom - 20;
+          }).length;
+        }),
+      { timeout: 8_000 },
+    )
+    .toBeGreaterThan(0);
   for (let i = 0; i < 8; i++) {
     await page.getByTestId("bubble").first().focus();
     await page.keyboard.press("Enter");
