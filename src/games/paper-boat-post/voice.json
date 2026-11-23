@@ -652,22 +652,41 @@
    "text": "Hmm, let's look again.",
    "speaker": "sarah"
   },
-  "pb.tag.ok": {
-   "text": "Its name rhymes with {word}!",
-   "speaker": "sarah",
-   "vary": {
-    "word": [
-     "cat",
-     "bug",
-     "top",
-     "can",
-     "pot",
-     "cap",
-     "tub",
-     "sun",
-     "jet"
-    ]
-   }
+  "pb.tag.ok.cat": {
+   "text": "Its name rhymes with cat!",
+   "speaker": "sarah"
+  },
+  "pb.tag.ok.bug": {
+   "text": "Its name rhymes with bug!",
+   "speaker": "sarah"
+  },
+  "pb.tag.ok.top": {
+   "text": "Its name rhymes with top!",
+   "speaker": "sarah"
+  },
+  "pb.tag.ok.can": {
+   "text": "Its name rhymes with can!",
+   "speaker": "sarah"
+  },
+  "pb.tag.ok.pot": {
+   "text": "Its name rhymes with pot!",
+   "speaker": "sarah"
+  },
+  "pb.tag.ok.cap": {
+   "text": "Its name rhymes with cap!",
+   "speaker": "sarah"
+  },
+  "pb.tag.ok.tub": {
+   "text": "Its name rhymes with tub!",
+   "speaker": "sarah"
+  },
+  "pb.tag.ok.sun": {
+   "text": "Its name rhymes with sun!",
+   "speaker": "sarah"
+  },
+  "pb.tag.ok.jet": {
+   "text": "Its name rhymes with jet!",
+   "speaker": "sarah"
   },
   "pb.praise.6": {
    "text": "Capital at the start, mark at the end. Your note is ready!",
