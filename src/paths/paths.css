@@ -1,0 +1,151 @@
+/* Learning paths (docs/PATHS.md): picker, "your path" view, the host's offer. Tokens from src/styles/tokens.css;
+   --lib-main / --lib-soft / --lib-deep come from the library theme (contrast-checked by the registry). */
+
+/* ---------- panel (shares the island shell with Today and Explore) ---------- */
+.paths-panel {
+  position: absolute; z-index: 2; left: 50%; transform: translateX(-50%);
+  top: calc(max(10px, env(safe-area-inset-top)) + 136px); bottom: 12px; width: min(1100px, calc(100% - 24px));
+  display: flex; flex-direction: column; background: rgba(255, 253, 246, 0.97); border: 5px solid var(--ink);
+  border-radius: var(--r-lg); box-shadow: 0 8px 0 rgba(43, 33, 64, 0.35); overflow: hidden; color: var(--ink);
+}
+.paths-heading { margin: 0; padding: 10px 18px 4px; font-family: var(--font-display); font-size: 1.6rem; line-height: 1.15; }
+
+/* ---------- picker ---------- */
+.path-cards { list-style: none; margin: 0; padding: 6px 16px 14px; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 14px; align-content: start; }
+.path-card {
+  position: relative; width: 100%; min-height: 64px; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 10px 10px 14px; border-radius: var(--r-md); border: 4px solid var(--ink); background: var(--lib-soft, #fff6da);
+  box-shadow: 0 6px 0 var(--ink); color: var(--lib-deep, var(--ink)); font: inherit; cursor: pointer;
+  transition: transform var(--t-fast) var(--ease-out);
+}
+.path-card:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--ink); }
+.path-card:focus-visible { outline: 5px solid var(--zuzu); outline-offset: 3px; }
+.path-card.on { background: #fff; box-shadow: 0 6px 0 var(--ink), 0 0 0 6px var(--lib-main, var(--sparkle)); }
+.path-card-host { width: 96px; height: 96px; display: grid; place-items: center; border-radius: 50%; background: #fff; border: 4px solid var(--lib-main, var(--sparkle)); overflow: hidden; }
+.path-card-host .critter { width: 86%; height: auto; }
+.path-card-title { font-family: var(--font-display); font-weight: 800; font-size: 1.12rem; line-height: 1.15; text-align: center; }
+.path-card-badge { position: absolute; top: -10px; right: -6px; padding: 0 10px; border-radius: var(--r-pill); border: 3px solid var(--ink);
+  background: var(--sparkle); color: var(--ink); font-family: var(--font-display); font-weight: 800; font-size: 0.85rem; }
+.paths-foot { flex: none; display: flex; justify-content: center; padding: 8px 12px 12px; border-top: 3px dashed rgba(43, 33, 64, 0.2); }
+
+/* big green action (Go / Play): ≥ 64 px tall everywhere */
+.path-go, .path-play {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 72px; min-width: 200px; padding: 0 32px;
+  border-radius: var(--r-pill); border: 5px solid var(--cream); color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 1.8rem;
+  background: linear-gradient(var(--go-top), var(--go-bottom)); box-shadow: 0 8px 0 var(--go-shadow); cursor: pointer;
+}
+.path-go svg, .path-play svg { width: 40px; height: 40px; }
+.path-go span, .path-play span, .path-offer-yes span { -webkit-text-stroke: 2px rgba(20, 60, 15, 0.9); paint-order: stroke fill; }
+.path-go:active, .path-play:active { transform: translateY(5px); box-shadow: 0 3px 0 var(--go-shadow); }
+.path-go:focus-visible, .path-play:focus-visible, .path-change:focus-visible, .path-hero-host:focus-visible, .path-offer button:focus-visible { outline: 5px solid var(--zuzu); outline-offset: 3px; }
+.path-go:disabled { background: linear-gradient(#d9d2e8, #b9b0cc); box-shadow: 0 8px 0 #8f86a6; cursor: default; }
+.path-go:disabled span { -webkit-text-stroke-color: rgba(43, 33, 64, 0.75); }
+
+/* ---------- your path ---------- */
+.path-view { padding-bottom: 6px; }
+.path-hero { flex: none; display: flex; align-items: center; gap: 14px; padding: 10px 18px 4px; }
+.path-hero-host { flex: none; width: 96px; height: 96px; padding: 0; border-radius: 50%; border: 5px solid var(--lib-main, var(--sparkle)); background: #fff; display: grid; place-items: center; overflow: hidden; cursor: pointer; box-shadow: 0 5px 0 var(--ink); }
+.path-hero-host .critter { width: 86%; height: auto; }
+.path-title { margin: 0; font-family: var(--font-display); font-size: clamp(1.5rem, 2.4vw + 0.8rem, 2.3rem); line-height: 1.1; color: var(--lib-deep, var(--ink)); }
+.path-trail { list-style: none; margin: 0; padding: 22px 18px 12px; flex: 1 1 auto; min-height: 0; display: flex; gap: 18px; align-items: center;
+  overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-behavior: smooth;
+  background: linear-gradient(transparent calc(50% - 4px), rgba(43, 33, 64, 0.18) calc(50% - 4px), rgba(43, 33, 64, 0.18) calc(50% + 4px), transparent calc(50% + 4px)); }
+.path-stop { position: relative; flex: 0 0 112px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.path-stop-art { width: 84px; height: 84px; display: grid; place-items: center; border-radius: 50%; background: #fff; border: 4px solid var(--ink); overflow: hidden; }
+.path-stop-art .critter { width: 82%; height: auto; }
+.path-stop-name { font-family: var(--font-display); font-weight: 800; font-size: 0.92rem; line-height: 1.12; background: rgba(255, 255, 255, 0.92); border-radius: var(--r-sm); padding: 0 6px; }
+.path-stop.later .path-stop-art { opacity: 0.55; border-style: dashed; }
+.path-stop.later .path-stop-name { color: var(--ink-soft); }
+.path-stop.done .path-stop-art { background: linear-gradient(#fff6c8, #ffe27a); }
+.path-stop.here .path-stop-art { width: 100px; height: 100px; border-width: 5px; border-color: var(--lib-deep, var(--ink)); box-shadow: 0 0 0 7px var(--lib-main, var(--sparkle)); animation: path-here-glow 1.8s ease-in-out infinite; }
+@keyframes path-here-glow { 50% { box-shadow: 0 0 0 12px var(--lib-main, var(--sparkle)); } }
+.path-here { position: absolute; top: -16px; padding: 0 10px; border-radius: var(--r-pill); border: 3px solid var(--ink); background: var(--sparkle); font-family: var(--font-display); font-weight: 800; font-size: 0.9rem; }
+.path-tick { position: absolute; top: -6px; right: 4px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--go-bottom); color: var(--ink); border: 3px solid var(--ink); }
+.path-tick svg { width: 18px; height: 18px; }
+.path-actions { flex: none; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; padding: 8px 12px 8px; }
+.path-change {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 64px; padding: 0 22px; border-radius: var(--r-pill); border: 4px solid var(--ink);
+  background: #fff; color: var(--ink); font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; box-shadow: 0 5px 0 var(--ink); cursor: pointer;
+}
+.path-change svg { width: 28px; height: 28px; }
+.path-change:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
+
+/* "My path" tab: the host's face as the icon */
+.view-tabs .tab-host { width: 30px; height: 30px; display: grid; place-items: center; }
+.view-tabs .tab-host .critter { width: 100%; height: auto; }
+
+/* ---------- the host's offer (between rounds) ---------- */
+.path-offer-backdrop { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgba(43, 33, 64, 0.55); animation: path-fade var(--t-med) var(--ease-out) both; }
+.path-offer {
+  width: min(520px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 16px 18px 20px; border-radius: var(--r-lg); border: 5px solid var(--ink); background: var(--lib-soft, var(--paper)); color: var(--ink);
+  box-shadow: 0 10px 0 rgba(43, 33, 64, 0.5); animation: path-pop var(--t-slow) var(--ease-bounce) both;
+}
+.path-offer-host { width: 120px; height: 120px; display: grid; place-items: center; border-radius: 50%; background: #fff; border: 5px solid var(--lib-main, var(--sparkle)); overflow: hidden; }
+.path-offer-host .critter { width: 86%; height: auto; }
+.path-offer-text { margin: 0; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; line-height: 1.15; color: var(--lib-deep, var(--ink)); }
+.path-offer-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.path-offer-actions button {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 68px; padding: 0 22px; border-radius: var(--r-pill); cursor: pointer;
+  font-family: var(--font-display); font-weight: 800; font-size: 1.25rem;
+}
+.path-offer-actions svg { width: 30px; height: 30px; }
+.path-offer-yes { border: 5px solid var(--cream); color: #fff; background: linear-gradient(var(--go-top), var(--go-bottom)); box-shadow: 0 6px 0 var(--go-shadow); }
+.path-offer-no { border: 4px solid var(--ink); color: var(--ink); background: #fff; box-shadow: 0 6px 0 var(--ink); }
+@keyframes path-fade { from { opacity: 0; } }
+@keyframes path-pop { from { opacity: 0; transform: translateY(24px) scale(0.92); } }
+
+/* ---------- small screens ---------- */
+@media (max-width: 760px) {
+  .paths-heading { font-size: 1.3rem; }
+  .path-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 6px 12px 12px; }
+  .path-card-host { width: 76px; height: 76px; }
+  .path-card-title { font-size: 1rem; }
+  .path-hero-host { width: 76px; height: 76px; }
+  .path-stop { flex-basis: 96px; }
+  .path-stop-art { width: 70px; height: 70px; }
+  .path-stop.here .path-stop-art { width: 84px; height: 84px; }
+  .path-go, .path-play { min-width: 170px; font-size: 1.5rem; padding: 0 22px; }
+  .path-change { font-size: 1rem; padding: 0 16px; }
+}
+/* three tabs on a phone: tighter padding so the bar fits 390 px */
+@media (max-width: 480px) {
+  .view-tabs.with-path { gap: 2px; }
+  .view-tabs.with-path button { padding: 0 10px; gap: 4px; font-size: 1rem; }
+  .view-tabs.with-path button svg { width: 22px; height: 22px; }
+  .view-tabs.with-path .tab-host { width: 24px; height: 24px; }
+}
+/* short landscape (e.g. 915 × 412): the hero moves to a side column so the trail and Play stay visible */
+@media (max-height: 520px) {
+  .paths-panel { top: calc(max(10px, env(safe-area-inset-top)) + 64px); bottom: 4px; }
+  .paths-heading { font-size: 1.2rem; padding: 6px 14px 2px; }
+  .path-cards { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; padding: 4px 12px 8px; }
+  .path-card { flex-direction: row; gap: 8px; padding: 6px 10px; text-align: left; }
+  .path-card-host { flex: none; width: 56px; height: 56px; border-width: 3px; }
+  .path-card-title { font-size: 0.98rem; text-align: left; }
+  .paths-foot { padding: 4px 10px 6px; }
+  .path-go, .path-play { min-height: 64px; font-size: 1.35rem; min-width: 150px; }
+  .path-go svg, .path-play svg { width: 30px; height: 30px; }
+  .path-view { display: grid; grid-template-columns: minmax(160px, 30%) 1fr; grid-template-rows: minmax(0, 1fr) auto; padding-bottom: 0; }
+  .path-hero { grid-row: 1 / 3; flex-direction: column; align-items: flex-start; justify-content: center; padding: 8px 12px; gap: 8px; }
+  .path-hero-host { width: 64px; height: 64px; border-width: 4px; }
+  .path-title { font-size: 1.25rem; }
+  .path-trail { padding: 18px 12px 6px; gap: 12px; }
+  .path-stop { flex-basis: 88px; }
+  .path-stop-art { width: 56px; height: 56px; border-width: 3px; }
+  .path-stop.here .path-stop-art { width: 66px; height: 66px; border-width: 4px; }
+  .path-stop-name { font-size: 0.8rem; }
+  .path-actions { padding: 4px 10px 6px; gap: 10px; flex-wrap: nowrap; }
+  .path-change { min-height: 64px; }
+  .path-offer { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px 14px; padding: 12px 16px 14px; }
+  .path-offer-host { width: 76px; height: 76px; }
+  .path-offer-text { flex: 1 1 220px; font-size: 1.25rem; text-align: left; }
+  .path-offer-actions button { min-height: 64px; font-size: 1.1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-stop.here .path-stop-art, .path-offer-backdrop, .path-offer { animation: none !important; }
+  .path-trail { scroll-behavior: auto; }
+  .path-card, .path-go, .path-play, .path-change { transition: none; }
+}
