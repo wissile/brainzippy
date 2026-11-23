@@ -500,6 +500,90 @@
   },
   "paywall.askGrownUp": {
    "text": "Your monster is having a nap. Ask a grown-up to help you keep playing!"
+  },
+  "dlg.welcome.1": {
+   "text": "Oh! Oh! Somebody new is here! Hi, hi, hi!",
+   "speaker": "bobbo"
+  },
+  "dlg.welcome.2": {
+   "text": "Ta-da! Welcome to BrainZippy, the silliest place to learn!",
+   "speaker": "zuzu"
+  },
+  "dlg.welcome.3": {
+   "text": "Hello! I'm Gloop. Watch me squish into a circle. Boing!",
+   "speaker": "gloop"
+  },
+  "dlg.welcome.4": {
+   "text": "And I'm Bobbo! My wings are tiny, but my hugs are big!",
+   "speaker": "bobbo"
+  },
+  "dlg.welcome.5": {
+   "text": "I'm Zuzu! When something goes wobbly, we just try again.",
+   "speaker": "zuzu"
+  },
+  "dlg.welcome.6": {
+   "text": "Trying is the fun part! Will you play with us?",
+   "speaker": "gloop"
+  },
+  "dlg.welcome.7": {
+   "text": "Yay! Come on, let's go!",
+   "speaker": "bobbo"
+  },
+  "dlg.pilot.1": {
+   "text": "Hi! I'm Ziggy, and I love planes! Zoom, zoom!",
+   "speaker": "ziggy"
+  },
+  "dlg.pilot.2": {
+   "text": "Planes? I have wings, but they're too tiny to fly.",
+   "speaker": "bobbo"
+  },
+  "dlg.pilot.3": {
+   "text": "That's okay, Bobbo! Pilots fly with a plan, not just wings.",
+   "speaker": "ziggy"
+  },
+  "dlg.pilot.4": {
+   "text": "A plan? Like checking things, one by one?",
+   "speaker": "bobbo"
+  },
+  "dlg.pilot.5": {
+   "text": "Yes! Look, think, then go. That's how pilots do it.",
+   "speaker": "ziggy"
+  },
+  "dlg.pilot.6": {
+   "text": "Look, think, go! I can do that!",
+   "speaker": "bobbo"
+  },
+  "dlg.pilot.7": {
+   "text": "Buckle up, everyone. Ready for takeoff!",
+   "speaker": "ziggy"
+  },
+  "dlg.english.1": {
+   "text": "Hoo hoo! Hello, word explorers!",
+   "speaker": "hoot"
+  },
+  "dlg.english.2": {
+   "text": "Hi! I'm Sarah. I collect words, like shiny pebbles!",
+   "speaker": "sarah"
+  },
+  "dlg.english.3": {
+   "text": "Ooh! What's your favorite word today, Sarah?",
+   "speaker": "hoot"
+  },
+  "dlg.english.4": {
+   "text": "Splash! Say it with me. Splash!",
+   "speaker": "sarah"
+  },
+  "dlg.english.5": {
+   "text": "Splash! Some words sound just like what they mean.",
+   "speaker": "hoot"
+  },
+  "dlg.english.6": {
+   "text": "Let's listen closely and find more words together!",
+   "speaker": "sarah"
+  },
+  "dlg.english.7": {
+   "text": "Every word we try makes our story bigger. Off we go!",
+   "speaker": "hoot"
   }
  }
 }

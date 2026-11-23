@@ -1,0 +1,38 @@
+{
+ "_comment": "Character dialogues (src/dialogue/types.ts). Each beat's line lives in src/audio/voiceLines.json with the same speaker; scripts/gen_voice_samples.py stitches these for review. Pauses are in ms.",
+ "dialogues": {
+  "welcome": {
+   "beats": [
+    { "speaker": "bobbo", "line": "dlg.welcome.1", "emote": "greeting" },
+    { "speaker": "zuzu", "line": "dlg.welcome.2", "emote": "celebrating" },
+    { "speaker": "gloop", "line": "dlg.welcome.3", "emote": "greeting", "pauseAfterMs": 500 },
+    { "speaker": "bobbo", "line": "dlg.welcome.4", "emote": "encouraging" },
+    { "speaker": "zuzu", "line": "dlg.welcome.5", "emote": "encouraging" },
+    { "speaker": "gloop", "line": "dlg.welcome.6", "emote": "celebrating" },
+    { "speaker": "bobbo", "line": "dlg.welcome.7", "emote": "celebrating", "pauseAfterMs": 200 }
+   ]
+  },
+  "pilot-intro": {
+   "beats": [
+    { "speaker": "ziggy", "line": "dlg.pilot.1", "emote": "greeting" },
+    { "speaker": "bobbo", "line": "dlg.pilot.2", "emote": "thinking", "pauseAfterMs": 500 },
+    { "speaker": "ziggy", "line": "dlg.pilot.3", "emote": "encouraging" },
+    { "speaker": "bobbo", "line": "dlg.pilot.4", "emote": "thinking" },
+    { "speaker": "ziggy", "line": "dlg.pilot.5", "emote": "celebrating" },
+    { "speaker": "bobbo", "line": "dlg.pilot.6", "emote": "celebrating" },
+    { "speaker": "ziggy", "line": "dlg.pilot.7", "emote": "celebrating", "pauseAfterMs": 200 }
+   ]
+  },
+  "english-intro": {
+   "beats": [
+    { "speaker": "hoot", "line": "dlg.english.1", "emote": "greeting" },
+    { "speaker": "sarah", "line": "dlg.english.2", "emote": "greeting" },
+    { "speaker": "hoot", "line": "dlg.english.3", "emote": "thinking" },
+    { "speaker": "sarah", "line": "dlg.english.4", "emote": "celebrating", "pauseAfterMs": 1400 },
+    { "speaker": "hoot", "line": "dlg.english.5", "emote": "celebrating" },
+    { "speaker": "sarah", "line": "dlg.english.6", "emote": "encouraging" },
+    { "speaker": "hoot", "line": "dlg.english.7", "emote": "celebrating", "pauseAfterMs": 200 }
+   ]
+  }
+ }
+}
