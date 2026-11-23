@@ -209,7 +209,14 @@ export function BoatBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
     setSelected(null);
     act({ type: "SUBMIT", value });
   };
-  const focusEl = (sel: string) => window.setTimeout(() => (rootRef.current?.querySelector(sel) as HTMLElement | null)?.focus({ preventScroll: true }), 30);
+  const focusEl = (sel: string) => {
+    const from = document.activeElement;
+    window.setTimeout(() => {
+      // only if focus hasn't moved on since (the child may already have tabbed somewhere else)
+      if (document.activeElement !== from && document.activeElement !== document.body) return;
+      (rootRef.current?.querySelector(sel) as HTMLElement | null)?.focus({ preventScroll: true });
+    }, 30);
+  };
 
   const choose = (id: string) => {
     if (!canAct || out(id)) return;
@@ -234,6 +241,9 @@ export function BoatBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
   };
   const focusNextTile = (after: string) =>
     window.setTimeout(() => {
+      // never steal focus the child has already moved: only rescue it from the tile that just left (or <body>)
+      const ae = document.activeElement as HTMLElement | null;
+      if (ae && ae !== document.body && ae.dataset.value !== after) return;
       const all = [...(rootRef.current?.querySelectorAll<HTMLElement>('.pb-tiles [data-testid="choice"]') ?? [])];
       const free = (el: HTMLElement) => !el.classList.contains("is-away") && el.getAttribute("aria-disabled") !== "true";
       const at = all.findIndex((el) => el.dataset.value === after);
