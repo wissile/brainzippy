@@ -188,3 +188,12 @@ Estimate: ≈ 45 line ids and ≈ 430 clips in phase A. The lead renders them wi
 - *Blocklist:* world-local (`blocklist.ts`) until a shared English blocklist exists; applied at generation time to every tile set (all ordered fillings, plus one short for quiet-e words) and tested.
 
 **Open.** Literacy-specialist review (keywords, sets, sentences, tricky words); creative-director review of the ~120 new pictures; Sarah's final design (referenced only via `Sarah`/`sarah`); phase B phoneme audio; human listening check of the cast-voice prompts; "Read it to me" once `assisted` exists.
+
+### 12.1 After the independent QA review (2026-11-23)
+- **No target before the answer, including help lines:** `pb.help.blend` no longer says "frog" (now "f and r: fr"); every help/hint/idle/reading-prompt line is checked against every reading target and dock picture (`tests/unit/paper-boat-post.test.ts`, plus the reviewer's `paper-boat-post.qa.test.ts`).
+- **One picture, one name:** `CONFUSABLE` pairs in `content.ts` (cup/mug, mat/rug, dot/pin, pot/pan, hat/cap, tube/pen, hut/house) are never offered together; tube and napkin were redrawn.
+- **Scenes:** in/on are composed from measured picture bounds: ON rests the figure's feet on the thing's surface, IN redraws the container's front (clipped at its rim) over the figure. Scenes that can't be drawn honestly were replaced (in the bus/van/lake, rat in a bag, coat or bug hidden behind a boat or jug, cap vs hat).
+- **Keyboard:** after a tile is placed, focus moves to the next free tile (or Send when full); after a boat is unsorted, focus moves to it in the fleet.
+- **Phones:** on tall boards the note scenes wrap two per row and the build/compound picture is up to 40% of the width, with a speaker badge; the prompt says "Tap the picture to hear it".
+- **Praise:** builds say what was built (`pb.built.*`), swaps `pb.praise.swap`; the after-answer word line stays for reading items.
+- **Other:** Send label in ink; `.still` (reduced motion) also stops the dock nudge, Send pulse and sailing; plural option ids use `fox:3` (allowed by the analytics id pattern); Hoot's hand-over plays only when Rhyme Lanterns progress exists; "This is ten."
