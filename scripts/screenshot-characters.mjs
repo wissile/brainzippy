@@ -23,7 +23,7 @@ mkdirSync(out, { recursive: true });
 const server = await createServer({ root, configFile: false, plugins: [react()], logLevel: "warn", server: { port, strictPort: true } });
 await server.listen();
 const base = `http://localhost:${port}/scripts/character-gallery/index.html`;
-const ids = ["toggle", "zephy", "budge", "fenn", "dabble", "yonder", "snug", "brix", "ripple"];
+const ids = ["toggle", "zephy", "budge", "fenn", "dabble", "yonder", "snug", "brix", "ripple", "ziggy", "sarah"];
 
 const browser = await chromium.launch();
 try {

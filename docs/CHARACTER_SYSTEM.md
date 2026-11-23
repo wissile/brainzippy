@@ -70,5 +70,56 @@ One recurring host per subject library (concepts: `docs/curriculum/CHARACTERS.md
 
 Similarity notes: Zephy has twin round brass goggles pushed up, and Dabble has a single clear visor worn over her eyes, so they never share a goggle shape. Snug's ears are soft and rounded and sit on the sides of a wide loaf; she is not a mouse or a koala. Brix uses yellow with navy, never yellow with black (the tool-brand look). Ripple's seafoam is lighter and greener than Gloop's teal, and her water band separates them in silhouette. The names still need a formal trademark search before launch.
 
+## Path hosts: Ziggy and Sarah (drawn, awaiting owner approval)
+The owner named two new hosts for the learning paths "Learn to fly with Ziggy" (replaces Zephy as pilot host) and "Learn English with Sarah" (replaces Hoot as English host). Zephy and Hoot stay in the cast unchanged. Both new hosts use the library kit (`kit.tsx`: 200×230 viewBox, ground shadow at y 218, 5–5.5 ink outline, Bobbo's eye and mouth set, random blink, 150 ms mouth flap while `talking`) and are registered in `LIBRARY_HOSTS` and `packs/library-hosts`. They are **not yet wired** as the host of any library; the integrator swaps `library-pilot` / `library-english` after approval.
+
+### Ziggy — Pilot path (ages 6–14) · `src/characters/library/Ziggy.tsx`
+- **Species:** capybara. Chosen because capybaras are famously unflappable (the calm-under-pressure pilot), they are well liked from age 6 into the early teens, and no famous cartoon pilot is a capybara. Deliberately **not** a dog, bear cub, raccoon, flying squirrel, mouse, elephant or bird (all have famous pilot or flier characters, and Zephy is already a bird).
+- **Silhouette:** a tall, chunky barrel with a flat, boxy top; a big blunt snout; two small round ears; a headband arcing over the head with two round ear cups bulging out at the sides; a thin mast with a little striped windsock flying off to the right. At 48 px it reads as "a barrel with headphones and a flag".
+- **Palette:** fur cinnamon #C7774E, feet and inner ears #9C5634, snout sand #F2C9A5, headset cups sky blue #4FB3E8, band and kneeboard charcoal #4A4F63, windsock safety orange #FF7A2F with white, wings pin and mast cap gold #FFD43B (`--sparkle`). The cinnamon is warmer and redder than Yonder's brown (and Yonder reads as his blue-green globe); the blue appears only on small accents.
+- **Proportions:** body 132 wide × 156 tall (wider and boxier than Zephy's egg); eyes r 16 at y 96; the snout covers the lower third of the face; legs are just feet.
+- **Signature thing:** the windsock on his headset ("so I always know which way the wind is blowing"). Supporting kit: boom mic, kneeboard checklist with two ticks, gold wings pin. Modern pilot on purpose, with no goggles, scarf or leather helmet, so he never looks like Zephy's vintage flying gear or a classic cartoon aviator.
+- **Personality:** calm, methodical, warmly curious. Loves checklists, clouds, wind and maps; treats every surprise like weather, something to read and plan around. Unflappable but never cold; he enjoys the view.
+- **Catchphrase style:** short, steady, radio-tidy sentences. "Let's run the checklist." "Wind check: from the left." "Steady hands. Let's look again." A mistake is "a bit of turbulence", never a failure. Flight words are explained the first time (same rule as Zephy). Bio-only motto (not a gameplay line): "Calm air or bumpy air, we fly it the same way: one step at a time."
+- **Motion:** slow and economical. The body uses the shared state motion; his windsock carries the mood: gentle flutter at idle (2.4 s), brisk in greeting (0.9 s), a fast tailwind when celebrating (0.4 s), slow side-to-side "wind check" while thinking (2.6 s), and limp (calm air) on retry and asleep.
+
+| State | Ziggy |
+|---|---|
+| idle | breathes, blinks; windsock flutters gently |
+| greeting | hop and arm wave; windsock streams; big laugh |
+| talking | state pose + mouth flap; the boom mic sits just beside his mouth |
+| thinking | tilt, eyes up, arm up; windsock swings slowly as he checks the wind |
+| encouraging | nod, arm half raised |
+| celebrating | jump, both arms up, windsock in a brisk tailwind |
+| retry (never shakes) | soft sway, eyes down, windsock goes limp: "calm air, let's try again" |
+| sleeping | closed lids, windsock limp |
+| reduced motion | no loops: windsock held streaming (greeting/celebrating), angled (thinking) or limp (retry/sleeping) |
+
+**Voice notes for the audio designer (Ziggy):** feels like a friendly older teen or young adult (about 18–25), male-leaning but gentle. Medium-low pitch, never gruff. Energy: calm and warm, a smile in the voice, a notch less bouncy than Bobbo. Pace: steady and unhurried, clean pauses between steps, like reading a checklist over the radio. Brightens on discoveries about weather and maps. Accent: neutral, clear English. No radio-static effects on the voice itself, no "captain announcement" parody, and no imitation of any real pilot, actor or performer.
+
+### Sarah — English path (ages 3–14) · `src/characters/library/Sarah.tsx`
+- **Species:** porcupine. Chosen for the wordplay (a porcupine who writes with a quill), a silhouette nobody else in the cast has, and because a round, soft-quilled critter is cuddly for a 3-year-old while the pun-loving writer personality suits a 13-year-old. Deliberately **not** an owl (Hoot), duck (the "Sarah & Duck" show), mouse, rabbit, bear, cat, pig, elephant, octopus or caterpillar (all strongly tied to famous picture books or reading characters). Not a hedgehog-style racer either: no swept-back spikes, no shoes, not blue.
+- **Silhouette:** a round egg body in front of a fan of seven soft, round-tipped quills (deep berry with blush tips), small round ears at the sides, one long cream quill pen poking out behind her right ear, and an open book held at her middle. At 48 px it reads as "a round critter with a spiky crown holding a book".
+- **Palette:** body berry #D2558A, quills deep berry #9C3168, quill tips blush #FFD9E6, face cream #FFEBDD, quill pen cream #FFF6DA (`--cream`) with berry bands and an ink nib, book cover teal #33A99E, book picture sun #FFD43B (`--sparkle`). Berry is darker and more magenta than Puff's pink, redder than Zuzu's violet and pinker than Dabble's coral; the berry and teal pairing belongs to no one else.
+- **Proportions:** body 120 wide × 142 tall; the quill fan adds about 30 above and 15 each side. Eyes r 16 at y 122 sit inside a heart-shaped face mask; the book covers the lower body.
+- **Signature thing:** the quill crown, plus the quill pen behind her ear. Supporting prop: the open picture book, held towards the child as at story time. Its pages show a sun, a hill and squiggle lines, never real words. No glasses (Hoot's signature) and no bow.
+- **Personality:** a word-lover and storyteller. Delighted by sounds, rhymes, funny words and a good ending. For the youngest she is a playful story-time friend who claps out rhythms and loves silly rhymes; for older children she is the witty older-sister type who swaps book recommendations, collects favourite words, notices clever sentences and cannot resist a pun. She never shows off her vocabulary; she shares it.
+- **Catchphrase style:** warm and playful, scaled to the age band. Ages 3–5: "Ooh, listen: cat, hat! They rhyme!" Ages 6–8: "Let's sound it out together." Ages 9–14: "Great word choice. Can we make that sentence even stronger?" A wrong answer is "Nearly! Let's listen to it again." Bio-only motto: "Every word is a tiny story."
+- **Motion:** bouncy but soft. Her quills fluff up when she is happy and smooth down when she is being gentle; her page turns now and then even at idle (every 8 s) because she is always reading.
+
+| State | Sarah |
+|---|---|
+| idle | breathes, blinks; a page of her book turns every 8 s |
+| greeting | hop, waves her free arm (still holding the book), quills fluff |
+| talking | state pose + mouth flap |
+| thinking | taps her cheek, eyes up, quills tilt, quill pen lifts a little |
+| encouraging | nod, tilts the book towards the child |
+| celebrating | jump, free arm up, quills fan out, pages flip quickly |
+| retry (never shakes) | soft sway, quills smooth down, book lowers a little, kind smile |
+| sleeping | closed lids, quills settled, book drooping |
+| reduced motion | no loops, no page turns: quills held fluffed (greeting) or fanned (celebrating), arm raised, book tilted per state |
+
+**Voice notes for the audio designer (Sarah):** feels like a friendly older sister or young storyteller (about 16–24), female-leaning. Medium pitch, bright and warm. Energy: expressive and playful, with clear smiles and gentle drama in stories, but never shrill or babyish, so older children don't feel talked down to. Pace: slower and very clear for phonics and rhymes (crisp consonants, sounds said cleanly as sounds, e.g. /k/ not "kuh"), conversational for older-child lines. Accent: neutral, clear English. Phonics clips must be checked against the curriculum's sound list. No imitation of any real narrator, actor or performer, and no character "funny voices" (those belong to Hoot).
+
 ## Rive migration (planned)
 Keep the `MascotState` contract (`src/engine/types.ts`). Replace `Bobbo.tsx` internals with a Rive state machine whose inputs match the states; keep the SVG as the reduced-motion/fallback.

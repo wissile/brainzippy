@@ -18,6 +18,8 @@ const pack: ContentPack = {
     { id: "snug", name: "Snug", blurb: "Gentle, patient wombat with a pouch of calm stones; a good listener (social and emotional skills host)." },
     { id: "brix", name: "Brix", blurb: "Hearty beaver builder in a hard hat who tests things, then makes them better (engineering host)." },
     { id: "ripple", name: "Ripple", blurb: "Caring, observant sea otter in a kelp hat who notices tiny things (nature host)." },
+    { id: "ziggy", name: "Ziggy", blurb: "Unflappable capybara pilot with a sky-blue headset, a tiny windsock and a checklist on his knee; curious about weather and maps (Pilot path host)." },
+    { id: "sarah", name: "Sarah", blurb: "Story-loving porcupine who writes with a quill from her own back, collects favourite words and can't resist a pun (English path host)." },
   ],
 };
 
