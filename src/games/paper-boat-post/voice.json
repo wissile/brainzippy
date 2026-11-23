@@ -1,0 +1,2373 @@
+{
+ "_note": "Paper Boat Post (prefix pb.). Words a child must READ never get a pre-answer clip: pb.w.* name PICTURES (docks, cards), pb.got.* / pb.s.* play only after the answer (or in the second-miss model, as pb.slow.*). Generated from content.ts; see docs/worlds/paper-boat-post.md §6.",
+ "lines": {
+  "pb.story.wind": {
+   "text": "One windy morning, the river was full of little paper boats."
+  },
+  "pb.story.home": {
+   "text": "One by one, the paper boats bobbed home to their docks."
+  },
+  "pb.dlg.hoot": {
+   "text": "Sarah has boats full of words for you!",
+   "speaker": "hoot"
+  },
+  "pb.dlg.handover": {
+   "text": "Hoot says you've been listening for rhymes. Rhymes help with reading!",
+   "speaker": "sarah"
+  },
+  "pb.dlg.in.1": {
+   "text": "Hello! I'm Sarah, and this is my Paper Boat Post.",
+   "speaker": "sarah"
+  },
+  "pb.dlg.in.2": {
+   "text": "Every boat carries a word to a friend's dock!",
+   "speaker": "zuzu"
+  },
+  "pb.dlg.in.3": {
+   "text": "Whoosh! The wind tipped my post bag. The letters floated away!",
+   "speaker": "sarah"
+  },
+  "pb.dlg.in.4": {
+   "text": "Oh no! Now the boats don't know where to go.",
+   "speaker": "zuzu"
+  },
+  "pb.dlg.in.5": {
+   "text": "We need a careful reader. Let's send the boats!",
+   "speaker": "sarah"
+  },
+  "pb.dlg.in.6": {
+   "text": "Read every letter, front to back. Ready?",
+   "speaker": "zuzu"
+  },
+  "pb.dlg.out.1": {
+   "text": "Every boat reached its dock!",
+   "speaker": "sarah"
+  },
+  "pb.dlg.out.2": {
+   "text": "You read each letter and put the sounds together.",
+   "speaker": "zuzu"
+  },
+  "pb.dlg.out.3": {
+   "text": "Here's your River Reader sticker!",
+   "speaker": "sarah"
+  },
+  "pb.intro": {
+   "text": "Hello! The paper boats are ready. Will you help me read them?",
+   "speaker": "sarah"
+  },
+  "pb.back": {
+   "text": "Welcome back! More paper boats are waiting for a reader.",
+   "speaker": "sarah"
+  },
+  "pb.mid.1": {
+   "text": "Two boats home! Listen to that happy toot.",
+   "speaker": "sarah"
+  },
+  "pb.mid.2": {
+   "text": "Halfway down the river!",
+   "speaker": "sarah"
+  },
+  "pb.mid.3": {
+   "text": "Nearly there. Read every letter, front to back.",
+   "speaker": "sarah"
+  },
+  "pb.idle": {
+   "text": "Take your time. Look at every letter, front to back.",
+   "speaker": "sarah"
+  },
+  "pb.basket": {
+   "text": "Tap a boat first, then tap a dock.",
+   "speaker": "sarah"
+  },
+  "pb.prompt.swap.cat": {
+   "text": "This is a cat. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "hat",
+     "bat",
+     "rat",
+     "mat"
+    ]
+   }
+  },
+  "pb.prompt.swap.hat": {
+   "text": "This is a hat. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "cat",
+     "bat",
+     "rat",
+     "mat"
+    ]
+   }
+  },
+  "pb.prompt.swap.bat": {
+   "text": "This is a bat. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "cat",
+     "hat",
+     "rat",
+     "mat"
+    ]
+   }
+  },
+  "pb.prompt.swap.rat": {
+   "text": "This is a rat. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "cat",
+     "hat",
+     "bat",
+     "mat"
+    ]
+   }
+  },
+  "pb.prompt.swap.mat": {
+   "text": "This is a mat. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "cat",
+     "hat",
+     "bat",
+     "rat"
+    ]
+   }
+  },
+  "pb.prompt.swap.fan": {
+   "text": "This is a fan. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "van",
+     "can",
+     "pan"
+    ]
+   }
+  },
+  "pb.prompt.swap.van": {
+   "text": "This is a van. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "fan",
+     "can",
+     "pan"
+    ]
+   }
+  },
+  "pb.prompt.swap.can": {
+   "text": "This is a can. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "fan",
+     "van",
+     "pan"
+    ]
+   }
+  },
+  "pb.prompt.swap.pan": {
+   "text": "This is a pan. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "fan",
+     "van",
+     "can"
+    ]
+   }
+  },
+  "pb.prompt.swap.cap": {
+   "text": "This is a cap. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "map"
+    ]
+   }
+  },
+  "pb.prompt.swap.map": {
+   "text": "This is a map. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "cap"
+    ]
+   }
+  },
+  "pb.prompt.swap.bug": {
+   "text": "This is a bug. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "rug",
+     "mug",
+     "jug"
+    ]
+   }
+  },
+  "pb.prompt.swap.rug": {
+   "text": "This is a rug. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "bug",
+     "mug",
+     "jug"
+    ]
+   }
+  },
+  "pb.prompt.swap.mug": {
+   "text": "This is a mug. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "bug",
+     "rug",
+     "jug"
+    ]
+   }
+  },
+  "pb.prompt.swap.jug": {
+   "text": "This is a jug. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "bug",
+     "rug",
+     "mug"
+    ]
+   }
+  },
+  "pb.prompt.swap.sun": {
+   "text": "This is a sun. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "bun"
+    ]
+   }
+  },
+  "pb.prompt.swap.bun": {
+   "text": "This is a bun. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "sun"
+    ]
+   }
+  },
+  "pb.prompt.swap.tub": {
+   "text": "This is a tub. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "cub"
+    ]
+   }
+  },
+  "pb.prompt.swap.cub": {
+   "text": "This is a cub. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "tub"
+    ]
+   }
+  },
+  "pb.prompt.swap.mop": {
+   "text": "This is a mop. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "top"
+    ]
+   }
+  },
+  "pb.prompt.swap.top": {
+   "text": "This is a top. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "mop"
+    ]
+   }
+  },
+  "pb.prompt.swap.pot": {
+   "text": "This is a pot. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "dot"
+    ]
+   }
+  },
+  "pb.prompt.swap.dot": {
+   "text": "This is a dot. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "pot"
+    ]
+   }
+  },
+  "pb.prompt.swap.dog": {
+   "text": "This is a dog. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "log"
+    ]
+   }
+  },
+  "pb.prompt.swap.log": {
+   "text": "This is a log. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "dog"
+    ]
+   }
+  },
+  "pb.prompt.swap.pig": {
+   "text": "This is a pig. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "wig"
+    ]
+   }
+  },
+  "pb.prompt.swap.wig": {
+   "text": "This is a wig. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "pig"
+    ]
+   }
+  },
+  "pb.prompt.swap.pin": {
+   "text": "This is a pin. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "fin",
+     "bin"
+    ]
+   }
+  },
+  "pb.prompt.swap.fin": {
+   "text": "This is a fin. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "pin",
+     "bin"
+    ]
+   }
+  },
+  "pb.prompt.swap.bin": {
+   "text": "This is a bin. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "pin",
+     "fin"
+    ]
+   }
+  },
+  "pb.prompt.swap.jet": {
+   "text": "This is a jet. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "net"
+    ]
+   }
+  },
+  "pb.prompt.swap.net": {
+   "text": "This is a net. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "jet"
+    ]
+   }
+  },
+  "pb.prompt.swap.hen": {
+   "text": "This is a hen. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "pen"
+    ]
+   }
+  },
+  "pb.prompt.swap.pen": {
+   "text": "This is a pen. Can you make {to}?",
+   "speaker": "sarah",
+   "vary": {
+    "to": [
+     "hen"
+    ]
+   }
+  },
+  "pb.prompt.read": {
+   "text": "Read the sail. Who gets this boat?",
+   "speaker": "sarah"
+  },
+  "pb.prompt.tag": {
+   "text": "This critter's name rhymes with {word}. Which tag is it?",
+   "speaker": "sarah",
+   "vary": {
+    "word": [
+     "cat",
+     "bug",
+     "top",
+     "can",
+     "pot",
+     "cap",
+     "tub",
+     "sun",
+     "jet"
+    ]
+   }
+  },
+  "pb.prompt.build": {
+   "text": "Build {word}!",
+   "speaker": "sarah",
+   "vary": {
+    "word": [
+     "hat",
+     "cap",
+     "map",
+     "cab",
+     "bag",
+     "bug",
+     "bun",
+     "cup",
+     "cub",
+     "pin",
+     "fin",
+     "bin",
+     "chip",
+     "ship",
+     "shop",
+     "chin",
+     "chick",
+     "fish",
+     "dish",
+     "shed",
+     "shell",
+     "bath",
+     "path",
+     "duck",
+     "sock",
+     "rock",
+     "dock",
+     "moth",
+     "frog",
+     "crab",
+     "crib",
+     "nest",
+     "vest",
+     "plum",
+     "plug",
+     "slug",
+     "drum",
+     "twig",
+     "belt",
+     "tent",
+     "cape",
+     "cube",
+     "tube",
+     "cane",
+     "cone",
+     "bone",
+     "bike",
+     "kite",
+     "rope",
+     "rose",
+     "nose",
+     "cake",
+     "lake",
+     "plate",
+     "plane",
+     "snake"
+    ]
+   }
+  },
+  "pb.prompt.sort": {
+   "text": "Sort the boats by their letters.",
+   "speaker": "sarah"
+  },
+  "pb.prompt.compound": {
+   "text": "Make a word for this picture with two cards.",
+   "speaker": "sarah"
+  },
+  "pb.prompt.note.read": {
+   "text": "Read the note. Which picture matches?",
+   "speaker": "sarah"
+  },
+  "pb.prompt.note.build": {
+   "text": "Build the note that matches the picture.",
+   "speaker": "sarah"
+  },
+  "pb.help.start": {
+   "text": "Read every letter, front to back, then put them together.",
+   "speaker": "zuzu"
+  },
+  "pb.help.swap": {
+   "text": "Change the first letter, and you get a brand new word!",
+   "speaker": "zuzu"
+  },
+  "pb.help.tag": {
+   "text": "Critter names rhyme too. Look at the end of each tag.",
+   "speaker": "zuzu"
+  },
+  "pb.help.build": {
+   "text": "Say the word slowly. Find a tile for every sound.",
+   "speaker": "zuzu"
+  },
+  "pb.help.digraph": {
+   "text": "Some sounds need two letters: s and h say sh.",
+   "speaker": "zuzu"
+  },
+  "pb.help.blend": {
+   "text": "In frog, you can hear f and r at the start.",
+   "speaker": "zuzu"
+  },
+  "pb.help.e": {
+   "text": "A quiet e at the end makes the vowel say its name.",
+   "speaker": "zuzu"
+  },
+  "pb.help.team": {
+   "text": "Two vowels can team up to make one sound.",
+   "speaker": "zuzu"
+  },
+  "pb.help.sort": {
+   "text": "Same sound, different letters. Look closely!",
+   "speaker": "zuzu"
+  },
+  "pb.help.syllable": {
+   "text": "Long words come in parts. Read one part at a time.",
+   "speaker": "zuzu"
+  },
+  "pb.help.note": {
+   "text": "A note starts with a capital and ends with a mark.",
+   "speaker": "zuzu"
+  },
+  "pb.hint.read.1": {
+   "text": "Touch each letter, front to back.",
+   "speaker": "zuzu"
+  },
+  "pb.hint.vowel": {
+   "text": "Look at the middle letter. What sound does it make?",
+   "speaker": "zuzu"
+  },
+  "pb.hint.final": {
+   "text": "Check the last letter, too.",
+   "speaker": "zuzu"
+  },
+  "pb.hint.first": {
+   "text": "Look at the first letters again.",
+   "speaker": "zuzu"
+  },
+  "pb.hint.dropped": {
+   "text": "Did you read every letter? Look at the start again.",
+   "speaker": "zuzu"
+  },
+  "pb.hint.digraph": {
+   "text": "Look for two letters that make one sound.",
+   "speaker": "zuzu"
+  },
+  "pb.hint.e.1": {
+   "text": "Is there a quiet e at the end?",
+   "speaker": "zuzu"
+  },
+  "pb.hint.team": {
+   "text": "Look at the two vowels in the middle.",
+   "speaker": "zuzu"
+  },
+  "pb.hint.syllable.1": {
+   "text": "Read the first part, then the second part.",
+   "speaker": "zuzu"
+  },
+  "pb.hint.plural.1": {
+   "text": "Look at the end of the word. One, or more than one?",
+   "speaker": "zuzu"
+  },
+  "pb.hint.swap.1": {
+   "text": "Say the new word slowly. Which sound comes first?",
+   "speaker": "zuzu"
+  },
+  "pb.hint.tag.1": {
+   "text": "Read each name. Which one ends the same way?",
+   "speaker": "zuzu"
+  },
+  "pb.hint.build.1": {
+   "text": "Listen slowly. Which sound comes next?",
+   "speaker": "zuzu"
+  },
+  "pb.hint.split": {
+   "text": "Sh, ch and th are one sound, so they sit on one tile.",
+   "speaker": "zuzu"
+  },
+  "pb.hint.e.build": {
+   "text": "Listen to the end. Does it need a quiet e?",
+   "speaker": "zuzu"
+  },
+  "pb.hint.compound.1": {
+   "text": "Which two small words make the big one?",
+   "speaker": "zuzu"
+  },
+  "pb.hint.sentence.1": {
+   "text": "A sentence starts with a capital and ends with a mark. Does it match?",
+   "speaker": "zuzu"
+  },
+  "pb.hint.note.1": {
+   "text": "Read every word. Which picture shows all of them?",
+   "speaker": "zuzu"
+  },
+  "pb.hint.sort.1": {
+   "text": "Look at the middle letters. Which dock has the same ones?",
+   "speaker": "zuzu"
+  },
+  "pb.hint.show": {
+   "text": "Watch the letters light up, front to back.",
+   "speaker": "sarah"
+  },
+  "pb.hint.model": {
+   "text": "Your turn. Send it off!",
+   "speaker": "sarah"
+  },
+  "pb.retry.1": {
+   "text": "Hmm, let's look again.",
+   "speaker": "sarah"
+  },
+  "pb.tag.ok": {
+   "text": "Its name rhymes with {word}!",
+   "speaker": "sarah",
+   "vary": {
+    "word": [
+     "cat",
+     "bug",
+     "top",
+     "can",
+     "pot",
+     "cap",
+     "tub",
+     "sun",
+     "jet"
+    ]
+   }
+  },
+  "pb.praise.6": {
+   "text": "Capital at the start, mark at the end. Your note is ready!",
+   "speaker": "sarah"
+  },
+  "pb.praise.sort": {
+   "text": "Same sound, different letters. You looked closely!",
+   "speaker": "sarah"
+  },
+  "pb.w.backpack": {
+   "text": "backpack"
+  },
+  "pb.w.bag": {
+   "text": "bag"
+  },
+  "pb.w.basket": {
+   "text": "basket"
+  },
+  "pb.w.bat": {
+   "text": "bat"
+  },
+  "pb.w.bath": {
+   "text": "bath"
+  },
+  "pb.w.bathtub": {
+   "text": "bathtub"
+  },
+  "pb.w.beach": {
+   "text": "beach"
+  },
+  "pb.w.bed": {
+   "text": "bed"
+  },
+  "pb.w.bee": {
+   "text": "bee"
+  },
+  "pb.w.bell": {
+   "text": "bell"
+  },
+  "pb.w.belt": {
+   "text": "belt"
+  },
+  "pb.w.bib": {
+   "text": "bib"
+  },
+  "pb.w.bike": {
+   "text": "bike"
+  },
+  "pb.w.bin": {
+   "text": "bin"
+  },
+  "pb.w.boat": {
+   "text": "boat"
+  },
+  "pb.w.bone": {
+   "text": "bone"
+  },
+  "pb.w.box": {
+   "text": "box"
+  },
+  "pb.w.boxes": {
+   "text": "boxes"
+  },
+  "pb.w.bug": {
+   "text": "bug"
+  },
+  "pb.w.bugs": {
+   "text": "bugs"
+  },
+  "pb.w.bun": {
+   "text": "bun"
+  },
+  "pb.w.bus": {
+   "text": "bus"
+  },
+  "pb.w.buses": {
+   "text": "buses"
+  },
+  "pb.w.cab": {
+   "text": "cab"
+  },
+  "pb.w.cactus": {
+   "text": "cactus"
+  },
+  "pb.w.cake": {
+   "text": "cake"
+  },
+  "pb.w.can": {
+   "text": "can"
+  },
+  "pb.w.cane": {
+   "text": "cane"
+  },
+  "pb.w.cap": {
+   "text": "cap"
+  },
+  "pb.w.cape": {
+   "text": "cape"
+  },
+  "pb.w.cat": {
+   "text": "cat"
+  },
+  "pb.w.catfish": {
+   "text": "catfish"
+  },
+  "pb.w.cats": {
+   "text": "cats"
+  },
+  "pb.w.chick": {
+   "text": "chick"
+  },
+  "pb.w.chin": {
+   "text": "chin"
+  },
+  "pb.w.chip": {
+   "text": "chip"
+  },
+  "pb.w.coat": {
+   "text": "coat"
+  },
+  "pb.w.cone": {
+   "text": "cone"
+  },
+  "pb.w.crab": {
+   "text": "crab"
+  },
+  "pb.w.crib": {
+   "text": "crib"
+  },
+  "pb.w.cub": {
+   "text": "cub"
+  },
+  "pb.w.cube": {
+   "text": "cube"
+  },
+  "pb.w.cup": {
+   "text": "cup"
+  },
+  "pb.w.cupcake": {
+   "text": "cupcake"
+  },
+  "pb.w.dish": {
+   "text": "dish"
+  },
+  "pb.w.dishes": {
+   "text": "dishes"
+  },
+  "pb.w.dock": {
+   "text": "dock"
+  },
+  "pb.w.dog": {
+   "text": "dog"
+  },
+  "pb.w.dogs": {
+   "text": "dogs"
+  },
+  "pb.w.dot": {
+   "text": "dot"
+  },
+  "pb.w.drum": {
+   "text": "drum"
+  },
+  "pb.w.duck": {
+   "text": "duck"
+  },
+  "pb.w.fan": {
+   "text": "fan"
+  },
+  "pb.w.feet": {
+   "text": "feet"
+  },
+  "pb.w.fig": {
+   "text": "fig"
+  },
+  "pb.w.fin": {
+   "text": "fin"
+  },
+  "pb.w.fish": {
+   "text": "fish"
+  },
+  "pb.w.fog": {
+   "text": "fog"
+  },
+  "pb.w.fox": {
+   "text": "fox"
+  },
+  "pb.w.foxes": {
+   "text": "foxes"
+  },
+  "pb.w.frog": {
+   "text": "frog"
+  },
+  "pb.w.goat": {
+   "text": "goat"
+  },
+  "pb.w.ham": {
+   "text": "ham"
+  },
+  "pb.w.hat": {
+   "text": "hat"
+  },
+  "pb.w.hats": {
+   "text": "hats"
+  },
+  "pb.w.hay": {
+   "text": "hay"
+  },
+  "pb.w.hen": {
+   "text": "hen"
+  },
+  "pb.w.hut": {
+   "text": "hut"
+  },
+  "pb.w.jet": {
+   "text": "jet"
+  },
+  "pb.w.jug": {
+   "text": "jug"
+  },
+  "pb.w.kite": {
+   "text": "kite"
+  },
+  "pb.w.kitten": {
+   "text": "kitten"
+  },
+  "pb.w.lake": {
+   "text": "lake"
+  },
+  "pb.w.leaf": {
+   "text": "leaf"
+  },
+  "pb.w.leg": {
+   "text": "leg"
+  },
+  "pb.w.loaf": {
+   "text": "loaf"
+  },
+  "pb.w.log": {
+   "text": "log"
+  },
+  "pb.w.logs": {
+   "text": "logs"
+  },
+  "pb.w.magnet": {
+   "text": "magnet"
+  },
+  "pb.w.mailbox": {
+   "text": "mailbox"
+  },
+  "pb.w.map": {
+   "text": "map"
+  },
+  "pb.w.mat": {
+   "text": "mat"
+  },
+  "pb.w.mitten": {
+   "text": "mitten"
+  },
+  "pb.w.mop": {
+   "text": "mop"
+  },
+  "pb.w.moth": {
+   "text": "moth"
+  },
+  "pb.w.muffin": {
+   "text": "muffin"
+  },
+  "pb.w.mug": {
+   "text": "mug"
+  },
+  "pb.w.nail": {
+   "text": "nail"
+  },
+  "pb.w.napkin": {
+   "text": "napkin"
+  },
+  "pb.w.nest": {
+   "text": "nest"
+  },
+  "pb.w.net": {
+   "text": "net"
+  },
+  "pb.w.nose": {
+   "text": "nose"
+  },
+  "pb.w.pan": {
+   "text": "pan"
+  },
+  "pb.w.pancake": {
+   "text": "pancake"
+  },
+  "pb.w.path": {
+   "text": "path"
+  },
+  "pb.w.peach": {
+   "text": "peach"
+  },
+  "pb.w.pen": {
+   "text": "pen"
+  },
+  "pb.w.picnic": {
+   "text": "picnic"
+  },
+  "pb.w.pig": {
+   "text": "pig"
+  },
+  "pb.w.pigs": {
+   "text": "pigs"
+  },
+  "pb.w.pin": {
+   "text": "pin"
+  },
+  "pb.w.plane": {
+   "text": "plane"
+  },
+  "pb.w.plate": {
+   "text": "plate"
+  },
+  "pb.w.plug": {
+   "text": "plug"
+  },
+  "pb.w.plum": {
+   "text": "plum"
+  },
+  "pb.w.pot": {
+   "text": "pot"
+  },
+  "pb.w.pumpkin": {
+   "text": "pumpkin"
+  },
+  "pb.w.puppet": {
+   "text": "puppet"
+  },
+  "pb.w.rabbit": {
+   "text": "rabbit"
+  },
+  "pb.w.rain": {
+   "text": "rain"
+  },
+  "pb.w.raincoat": {
+   "text": "raincoat"
+  },
+  "pb.w.rat": {
+   "text": "rat"
+  },
+  "pb.w.road": {
+   "text": "road"
+  },
+  "pb.w.robot": {
+   "text": "robot"
+  },
+  "pb.w.rock": {
+   "text": "rock"
+  },
+  "pb.w.rope": {
+   "text": "rope"
+  },
+  "pb.w.rose": {
+   "text": "rose"
+  },
+  "pb.w.rug": {
+   "text": "rug"
+  },
+  "pb.w.rugs": {
+   "text": "rugs"
+  },
+  "pb.w.sail": {
+   "text": "sail"
+  },
+  "pb.w.sailboat": {
+   "text": "sailboat"
+  },
+  "pb.w.sandbox": {
+   "text": "sandbox"
+  },
+  "pb.w.seal": {
+   "text": "seal"
+  },
+  "pb.w.seed": {
+   "text": "seed"
+  },
+  "pb.w.shed": {
+   "text": "shed"
+  },
+  "pb.w.sheep": {
+   "text": "sheep"
+  },
+  "pb.w.shell": {
+   "text": "shell"
+  },
+  "pb.w.ship": {
+   "text": "ship"
+  },
+  "pb.w.shop": {
+   "text": "shop"
+  },
+  "pb.w.slug": {
+   "text": "slug"
+  },
+  "pb.w.snail": {
+   "text": "snail"
+  },
+  "pb.w.snake": {
+   "text": "snake"
+  },
+  "pb.w.soap": {
+   "text": "soap"
+  },
+  "pb.w.sock": {
+   "text": "sock"
+  },
+  "pb.w.sun": {
+   "text": "sun"
+  },
+  "pb.w.tail": {
+   "text": "tail"
+  },
+  "pb.w.tent": {
+   "text": "tent"
+  },
+  "pb.w.toad": {
+   "text": "toad"
+  },
+  "pb.w.top": {
+   "text": "top"
+  },
+  "pb.w.train": {
+   "text": "train"
+  },
+  "pb.w.tray": {
+   "text": "tray"
+  },
+  "pb.w.tree": {
+   "text": "tree"
+  },
+  "pb.w.tub": {
+   "text": "tub"
+  },
+  "pb.w.tube": {
+   "text": "tube"
+  },
+  "pb.w.twig": {
+   "text": "twig"
+  },
+  "pb.w.van": {
+   "text": "van"
+  },
+  "pb.w.vest": {
+   "text": "vest"
+  },
+  "pb.w.web": {
+   "text": "web"
+  },
+  "pb.w.wig": {
+   "text": "wig"
+  },
+  "pb.w.wigs": {
+   "text": "wigs"
+  },
+  "pb.slow.backpack": {
+   "text": "backpack",
+   "speed": 0.6
+  },
+  "pb.slow.bag": {
+   "text": "bag",
+   "speed": 0.6
+  },
+  "pb.slow.basket": {
+   "text": "basket",
+   "speed": 0.6
+  },
+  "pb.slow.bat": {
+   "text": "bat",
+   "speed": 0.6
+  },
+  "pb.slow.bath": {
+   "text": "bath",
+   "speed": 0.6
+  },
+  "pb.slow.bathtub": {
+   "text": "bathtub",
+   "speed": 0.6
+  },
+  "pb.slow.beach": {
+   "text": "beach",
+   "speed": 0.6
+  },
+  "pb.slow.bed": {
+   "text": "bed",
+   "speed": 0.6
+  },
+  "pb.slow.bee": {
+   "text": "bee",
+   "speed": 0.6
+  },
+  "pb.slow.belt": {
+   "text": "belt",
+   "speed": 0.6
+  },
+  "pb.slow.bib": {
+   "text": "bib",
+   "speed": 0.6
+  },
+  "pb.slow.bike": {
+   "text": "bike",
+   "speed": 0.6
+  },
+  "pb.slow.bin": {
+   "text": "bin",
+   "speed": 0.6
+  },
+  "pb.slow.boat": {
+   "text": "boat",
+   "speed": 0.6
+  },
+  "pb.slow.bone": {
+   "text": "bone",
+   "speed": 0.6
+  },
+  "pb.slow.box": {
+   "text": "box",
+   "speed": 0.6
+  },
+  "pb.slow.boxes": {
+   "text": "boxes",
+   "speed": 0.6
+  },
+  "pb.slow.bug": {
+   "text": "bug",
+   "speed": 0.6
+  },
+  "pb.slow.bugs": {
+   "text": "bugs",
+   "speed": 0.6
+  },
+  "pb.slow.bun": {
+   "text": "bun",
+   "speed": 0.6
+  },
+  "pb.slow.bus": {
+   "text": "bus",
+   "speed": 0.6
+  },
+  "pb.slow.buses": {
+   "text": "buses",
+   "speed": 0.6
+  },
+  "pb.slow.cab": {
+   "text": "cab",
+   "speed": 0.6
+  },
+  "pb.slow.cactus": {
+   "text": "cactus",
+   "speed": 0.6
+  },
+  "pb.slow.cake": {
+   "text": "cake",
+   "speed": 0.6
+  },
+  "pb.slow.can": {
+   "text": "can",
+   "speed": 0.6
+  },
+  "pb.slow.cane": {
+   "text": "cane",
+   "speed": 0.6
+  },
+  "pb.slow.cap": {
+   "text": "cap",
+   "speed": 0.6
+  },
+  "pb.slow.cape": {
+   "text": "cape",
+   "speed": 0.6
+  },
+  "pb.slow.cat": {
+   "text": "cat",
+   "speed": 0.6
+  },
+  "pb.slow.catfish": {
+   "text": "catfish",
+   "speed": 0.6
+  },
+  "pb.slow.cats": {
+   "text": "cats",
+   "speed": 0.6
+  },
+  "pb.slow.chick": {
+   "text": "chick",
+   "speed": 0.6
+  },
+  "pb.slow.chin": {
+   "text": "chin",
+   "speed": 0.6
+  },
+  "pb.slow.chip": {
+   "text": "chip",
+   "speed": 0.6
+  },
+  "pb.slow.coat": {
+   "text": "coat",
+   "speed": 0.6
+  },
+  "pb.slow.cone": {
+   "text": "cone",
+   "speed": 0.6
+  },
+  "pb.slow.crab": {
+   "text": "crab",
+   "speed": 0.6
+  },
+  "pb.slow.crib": {
+   "text": "crib",
+   "speed": 0.6
+  },
+  "pb.slow.cub": {
+   "text": "cub",
+   "speed": 0.6
+  },
+  "pb.slow.cube": {
+   "text": "cube",
+   "speed": 0.6
+  },
+  "pb.slow.cup": {
+   "text": "cup",
+   "speed": 0.6
+  },
+  "pb.slow.cupcake": {
+   "text": "cupcake",
+   "speed": 0.6
+  },
+  "pb.slow.dish": {
+   "text": "dish",
+   "speed": 0.6
+  },
+  "pb.slow.dishes": {
+   "text": "dishes",
+   "speed": 0.6
+  },
+  "pb.slow.dock": {
+   "text": "dock",
+   "speed": 0.6
+  },
+  "pb.slow.dog": {
+   "text": "dog",
+   "speed": 0.6
+  },
+  "pb.slow.dogs": {
+   "text": "dogs",
+   "speed": 0.6
+  },
+  "pb.slow.dot": {
+   "text": "dot",
+   "speed": 0.6
+  },
+  "pb.slow.drum": {
+   "text": "drum",
+   "speed": 0.6
+  },
+  "pb.slow.duck": {
+   "text": "duck",
+   "speed": 0.6
+  },
+  "pb.slow.fan": {
+   "text": "fan",
+   "speed": 0.6
+  },
+  "pb.slow.fig": {
+   "text": "fig",
+   "speed": 0.6
+  },
+  "pb.slow.fin": {
+   "text": "fin",
+   "speed": 0.6
+  },
+  "pb.slow.fish": {
+   "text": "fish",
+   "speed": 0.6
+  },
+  "pb.slow.fox": {
+   "text": "fox",
+   "speed": 0.6
+  },
+  "pb.slow.foxes": {
+   "text": "foxes",
+   "speed": 0.6
+  },
+  "pb.slow.frog": {
+   "text": "frog",
+   "speed": 0.6
+  },
+  "pb.slow.goat": {
+   "text": "goat",
+   "speed": 0.6
+  },
+  "pb.slow.ham": {
+   "text": "ham",
+   "speed": 0.6
+  },
+  "pb.slow.hat": {
+   "text": "hat",
+   "speed": 0.6
+  },
+  "pb.slow.hats": {
+   "text": "hats",
+   "speed": 0.6
+  },
+  "pb.slow.hay": {
+   "text": "hay",
+   "speed": 0.6
+  },
+  "pb.slow.hen": {
+   "text": "hen",
+   "speed": 0.6
+  },
+  "pb.slow.hut": {
+   "text": "hut",
+   "speed": 0.6
+  },
+  "pb.slow.jet": {
+   "text": "jet",
+   "speed": 0.6
+  },
+  "pb.slow.jug": {
+   "text": "jug",
+   "speed": 0.6
+  },
+  "pb.slow.kite": {
+   "text": "kite",
+   "speed": 0.6
+  },
+  "pb.slow.kitten": {
+   "text": "kitten",
+   "speed": 0.6
+  },
+  "pb.slow.lake": {
+   "text": "lake",
+   "speed": 0.6
+  },
+  "pb.slow.leaf": {
+   "text": "leaf",
+   "speed": 0.6
+  },
+  "pb.slow.leg": {
+   "text": "leg",
+   "speed": 0.6
+  },
+  "pb.slow.loaf": {
+   "text": "loaf",
+   "speed": 0.6
+  },
+  "pb.slow.log": {
+   "text": "log",
+   "speed": 0.6
+  },
+  "pb.slow.logs": {
+   "text": "logs",
+   "speed": 0.6
+  },
+  "pb.slow.magnet": {
+   "text": "magnet",
+   "speed": 0.6
+  },
+  "pb.slow.mailbox": {
+   "text": "mailbox",
+   "speed": 0.6
+  },
+  "pb.slow.map": {
+   "text": "map",
+   "speed": 0.6
+  },
+  "pb.slow.mat": {
+   "text": "mat",
+   "speed": 0.6
+  },
+  "pb.slow.mitten": {
+   "text": "mitten",
+   "speed": 0.6
+  },
+  "pb.slow.mop": {
+   "text": "mop",
+   "speed": 0.6
+  },
+  "pb.slow.moth": {
+   "text": "moth",
+   "speed": 0.6
+  },
+  "pb.slow.muffin": {
+   "text": "muffin",
+   "speed": 0.6
+  },
+  "pb.slow.mug": {
+   "text": "mug",
+   "speed": 0.6
+  },
+  "pb.slow.nail": {
+   "text": "nail",
+   "speed": 0.6
+  },
+  "pb.slow.napkin": {
+   "text": "napkin",
+   "speed": 0.6
+  },
+  "pb.slow.nest": {
+   "text": "nest",
+   "speed": 0.6
+  },
+  "pb.slow.net": {
+   "text": "net",
+   "speed": 0.6
+  },
+  "pb.slow.nose": {
+   "text": "nose",
+   "speed": 0.6
+  },
+  "pb.slow.pan": {
+   "text": "pan",
+   "speed": 0.6
+  },
+  "pb.slow.pancake": {
+   "text": "pancake",
+   "speed": 0.6
+  },
+  "pb.slow.path": {
+   "text": "path",
+   "speed": 0.6
+  },
+  "pb.slow.peach": {
+   "text": "peach",
+   "speed": 0.6
+  },
+  "pb.slow.pen": {
+   "text": "pen",
+   "speed": 0.6
+  },
+  "pb.slow.picnic": {
+   "text": "picnic",
+   "speed": 0.6
+  },
+  "pb.slow.pig": {
+   "text": "pig",
+   "speed": 0.6
+  },
+  "pb.slow.pigs": {
+   "text": "pigs",
+   "speed": 0.6
+  },
+  "pb.slow.pin": {
+   "text": "pin",
+   "speed": 0.6
+  },
+  "pb.slow.plane": {
+   "text": "plane",
+   "speed": 0.6
+  },
+  "pb.slow.plate": {
+   "text": "plate",
+   "speed": 0.6
+  },
+  "pb.slow.plug": {
+   "text": "plug",
+   "speed": 0.6
+  },
+  "pb.slow.plum": {
+   "text": "plum",
+   "speed": 0.6
+  },
+  "pb.slow.pot": {
+   "text": "pot",
+   "speed": 0.6
+  },
+  "pb.slow.pumpkin": {
+   "text": "pumpkin",
+   "speed": 0.6
+  },
+  "pb.slow.puppet": {
+   "text": "puppet",
+   "speed": 0.6
+  },
+  "pb.slow.rabbit": {
+   "text": "rabbit",
+   "speed": 0.6
+  },
+  "pb.slow.rain": {
+   "text": "rain",
+   "speed": 0.6
+  },
+  "pb.slow.raincoat": {
+   "text": "raincoat",
+   "speed": 0.6
+  },
+  "pb.slow.rat": {
+   "text": "rat",
+   "speed": 0.6
+  },
+  "pb.slow.road": {
+   "text": "road",
+   "speed": 0.6
+  },
+  "pb.slow.rock": {
+   "text": "rock",
+   "speed": 0.6
+  },
+  "pb.slow.rope": {
+   "text": "rope",
+   "speed": 0.6
+  },
+  "pb.slow.rose": {
+   "text": "rose",
+   "speed": 0.6
+  },
+  "pb.slow.rug": {
+   "text": "rug",
+   "speed": 0.6
+  },
+  "pb.slow.rugs": {
+   "text": "rugs",
+   "speed": 0.6
+  },
+  "pb.slow.sail": {
+   "text": "sail",
+   "speed": 0.6
+  },
+  "pb.slow.sailboat": {
+   "text": "sailboat",
+   "speed": 0.6
+  },
+  "pb.slow.sandbox": {
+   "text": "sandbox",
+   "speed": 0.6
+  },
+  "pb.slow.seal": {
+   "text": "seal",
+   "speed": 0.6
+  },
+  "pb.slow.seed": {
+   "text": "seed",
+   "speed": 0.6
+  },
+  "pb.slow.shed": {
+   "text": "shed",
+   "speed": 0.6
+  },
+  "pb.slow.sheep": {
+   "text": "sheep",
+   "speed": 0.6
+  },
+  "pb.slow.shell": {
+   "text": "shell",
+   "speed": 0.6
+  },
+  "pb.slow.ship": {
+   "text": "ship",
+   "speed": 0.6
+  },
+  "pb.slow.shop": {
+   "text": "shop",
+   "speed": 0.6
+  },
+  "pb.slow.slug": {
+   "text": "slug",
+   "speed": 0.6
+  },
+  "pb.slow.snake": {
+   "text": "snake",
+   "speed": 0.6
+  },
+  "pb.slow.soap": {
+   "text": "soap",
+   "speed": 0.6
+  },
+  "pb.slow.sock": {
+   "text": "sock",
+   "speed": 0.6
+  },
+  "pb.slow.sun": {
+   "text": "sun",
+   "speed": 0.6
+  },
+  "pb.slow.tent": {
+   "text": "tent",
+   "speed": 0.6
+  },
+  "pb.slow.toad": {
+   "text": "toad",
+   "speed": 0.6
+  },
+  "pb.slow.top": {
+   "text": "top",
+   "speed": 0.6
+  },
+  "pb.slow.train": {
+   "text": "train",
+   "speed": 0.6
+  },
+  "pb.slow.tray": {
+   "text": "tray",
+   "speed": 0.6
+  },
+  "pb.slow.tree": {
+   "text": "tree",
+   "speed": 0.6
+  },
+  "pb.slow.tub": {
+   "text": "tub",
+   "speed": 0.6
+  },
+  "pb.slow.tube": {
+   "text": "tube",
+   "speed": 0.6
+  },
+  "pb.slow.twig": {
+   "text": "twig",
+   "speed": 0.6
+  },
+  "pb.slow.van": {
+   "text": "van",
+   "speed": 0.6
+  },
+  "pb.slow.vest": {
+   "text": "vest",
+   "speed": 0.6
+  },
+  "pb.slow.web": {
+   "text": "web",
+   "speed": 0.6
+  },
+  "pb.slow.wig": {
+   "text": "wig",
+   "speed": 0.6
+  },
+  "pb.slow.wigs": {
+   "text": "wigs",
+   "speed": 0.6
+  },
+  "pb.got.backpack": {
+   "text": "Backpack! Two small words make one big word!"
+  },
+  "pb.got.bag": {
+   "text": "Bag! You read every letter, front to back."
+  },
+  "pb.got.basket": {
+   "text": "Basket! You read it one part at a time."
+  },
+  "pb.got.bat": {
+   "text": "Bat! You read every letter, front to back."
+  },
+  "pb.got.bath": {
+   "text": "Bath! Two letters, one sound!"
+  },
+  "pb.got.bathtub": {
+   "text": "Bathtub! Two small words make one big word!"
+  },
+  "pb.got.beach": {
+   "text": "Beach! Two vowels, one sound!"
+  },
+  "pb.got.bed": {
+   "text": "Bed! You read every letter, front to back."
+  },
+  "pb.got.bee": {
+   "text": "Bee! Two vowels, one sound!"
+  },
+  "pb.got.belt": {
+   "text": "Belt! You blended every sound."
+  },
+  "pb.got.bib": {
+   "text": "Bib! You read every letter, front to back."
+  },
+  "pb.got.bike": {
+   "text": "Bike! You noticed the quiet e at the end!"
+  },
+  "pb.got.bin": {
+   "text": "Bin! You read every letter, front to back."
+  },
+  "pb.got.boat": {
+   "text": "Boat! Two vowels, one sound!"
+  },
+  "pb.got.bone": {
+   "text": "Bone! You noticed the quiet e at the end!"
+  },
+  "pb.got.box": {
+   "text": "Box! You read every letter, front to back."
+  },
+  "pb.got.boxes": {
+   "text": "Boxes! You read the ending, too."
+  },
+  "pb.got.bug": {
+   "text": "Bug! You read every letter, front to back."
+  },
+  "pb.got.bugs": {
+   "text": "Bugs! You read the ending, too."
+  },
+  "pb.got.bun": {
+   "text": "Bun! You read every letter, front to back."
+  },
+  "pb.got.bus": {
+   "text": "Bus! You read every letter, front to back."
+  },
+  "pb.got.buses": {
+   "text": "Buses! You read the ending, too."
+  },
+  "pb.got.cab": {
+   "text": "Cab! You read every letter, front to back."
+  },
+  "pb.got.cactus": {
+   "text": "Cactus! You read it one part at a time."
+  },
+  "pb.got.cake": {
+   "text": "Cake! You noticed the quiet e at the end!"
+  },
+  "pb.got.can": {
+   "text": "Can! You read every letter, front to back."
+  },
+  "pb.got.cane": {
+   "text": "Cane! You noticed the quiet e at the end!"
+  },
+  "pb.got.cap": {
+   "text": "Cap! You read every letter, front to back."
+  },
+  "pb.got.cape": {
+   "text": "Cape! You noticed the quiet e at the end!"
+  },
+  "pb.got.cat": {
+   "text": "Cat! You read every letter, front to back."
+  },
+  "pb.got.catfish": {
+   "text": "Catfish! Two small words make one big word!"
+  },
+  "pb.got.cats": {
+   "text": "Cats! You read the ending, too."
+  },
+  "pb.got.chick": {
+   "text": "Chick! Two letters, one sound!"
+  },
+  "pb.got.chin": {
+   "text": "Chin! Two letters, one sound!"
+  },
+  "pb.got.chip": {
+   "text": "Chip! Two letters, one sound!"
+  },
+  "pb.got.coat": {
+   "text": "Coat! Two vowels, one sound!"
+  },
+  "pb.got.cone": {
+   "text": "Cone! You noticed the quiet e at the end!"
+  },
+  "pb.got.crab": {
+   "text": "Crab! You blended every sound."
+  },
+  "pb.got.crib": {
+   "text": "Crib! You blended every sound."
+  },
+  "pb.got.cub": {
+   "text": "Cub! You read every letter, front to back."
+  },
+  "pb.got.cube": {
+   "text": "Cube! You noticed the quiet e at the end!"
+  },
+  "pb.got.cup": {
+   "text": "Cup! You read every letter, front to back."
+  },
+  "pb.got.cupcake": {
+   "text": "Cupcake! Two small words make one big word!"
+  },
+  "pb.got.dish": {
+   "text": "Dish! Two letters, one sound!"
+  },
+  "pb.got.dishes": {
+   "text": "Dishes! You read the ending, too."
+  },
+  "pb.got.dock": {
+   "text": "Dock! Two letters, one sound!"
+  },
+  "pb.got.dog": {
+   "text": "Dog! You read every letter, front to back."
+  },
+  "pb.got.dogs": {
+   "text": "Dogs! You read the ending, too."
+  },
+  "pb.got.dot": {
+   "text": "Dot! You read every letter, front to back."
+  },
+  "pb.got.drum": {
+   "text": "Drum! You blended every sound."
+  },
+  "pb.got.duck": {
+   "text": "Duck! Two letters, one sound!"
+  },
+  "pb.got.fan": {
+   "text": "Fan! You read every letter, front to back."
+  },
+  "pb.got.fig": {
+   "text": "Fig! You read every letter, front to back."
+  },
+  "pb.got.fin": {
+   "text": "Fin! You read every letter, front to back."
+  },
+  "pb.got.fish": {
+   "text": "Fish! Two letters, one sound!"
+  },
+  "pb.got.fox": {
+   "text": "Fox! You read every letter, front to back."
+  },
+  "pb.got.foxes": {
+   "text": "Foxes! You read the ending, too."
+  },
+  "pb.got.frog": {
+   "text": "Frog! You blended every sound."
+  },
+  "pb.got.goat": {
+   "text": "Goat! Two vowels, one sound!"
+  },
+  "pb.got.ham": {
+   "text": "Ham! You read every letter, front to back."
+  },
+  "pb.got.hat": {
+   "text": "Hat! You read every letter, front to back."
+  },
+  "pb.got.hats": {
+   "text": "Hats! You read the ending, too."
+  },
+  "pb.got.hay": {
+   "text": "Hay! Two vowels, one sound!"
+  },
+  "pb.got.hen": {
+   "text": "Hen! You read every letter, front to back."
+  },
+  "pb.got.hut": {
+   "text": "Hut! You read every letter, front to back."
+  },
+  "pb.got.jet": {
+   "text": "Jet! You read every letter, front to back."
+  },
+  "pb.got.jug": {
+   "text": "Jug! You read every letter, front to back."
+  },
+  "pb.got.kite": {
+   "text": "Kite! You noticed the quiet e at the end!"
+  },
+  "pb.got.kitten": {
+   "text": "Kitten! You read it one part at a time."
+  },
+  "pb.got.lake": {
+   "text": "Lake! You noticed the quiet e at the end!"
+  },
+  "pb.got.leaf": {
+   "text": "Leaf! Two vowels, one sound!"
+  },
+  "pb.got.leg": {
+   "text": "Leg! You read every letter, front to back."
+  },
+  "pb.got.loaf": {
+   "text": "Loaf! Two vowels, one sound!"
+  },
+  "pb.got.log": {
+   "text": "Log! You read every letter, front to back."
+  },
+  "pb.got.logs": {
+   "text": "Logs! You read the ending, too."
+  },
+  "pb.got.magnet": {
+   "text": "Magnet! You read it one part at a time."
+  },
+  "pb.got.mailbox": {
+   "text": "Mailbox! Two small words make one big word!"
+  },
+  "pb.got.map": {
+   "text": "Map! You read every letter, front to back."
+  },
+  "pb.got.mat": {
+   "text": "Mat! You read every letter, front to back."
+  },
+  "pb.got.mitten": {
+   "text": "Mitten! You read it one part at a time."
+  },
+  "pb.got.mop": {
+   "text": "Mop! You read every letter, front to back."
+  },
+  "pb.got.moth": {
+   "text": "Moth! Two letters, one sound!"
+  },
+  "pb.got.muffin": {
+   "text": "Muffin! You read it one part at a time."
+  },
+  "pb.got.mug": {
+   "text": "Mug! You read every letter, front to back."
+  },
+  "pb.got.nail": {
+   "text": "Nail! Two vowels, one sound!"
+  },
+  "pb.got.napkin": {
+   "text": "Napkin! You read it one part at a time."
+  },
+  "pb.got.nest": {
+   "text": "Nest! You blended every sound."
+  },
+  "pb.got.net": {
+   "text": "Net! You read every letter, front to back."
+  },
+  "pb.got.nose": {
+   "text": "Nose! You noticed the quiet e at the end!"
+  },
+  "pb.got.pan": {
+   "text": "Pan! You read every letter, front to back."
+  },
+  "pb.got.pancake": {
+   "text": "Pancake! Two small words make one big word!"
+  },
+  "pb.got.path": {
+   "text": "Path! Two letters, one sound!"
+  },
+  "pb.got.peach": {
+   "text": "Peach! Two vowels, one sound!"
+  },
+  "pb.got.pen": {
+   "text": "Pen! You read every letter, front to back."
+  },
+  "pb.got.picnic": {
+   "text": "Picnic! You read it one part at a time."
+  },
+  "pb.got.pig": {
+   "text": "Pig! You read every letter, front to back."
+  },
+  "pb.got.pigs": {
+   "text": "Pigs! You read the ending, too."
+  },
+  "pb.got.pin": {
+   "text": "Pin! You read every letter, front to back."
+  },
+  "pb.got.plane": {
+   "text": "Plane! You noticed the quiet e at the end!"
+  },
+  "pb.got.plate": {
+   "text": "Plate! You noticed the quiet e at the end!"
+  },
+  "pb.got.plug": {
+   "text": "Plug! You blended every sound."
+  },
+  "pb.got.plum": {
+   "text": "Plum! You blended every sound."
+  },
+  "pb.got.pot": {
+   "text": "Pot! You read every letter, front to back."
+  },
+  "pb.got.pumpkin": {
+   "text": "Pumpkin! You read it one part at a time."
+  },
+  "pb.got.puppet": {
+   "text": "Puppet! You read it one part at a time."
+  },
+  "pb.got.rabbit": {
+   "text": "Rabbit! You read it one part at a time."
+  },
+  "pb.got.rain": {
+   "text": "Rain! Two vowels, one sound!"
+  },
+  "pb.got.raincoat": {
+   "text": "Raincoat! Two small words make one big word!"
+  },
+  "pb.got.rat": {
+   "text": "Rat! You read every letter, front to back."
+  },
+  "pb.got.road": {
+   "text": "Road! Two vowels, one sound!"
+  },
+  "pb.got.rock": {
+   "text": "Rock! Two letters, one sound!"
+  },
+  "pb.got.rope": {
+   "text": "Rope! You noticed the quiet e at the end!"
+  },
+  "pb.got.rose": {
+   "text": "Rose! You noticed the quiet e at the end!"
+  },
+  "pb.got.rug": {
+   "text": "Rug! You read every letter, front to back."
+  },
+  "pb.got.rugs": {
+   "text": "Rugs! You read the ending, too."
+  },
+  "pb.got.sail": {
+   "text": "Sail! Two vowels, one sound!"
+  },
+  "pb.got.sailboat": {
+   "text": "Sailboat! Two small words make one big word!"
+  },
+  "pb.got.sandbox": {
+   "text": "Sandbox! Two small words make one big word!"
+  },
+  "pb.got.seal": {
+   "text": "Seal! Two vowels, one sound!"
+  },
+  "pb.got.seed": {
+   "text": "Seed! Two vowels, one sound!"
+  },
+  "pb.got.shed": {
+   "text": "Shed! Two letters, one sound!"
+  },
+  "pb.got.sheep": {
+   "text": "Sheep! Two vowels, one sound!"
+  },
+  "pb.got.shell": {
+   "text": "Shell! Two letters, one sound!"
+  },
+  "pb.got.ship": {
+   "text": "Ship! Two letters, one sound!"
+  },
+  "pb.got.shop": {
+   "text": "Shop! Two letters, one sound!"
+  },
+  "pb.got.slug": {
+   "text": "Slug! You blended every sound."
+  },
+  "pb.got.snake": {
+   "text": "Snake! You noticed the quiet e at the end!"
+  },
+  "pb.got.soap": {
+   "text": "Soap! Two vowels, one sound!"
+  },
+  "pb.got.sock": {
+   "text": "Sock! Two letters, one sound!"
+  },
+  "pb.got.sun": {
+   "text": "Sun! You read every letter, front to back."
+  },
+  "pb.got.tent": {
+   "text": "Tent! You blended every sound."
+  },
+  "pb.got.toad": {
+   "text": "Toad! Two vowels, one sound!"
+  },
+  "pb.got.top": {
+   "text": "Top! You read every letter, front to back."
+  },
+  "pb.got.train": {
+   "text": "Train! Two vowels, one sound!"
+  },
+  "pb.got.tray": {
+   "text": "Tray! Two vowels, one sound!"
+  },
+  "pb.got.tree": {
+   "text": "Tree! Two vowels, one sound!"
+  },
+  "pb.got.tub": {
+   "text": "Tub! You read every letter, front to back."
+  },
+  "pb.got.tube": {
+   "text": "Tube! You noticed the quiet e at the end!"
+  },
+  "pb.got.twig": {
+   "text": "Twig! You blended every sound."
+  },
+  "pb.got.van": {
+   "text": "Van! You read every letter, front to back."
+  },
+  "pb.got.vest": {
+   "text": "Vest! You blended every sound."
+  },
+  "pb.got.web": {
+   "text": "Web! You read every letter, front to back."
+  },
+  "pb.got.wig": {
+   "text": "Wig! You read every letter, front to back."
+  },
+  "pb.got.wigs": {
+   "text": "Wigs! You read the ending, too."
+  },
+  "pb.k.a": {
+   "text": "apple"
+  },
+  "pb.k.e": {
+   "text": "egg"
+  },
+  "pb.k.i": {
+   "text": "igloo"
+  },
+  "pb.k.o": {
+   "text": "octopus"
+  },
+  "pb.k.u": {
+   "text": "umbrella"
+  },
+  "pb.k.b": {
+   "text": "bell"
+  },
+  "pb.k.c": {
+   "text": "cow"
+  },
+  "pb.k.d": {
+   "text": "duck"
+  },
+  "pb.k.f": {
+   "text": "feather"
+  },
+  "pb.k.g": {
+   "text": "goat"
+  },
+  "pb.k.h": {
+   "text": "horse"
+  },
+  "pb.k.j": {
+   "text": "jelly"
+  },
+  "pb.k.k": {
+   "text": "kite"
+  },
+  "pb.k.l": {
+   "text": "leaf"
+  },
+  "pb.k.m": {
+   "text": "moon"
+  },
+  "pb.k.n": {
+   "text": "nest"
+  },
+  "pb.k.p": {
+   "text": "panda"
+  },
+  "pb.k.r": {
+   "text": "robot"
+  },
+  "pb.k.s": {
+   "text": "seal"
+  },
+  "pb.k.t": {
+   "text": "tiger"
+  },
+  "pb.k.v": {
+   "text": "violin"
+  },
+  "pb.k.w": {
+   "text": "worm"
+  },
+  "pb.k.z": {
+   "text": "zebra"
+  },
+  "pb.s.r01": {
+   "text": "The hen is in the box."
+  },
+  "pb.s.r02": {
+   "text": "The cat is on the bed."
+  },
+  "pb.s.r03": {
+   "text": "The dog is on the rug."
+  },
+  "pb.s.r04": {
+   "text": "A fox is in the van."
+  },
+  "pb.s.r05": {
+   "text": "Zuzu is on the bus."
+  },
+  "pb.s.r06": {
+   "text": "Bobbo is in the tub."
+  },
+  "pb.s.r07": {
+   "text": "The bug is in a cup."
+  },
+  "pb.s.r08": {
+   "text": "The frog is on a log."
+  },
+  "pb.s.r09": {
+   "text": "The goat is in the boat."
+  },
+  "pb.s.r10": {
+   "text": "A duck is on the sled."
+  },
+  "pb.s.r11": {
+   "text": "The cat has a hat."
+  },
+  "pb.s.r12": {
+   "text": "The pig has a bag."
+  },
+  "pb.s.r13": {
+   "text": "My cat is in the bag."
+  },
+  "pb.s.r14": {
+   "text": "The hen was on the log."
+  },
+  "pb.s.r15": {
+   "text": "A rat is on the hat."
+  },
+  "pb.s.r16": {
+   "text": "The dog has a bone."
+  },
+  "pb.s.r17": {
+   "text": "Zuzu has a drum."
+  },
+  "pb.s.r18": {
+   "text": "Bobbo has a kite."
+  },
+  "pb.s.r19": {
+   "text": "The bug is on the cake."
+  },
+  "pb.s.r20": {
+   "text": "The duck is in the lake."
+  },
+  "pb.s.r21": {
+   "text": "A goat is on the rock."
+  },
+  "pb.s.r22": {
+   "text": "The fox is in the box."
+  },
+  "pb.s.r23": {
+   "text": "The pig is in the tub."
+  },
+  "pb.s.r24": {
+   "text": "The frog is in the jug."
+  },
+  "pb.s.r25": {
+   "text": "Bobbo is on the bed."
+  },
+  "pb.s.b01": {
+   "text": "The bug is on a rug."
+  },
+  "pb.s.b02": {
+   "text": "The cat is in the box."
+  },
+  "pb.s.b03": {
+   "text": "Bobbo is in the tub."
+  },
+  "pb.s.b04": {
+   "text": "Zuzu is on the bus."
+  },
+  "pb.s.b05": {
+   "text": "The hen is on the bed."
+  },
+  "pb.s.b06": {
+   "text": "A pig is in the van."
+  },
+  "pb.s.b07": {
+   "text": "The dog has a bone."
+  },
+  "pb.s.b08": {
+   "text": "Is the cat in the box?"
+  },
+  "pb.s.b09": {
+   "text": "Is the frog on the log?"
+  },
+  "pb.s.b10": {
+   "text": "The fox has a hat."
+  },
+  "pb.s.b11": {
+   "text": "The duck is on a sled."
+  },
+  "pb.s.b12": {
+   "text": "A goat is in the boat."
+  },
+  "pb.s.b13": {
+   "text": "The rat is on the hat."
+  },
+  "pb.s.b14": {
+   "text": "Zuzu has a kite."
+  },
+  "pb.s.b15": {
+   "text": "Bobbo has a drum."
+  },
+  "pb.s.b16": {
+   "text": "The bug is in the jug."
+  },
+  "pb.s.b17": {
+   "text": "Is Zuzu in the tub?"
+  },
+  "pb.s.b18": {
+   "text": "The pig has a bag."
+  },
+  "pb.s.b19": {
+   "text": "My dog is on the rug."
+  },
+  "pb.s.b20": {
+   "text": "The hen was in the box."
+  },
+  "pb.s.b21": {
+   "text": "A frog is on the rock."
+  },
+  "pb.s.b22": {
+   "text": "The cat has a cap."
+  },
+  "pb.s.b23": {
+   "text": "Bobbo is on the bus."
+  },
+  "pb.s.b24": {
+   "text": "The goat is on the log."
+  },
+  "pb.s.b25": {
+   "text": "Is the duck in the lake?"
+  },
+  "pb.t.a": {
+   "text": "a."
+  },
+  "pb.t.is": {
+   "text": "is"
+  },
+  "pb.t.my": {
+   "text": "my"
+  },
+  "pb.t.the": {
+   "text": "the"
+  },
+  "pb.t.was": {
+   "text": "was"
+  }
+ }
+}
