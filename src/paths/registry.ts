@@ -55,7 +55,7 @@ export function pathAgeGaps(path: Pick<LearningPath, "worlds">): number[] {
 }
 
 /** The engine's view of a path (ids, ages, levels only). */
-export const toPathDef = (p: LearningPath): PathDef => ({ id: p.id, worlds: p.worlds.map((w) => ({ id: w.id, ages: w.ages, maxLevel: w.maxLevel })) });
+export const toPathDef = (p: LearningPath): PathDef => ({ id: p.id, worlds: p.worlds.map((w) => ({ id: w.id, ages: w.ages, maxLevel: w.maxLevel, handoff: w.handoff, skills: w.skills })) });
 
 export function pathOfWorld(worldId: string, paths: readonly LearningPath[]): LearningPath | undefined {
   return paths.find((p) => p.worlds.some((w) => w.id === worldId));

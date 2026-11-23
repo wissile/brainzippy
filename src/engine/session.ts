@@ -1,4 +1,5 @@
 import { feedbackFor } from "./feedback";
+import { firstTryChance } from "./pathProgress";
 import type { AnswerKey, AnswerValue, Exercise, ExerciseResult, Feedback, HintAction, ValidationResult } from "./types";
 import { answerKeys, correctKeys, correctValue, isSubmittable, nudgeKey, targetOf, validateAnswer, validateSet } from "./validation";
 
@@ -168,5 +169,6 @@ export function toResult(state: ExerciseState): ExerciseResult {
     attempts: state.attempts,
     firstTry: state.attempts === 1,
     hintsShown: state.hintsShown,
+    chance: firstTryChance(state.exercise),
   };
 }

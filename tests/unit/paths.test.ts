@@ -7,11 +7,14 @@ import { planDay, toStored } from "../../src/daily/planner";
 import { emptyDailyLog, type DailyPlanStop } from "../../src/engine/progressSchema";
 import { emptyPathsState } from "../../src/engine/pathProgress";
 import { initPathsOverride, pathsEnabled, visiblePaths } from "../../src/paths/flags";
-import { preferPathWorld } from "../../src/paths/plan";
+import { planWithPath, preferPathWorld } from "../../src/paths/plan";
 import { allPaths, pathAgeGaps, pathWorlds, renderPathTitle, toPathDef } from "../../src/paths/registry";
-import { childAge, currentPath, currentStop, isPathPlay, pathFocus, pickPath, recordRound, setPathPlay } from "../../src/paths/state";
-import { noteText } from "../../src/paths/PathGate";
+import { childAge, childBand, currentPath, currentStop, isPathPlay, pathFocus, pickPath, recordRound, setPathPlay } from "../../src/paths/state";
+import { noteLine, noteText } from "../../src/paths/PathGate";
 import { clearState, loadState, saveState } from "../../src/services/storage";
+import { hasSubjectIcon } from "../../src/paths/SubjectIcon";
+import { buildRound } from "../../src/engine/round";
+import { applyResult, initialProgression, isRoundComplete, markPlayed, selectNextExercise, startDifficultyFor } from "../../src/engine/progression";
 
 const OVERRIDE = "bz.paths.override";
 const withOverride = (on: boolean) => {
@@ -94,7 +97,36 @@ describe("path data in the packs", () => {
     const x = allPaths(reg)[0]!;
     expect(x.title).toBe("Go with Hana");
     expect(pathAgeGaps(x)).toEqual([]);
-    expect(toPathDef(x)).toEqual({ id: "x", worlds: [{ id: "a", ages: [3, 8], maxLevel: 3 }, { id: "b", ages: [9, 14], maxLevel: 3 }] });
+    expect(toPathDef(x)).toEqual({ id: "x", worlds: [{ id: "a", ages: [3, 8], maxLevel: 3, handoff: undefined, skills: ["x.t.s"] }, { id: "b", ages: [9, 14], maxLevel: 3, handoff: undefined, skills: ["x.t.s"] }] });
+  });
+});
+
+describe("picker pictures and hand-off levels", () => {
+  it("every path has its own subject picture (pre-readers tell paths apart)", () => {
+    for (const p of allPaths()) expect(hasSubjectIcon(p.id), p.id).toBe(true);
+  });
+  it("a world's hand-off level, when a pack sets one, is a level of that world", () => {
+    for (const w of registry.worlds) if (w.handoff !== undefined) expect(Number.isInteger(w.handoff) && w.handoff >= 0 && w.handoff <= w.maxLevel, w.id).toBe(true);
+  });
+  it("U1 evidence cap applies to every world: an all-first-try round serves items two levels above the round's level", async () => {
+    const short: string[] = [];
+    for (const w of registry.worlds) {
+      const game = await w.loadDefinition();
+      for (const level of [0, Math.floor(game.progression.maxLevel / 2)]) {
+        const round = buildRound(game, { level, seed: 7 });
+        let st = initialProgression(game.progression, startDifficultyFor(level, game.progression));
+        let top = 0;
+        while (!isRoundComplete(st, game.progression)) {
+          const ex = selectNextExercise(round, st);
+          if (!ex) break;
+          top = Math.max(top, ex.difficulty);
+          st = applyResult(markPlayed(st, ex.id), { exerciseId: ex.id, skillId: ex.skillId, difficulty: ex.difficulty, attempts: 1, firstTry: true, hintsShown: 0 }, game.progression);
+        }
+        // difficulty = level + 1, so a +2 skip needs an item at difficulty level + 3 (or the top)
+        if (top < Math.min(game.progression.maxLevel + 1, level + 3)) short.push(`${w.id}@L${level}: top difficulty ${top}`);
+      }
+    }
+    expect(short).toEqual([]);
   });
 });
 
@@ -128,6 +160,14 @@ describe("PP1: today's plan prefers the path's current world", () => {
     expect(preferPathWorld(full, "p", false)).toEqual(full);
     expect(preferPathWorld([], "p", false)).toEqual([]);
     expect(preferPathWorld([s("a")], undefined, false)).toEqual([s("a")]);
+  });
+  it("D1 warm-up: ONE stop of the previous world, badged like a review, before the path world when neighbours allow", () => {
+    const plan = [s("r", "review"), s("a", "new"), s("b"), s("c", "stretch"), s("d", "pick", ["d", "e"])];
+    expect(planWithPath(plan, { world: "p", warm: "q" }, false)).toEqual([s("r", "review"), s("q", "review"), s("p"), s("c", "stretch"), s("d", "pick", ["d", "e"])]);
+    // already planned as a stretch: that stop becomes the warm-up instead of adding one
+    expect(planWithPath([s("a"), s("b"), s("q", "stretch")], { world: "p", warm: "q" }, false)).toEqual([s("q", "review"), s("b"), s("p")]);
+    expect(planWithPath(plan, { world: "p", warm: null }, false)).toEqual(preferPathWorld(plan, "p", false));
+    expect(planWithPath(plan, null, false)).toEqual(plan);
   });
   it("on real plans (every path × band × limit) the stop count, reviews and P9 variety are kept", () => {
     const worlds = registry.worlds;
@@ -164,19 +204,21 @@ describe("app glue: storage, rounds, plan", () => {
   });
   const pilot = () => visiblePaths().find((p) => p.id === "pilot")!;
   const math = () => visiblePaths().find((p) => p.id === "math")!;
-  const results = (first: number, n = 8) => Array.from({ length: n }, (_, i) => ({ exerciseId: `e${i}`, skillId: "s", difficulty: 1, attempts: i < first ? 1 : 2, firstTry: i < first, hintsShown: i < first ? 0 : 1 }));
+  /** A round: `first` items right first try at difficulty `d` (two-option items have chance 0.5). */
+  const results = (first: number, n = 8, d = 1) => Array.from({ length: n }, (_, i) => ({ exerciseId: `e${i}`, skillId: "s", difficulty: d, attempts: i < first ? 1 : 2, firstTry: i < first, hintsShown: i < first ? 0 : 1, chance: 0 }));
 
-  it("A1 from the stored band; picking a path stores it and seeds the start world's level", () => {
+  it("A1 from the stored band; picking a path stores it and starts the world at level 0 (A3)", () => {
     expect(childAge()).toBe(7);
     expect(childAge(null)).toBe(4);
+    expect(childBand()).toEqual([6, 8]);
     pickPath(math());
     expect(loadState().paths.cur).toBe("math");
     expect(currentPath()?.id).toBe("math");
     const stop = currentStop(math());
-    expect(stop.world.id).toBe("glow-cave-hops"); // first math world containing 7 (5–7)
-    expect(stop.level).toBe(2);
-    expect(loadState().progress.levels?.["glow-cave-hops"]).toBe(2);
-    expect(pathFocus()).toEqual({ path: "math", world: "glow-cave-hops" });
+    expect(stop.world.id).toBe("glow-cave-hops"); // nearest + younger for 7: Glow Cave Hops (5–7)
+    expect(stop.level).toBe(0);
+    expect(loadState().progress.levels?.["glow-cave-hops"]).toBe(0);
+    expect(pathFocus()).toEqual({ path: "math", world: "glow-cave-hops", warm: null });
   });
   it("switching path keeps both paths' stops", () => {
     pickPath(math());
@@ -191,36 +233,49 @@ describe("app glue: storage, rounds, plan", () => {
   const r0 = (world: string, level: number) => saveState({ progress: { ...loadState().progress, levels: { ...loadState().progress.levels, [world]: level } } });
   const lv = (world: string) => loadState().progress.levels?.[world];
 
-  it("records rounds: two easy rounds in a row skip ahead (+2) and the stored level follows", () => {
+  it("records rounds: placement — one easy round in a new world skips ahead as far as the round showed", () => {
     pickPath(pilot());
-    expect(lv("sky-hoops")).toBe(2); // age 7 in 6–9, levels 0..9
-    r0("sky-hoops", 3);
-    expect(recordRound({ gameId: "sky-hoops", level: 2, results: results(8) })?.note).toBeNull();
-    r0("sky-hoops", 4);
-    const r = recordRound({ gameId: "sky-hoops", level: 3, results: results(8) });
-    expect(r?.note).toEqual({ kind: "skip", world: "sky-hoops", level: 5 });
-    expect(lv("sky-hoops")).toBe(5);
-    expect(noteText(r!.note)).toBe("Zoom! You're ready for Level 6!");
+    expect(lv("sky-hoops")).toBe(0);
+    r0("sky-hoops", 1);
+    const r = recordRound({ gameId: "sky-hoops", level: 0, results: results(8, 8, 3) }); // answered difficulty 3 = level 2
+    expect(r?.note).toEqual({ kind: "skip", world: "sky-hoops", level: 2 });
+    expect(lv("sky-hoops")).toBe(2);
+    expect(noteText(r!.note)).toBe("Zoom! You're ready for a bigger challenge!");
   });
-  it("records rounds: the top level moves to the next world; the 3rd path round of the day offers another path", () => {
+  it("records rounds: hand forward at the top level; the 3rd round of the run offers another path after a drop", () => {
     pickPath(math());
     r0("glow-cave-hops", 3);
-    expect(recordRound({ gameId: "glow-cave-hops", level: 2, results: results(8) })?.note).toBeNull();
+    expect(recordRound({ gameId: "glow-cave-hops", level: 2, results: results(8) })?.note).toBeNull(); // nothing above level 2 answered: no skip
     const r = recordRound({ gameId: "glow-cave-hops", level: 3, results: results(6) }); // top level, 75 %
-    expect(r?.note).toEqual({ kind: "next-world", world: "sky-balloon-race", level: 1 });
-    expect(noteText(r!.note)).toBe("Next stop on your path: Sky Balloon Race!");
+    expect(r?.note).toEqual({ kind: "next-world", world: "sky-balloon-race", level: 0 });
+    expect(noteText(r!.note)).toBe("You're ready for the next stop on your path!");
     expect(currentStop(math()).world.id).toBe("sky-balloon-race");
-    expect(lv("sky-balloon-race")).toBe(1);
+    expect(lv("sky-balloon-race")).toBe(0);
     expect(r?.offer).toBeNull();
-    expect(recordRound({ gameId: "sky-balloon-race", level: 1, results: results(5) })?.offer).toBe("tired");
+    expect(recordRound({ gameId: "sky-balloon-race", level: 0, results: results(5) })?.offer).toBe("tired"); // 62.5 % vs 100 %
+    expect(recordRound({ gameId: "sky-balloon-race", level: 0, results: results(1) })?.offer).toBeNull(); // once a day
     expect(recordRound({ gameId: "nope", level: 0, results: results(8) })).toBeNull();
   });
-  it("records rounds: two struggling rounds go one level down", () => {
+  it("records rounds: two struggling rounds go one level down; at level 0–1 of a later world a warm-up joins the next plan", () => {
     pickPath(pilot());
+    r0("sky-hoops", 2);
     recordRound({ gameId: "sky-hoops", level: 2, results: results(2) });
     const r = recordRound({ gameId: "sky-hoops", level: 2, results: results(1) });
-    expect(r?.note).toEqual({ kind: "down", world: "sky-hoops", level: 1 });
+    expect(r?.note).toEqual({ kind: "down", world: "sky-hoops", level: 1, warm: null });
+    expect(noteText(r!.note)).toBe("Great practice! Next time: a warm-up round!");
     expect(lv("sky-hoops")).toBe(1);
+    pickPath(math());
+    r0("glow-cave-hops", 3);
+    recordRound({ gameId: "glow-cave-hops", level: 3, results: results(6) }); // → Sky Balloon Race, level 0
+    recordRound({ gameId: "sky-balloon-race", level: 0, results: results(2) });
+    const w = recordRound({ gameId: "sky-balloon-race", level: 0, results: results(2) });
+    expect(w?.note).toEqual({ kind: "down", world: "sky-balloon-race", level: 0, warm: "glow-cave-hops" });
+    expect(pathFocus()).toEqual({ path: "math", world: "sky-balloon-race", warm: "glow-cave-hops" });
+    expect(lv("glow-cave-hops")).toBe(2); // Hn − 1
+    vi.setSystemTime(new Date(2026, 10, 24, 9, 30));
+    const plan = ensurePlan("2026-11-24");
+    expect(plan.stops.filter((x) => x.w === "glow-cave-hops" && x.k === "review")).toHaveLength(1);
+    expect(plan.stops.find((x) => x.k !== "review" && x.k !== "pick")?.w).toBe("sky-balloon-race");
   });
   it("migration: a device saved before paths existed keeps its progress and gets an empty path state", async () => {
     localStorage.setItem("bz.v1", JSON.stringify({ ageBand: "ages-6-8", muted: true, progress: { v: 1, stickers: ["s"], roundsCompleted: 4, skills: {}, levels: { "sky-hoops": 3 } } }));
@@ -264,22 +319,24 @@ describe("app glue: storage, rounds, plan", () => {
 });
 
 describe("reward notes never frame a step down as failure", () => {
-  it("uses kind words for every note", () => {
-    const texts = [
-      noteText({ kind: "skip", world: "sky-hoops", level: 4 }),
-      noteText({ kind: "next-world", world: "sky-hoops", level: 0 }),
-      noteText({ kind: "down", world: "sky-hoops", level: 1 }),
-      noteText({ kind: "back-world", world: "sky-hoops", level: 9 }),
-      noteText({ kind: "path-end", world: "sky-hoops" }),
-    ];
+  it("shows exactly the spoken line, in kind words", () => {
+    const notes = [
+      { kind: "skip", world: "sky-hoops", level: 4 },
+      { kind: "next-world", world: "sky-hoops", level: 0 },
+      { kind: "down", world: "sky-hoops", level: 1, warm: null },
+      { kind: "down", world: "sky-hoops", level: 0, warm: "x" },
+      { kind: "path-end", world: "sky-hoops" },
+    ] as const;
+    const texts = notes.map((n) => noteText(n));
     expect(texts).toEqual([
-      "Zoom! You're ready for Level 5!",
-      "Next stop on your path: Zephy's Sky Hoops!",
-      "Great practice! Next time: a warm-up on Level 2.",
-      "Great practice! Next time: a warm-up in Zephy's Sky Hoops.",
+      "Zoom! You're ready for a bigger challenge!",
+      "You're ready for the next stop on your path!",
+      "Great practice! Next time: a warm-up round!",
+      "Great practice! Next time: a warm-up round!",
       "You explored the whole path!",
     ]);
-    for (const t of texts) expect(t!.toLowerCase()).not.toMatch(/fail|wrong|too hard|easier|smart|clever/);
+    notes.forEach((n, i) => expect(renderLine(noteLine(n)!)).toBe(texts[i]));
+    for (const t of texts) expect(t!.toLowerCase()).not.toMatch(/fail|wrong|too hard|easier|smart|clever|level \d/);
     expect(noteText(null)).toBeUndefined();
   });
 });
