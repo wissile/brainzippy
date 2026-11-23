@@ -215,7 +215,8 @@ button.pb-boat { cursor: grab; border-radius: 24px; }
   .pb-build-top .pb-hull { width: 64%; max-height: 9cqh; }
   .pb-build-top .pb-mast { height: 1.5cqh; }
   .pb-card-pic { width: clamp(100px, min(36cqw, 17cqh), 240px); }
-  .is-note .pb-card-pic { width: clamp(96px, min(34cqw, 15cqh), 220px); }
+  .is-note .pb-card-pic { width: clamp(88px, min(30cqw, 12.5cqh), 200px); }
+  .pb-build-top.is-note .pb-hull { max-height: 6cqh; }
   .pb-slot-btn { --sw: clamp(64px, min(17cqw, 11cqh), 104px); }
   .is-note .pb-slot-btn { --sw: 64px; }
 }
