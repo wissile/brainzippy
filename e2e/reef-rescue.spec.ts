@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 import { type Locator, type Page, expect, test } from "@playwright/test";
 import { ACTIONS, ANIMALS, FACT_QS, GRAZERS, STORIES, type ChainId, type HomeItemId, type ZoneId, chainValid, homesFor, riskiestRun, runId, weeksAbove } from "../src/games/reef-rescue/facts";
 import { MODES, type ModeName } from "../src/games/reef-rescue/generator";
-import { ONBOARDED, collectErrors, press, screen, seed } from "./helpers";
+import { ONBOARDED, collectErrors, press, screen, seed, whenReady } from "./helpers";
 import { reviewDir } from "./helpers";
 
 /** Ripple's Reef Rescue: place species by drag, tap-tap and keyboard; hints; every level; a full round to the Reef Guardian shell. */
@@ -29,6 +29,7 @@ async function nextExercise(page: Page, prev: string) {
     .not.toBe(prev);
 }
 async function dragTo(page: Page, from: Locator, to: Locator) {
+  await whenReady(from);
   const a = (await from.boundingBox())!;
   const b = (await to.boundingBox())!;
   const ax = a.x + a.width / 2, ay = a.y + a.height / 2, bx = b.x + b.width / 2, by = b.y + b.height / 2;
@@ -45,6 +46,7 @@ const target = (id: string) => `[data-testid="target"][data-value="${id}"]`;
 async function move(page: Page, from: string, to: string, how: Method) {
   if (how === "drag" && !(await isTouch(page))) return dragTo(page, page.locator(from).first(), page.locator(to).first());
   if (how === "keyboard") {
+    await whenReady(page.locator(from).first());
     await page.locator(from).first().focus();
     await page.keyboard.press("Enter");
     // the board moves focus into the reef after a card is lifted; then Tab/focus to the spot we want

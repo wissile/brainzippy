@@ -11,7 +11,7 @@ import {
   speedUpChange,
   weightOf,
 } from "../src/games/rocket-lab/logic";
-import { ONBOARDED, collectErrors, press, screen, seed } from "./helpers";
+import { ONBOARDED, collectErrors, press, screen, seed, whenReady } from "./helpers";
 import { reviewDir } from "./helpers";
 
 /** Dabble's Rocket Lab: build by drag, tap-tap and keyboard; predict; launch; hints; every mode; a full round to the Launch Patch. */
@@ -36,6 +36,7 @@ async function nextExercise(page: Page, prev: string) {
     .not.toBe(prev);
 }
 async function drag(page: Page, from: Locator, to: Locator) {
+  await whenReady(from);
   const a = (await from.boundingBox())!;
   const b = (await to.boundingBox())!;
   const ax = a.x + a.width / 2, ay = a.y + a.height / 2, bx = b.x + b.width / 2, by = b.y + b.height / 2;

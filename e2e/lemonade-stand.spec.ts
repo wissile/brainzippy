@@ -1,7 +1,7 @@
 import { mkdirSync } from "node:fs";
 import { type Locator, type Page, expect, test } from "@playwright/test";
 import { bestIndex, costOf, greedy, ledgerOf, revenue, surveyOf, trayOf } from "../src/games/lemonade-stand/logic";
-import { ONBOARDED, collectErrors, press, screen, seed } from "./helpers";
+import { ONBOARDED, collectErrors, press, screen, seed, whenReady } from "./helpers";
 import { reviewDir } from "./helpers";
 
 /** Budge's Lemonade Stand: pay, change, supplies, customers, savings jar and price slider by drag, tap and keyboard. */
@@ -32,6 +32,7 @@ async function nextExercise(page: Page, prev: string) {
 const isTouch = (page: Page) => page.evaluate(() => matchMedia("(pointer: coarse)").matches);
 
 async function drag(page: Page, from: Locator, to: Locator) {
+  await whenReady(from);
   const a = (await from.boundingBox())!;
   const b = (await to.boundingBox())!;
   const ax = a.x + a.width / 2, ay = a.y + a.height / 2, bx = b.x + b.width / 2, by = b.y + b.height / 2;

@@ -33,6 +33,7 @@ async function nextExercise(page: Page, prev: string) {
     .not.toBe(prev);
 }
 async function drag(page: Page, from: Locator, to: Locator) {
+  await whenReady(from);
   const a = (await from.boundingBox())!;
   const b = (await to.boundingBox())!;
   const [ax, ay, bx, by] = [a.x + a.width / 2, a.y + a.height / 2, b.x + b.width / 2, b.y + b.height / 2];

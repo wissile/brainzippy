@@ -1,5 +1,5 @@
 import { type Locator, type Page, expect, test } from "@playwright/test";
-import { collectErrors, press, screen, seed } from "./helpers";
+import { collectErrors, press, screen, seed, whenReady } from "./helpers";
 
 /** Cookie Kitchen: share cookies onto plates (drag, tap-tap, keyboard), check fairness, answer "N each". */
 
@@ -14,6 +14,7 @@ async function helperGone(page: Page) {
 }
 
 async function drag(page: Page, from: Locator, to: Locator) {
+  await whenReady(from);
   const a = (await from.boundingBox())!;
   const b = (await to.boundingBox())!;
   await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);

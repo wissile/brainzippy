@@ -1,7 +1,7 @@
 import { mkdirSync } from "node:fs";
 import { type Locator, type Page, expect, test } from "@playwright/test";
 import { formatEq, solve } from "../src/games/balance-island/logic";
-import { ONBOARDED, collectErrors, press, screen, seed } from "./helpers";
+import { ONBOARDED, collectErrors, press, screen, seed, whenReady } from "./helpers";
 import { reviewDir } from "./helpers";
 
 /** Balance Scale Island: balance pans by drag, tap-tap and keyboard; hints; word stories; a full round to the sticker. */
@@ -27,6 +27,7 @@ async function enter(page: Page) {
 }
 
 async function drag(page: Page, from: Locator, to: Locator) {
+  await whenReady(from);
   const a = (await from.boundingBox())!;
   const b = (await to.boundingBox())!;
   const ax = a.x + a.width / 2, ay = a.y + a.height / 2, bx = b.x + b.width / 2, by = b.y + b.height / 2;
