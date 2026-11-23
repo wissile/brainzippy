@@ -8,12 +8,15 @@ import { SITE } from "../entity";
  *  - device: localStorage "bz.v1" (profile incl. optional first name, monster, monster name, age band, progress),
  *    "bz.features" (which features are on), cached game files; "Delete all progress" (src/app/screens.tsx) clears the
  *    profile and progress, the reminder device id and the service worker's prefs cache;
- *  - Worker: guest-only production writes nothing to D1 (tests/unit/launch-flags.test.ts), invocation logs are off
+ *  - anonymous play counters (D-033, when ANALYTICS_ENABLED): src/analytics/schema.ts lists every counter; rows are
+ *    (UTC day, event, game, k1, k2, count, total) with no id, cookie, IP or user agent; kept 400 days (purge.ts);
+ *    pending counters wait in localStorage "bz.stats.v1" and "Delete all progress" clears them;
+ *  - Worker: guest-only production writes nothing else to D1 (tests/unit/launch-flags.test.ts), invocation logs are off
  *    (wrangler.jsonc), error lines carry no IP address; Workers Logs keeps them up to 3 days on Workers Free and
  *    7 on Paid (https://developers.cloudflare.com/workers/observability/logs/workers-logs/).
  * Update this page (and docs/legal/PRIVACY_POLICY_DRAFT.md) whenever any of that changes.
  */
-export const PRIVACY_UPDATED = "2026-11-22";
+export const PRIVACY_UPDATED = "2026-11-23";
 /** True when the build has no accounts, payments or friends: the notice then says "guest play only". */
 export const privacyGuestOnly = () => !SITE.features.accounts && !SITE.features.billing && !SITE.features.friends;
 export const privacyDescription = () =>
@@ -37,7 +40,11 @@ export function PrivacyPage() {
         <ul data-testid="privacy-short">
           {!f.accounts && <li><strong>No accounts and no email.</strong> Nobody signs up, and the games never ask for an email address.</li>}
           {!f.billing && <li><strong>No payments.</strong> Every game is free while we're in early access; there is nothing to buy.</li>}
-          <li><strong>No ads and no trackers.</strong> We don't show ads, and there are no analytics or third-party tracking scripts.</li>
+          {f.analytics ? (
+            <li><strong>No ads and no trackers.</strong> We don't show ads and there are no third-party tracking scripts. We count how the games are played, anonymously, to make them better, and you can turn that off (see below).</li>
+          ) : (
+            <li><strong>No ads and no trackers.</strong> We don't show ads, and there are no analytics or third-party tracking scripts.</li>
+          )}
           <li><strong>No chat.</strong> Children can't contact anyone, and nobody can contact them.</li>
           <li><strong>We never ask for photos or location.</strong></li>
         </ul>
@@ -53,10 +60,23 @@ export function PrivacyPage() {
       <Section title="What reaches our server" className="tinted">
         <p>Cloudflare hosts BrainZippy. When you open the site, your browser's requests go through Cloudflare's network, which handles technical information such as your IP address to deliver the pages and protect the site from attacks, as described in Cloudflare's own privacy policy.</p>
         <p>
-          Our own server code stores nothing about guest players. It keeps no record of visits: automatic request logging is switched off.
+          Our own server code stores nothing about guest players{f.analytics ? " apart from the anonymous counts described below" : ""}. It keeps no record of visits: automatic request logging is switched off.
           If something goes wrong, it may write a short error note (what failed, without your IP address), which Cloudflare deletes within a week.
         </p>
       </Section>
+      {f.analytics && (
+        <Section title="Anonymous game statistics">
+          <p data-testid="privacy-analytics">To find out which games and questions are too hard, too easy or confusing, the app counts what happens during play and adds each count to a daily total on our server. It counts:</p>
+          <ul data-testid="privacy-analytics-list">
+            <li><strong>Play:</strong> which game, level and screen was opened; rounds started, finished (with stars and how long they took) or left early; level-ups; each question solved (first try, later, or after the answer was shown, and how many seconds it took); the wrong answers given (a number of up to 4 digits or one of the game's own answer choices, otherwise just "other"); hints shown; thinking-time ranges.</li>
+            <li><strong>Getting started:</strong> which first-run step was reached or skipped, and the age group picked (for example "ages 6–8").</li>
+            <li><strong>The device, roughly:</strong> phone, tablet or computer; whether sound and music were on; reduced motion; whether the app is installed; whether the device was online; how long start-up took (in ranges); the daily game limit chosen and when it was reached; and, if the app crashes, the type of error (not its details).</li>
+          </ul>
+          <p>The counts carry <strong>no name, no account, no device or browser id, no cookie, no IP address and no exact time</strong>, only the day, and the age group and device type are counted separately. Names your child types are never counted. We can't tell which child, device or family a count came from. On a day when very few children play, though, that day's totals describe only those few sessions.</p>
+          <p>Counts are kept for up to 400 days. Counts waiting to be sent stay on this device only until they're sent; <strong>Delete all progress</strong> removes them.</p>
+          <p data-testid="privacy-analytics-optout"><strong>Turning it off:</strong> on the <a href="/grown-ups">grown-ups page</a>, switch "Sharing anonymous counts" off; nothing is counted on that device from then on. If your browser sends the Global Privacy Control signal, nothing is counted. We don't use Google Analytics or any other outside analytics service.</p>
+        </Section>
+      )}
       {f.push && (
         <Section title="Daily reminders (optional)">
           <p>A grown-up can choose to get one notification a day on this device. Only then, we store a random device number, the address your browser gives us for sending notifications, the hour you picked and your time zone. No names.</p>

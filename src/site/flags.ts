@@ -19,11 +19,13 @@ export interface SiteFlags {
    * that still lack it (over-disclosure, never under-disclosure); the app itself follows /api/config.
    */
   push?: boolean;
+  /** ANALYTICS_ENABLED is "true": anonymous aggregate play counters (D-033). */
+  analytics?: boolean;
 }
 
 export const SITE_FLAGS_GLOBAL = "__BZ_SITE_FLAGS__";
 
 export function siteFlags(): Required<SiteFlags> {
   const g = (globalThis as Record<string, unknown>)[SITE_FLAGS_GLOBAL] as Partial<SiteFlags> | undefined;
-  return { billing: g?.billing === true, accounts: g?.accounts === true, friends: g?.friends === true, push: g?.push === true };
+  return { billing: g?.billing === true, accounts: g?.accounts === true, friends: g?.friends === true, push: g?.push === true, analytics: g?.analytics === true };
 }

@@ -51,16 +51,23 @@ export const friendsEnabled = (env: Env): boolean => accountsEnabled(env) && fla
 export const pushEnabled = (env: Env): boolean =>
   typeof env.VAPID_PUBLIC_KEY === "string" && env.VAPID_PUBLIC_KEY.trim().length > 0 && typeof env.VAPID_PRIVATE_KEY === "string" && env.VAPID_PRIVATE_KEY.length > 0;
 
-export type Feature = "accounts" | "billing" | "friends" | "push";
+/**
+ * ANALYTICS_ENABLED: anonymous, aggregate play statistics (D-033, src/analytics/schema.ts). Independent of accounts:
+ * it stores counters only, never anything that identifies a child or device.
+ */
+export const analyticsEnabled = (env: Env): boolean => flagOn(env.ANALYTICS_ENABLED);
+
+export type Feature = "accounts" | "billing" | "friends" | "push" | "analytics";
 export interface PublicConfig {
   accounts: boolean;
   billing: boolean;
   friends: boolean;
   push: boolean;
+  analytics: boolean;
 }
 /** What GET /api/config tells the app. Booleans only: no ids, no keys, nothing about the visitor. */
-export const publicConfig = (env: Env): PublicConfig => ({ accounts: accountsEnabled(env), billing: billingEnabled(env), friends: friendsEnabled(env), push: pushEnabled(env) });
-const FEATURE_CHECKS: Record<Feature, (env: Env) => boolean> = { accounts: accountsEnabled, billing: billingEnabled, friends: friendsEnabled, push: pushEnabled };
+export const publicConfig = (env: Env): PublicConfig => ({ accounts: accountsEnabled(env), billing: billingEnabled(env), friends: friendsEnabled(env), push: pushEnabled(env), analytics: analyticsEnabled(env) });
+const FEATURE_CHECKS: Record<Feature, (env: Env) => boolean> = { accounts: accountsEnabled, billing: billingEnabled, friends: friendsEnabled, push: pushEnabled, analytics: analyticsEnabled };
 export const featureEnabled = (env: Env, f: Feature): boolean => FEATURE_CHECKS[f](env);
 
 /** Version of the consent wording shown next to the checkbox (src/account/consent.ts). Bump when the wording changes. */

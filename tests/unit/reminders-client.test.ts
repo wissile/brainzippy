@@ -10,7 +10,7 @@ import { PUSH_STORAGE_KEY, SW_PREFS_CACHE, forgetReminders, preparePush } from "
 
 const DEVICE = "11111111-1111-4111-8111-111111111111";
 const KEY = "BP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A8"; // RFC 8291 sample (test only)
-const config = (push: boolean) => vi.fn(async () => new Response(JSON.stringify({ accounts: false, billing: false, friends: false, push }))) as unknown as typeof fetch;
+const config = (push: boolean) => vi.fn(async () => new Response(JSON.stringify({ accounts: false, billing: false, friends: false, push, analytics: false }))) as unknown as typeof fetch;
 
 let cacheDelete: ReturnType<typeof vi.fn>;
 beforeEach(() => {

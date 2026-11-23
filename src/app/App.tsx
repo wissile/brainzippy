@@ -10,11 +10,14 @@ import { Onboarding } from "../onboarding/Onboarding";
 import { startAccountSync } from "../services/accountSync";
 import { startFeatures } from "./features";
 import { PlayGate } from "../billing/PlayGate";
+import { recordAppStart, recordScreen } from "../analytics/record";
 
 // Parent area + friend challenges (lazy: never loaded during normal play).
 const ParentsApp = lazy(() => import("../account/ParentsApp"));
 const ChallengeScreen = lazy(() => import("../account/ChallengeScreen"));
 const PlanScreen = lazy(() => import("../billing/PlanScreen"));
+// Owner's anonymous play statistics (D-033): needs the ANALYTICS_TOKEN key; never loaded during play.
+const Insights = lazy(() => import("../analytics/Insights"));
 // Optional features (accounts, billing, friends, push) from GET /api/config; cached, never blocks the first render.
 void startFeatures();
 startAccountSync();
@@ -49,7 +52,9 @@ function Router() {
   useEffect(() => {
     const world = getWorld(path.match(/^\/play\/([a-z0-9-]+)$/)?.[1] ?? "");
     document.title = world ? worldTitle(world) : (TITLES[path] ?? "BrainZippy");
+    recordScreen(path, world?.id);
   }, [path]);
+  useEffect(() => recordAppStart(), []);
 
   // "/" is the prerendered landing page on a full load; inside the app it means "home" = map or first-run story.
   if (path === "/") return <RootRedirect />;
@@ -78,6 +83,12 @@ function Router() {
       </Suspense>
     );
   if (path === "/explore") return <MapScreen view="explore" />;
+  if (path === "/insights")
+    return (
+      <Suspense fallback={<Loading />}>
+        <Insights />
+      </Suspense>
+    );
   if (path === "/studio" && Studio)
     return (
       <Suspense fallback={<Loading />}>

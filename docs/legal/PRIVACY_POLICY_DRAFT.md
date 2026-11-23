@@ -27,7 +27,8 @@ BrainZippy ("we", "us") makes learning games for children aged 3–14 at brainzi
 - Children can play **without an account**. Guest play stores progress only in the browser on your device.
 - Only a **parent or guardian** can create an account, using **their own email**. We never ask for a child's email, password, photo, voice or location.
 - Your child's **first name stays on your device**. The name your child gives their monster also stays on your device. On our servers, each child profile has a made-up **public name** built from fixed word lists (for example "Sunny Bobblefin"), which you can change. A nickname is stored only if you turn that on.
-- No ads, no tracking or analytics scripts on children's pages, no chat, no public profiles.
+- No ads, no third-party tracking or analytics scripts on children's pages, no chat, no public profiles.
+- Anonymous play statistics (D-033): daily aggregate counters of game events (e.g. round finished, question answered wrongly with 7, onboarding step reached, device class, age band), with no name, account, device or browser id, cookie, IP address or exact time. Kept 400 days. **Lawyer to confirm** this needs no parental consent (COPPA "support for internal operations"; GDPR anonymous data; ePrivacy for the short-lived local queue).
 - You can download or delete your data at any time from the parent area.
 
 ## 3. What we collect

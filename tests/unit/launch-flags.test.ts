@@ -118,11 +118,11 @@ describe("deploy guard (scripts/check-guest-flags.mjs)", () => {
 });
 
 describe("GET /api/config", () => {
-  it("returns exactly four booleans, cacheable for 5 minutes, with no cookie and no personal data", async () => {
+  it("returns exactly five booleans, cacheable for 5 minutes, with no cookie and no personal data", async () => {
     const t = fakeEnv(OFF);
     const res = await handleApi(new Request(`${O}/api/config`, { headers: { cookie: "__Host-bz_sid=abc" } }), t.env);
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ accounts: false, billing: false, friends: false, push: false });
+    expect(await res.json()).toEqual({ accounts: false, billing: false, friends: false, push: false, analytics: false });
     expect(res.headers.get("cache-control")).toBe("public, max-age=300");
     expect(res.headers.get("set-cookie")).toBeNull();
     expect(res.headers.get("x-content-type-options")).toBe("nosniff");
@@ -130,11 +130,11 @@ describe("GET /api/config", () => {
 
   it("reflects the flags and their dependencies", async () => {
     const body = async (o: Record<string, string>) => (await (await handleApi(new Request(`${O}/api/config`), fakeEnv({ ...OFF, ...o }).env)).json()) as Record<string, boolean>;
-    expect(await body({ ACCOUNTS_ENABLED: "true", BILLING_ENABLED: "true", FRIENDS_ENABLED: "true", VAPID_PUBLIC_KEY: "BPub", VAPID_PRIVATE_KEY: "priv" })).toEqual({ accounts: true, billing: true, friends: true, push: true });
+    expect(await body({ ACCOUNTS_ENABLED: "true", BILLING_ENABLED: "true", FRIENDS_ENABLED: "true", VAPID_PUBLIC_KEY: "BPub", VAPID_PRIVATE_KEY: "priv", ANALYTICS_ENABLED: "true" })).toEqual({ accounts: true, billing: true, friends: true, push: true, analytics: true });
     expect(await body({ VAPID_PUBLIC_KEY: "BPub" })).toMatchObject({ push: false }); // public key alone is not enough
-    expect(await body({ BILLING_ENABLED: "true", FRIENDS_ENABLED: "true" })).toEqual({ accounts: false, billing: false, friends: false, push: false });
-    expect(await body({ ACCOUNTS_ENABLED: "true" })).toEqual({ accounts: true, billing: false, friends: false, push: false });
-    expect(publicConfig(fakeEnv().env)).toEqual({ accounts: true, billing: true, friends: true, push: false });
+    expect(await body({ BILLING_ENABLED: "true", FRIENDS_ENABLED: "true" })).toEqual({ accounts: false, billing: false, friends: false, push: false, analytics: false });
+    expect(await body({ ACCOUNTS_ENABLED: "true" })).toEqual({ accounts: true, billing: false, friends: false, push: false, analytics: false });
+    expect(publicConfig(fakeEnv().env)).toEqual({ accounts: true, billing: true, friends: true, push: false, analytics: false });
   });
 });
 

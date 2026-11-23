@@ -70,10 +70,11 @@ Note that once the two secrets exist, every push to `main` also deploys **stagin
 | Billing: plan page, Stripe Checkout and portal, free-access codes, webhook, the day-15 paywall and trial clock | `BILLING_ENABLED` (needs accounts) | `"false"` | `"true"` |
 | Friends, leaderboard, challenges | `FRIENDS_ENABLED` (needs accounts) | `"false"` | `"true"` |
 | Daily reminders (web push) | `VAPID_PUBLIC_KEY` non-empty **and** the `VAPID_PRIVATE_KEY` secret set | off (no keys) | off (no keys) |
+| Anonymous play statistics (aggregate counters, no ids/cookies/IPs, D-033) and the owner's `/insights` dashboard | `ANALYTICS_ENABLED`; reading needs the `ANALYTICS_TOKEN` secret | `"true"` | `"true"` |
 
 A flag is on only when its value is exactly `"true"`. When a flag is off:
 - the Worker answers **404** on its routes (indistinguishable from a route that doesn't exist), before any rate limiting, and its cron job does nothing. With accounts off this includes the digest unsubscribe link (`/api/unsubscribe`); with reminders off, every `/api/push/*` route;
-- the app reads `GET /api/config` (`{accounts, billing, friends, push}`, cached for 5 minutes) and hides everything that belongs to the feature: the reminders section and any mention of reminders disappear, the onboarding grown-up email step is skipped, `/parents` says "Grown-up accounts are coming soon. Progress is saved on this device.", there is no paywall, `/plan` has nothing to buy and grown-up copy says "Free while we're in early access";
+- the app reads `GET /api/config` (`{accounts, billing, friends, push, analytics}`, cached for 5 minutes) and hides everything that belongs to the feature: the reminders section and any mention of reminders disappear, the onboarding grown-up email step is skipped, `/parents` says "Grown-up accounts are coming soon. Progress is saved on this device.", there is no paywall, `/plan` has nothing to buy and grown-up copy says "Free while we're in early access";
 - the public site is built without the `/pricing` page or any price, and its privacy notice (`/privacy`) describes only features that are on (it reads the flags of the environment being built).
 
 Always on: guest play, offline play, local progress, the daily game limit, the early-access privacy notice and the nightly retention purge.
@@ -108,6 +109,23 @@ The first migrate step means that on later deploys the schema is updated before 
 - **See production locally:** `npm run e2e:launch` builds, overrides the three flags to `"false"` in the preview copy only (`scripts/preview-vars.mjs`), and runs the guest-launch browser checks.
 
 ## 4. Turning features on later
+
+### Anonymous play statistics and the `/insights` dashboard (`ANALYTICS_ENABLED`, on)
+
+Counting is on everywhere and needs no secret. To **read** the numbers, set an owner key once:
+1. Make a long random key (password manager, or `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`).
+2. Cloudflare dashboard → Workers & Pages → brainzippy → Settings → Variables and Secrets → **Add** → type **Secret**,
+   name `ANALYTICS_TOKEN`, value = the key → Deploy. (Or `npx wrangler secret put ANALYTICS_TOKEN`.)
+3. Open `https://brainzippy.com/insights` and paste the key. It is kept only in that browser tab.
+
+Without the secret (or with one shorter than 32 characters) `/api/insights` answers 404 and nobody can read the
+counts. Use a random key (`openssl rand -base64 32`), not a word.
+
+Capacity and abuse: each active child causes roughly 100 D1 row writes a day, so Workers Free (100,000 writes/day,
+shared with everything else in D1) covers about 1,000 children a day; upgrade to Workers Paid before that. Writes are
+limited per IP by the `STATS_LIMITER` binding (20 batches/minute). If someone floods `/api/play-stats` anyway, add a
+Cloudflare WAF rate-limiting rule for that path, or set `ANALYTICS_ENABLED` to `"false"` until it passes. What is counted and why it can't identify a child: `src/analytics/schema.ts`, D-033. To switch counting
+off, set `ANALYTICS_ENABLED` to `"false"`: the app then sends nothing and drops what it had queued.
 
 Each feature needs: **legal review → publish the final privacy policy in place of the early-access notice → secrets and settings → flip the flag → deploy**. Flip a flag by changing `"false"` to `"true"` under `env.production.vars` in `wrangler.jsonc`, then run *Deploy → production* **with `allow_features` ticked**: the deploy guard (`scripts/check-guest-flags.mjs`) fails any production deploy where `ACCOUNTS_ENABLED`, `BILLING_ENABLED` or `FRIENDS_ENABLED` is not `"false"` unless that box is ticked, so a flag can't go live by accident in an unrelated release. Tick it on every production deploy from then on. The post-deploy smoke test still checks that the live flags match the build. Open apps pick the change up within about five minutes (the `/api/config` cache).
 

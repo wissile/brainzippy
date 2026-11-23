@@ -104,7 +104,7 @@ test("push reminders: permission is requested only after the grown-up's tap; sub
   });
   const VAPID_PUBLIC = "BP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A8"; // RFC 8291 sample key (test only)
   // Reminders are shown only when the deployment has push configured (/api/config push); local dev has no VAPID keys.
-  await page.route("**/api/config", (r) => r.fulfill({ json: { accounts: true, billing: true, friends: true, push: true } }));
+  await page.route("**/api/config", (r) => r.fulfill({ json: { accounts: true, billing: true, friends: true, push: true, analytics: false } }));
   let keyFetched = false;
   await page.route("**/api/push/key", (r) => ((keyFetched = true), r.fulfill({ json: { publicKey: VAPID_PUBLIC } })));
   let unsubscribed: Record<string, unknown> | null = null;

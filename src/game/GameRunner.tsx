@@ -7,6 +7,10 @@ import { buildRound } from "../engine/round";
 import { choicesOf, targetOf } from "../engine/validation";
 import { type GuestProgress } from "../engine/progressSchema";
 import { type ExerciseEvent, type ExerciseState, exerciseReducer, initExercise, toResult } from "../engine/session";
+import { beforePageLeave, track } from "../analytics/track";
+import { previousScreen } from "../analytics/record";
+import { answerDim, outcomeFor, quitBucket, secondsBucket } from "../analytics/schema";
+import { roundStars } from "../account/points";
 import type { Exercise, GameDefinition, MascotState, ProgressionState, Round, SfxId } from "../engine/types";
 import { loadState, saveState } from "../services/storage";
 import { Monster } from "../characters/Monster";
@@ -161,6 +165,22 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
   const [newSticker, setNewSticker] = useState(false);
   const token = useRef(0); // invalidates async presentation sequences
   const lastInteraction = useRef(Date.now());
+  // anonymous play statistics (D-033): when the exercise / round started, and whether the round is still open
+  const exShownAt = useRef(Date.now());
+  const roundStartedAt = useRef(0);
+  const roundOpen = useRef(false);
+  const solvedInRound = useRef(0);
+  const stageRef = useRef<Stage>(stage);
+  stageRef.current = stage;
+  const levelRef = useRef(level);
+  levelRef.current = level;
+  /** Count a round start (from startRound and "Again"). */
+  const countRoundStart = (lvl: number, from: string) => {
+    roundStartedAt.current = Date.now();
+    roundOpen.current = true;
+    solvedInRound.current = 0;
+    track("round_start", { game: game.id, k1: `L${lvl}`, k2: from });
+  };
 
   const sleep = (ms: number, t: number) =>
     new Promise<boolean>((res) => window.setTimeout(() => res(t === token.current), ms));
@@ -170,6 +190,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
     (ex: Exercise, p: ProgressionState, r: Round) => {
       const next = initExercise(ex);
       stRef.current = next;
+      exShownAt.current = Date.now();
       setSt(next);
       setAlongIndex(-1);
       setPointer(null);
@@ -193,9 +214,11 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
     const current = resume?.currentId ? round.exercises.find((e) => e.id === resume.currentId) : undefined;
     const ex = current ?? selectNextExercise(round, p);
     if (!ex) return;
+    const from = previousScreen();
+    countRoundStart(round.level, resume ? "resume" : from === "map" || from === "explore" ? from : "");
     setStage("play");
     loadExercise(ex, p, round);
-  }, [loadExercise, resume, unlockAudio, freshProgression, round]);
+  }, [loadExercise, resume, unlockAudio, freshProgression, round]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const act = useCallback((ev: ExerciseEvent) => {
     const prev = stRef.current;
@@ -279,6 +302,21 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
     const sfx = !fb.correct && skin.missSfx !== undefined ? skin.missSfx : { id: fb.sfx };
     if (sfx) audio.play(sfx.id, sfx);
     setMascot(fb.mascot);
+    // anonymous play statistics (D-033): think time, wrong answers, hints, solves
+    {
+      const sec = (Date.now() - exShownAt.current) / 1000;
+      if (s.attempts === 1) track("think", { game: game.id, k1: secondsBucket(sec) });
+      if (fb.correct) {
+        const outcome = outcomeFor(s.attempts, s.activeHints.includes("model-answer"));
+        track("ex_done", { game: game.id, k1: ex.id, k2: outcome, total: sec });
+        track("skill_done", { game: game.id, k1: `${ex.skillId}@d${ex.difficulty}`, k2: outcome, total: sec });
+        solvedInRound.current += 1;
+      } else {
+        track("wrong", { game: game.id, k1: ex.id, k2: answerDim(ex.interaction === "make-set" ? s.basket.length : s.lastAnswer) });
+        for (const h of fb.hints) if (h !== "none") track("hint", { game: game.id, k1: ex.id, k2: h });
+        if (s.attempts === 1 && skin.helper && ex.interaction !== "make-set") track("hint", { game: game.id, k1: ex.id, k2: "helper" });
+      }
+    }
 
     const countAlong = async () => {
       const n = skin.alongSteps?.(ex) ?? defaultAlongSteps(ex);
@@ -375,6 +413,13 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
     // R0: level up only when at least half the round was solved first try; otherwise practise this level again
     const after = levelAfterRound(level, prog.results, game.progression);
     setLeveledUp(after.leveledUp);
+    if (roundOpen.current) {
+      roundOpen.current = false;
+      const firstTry = prog.results.filter((r) => r.firstTry).length;
+      const secs = roundStartedAt.current ? (Date.now() - roundStartedAt.current) / 1000 : 0;
+      track("round_done", { game: game.id, k1: `L${level}`, k2: `s${roundStars(prog.results.length, firstTry)}`, total: secs });
+      if (after.leveledUp) track("level_up", { game: game.id, k1: `L${after.level}` });
+    }
     progress.levels = { ...progress.levels, [game.id]: after.level };
     for (const r of prog.results) {
       const tally = (progress.skills[r.skillId] ??= { attempts: 0, firstTry: 0, completed: 0 });
@@ -451,10 +496,21 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [stage, act]);
 
-  useEffect(() => () => {
-    token.current++;
-    audio.stopVoice();
-  }, []);
+  useEffect(() => {
+    // a round left open counts as "left early", whether by in-app navigation (unmount) or closing/reloading the page
+    const countQuit = () => {
+      if (!roundOpen.current || stageRef.current !== "play") return;
+      roundOpen.current = false;
+      track("round_quit", { game: game.id, k1: `L${levelRef.current}`, k2: quitBucket(solvedInRound.current) });
+    };
+    const off = beforePageLeave(countQuit);
+    return () => {
+      off();
+      token.current++;
+      audio.stopVoice();
+      countQuit();
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const replay = () => {
     const s = stRef.current;
@@ -547,6 +603,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
                   setRound(r);
                   setProg(p);
                   setNewSticker(false);
+                  countRoundStart(r.level, "again");
                   setStage("play");
                   loadExercise(first, p, r);
                 }}

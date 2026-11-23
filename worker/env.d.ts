@@ -29,6 +29,12 @@ interface Env {
   VAPID_PRIVATE_KEY?: string;
   /** Contact for push services, e.g. "mailto:hello@brainzippy.com" (var). */
   VAPID_SUBJECT?: string;
+  /** "true" turns on anonymous aggregate play statistics: POST /api/play-stats and the owner's /insights (var, D-033). */
+  ANALYTICS_ENABLED?: string;
+  /** Workers Rate Limiting binding for POST /api/play-stats (wrangler.jsonc `ratelimits`). Missing (tests) = no limit. */
+  STATS_LIMITER?: { limit(opts: { key: string }): Promise<{ success: boolean }> };
+  /** Owner's key for GET /api/insights and the /insights dashboard (secret, ≥32 characters). Missing = no one can read. */
+  ANALYTICS_TOKEN?: string;
   /** "true" re-enables anonymous guest progress writes (/api/guest). Off by default: client sync is off (D-011). */
   GUEST_SYNC_ENABLED?: string;
 }

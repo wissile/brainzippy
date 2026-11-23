@@ -1,3 +1,4 @@
+import { track } from "../analytics/track";
 import { useState } from "react";
 import { DAILY_LIMIT, getDailySettings, setDailyLimit } from "./settings";
 
@@ -55,6 +56,7 @@ export function DailyLimitSetting() {
             data-testid="daily-limit-save"
             onClick={() => {
               void setDailyLimit(draft).then((n) => {
+                track("daily", { k1: "limit-changed", k2: String(n) });
                 setLimit(n);
                 setMode("saved");
               });

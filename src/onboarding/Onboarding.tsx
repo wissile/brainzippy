@@ -1,3 +1,4 @@
+import { track } from "../analytics/track";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { audio } from "../audio/AudioEngine";
 import { useApp } from "../app/AppContext";
@@ -51,6 +52,10 @@ export function Onboarding() {
     update({ step: to });
     if (to === "done") navigate("/map", { replace: true });
   }, [update, navigate, order]);
+
+  useEffect(() => {
+    track("onb_step", { k1: step });
+  }, [step]);
 
   useEffect(() => {
     if (step === "done") {
@@ -497,7 +502,7 @@ function GrownUp({ onDone }: { onDone: (s: "pending" | "skipped") => void }) {
             <input id="onb-gate" data-testid="onb-gate-answer" inputMode="numeric" autoComplete="off" value={answer} onChange={(e) => setAnswer(e.target.value.replace(/\D/g, "").slice(0, 3))} />
             <button type="submit" className="pill-btn" data-testid="onb-gate-ok">OK</button>
           </form>
-          <button type="button" className="text-btn" data-testid="grownup-skip" onClick={() => onDone("skipped")}>Skip for now</button>
+          <button type="button" className="text-btn" data-testid="grownup-skip" onClick={() => { track("onb_step", { k1: "grownup", k2: "skip" }); onDone("skipped"); }}>Skip for now</button>
         </div>
       )}
       {phase === "form" && (
@@ -522,7 +527,7 @@ function GrownUp({ onDone }: { onDone: (s: "pending" | "skipped") => void }) {
           </label>
           {error && <p role="alert" className="form-error">{error}</p>}
           <div className="row">
-            <button type="button" className="text-btn" data-testid="parent-skip" onClick={() => onDone("skipped")}>Skip for now</button>
+            <button type="button" className="text-btn" data-testid="parent-skip" onClick={() => { track("onb_step", { k1: "grownup", k2: "skip" }); onDone("skipped"); }}>Skip for now</button>
             <button type="submit" className="pill-btn" data-testid="parent-submit" disabled={busy}>Send confirmation</button>
           </div>
         </form>

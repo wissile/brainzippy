@@ -1,3 +1,4 @@
+import { track } from "../analytics/track";
 import { useEffect, useMemo, useState } from "react";
 import { useSpeakWhenReady } from "./useSpeakWhenReady";
 import { useApp } from "../app/AppContext";
@@ -71,6 +72,8 @@ export function EndOfDay() {
   // the whole scene is voiced; if audio is still locked (full page load) it replays after the first tap
   useSpeakWhenReady(() => ["daily.end.title", "daily.end.yawn", "daily.end.recap", ...played.slice(0, 3).map((w) => recapLine(w.id)), teaser?.isNew ? "daily.teaser.new" : "daily.teaser.more", "daily.end.tomorrow"]);
   useEffect(() => {
+    track("daily", { k1: "limit-reached" });
+    track("screen", { k1: "end-of-day" });
     void audio.playMusic("island");
     const t = window.setTimeout(() => setAsleep(true), reducedMotion ? 1200 : 2600);
     return () => {

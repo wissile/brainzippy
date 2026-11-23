@@ -18,8 +18,10 @@
 | Mute setting, coarse age band (e.g. "ages-3-5") | browser localStorage | no (the band also appears in the `/play/ages-3-5` URL path on navigation; coarse, low risk) | UX | until cleared |
 | Stickers, rounds completed, per-skill tallies | localStorage | no | progress | until cleared |
 | In-progress round snapshot | localStorage | no | refresh-safe resume | cleared at round end |
+| Pending anonymous play counters (D-033) | localStorage `bz.stats.v1` | no (counts keyed by event and our own ids; no identifier) | improving games | until sent (≤1 min online) or "Delete all progress" |
+| Anonymous play counters (D-033) | D1 `play_stats` (day, event, game, k1, k2, count, total) | no: aggregate, no id/IP/UA/time — **lawyer to confirm** | improving games (`/insights`, owner only) | 400 days (daily purge) |
 | ~~Random guest UUID + progress JSON~~ | D1 `guest_sessions` | — | **Client sync is OFF** (D-011): guest play sends nothing until a parent-controlled restore path exists, and since the 2026-11-18 security review the write endpoints (`POST /api/guest`, `PUT /api/guest/:id/progress`) answer 404 unless `GUEST_SYNC_ENABLED="true"` (then rate-limited per IP: 20 creates / 240 writes per hour). GET/DELETE remain so existing rows can be read or deleted | purge cron (180 days) remains for safety |
-Not collected: names, emails, birthdates, photos, voice, location, contacts, device fingerprints, ad IDs. No cookies. No analytics or third-party scripts; fonts self-hosted. Request IP addresses are processed by Cloudflare for delivery but not stored by the app. Workers invocation logs (which would retain request URLs) are disabled in `wrangler.jsonc`.
+Not collected: names, emails, birthdates, photos, voice, location, contacts, device fingerprints, ad IDs. No cookies. No third-party analytics or scripts; fonts self-hosted. First-party anonymous play statistics (D-033) are daily aggregate counters with no identifier of any kind; pending counts wait in localStorage `bz.stats.v1` (cleared by "Delete all progress"); D1 rows kept 400 days. Request IP addresses are processed by Cloudflare for delivery but not stored by the app. Workers invocation logs (which would retain request URLs) are disabled in `wrangler.jsonc`.
 
 ## Parent accounts (Phase 1, migration 0003) — data inventory
 | Data | Where | Personal? | Purpose | Retention |

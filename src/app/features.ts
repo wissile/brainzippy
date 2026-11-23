@@ -17,18 +17,20 @@ export interface Features {
   friends: boolean;
   /** Daily reminders (VAPID public key configured). */
   push: boolean;
+  /** Anonymous aggregate play statistics (ANALYTICS_ENABLED, D-033). */
+  analytics: boolean;
 }
 
-export const ALL_OFF: Features = Object.freeze({ accounts: false, billing: false, friends: false, push: false });
+export const ALL_OFF: Features = Object.freeze({ accounts: false, billing: false, friends: false, push: false, analytics: false });
 const KEY = "bz.features";
-const NAMES = ["accounts", "billing", "friends", "push"] as const;
+const NAMES = ["accounts", "billing", "friends", "push", "analytics"] as const;
 
-/** Strict: exactly the four keys, each a boolean. Anything else is ignored (never trusted). */
+/** Strict: exactly the known keys, each a boolean. Anything else is ignored (never trusted). */
 export function parseFeatures(x: unknown): Features | null {
   if (!x || typeof x !== "object" || Array.isArray(x)) return null;
   const o = x as Record<string, unknown>;
   if (Object.keys(o).length !== NAMES.length || !NAMES.every((k) => typeof o[k] === "boolean")) return null;
-  const f = { accounts: o.accounts === true, billing: o.billing === true, friends: o.friends === true, push: o.push === true };
+  const f = { accounts: o.accounts === true, billing: o.billing === true, friends: o.friends === true, push: o.push === true, analytics: o.analytics === true };
   // Same dependencies as the Worker: billing and friends need accounts.
   return { ...f, billing: f.accounts && f.billing, friends: f.accounts && f.friends };
 }

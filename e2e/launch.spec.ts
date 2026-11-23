@@ -16,11 +16,13 @@ test.beforeEach(async ({ request }, info) => {
   test.skip(flags.accounts !== false || flags.billing !== false || flags.friends !== false, "needs production flags: npm run e2e:launch");
 });
 
-/** Records every non-GET request and every request to an account/billing API. */
+/** Records every non-GET request (except anonymous play counters) and every request to an account/billing API. */
 function watchRequests(page: Page) {
   const sent: string[] = [];
   page.on("request", (r) => {
     const path = new URL(r.url()).pathname;
+    // anonymous play counters (D-033) are allowed; e2e/analytics.spec.ts checks what they contain
+    if (path === "/api/play-stats") return;
     if (r.method() !== "GET" || /^\/api\/(auth|parent-signup|me|children|billing|friends|invites|challenges)/.test(path)) sent.push(`${r.method()} ${path} ${r.postData() ?? ""}`);
   });
   return sent;
@@ -42,7 +44,7 @@ async function noOverflow(page: Page) {
 
 test("the server reports guest-only flags", async ({ request }) => {
   const res = await request.get("/api/config");
-  expect(await res.json()).toEqual({ accounts: false, billing: false, friends: false, push: false });
+  expect(await res.json()).toEqual({ accounts: false, billing: false, friends: false, push: false, analytics: true }); // anonymous counters stay on (D-033)
   expect(res.headers()["cache-control"]).toBe("public, max-age=300");
   expect((await request.post("/api/parent-signup", { data: { email: "a@example.com", consent: true } })).status()).toBe(404);
   expect((await request.post("/api/auth/magic-link", { data: { email: "a@example.com", consent: true, mode: "signup" } })).status()).toBe(404);

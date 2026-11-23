@@ -14,3 +14,4 @@ export { routes as challenges } from "./challenges";
 export { routes as unsubscribe } from "./unsubscribe";
 export { routes as push } from "./push";
 export { routes as billing } from "./billing";
+export { routes as stats } from "./stats";

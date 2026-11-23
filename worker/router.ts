@@ -31,7 +31,7 @@ export interface Route {
   /**
    * Feature-flagged route: answers 404 (as if it didn't exist) unless the feature is on (worker/lib/config.ts):
    * "accounts" = ACCOUNTS_ENABLED, "billing" = BILLING_ENABLED (+ accounts), "friends" = FRIENDS_ENABLED (+ accounts),
-   * "push" = both VAPID keys configured. Checked before the handler runs, so a disabled route never rate-limits.
+   * "push" = both VAPID keys configured, "analytics" = ANALYTICS_ENABLED. Checked before the handler runs, so a disabled route never rate-limits.
    */
   feature?: Feature;
 }

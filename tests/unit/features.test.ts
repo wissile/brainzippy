@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ALL_OFF, features, onFeaturesChange, parseFeatures, refreshFeatures, resetFeaturesForTests } from "../../src/app/features";
 import { DAY_MS } from "../../src/billing/model";
 
-const ON = { accounts: true, billing: true, friends: true, push: true };
+const ON = { accounts: true, billing: true, friends: true, push: true, analytics: true };
 const answer = (body: unknown, status = 200) => vi.fn(async () => new Response(JSON.stringify(body), { status })) as unknown as typeof fetch;
 
 beforeEach(() => {
@@ -13,10 +13,10 @@ beforeEach(() => {
 });
 
 describe("parseFeatures", () => {
-  it("accepts exactly four booleans and applies the server's dependencies", () => {
+  it("accepts exactly the five booleans and applies the server's dependencies", () => {
     expect(parseFeatures(ON)).toEqual(ON);
-    expect(parseFeatures({ accounts: false, billing: true, friends: true, push: true })).toEqual({ accounts: false, billing: false, friends: false, push: true });
-    for (const bad of [null, [], "x", {}, { ...ON, extra: true }, { ...ON, billing: "true" }, { accounts: true, billing: true, friends: true }]) expect(parseFeatures(bad), JSON.stringify(bad)).toBeNull();
+    expect(parseFeatures({ accounts: false, billing: true, friends: true, push: true, analytics: false })).toEqual({ accounts: false, billing: false, friends: false, push: true, analytics: false });
+    for (const bad of [null, [], "x", {}, { ...ON, extra: true }, { ...ON, billing: "true" }, { accounts: true, billing: true, friends: true }, { accounts: true, billing: true, friends: true, push: true }]) expect(parseFeatures(bad), JSON.stringify(bad)).toBeNull();
   });
 });
 
@@ -38,8 +38,8 @@ describe("features store", () => {
   });
 
   it("offline, an error or a malformed answer keeps the last cached value", async () => {
-    localStorage.setItem("bz.features", JSON.stringify({ accounts: true, billing: false, friends: false, push: false }));
-    const cached = { accounts: true, billing: false, friends: false, push: false };
+    localStorage.setItem("bz.features", JSON.stringify({ accounts: true, billing: false, friends: false, push: false, analytics: false }));
+    const cached = { accounts: true, billing: false, friends: false, push: false, analytics: false };
     expect(await refreshFeatures(vi.fn(async () => Promise.reject(new TypeError("offline"))) as unknown as typeof fetch)).toEqual(cached);
     expect(await refreshFeatures(answer({ error: "not_found" }, 404))).toEqual(cached);
     expect(await refreshFeatures(answer({ accounts: "yes" }))).toEqual(cached);

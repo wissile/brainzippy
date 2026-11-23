@@ -1,3 +1,4 @@
+import { clearStats, gpcOn, setStatsSharing, statsSharing } from "../analytics/track";
 import { useState } from "react";
 import { clearState, loadState } from "../services/storage";
 import { NavButton } from "../ui/controls";
@@ -19,7 +20,8 @@ export const AGE_BANDS = [
 
 export function GrownUpsScreen() {
   const { navigate } = useApp();
-  const { accounts, billing, friends, push } = useFeatures();
+  const { accounts, billing, friends, push, analytics } = useFeatures();
+  const [sharing, setSharing] = useState(statsSharing);
   const [status, setStatus] = useState<"idle" | "gate" | "deleted" | "failed">("idle");
   const [answer, setAnswer] = useState("");
   // Parent gate: multiplication beyond the games' range (a speed bump for children, not a security boundary).
@@ -37,6 +39,7 @@ export function GrownUpsScreen() {
     // Also forget reminders: the subscription (if any), the device id ("bz.push.v1") and the service worker's prefs
     // cache, which holds the monster name. Best effort; never blocks deletion.
     await forgetReminders().catch(() => undefined);
+    clearStats(); // pending anonymous counters (nothing personal, but "delete all" means all)
     clearState();
     setStatus("deleted");
   };
@@ -98,6 +101,33 @@ export function GrownUpsScreen() {
           <p data-testid="privacy-guest">BrainZippy is guest play only: no account, no ads, no chat and no third-party trackers. Your child's first name (optional), their monster and their progress are stored only in this browser and are never sent to us. We don't ask for anyone's email, photos or location.</p>
         )}
         <p><a href="/privacy" data-testid="privacy-notice-link">Read the privacy notice</a></p>
+        {analytics && (
+          <>
+            <h2>Anonymous game statistics</h2>
+            <p data-testid="stats-explainer">
+              To improve the games, the app counts how they are played (for example, which questions are often answered wrongly). The counts have no name, account, device id, cookie or IP address. <a href="/privacy">What is counted</a>
+            </p>
+            {gpcOn() ? (
+              <p data-testid="stats-gpc">Your browser sends the Global Privacy Control signal, so nothing is counted on this device.</p>
+            ) : (
+              <p>
+                <button
+                  type="button"
+                  className="pill-btn"
+                  data-testid="stats-toggle"
+                  aria-pressed={sharing}
+                  aria-label={sharing ? "Stop sharing anonymous game statistics from this device" : "Share anonymous game statistics from this device"}
+                  onClick={() => {
+                    setStatsSharing(!sharing);
+                    setSharing(!sharing);
+                  }}
+                >
+                  {sharing ? "Sharing anonymous counts: on (turn off)" : "Sharing anonymous counts: off (turn on)"}
+                </button>
+              </p>
+            )}
+          </>
+        )}
         <h2>Parent account</h2>
         {accounts ? (
           <p>An optional parent account (email sign-in, no password) shows your child's progress, sets a daily game limit{friends ? ", saves progress across devices and lets you add friends by invite" : " and saves progress across devices"}. <a href="/parents" data-testid="open-parents" onClick={(e) => { e.preventDefault(); navigate("/parents"); }}>Open the parent area</a></p>

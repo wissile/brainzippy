@@ -52,6 +52,7 @@ const siteFlags = {
   billing: accounts && vars.BILLING_ENABLED === "true",
   friends: accounts && vars.FRIENDS_ENABLED === "true",
   push: typeof vars.VAPID_PUBLIC_KEY === "string" && vars.VAPID_PUBLIC_KEY.trim() !== "",
+  analytics: vars.ANALYTICS_ENABLED === "true",
 };
 globalThis.__BZ_SITE_FLAGS__ = siteFlags;
 

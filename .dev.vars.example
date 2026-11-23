@@ -16,3 +16,6 @@ FRIENDS_ENABLED="true"
 # SIGNING_SECRET="<at least 32 random characters>"   (needed to try the daily digest cron locally: cron jobs never use the dev secret)
 # EMAIL_FROM="BrainZippy <hello@brainzippy.com>"
 # APP_ORIGIN="https://brainzippy.com"
+# Anonymous play statistics (D-033) and the owner's /insights dashboard key (any 32+ characters locally).
+ANALYTICS_ENABLED="true"
+ANALYTICS_TOKEN="dev-insights-token-0123456789abcdef"
