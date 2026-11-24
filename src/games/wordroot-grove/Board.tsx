@@ -641,6 +641,10 @@ export function GroveBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
         leafBody = <>{sentence(segments(g.text))}{hinted && ruleChip(RULE_CHIP[g.kind])}</>;
       }
     }
+  }
+
+  // the answer leaves of every choice mode
+  if (a.kind === "choice") {
     const roots = mode === "wordfor" && hinted;
     lower = (
       <div className={`wg-options ${a.options.some((o) => (o.text ?? "").length > 22) ? "is-long" : ""}`} role="group" aria-label="Answers" style={{ "--n": a.options.length } as React.CSSProperties}>
