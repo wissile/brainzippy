@@ -63,9 +63,10 @@ export const DEVICE_DEF: Readonly<Record<Device, string>> = {
   pun: "Pun: a joke that plays on two meanings or two sound-alike words.",
 };
 /**
- * Labels that may appear beside each device in a "name the device" item. Pairs where one line could be both are
- * never offered together (docs §3: personification is a kind of metaphor; hyperbole and idiom overlap; similes and
- * metaphors can exaggerate; many puns are built on idioms). OVERLAPS lists the pairs the unit test checks.
+ * Labels that may appear beside each device in a "name the device" item. ALSO_FITS lists, for lines of each device,
+ * the labels that could describe the same line too (docs §3: personification is a kind of metaphor; hyperbole and
+ * idiom overlap; similes and metaphors can exaggerate; many puns are built on idioms). Those are never offered
+ * as distractors for that device (unit-tested), so an option set never holds two labels that both fit.
  */
 export const DEVICE_DISTRACTORS: Readonly<Record<Device, readonly Device[]>> = {
   simile: ["metaphor", "personification", "irony", "pun"],
@@ -76,10 +77,15 @@ export const DEVICE_DISTRACTORS: Readonly<Record<Device, readonly Device[]>> = {
   irony: ["simile", "personification", "metaphor"],
   pun: ["simile", "personification", "hyperbole"],
 };
-export const OVERLAPS: readonly (readonly [Device, Device])[] = [
-  ["personification", "metaphor"], ["hyperbole", "idiom"], ["simile", "hyperbole"], ["metaphor", "hyperbole"], ["metaphor", "idiom"],
-  ["pun", "idiom"], ["personification", "hyperbole"], ["irony", "hyperbole"], ["irony", "pun"],
-];
+export const ALSO_FITS: Readonly<Record<Device, readonly Device[]>> = {
+  simile: ["hyperbole"],
+  metaphor: ["hyperbole", "idiom", "personification"],
+  personification: ["metaphor", "hyperbole"],
+  hyperbole: ["idiom", "metaphor"],
+  idiom: ["metaphor", "hyperbole"],
+  irony: ["hyperbole", "pun"],
+  pun: ["idiom", "irony"],
+};
 
 /** One original line: what it means here, its literal reading, and a misreading. `how` explains the device in this line. */
 export interface FigLine { id: string; device: Device; text: string; meaning: string; literal: string; misread: string; how: string }

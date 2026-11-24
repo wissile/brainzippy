@@ -4,7 +4,6 @@ import { useApp } from "../../app/AppContext";
 import { audio } from "../../audio/AudioEngine";
 import type { AnswerOption } from "../../engine/types";
 import type { BoardProps } from "../../game/boards";
-import { ROLE_WHY, type Role } from "./articles";
 import {
   FEELING_MARK, type Feeling, articleLine, articleOf, chainOf, claimIndex, combineOf, conciseOf, connectiveOf, connoteOf, cutOf, enoughOf, figOf,
   groupById, itemLine, modeOf, modifierOf, noteLine, optId, orderOf, pronounOf, purposeOf, segments, shiftOf, sortGroupsOf, strongestOf, tagOf,
@@ -54,12 +53,10 @@ const TAG_RULE: Partial<Record<Tag, string>> = {
   "too-strict": "Evidence doesn't have to be perfect, just enough to be fair.",
 };
 const RELATIONS = "reason → because · result → so · surprise → although, but · time → until, before, when · condition → if, unless · purpose → so (that)";
-const SET_LABEL: Partial<Record<string, (n: number) => string>> = {
-  modTap: () => "phrase in the wrong place",
-  pronTap: (n) => (n === 2 ? "unclear words" : "unclear word"),
-  cutTap: (n) => (n === 2 ? "parts that repeat an idea" : "part that repeats an idea"),
-  evidenceTap: () => "pieces of evidence",
-  offTap: () => "sentence that doesn't support the claim",
+/** Short label hints at the first miss (≤ 2 lines in a phone's 2-column grid). */
+const BIN_HINT: Readonly<Record<string, string>> = {
+  claim: "what to believe", evidence: "can be checked", reasoning: "links evidence to claim", none: "doesn't back it up",
+  positive: "sounds like praise", neutral: "plain description", negative: "sounds like a complaint",
 };
 
 export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) {
@@ -381,7 +378,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
         <>
           <ul className="lp-notes">{notes.map((n, i) => <li key={i}>{n}</li>)}</ul>
           {mode === "combine" && strategy && rule(tagRule)}
-          {mode === "order" && strategy && rule("Read both notes: is one a reason, a surprise, a time, a condition or a purpose? Use the card that says so.")}
+          {mode === "order" && strategy && rule("Is one note a reason, a surprise, a time or a condition? Use the card that says so.")}
         </>
       );
       break;
@@ -532,7 +529,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
     );
     lower = (
       <div className="lp-tapinfo">
-        <p className="lp-count" aria-live="polite">{`${SET_LABEL[mode]?.(n) ?? "parts"}: ${picked.length} of ${n} tapped`}</p>
+        <p className="lp-count" aria-live="polite">{`Tapped: ${picked.length} of ${n}`}</p>
       </div>
     );
     action = checkButton(canAct && picked.length > 0, solved, modelOn && model.every((m) => picked.includes(m)), check, "Check: submit what you tapped");
@@ -676,7 +673,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
               data-testid="dock"
               data-value={b.id}
               aria-disabled={!canAct}
-              aria-label={selected ? `${b.text}. Press to label "${textOf(selected)}" ${b.text}` : `${b.text} label. Pick a card first`}
+              aria-label={`${b.text}${hinted ? ` (${BIN_HINT[b.id]})` : ""}${selected ? `. Press to label "${textOf(selected)}" ${b.text}` : ". Pick a card first"}`}
               {...zoneProps(z)}
               onClick={(e) => {
                 if (guard(e) || !selected) return;
@@ -684,7 +681,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
               }}
             >
               <span className="lp-bin-label">{mode === "feelSort" ? `${FEELING_MARK[b.id as Feeling]} ${b.text}` : b.text}</span>
-              {hinted && <span className="lp-bin-hint" aria-hidden="true">{isArticle ? ROLE_WHY[b.id as Role] : b.id === "positive" ? "sounds like praise" : b.id === "negative" ? "sounds like a complaint" : "just describes"}</span>}
+              {hinted && <span className="lp-bin-hint" aria-hidden="true">{BIN_HINT[b.id]}</span>}
             </button>
           );
         })}

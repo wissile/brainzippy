@@ -69,8 +69,8 @@ export function storyFor(firstVisit: boolean) {
       scene: () => (
         <div className="scene">
           <BoathouseScene />
-          <Actor x={30} y={93} w={13} enter="left"><Sarah state="idle" size="100%" /></Actor>
-          <Actor x={19} y={93} w={9} enter="left"><Hoot state="idle" size="100%" /></Actor>
+          <Actor x={46} y={75} w={13} enter="left"><Sarah state="idle" size="100%" /></Actor>
+          <Actor x={35} y={75} w={9} enter="left"><Hoot state="idle" size="100%" /></Actor>
         </div>
       ),
     },

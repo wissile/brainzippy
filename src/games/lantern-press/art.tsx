@@ -116,6 +116,10 @@ export function BoathouseScene({ printing = false }: { printing?: boolean }) {
       </defs>
       <rect width="1600" height="900" fill="url(#lp-dusk)" />
       {[[200, 90], [520, 60], [980, 110], [1360, 70], [1480, 160], [760, 150]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r={i % 2 ? 3 : 4} fill="#FFF7DB" />)}
+      <circle cx="1290" cy="170" r="46" fill="#FFF3D1" />
+      <circle cx="1310" cy="160" r="40" fill="#5A4E7C" opacity="0.35" />
+      <path d="M0 600 Q180 540 360 590 Q470 620 560 600 L560 640 H0 Z" fill="#4B3F68" />
+      <path d="M1100 610 Q1280 560 1460 596 Q1540 610 1600 600 V640 H1100 Z" fill="#4B3F68" />
       <path d="M0 640 Q400 620 800 636 T1600 628 V900 H0 Z" fill={LP.sea} />
       <path d="M0 700 Q400 690 800 702 T1600 696" fill="none" stroke="#5E8CB0" strokeWidth="6" opacity="0.7" />
       {/* boathouse */}
@@ -130,8 +134,8 @@ export function BoathouseScene({ printing = false }: { printing?: boolean }) {
           </g>
         ))}
         <path d="M250 420 V250 Q330 200 410 250 V420 Z" fill="#3A2A20" stroke={INK} strokeWidth="7" />
-        <rect x="230" y="176" width="200" height="44" rx="6" fill={LP.paper} stroke={INK} strokeWidth="5" />
-        <text x="330" y="207" textAnchor="middle" fontSize="24" fontWeight="800" fill={INK} fontFamily="Georgia, 'Times New Roman', serif">LANTERN PRESS</text>
+        <rect x="200" y="174" width="260" height="46" rx="6" fill={LP.paper} stroke={INK} strokeWidth="5" />
+        <text x="330" y="206" textAnchor="middle" fontSize="23" fontWeight="800" fill={INK} fontFamily="Georgia, 'Times New Roman', serif" letterSpacing="1">LANTERN PRESS</text>
       </g>
       {/* the dock with lanterns on posts */}
       <rect x="380" y="664" width="840" height="26" fill={LP.woodLight} stroke={INK} strokeWidth="6" />
@@ -182,10 +186,12 @@ export function PressObject({ kind }: { kind: string }) {
 function Nib() {
   return (
     <g>
-      <path d="M50 92 L26 50 Q26 30 50 16 Q74 30 74 50 Z" fill={LP.brass} {...S} />
-      <path d="M50 92 V54" stroke={INK} strokeWidth="4" strokeLinecap="round" />
-      <circle cx="50" cy="48" r="6" fill={LP.paper} stroke={INK} strokeWidth="4" />
-      <path d="M36 34 Q50 26 64 34" fill="none" stroke={LP.brassDeep} strokeWidth="4" strokeLinecap="round" />
+      {/* a fountain-pen nib: flat top where it meets the pen, shoulders, a pointed tip with a slit and breather hole */}
+      <path d="M50 94 L31 56 Q28 50 30 44 L33 14 H67 L70 44 Q72 50 69 56 Z" fill={LP.brass} {...S} />
+      <path d="M33 22 H67" stroke={LP.brassDeep} strokeWidth="4" />
+      <path d="M50 94 V56" stroke={INK} strokeWidth="4" strokeLinecap="round" />
+      <circle cx="50" cy="50" r="6" fill={LP.paper} stroke={INK} strokeWidth="4" />
+      <path d="M38 62 Q44 74 48 84" fill="none" stroke="#E7C27A" strokeWidth="3.5" strokeLinecap="round" />
     </g>
   );
 }

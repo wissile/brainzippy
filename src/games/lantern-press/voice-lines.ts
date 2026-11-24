@@ -68,7 +68,7 @@ export const STATIC_LINES: Readonly<Record<string, Line>> = {
   "lp.help.claim": H("Evidence is something someone could check."),
   "lp.help.evaluate": H("Good evidence is relevant, enough, and checkable."),
   // first miss (Hoot; keyed by the misconception)
-  "lp.hint.relation": H("Read both ideas. Is the second a reason, a surprise, a result, a time or a condition?"),
+  "lp.hint.relation": H("Is the second idea a reason, a surprise, a result, a time or a condition?"),
   "lp.hint.reversed": H("Check the direction. Which idea causes the other?"),
   "lp.hint.splice": H("Two full sentences need more than a comma."),
   "lp.hint.runon": H("Two full sentences can't just run together."),

@@ -138,22 +138,20 @@ export function chainOf(ex: Exercise): string[] {
       return [c.why, `${RELATION_LABEL[c.relation]} → ${c.answer}`];
     }
     case "combine": {
-      const c = combineOf(ex);
-      return [c.why, c.answer];
+      return [combineOf(ex).why];
     }
     case "order": {
-      const o = orderOf(ex);
-      return [o.why, o.cards.join(" ")];
+      return [orderOf(ex).why];
     }
     case "modTap":
     case "modFix": {
       const m = modifierOf(ex);
-      return [`Read literally: ${m.literal}`, `"${m.chunks[m.wrong]!.replace(/[,.]$/, "")}" should describe ${m.target}.`, m.fix];
+      return [`Read literally: ${m.literal}`, `"${m.chunks[m.wrong]!.replace(/[,.]$/, "")}" should describe ${m.target}: put it next to ${m.target}.`];
     }
     case "pronTap":
     case "pronFix": {
       const p = pronounOf(ex);
-      return [...p.vague.map((i) => `${p.chunks[i]} → ${p.could.join(" or ")}?`), `The writer means: ${p.means}`, `Clear: ${p.fix}`];
+      return [...p.vague.map((i) => `${p.chunks[i]} → ${p.could.join(" or ")}?`), "It could point to either, so it's unclear. Name the one the writer means."];
     }
     case "cutTap": {
       const c = cutOf(ex);
@@ -183,7 +181,7 @@ export function chainOf(ex: Exercise): string[] {
     }
     case "shift": {
       const s = shiftOf(ex);
-      return [`The doer is ${s.doer}.`, `Keep ${s.doer} doing every action.`, s.answer];
+      return [`The doer is ${s.doer}.`, `Keep ${s.doer} doing every action, in active voice.`];
     }
     case "evidenceTap": {
       const a = articleOf(ex);
@@ -206,8 +204,7 @@ export function chainOf(ex: Exercise): string[] {
       return [`Claim: ${a.sentences[claimIndex(a)]!.text}`, `"${short(off.text)}" → ${off.off === "opinion" ? "an opinion, not evidence" : "true, but not about the claim"}`];
     }
     case "enough": {
-      const y = enoughOf(ex);
-      return [y.why, y.answer];
+      return [enoughOf(ex).why];
     }
     default:
       return [];
