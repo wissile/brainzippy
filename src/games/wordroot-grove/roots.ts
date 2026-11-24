@@ -32,11 +32,13 @@ export interface RootWord {
   /** Word parts in order; `roots` names which parts are roots (others are known words or endings). */
   parts: readonly string[];
   roots: readonly string[];
+  /** Meanings for parts that are a shortened root (microbe: "be" from bio). */
+  notes?: Readonly<Record<string, string>>;
   answer: string;
   distractors: readonly [Gloss, Gloss];
 }
 const g = (text: string, tag: Tag): Gloss => ({ text, tag });
-const rw = (word: string, parts: string[], roots: string[], answer: string, d: [Gloss, Gloss]): RootWord => ({ word, parts, roots, answer, distractors: d });
+const rw = (word: string, parts: string[], roots: string[], answer: string, d: [Gloss, Gloss], notes?: Record<string, string>): RootWord => ({ word, parts, roots, answer, distractors: d, ...(notes ? { notes } : {}) });
 /** Distractors put the right roots together with the wrong meanings, or swap one root's meaning (the swap misconception). */
 export const GREEK_WORDS: readonly RootWord[] = [
   rw("microscope", ["micro", "scope"], ["micro", "scope"], "a tool for looking at very small things", [g("a tool for hearing far-off sounds", "root-swap"), g("a small drawing", "root-swap")]),
@@ -44,7 +46,7 @@ export const GREEK_WORDS: readonly RootWord[] = [
   rw("telephone", ["tele", "phon", "e"], ["tele", "phon"], "a tool that carries sound far away", [g("a tool for seeing far away", "root-swap"), g("a small speaker", "root-swap")]),
   rw("photograph", ["photo", "graph"], ["photo", "graph"], "a picture made with light", [g("a sound that is written down", "root-swap"), g("writing about your own life", "root-swap")]),
   rw("autograph", ["auto", "graph"], ["auto", "graph"], "a person's name, written by that person", [g("a picture of yourself", "root-swap"), g("a machine that draws", "literal")]),
-  rw("microphone", ["micro", "phon", "e"], ["micro", "phon"], "a tool that picks up sound", [g("a tool for seeing small things", "root-swap"), g("a very small telephone", "literal")]),
+  rw("microbe", ["micro", "be"], ["micro"], "a very small living thing", [g("a very small rock", "root-swap"), g("a living thing far away", "root-swap")], { be: "life (from bio)" }),
   rw("biography", ["bio", "graph", "y"], ["bio", "graph"], "the written story of a person's life", [g("the study of the earth", "root-swap"), g("a photo of a living thing", "root-swap")]),
   rw("autobiography", ["auto", "bio", "graph", "y"], ["auto", "bio", "graph"], "the story of your life, written by you", [g("a life story written by someone else", "root-swap"), g("a book written by a machine", "literal")]),
   rw("thermometer", ["therm", "o", "meter"], ["therm", "meter"], "a tool that measures heat", [g("a tool that keeps things hot", "root-swap"), g("a tool that measures water", "root-swap")]),
@@ -77,8 +79,8 @@ export const WORD_FOR: readonly WordForItem[] = [
   wf("spectator", "a person who watches a game", "spectator", "spect", ["projector", "tractor"]),
   wf("tractor", "a machine that pulls heavy loads", "tractor", "tract", ["projector", "spectator"]),
   wf("projector", "a machine that throws a picture onto a screen", "projector", "ject", ["tractor", "spectator"]),
-  wf("eject", "to throw something out", "eject", "ject", ["erupt", "export"]),
-  wf("erupt", "to break out suddenly", "erupt", "rupt", ["eject", "export"]),
+  wf("eject", "to throw or push something out", "eject", "ject", ["erupt", "export"]),
+  wf("erupt", "to burst out, as if breaking open", "erupt", "rupt", ["eject", "export"]),
   wf("export", "to carry goods out of a country", "export", "port", ["eject", "erupt"]),
   wf("import", "to carry goods into a country", "import", "port", ["inject", "inspect"]),
   wf("inject", "to push medicine in with a needle", "inject", "ject", ["import", "inspect"]),
@@ -90,7 +92,7 @@ export const WORD_FOR: readonly WordForItem[] = [
   wf("dictionary", "a book that tells what words mean", "dictionary", "dict", ["auditorium", "structure"]),
   wf("auditorium", "a big room where people listen to a show", "auditorium", "aud", ["dictionary", "structure"]),
   wf("interrupt", "to break in while someone is talking", "interrupt", "rupt", ["inspect", "construct"]),
-  wf("script", "the written words of a play", "script", "scrib", ["vision", "tract"]),
+  wf("script", "the written words of a play", "script", "scrib", ["vision", "audience"]),
 ];
 
 export interface RootContextItem {
@@ -117,7 +119,7 @@ export const ROOT_CONTEXT: readonly RootContextItem[] = [
   rc("magnet", "The magnet *attracted* the paper clips.", "tract", "What did the magnet do?", "it pulled them toward it", [g("it pushed them away", "opposite"), g("it bent them", "topic")], "tract means pull: the magnet pulled the clips toward it."),
   rc("drivers", "Please don't *distract* the drivers.", "tract", "What should you not do?", "pull their attention away", [g("help them drive", "opposite"), g("wash their cars", "topic")], "tract means pull and dis- means away: don't pull their attention away."),
   rc("teacher", "The coach *dictated* a list to the team.", "dict", "What did the coach do?", "said it aloud for them to write down", [g("wrote it on the board", "root-swap"), g("read it silently", "opposite")], "dict means say: the coach said the list aloud."),
-  rc("pet", "Omar wrote a *description* of his pet.", "scrib", "What did he write?", "words that tell what his pet is like", [g("a photo of his pet", "literal"), g("a toy for his pet", "topic")], "script means write and de- means about: words written about his pet."),
+  rc("pet", "Omar wrote a *description* of his pet.", "scrib", "What did he write?", "words that tell what his pet is like", [g("a photo of his pet", "literal"), g("a toy for his pet", "topic")], "script means write and de- means down: he wrote down what his pet is like."),
   rc("apples", "The farm will *export* its apples.", "port", "What will the farm do?", "carry the apples out of the country", [g("grow the apples", "topic"), g("eat the apples", "familiar")], "port means carry and ex- means out: the apples are carried out of the country."),
   rc("plants", "The class will *transport* the plants to the garden.", "port", "What will the class do?", "carry the plants there", [g("plant new seeds", "topic"), g("water the plants", "familiar")], "port means carry and trans- means across: they carry the plants across to the garden."),
   rc("drawing", "Zara will *project* her drawing onto the wall.", "ject", "What will she do?", "throw its image onto the wall with light", [g("hang it up with tape", "familiar"), g("paint it on the wall", "topic")], "ject means throw: a projector throws the picture onto the wall."),

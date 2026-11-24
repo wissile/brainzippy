@@ -1,5 +1,5 @@
 import type { Exercise, GameDefinition } from "../../engine/types";
-import { LEVEL_SKILL, SKILLS, WG_AGES, WG_MAX_LEVEL, generateWordroot } from "./generator";
+import { SKILLS, WG_AGES, WG_MAX_LEVEL, generateWordroot } from "./generator";
 import { MODE } from "./logic";
 
 /**
@@ -37,7 +37,8 @@ export const wordrootGrove: GameDefinition = {
   title: "Wordroot Grove",
   mascot: "sarah",
   ages: WG_AGES,
-  skillIds: [...new Set(LEVEL_SKILL)],
+  // order matters only for the public OG card, which names the second skill (roots)
+  skillIds: [SKILLS.affix, SKILLS.roots, SKILLS.wordClass, SKILLS.context, SKILLS.apostrophe, SKILLS.confused],
   learningObjective:
     "Work out what unfamiliar words mean from their parts (prefixes, suffixes, Greek and Latin roots) and from clues in the surrounding sentences; tell nouns, verbs, adjectives and adverbs apart by suffix and job; and choose apostrophes and commonly confused words in context.",
   progression: { roundLength: 8, maxLevel: WG_MAX_LEVEL, stepUpAfter: 2, stepDownAtAttempts: 3 },

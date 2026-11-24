@@ -55,34 +55,19 @@ export const APOSTROPHE_SENTENCES: readonly GapItem[] = [
   gap("relay", "The ___ team won the relay race.", "women's", "irregular", [g("womens'", "irregular"), g("womens", "irregular")], "Women is already plural without an s, so add 's: women's."),
   gap("cheese", "The ___ cheese was gone by morning.", "mice's", "irregular", [g("mices'", "irregular"), g("mices", "irregular")], "Mice is already plural without an s, so add 's: mice's."),
   gap("shoes", "The ___ shoes were lined up by the door.", "people's", "irregular", [g("peoples'", "irregular"), g("peoples", "irregular")], "People is already plural without an s, so add 's: people's."),
-  gap("shoe", "I ___ find my left shoe.", "can't", "contraction", [g("cant", "no-apostrophe"), g("ca'nt", "contraction")], "Can not squeezed together: can't. The apostrophe sits where the letters are missing."),
+  gap("shoe", "I ___ find my left shoe.", "can't", "contraction", [g("cant", "no-apostrophe"), g("ca'nt", "contraction")], "Cannot squeezed together: can't. The apostrophe sits where the letters are missing."),
   gap("music", "Nia ___ like loud music.", "doesn't", "contraction", [g("doesnt", "no-apostrophe"), g("does'nt", "contraction")], "Does not squeezed together: doesn't. The apostrophe sits where the o is missing."),
   gap("beach", "___ going to the beach tomorrow.", "We're", "contraction", [g("Were", "no-apostrophe"), g("Wer'e", "contraction")], "We are squeezed together: we're. The apostrophe sits where the a is missing."),
   gap("hats", "Both ___ hats blew off in the wind.", "girls'", "plural-owner", [g("girl's", "singular-owner"), g("girls", "no-apostrophe")], "Both means two owners: girls already ends in s, so add ' after it: girls'."),
-  gap("nests", "The two ___ nests were in the same tree.", "birds'", "plural-owner", [g("bird's", "singular-owner"), g("birds", "no-apostrophe")], "Two owners: birds already ends in s, so add ' after it: birds'."),
+  gap("nests", "The two ___ wings were bright blue.", "birds'", "plural-owner", [g("bird's", "singular-owner"), g("birds", "no-apostrophe")], "Two owners: birds already ends in s, so add ' after it: birds'."),
   gap("bike", "___ bike has a bell and a basket.", "Kofi's", "singular-owner", [g("Kofis'", "plural-owner"), g("Kofis", "no-apostrophe")], "One owner, Kofi: add 's to show the bike is his: Kofi's."),
   gap("book", "This is ___ book, not mine.", "Sami's", "singular-owner", [g("Samis'", "plural-owner"), g("Samis", "no-apostrophe")], "One owner, Sami: add 's: Sami's."),
 ];
 
 // ---------------------------------------------------------------- L9 commonly confused words
-/** Spelling aliases for `kind`: what each confusable word means (hint and model). */
-export const CONFUSED_MEANING: Readonly<Record<string, string>> = {
-  there: "a place, or 'there is'",
-  their: "belonging to them",
-  theyre: "they are",
-  to: "toward, or before a verb",
-  too: "also, or more than enough",
-  two: "the number 2",
-  your: "belonging to you",
-  youre: "you are",
-  its: "belonging to it",
-  itsc: "it is",
-  than: "comparing",
-  then: "next, or at that time",
-};
 const cw = (id: string, text: string, answer: string, kind: Tag, d: Gloss[], why: string): GapItem => ({ id, text, answer, kind, distractors: d, why });
 export const CONFUSED_ITEMS: readonly GapItem[] = [
-  cw("backpacks", "___ backpacks are on the bus.", "Their", "their", [g("There", "there"), g("They're", "theyre")], "The backpacks belong to them: their. Try 'they are backpacks'? No, so not they're."),
+  cw("backpacks", "___ backpacks are on the bus.", "Their", "their", [g("There", "there"), g("They're", "theyre")], "The backpacks belong to them: their. Try 'They are backpacks are on the bus.' It doesn't work, so not they're."),
   cw("books", "Put the books over ___.", "there", "there", [g("their", "their"), g("they're", "theyre")], "Over where? A place: there."),
   cw("zoo", "___ going to the zoo on Friday.", "They're", "theyre", [g("Their", "their"), g("There", "there")], "Try 'they are going to the zoo'. It works, so: they're."),
   cw("frog", "___ is a frog in the pond.", "There", "there", [g("Their", "their"), g("They're", "theyre")], "'There is' tells you something exists: there."),
@@ -98,7 +83,7 @@ export const CONFUSED_ITEMS: readonly GapItem[] = [
   cw("box", "This box is heavier ___ that one.", "than", "than", [g("then", "then")], "Heavier than compares two things: than."),
   cw("lunch", "We ate lunch, and ___ we played outside.", "then", "then", [g("than", "than")], "What happened next? Then tells the order."),
   cw("sister", "Raj is taller ___ his sister.", "than", "than", [g("then", "then")], "Taller than compares two people: than."),
-  cw("flour", "First we mix the flour, ___ we add the eggs.", "then", "then", [g("than", "than")], "What comes next? Then."),
+  cw("flour", "First we mix the flour, and ___ we add the eggs.", "then", "then", [g("than", "than")], "What comes next? Then."),
   cw("kite", "Ana's kite flew higher ___ the trees.", "than", "than", [g("then", "then")], "Higher than compares: than."),
   cw("jacket", "Is this ___ jacket?", "your", "your", [g("you're", "youre")], "The jacket belongs to you: your. 'Is this you are jacket?' doesn't work."),
   cw("song", "___ going to love this song.", "You're", "youre", [g("Your", "your")], "Try 'you are going to love this song'. It works, so: you're."),

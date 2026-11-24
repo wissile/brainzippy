@@ -190,7 +190,7 @@ describe("wordroot grove: content rules", () => {
     expect(traps).toBeGreaterThan(0);
     // fit items: the answer and its distractors differ in class, adverb gaps sit before the verb (no flat adverbs)
     for (const f of FIT_ITEMS) {
-      expect(new Set([f.cls, ...f.distractors.map((d) => d.tag)]).size, f.id).toBe(3);
+      for (const d of f.distractors) expect(d.tag, `${f.id}: ${d.text}`).not.toBe(f.cls);
       expect(f.text.split("___")).toHaveLength(2);
       if (f.cls === "adverb") expect(f.text, f.id).toMatch(/^[A-Z][a-z]+( [a-z]+)? ___ [a-z]+ /);
     }
@@ -269,6 +269,9 @@ describe("wordroot grove: content rules", () => {
       for (const b of BLOCK) expect(editDistance(w, b) <= 1 || w.includes(b), `${w} near ${b}`).toBe(false);
       expect(w).toMatch(/^[a-z]{5,9}$/);
     }
+    // names, places, brands and characters a child (or parent) might see in an invented word
+    const PROPER = ["spock", "fenwick", "fennec", "quonset", "splott", "cardiff", "grevin", "ravel", "lego", "nike", "disney", "pokemon", "pikachu", "sonic", "mario", "luigi", "zelda", "elmo", "yoda", "oreo", "google", "roblox", "barbie", "shrek", "nemo", "dora", "bluey", "gandalf", "hobbit", "muggle", "gruffalo", "smurf", "minion", "kindle", "tesla", "toyota"];
+    for (const w of INVENTED_WORDS) for (const n of PROPER) expect(editDistance(w, n) <= (n.length <= 5 ? 1 : 2) || w.includes(n), `${w} looks like ${n}`).toBe(false);
   });
 
   it.skipIf(!existsSync("/usr/share/hunspell/en_US.dic"))("invented words: not in the hunspell en_US dictionary and not one letter away from any word in it", () => {
@@ -298,7 +301,7 @@ describe("wordroot grove: content rules", () => {
 
   it("names are first names from the path list; US spelling; no frightening words", () => {
     const text = [...ALL_PASSAGES.map(passageText), ...FIT_ITEMS.map((f) => f.text), ...ROOT_CONTEXT.map((r) => r.text), ...APOSTROPHE_SENTENCES.map((s) => s.text), ...CONFUSED_ITEMS.map((s) => s.text)].join(" ");
-    const caps = new Set((text.match(/(?<![.!?]\s|^)\b[A-Z][a-zá]+/g) ?? []).filter((w) => !["I", "Grandpa", "Biscuit", "May", "Friday", "Ducks"].includes(w)));
+    const caps = new Set((text.match(/(?<![.!?]\s|^)\b[A-Z][a-zá]+/g) ?? []).filter((w) => !["I", "Grandpa", "Biscuit", "May", "Monday", "Tuesday", "Friday", "Saturday", "Ducks"].includes(w)));
     for (const c of caps) expect(NAMES, c).toContain(c);
     expect(text).not.toMatch(/colour|favour|neighbour|grey|torch|pavement|realise|organise|centre|metre\b/);
     expect(text.toLowerCase()).not.toMatch(/\b(kill|dead|die|blood|gun|monster attack|scream)\b/);

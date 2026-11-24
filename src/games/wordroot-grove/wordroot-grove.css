@@ -13,17 +13,17 @@
   --leaf: #f4fbec;
   --lit: #ffe27a;
   position: relative; flex: 1; width: 100%; min-width: 0; min-height: 0;
-  display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 2cqh;
+  display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: clamp(16px, 5cqh, 64px);
   -webkit-user-select: none; user-select: none; font-family: var(--font-body); color: var(--ink);
 }
 .wg-stage button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.wg-stage button:focus-visible { outline: 5px solid #ffd43b; outline-offset: 3px; }
-.wg-top { flex: 0 1 auto; min-height: 0; width: 100%; margin-block: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1cqh; }
-.wg-lower { flex: 0 1 auto; min-height: 0; width: 100%; margin-block: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6cqh; }
+.wg-stage button:focus-visible { outline: 5px solid #ffd43b; outline-offset: 3px; box-shadow: 0 0 0 3px #2b2140; }
+.wg-top { flex: 0 1 auto; min-height: 0; width: 100%; margin-block: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1cqh; }
+.wg-lower { flex: 0 1 auto; min-height: 0; width: 100%; margin-block: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6cqh; }
 
 /* ---------- the big leaf (what the child reads) ---------- */
 .wg-leaf {
-  position: relative; width: min(100%, 780px); display: flex; flex-direction: column; gap: 0.4em;
+  position: relative; width: min(100%, 900px); display: flex; flex-direction: column; gap: 0.4em;
   padding: clamp(8px, 1.6cqh, 18px) clamp(14px, 3cqw, 30px) clamp(10px, 2cqh, 22px);
   background: var(--leaf); border: 5px solid var(--ink); border-radius: 22px clamp(36px, 9cqw, 96px) 22px clamp(36px, 9cqw, 96px);
   box-shadow: 0 6px 0 rgba(43, 33, 64, 0.18), inset 0 0 0 6px #e1f3cf;
@@ -40,9 +40,9 @@
 .wg-leaf-label { font-weight: 800; font-size: 1rem; letter-spacing: 0.04em; text-transform: uppercase; color: #3f6f3a; }
 .wg-hear {
   flex: none; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%;
-  background: #4d96ff; color: #fff !important; border: 3px solid var(--ink); box-shadow: 0 3px 0 rgba(43, 33, 64, 0.25);
+  background: #2b6fd6; color: #fff !important; border: 3px solid var(--ink); box-shadow: 0 3px 0 rgba(43, 33, 64, 0.25);
 }
-.wg-hear.is-saying { background: #2b6fd6; box-shadow: 0 0 0 4px #9fe3ff; }
+.wg-hear.is-saying { background: #1d4f9e; box-shadow: 0 0 0 4px #9fe3ff; }
 .wg-leaf-body { display: flex; flex-direction: column; align-items: center; gap: 0.5em; min-width: 0; }
 
 .wg-word { margin: 0; font-weight: 900; font-size: clamp(40px, min(11cqh, 9cqw), 96px); line-height: 1.05; letter-spacing: 0.01em; overflow-wrap: anywhere; text-align: center; }
@@ -75,7 +75,7 @@
 }
 .wg-part.is-base { background: #f1efe9; }
 .wg-part-text { font-weight: 900; font-size: clamp(30px, min(8cqh, 6.4cqw), 64px); line-height: 1; }
-.wg-part-mean { font-weight: 800; font-size: clamp(14px, min(2.6cqh, 2.2cqw), 19px); color: #3f6f3a; }
+.wg-part-mean { font-weight: 800; font-size: 18px; color: #2f5a2b; }
 .wg-goo { width: clamp(10px, 2cqw, 22px); align-self: center; height: 14px; background: #2ec4b6; border-top: 3px solid var(--ink); border-bottom: 3px solid var(--ink); animation: wg-goo 520ms var(--ease-out) both; }
 .wg-stretch.is-still .wg-part, .wg-stretch.is-still .wg-goo { animation: wg-fade 300ms linear both; }
 @keyframes wg-split { from { transform: scaleX(0.6); opacity: 0.2; } }
@@ -92,17 +92,17 @@
 .wg-chain li + li::before { content: "→ "; color: #8e6cef; }
 
 /* ---------- answer leaves (choice) ---------- */
-.wg-options { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 1.4cqh 2cqw; width: min(100%, 860px); }
+.wg-options { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 1.4cqh 2cqw; width: min(100%, 900px); }
 .wg-options.is-long { grid-template-columns: minmax(0, 1fr); width: min(100%, 620px); }
 .wg-option {
-  position: relative; min-height: clamp(56px, 8.5cqh, 96px); padding: 6px 14px 6px 50px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  position: relative; min-height: clamp(64px, 9cqh, 112px); padding: 6px 14px 6px 50px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
   background: #fffdf6; border: 4px solid var(--ink); border-radius: 18px 40px 18px 40px; box-shadow: 0 5px 0 #6db866; touch-action: none; text-align: left;
   transition: transform var(--t-fast), opacity var(--t-med), filter var(--t-med);
 }
 .wg-option-leaf { position: absolute; left: 8px; top: 50%; width: 34px; height: 34px; transform: translateY(-50%); }
 .wg-option-leaf svg { width: 100%; height: 100%; }
 .wg-option-text { font-weight: 800; font-size: clamp(18px, min(3.4cqh, 3cqw), 30px); line-height: 1.2; }
-.wg-option-root { font-weight: 800; font-size: 15px; color: #3f6f3a; }
+.wg-option-root { font-weight: 800; font-size: 18px; color: #2f5a2b; }
 .wg-option:active { transform: translateY(3px); box-shadow: 0 2px 0 #6db866; }
 .wg-option.is-right { background: #fff3b0; box-shadow: 0 0 0 5px #ffd43b; }
 .wg-option.is-wrong { animation: wg-nudge 600ms ease-in-out; }
@@ -137,7 +137,7 @@
   transition: transform var(--t-fast), opacity var(--t-med), filter var(--t-med);
 }
 .wg-tile-text { font-weight: 900; font-size: clamp(24px, min(6cqh, 5cqw), 44px); line-height: 1; }
-.wg-tile-mean { font-weight: 800; font-size: 14px; color: #3f6f3a; line-height: 1.1; max-width: 9em; text-align: center; }
+.wg-tile-mean { font-weight: 800; font-size: 18px; color: #2f5a2b; line-height: 1.1; max-width: 9em; text-align: center; }
 .wg-tile:active { transform: translateY(3px); box-shadow: 0 2px 0 #8e6cef; }
 .wg-tile.is-picked { transform: translateY(-8%) rotate(-3deg); box-shadow: 0 0 0 5px #ffd43b, 0 5px 0 #8e6cef; }
 .wg-tile.is-out { opacity: 0.35; filter: grayscale(0.9); cursor: default; }
@@ -147,7 +147,7 @@
 
 /* ---------- sorting: cards + branches ---------- */
 .wg-cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.4cqh 2cqw; min-height: 60px; align-items: center; }
-.wg-cards-empty { font-weight: 800; color: #3f6f3a; font-size: 18px; }
+.wg-cards-empty { font-weight: 800; color: #2f5a2b; font-size: 18px; padding: 4px 14px; border-radius: 999px; background: #fff; }
 .wg-card {
   position: relative; min-height: 56px; min-width: 104px; padding: 6px 14px 6px 44px; display: flex; align-items: center;
   background: #fffdf6; border: 4px solid var(--ink); border-radius: 16px 34px 16px 34px; box-shadow: 0 5px 0 #6db866; touch-action: none;
@@ -166,19 +166,20 @@
   background: #9a6234; border: 4px solid var(--ink); border-radius: 14px; color: #fff !important;
 }
 .wg-bin-label { font-weight: 900; font-size: clamp(18px, min(3.4cqh, 2.4cqw), 26px); line-height: 1.1; text-align: center; overflow-wrap: anywhere; }
-.wg-bin-hint { font-weight: 800; font-size: 14px; color: #ffe9a8; }
+.wg-bin-hint { font-weight: 800; font-size: 18px; color: #fff; }
 .wg-bin.is-ready .wg-bin-btn, .wg-bin.is-hot .wg-bin-btn { box-shadow: 0 0 0 5px #ffd43b; }
-.wg-bin-cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; min-height: 8px; }
+.wg-bin.is-model { box-shadow: 0 0 0 5px #fff, 0 0 22px #ffd43b; }
+.wg-bin-cards { display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start; gap: 4px; min-height: clamp(48px, 8cqh, 120px); }
 .wg-bin-cards .wg-card { min-width: 0; min-height: 44px; padding: 3px 10px; border-radius: 12px; box-shadow: 0 3px 0 #6db866; }
 .wg-bin-cards .wg-card-leaf { display: none; }
 .wg-bin-cards .wg-card-text { font-size: clamp(17px, min(3cqh, 2.2cqw), 22px); }
-.wg-frame { flex-basis: 100%; font-size: 14px; font-weight: 800; color: #3f6f3a; text-align: center; line-height: 1.15; }
+.wg-frame { flex-basis: 100%; font-size: 18px; font-weight: 800; color: #3f6f3a; text-align: center; line-height: 1.15; }
 
 /* ---------- clue tapping ---------- */
 .wg-passage.is-tappable { line-height: 1.3; }
 .wg-chunk {
   display: inline-block; vertical-align: middle; min-height: 44px; margin: 3px 1px; padding: 0.3em 0.45em; border: 0; border-radius: 12px;
-  background: #fff; box-shadow: inset 0 0 0 3px #b7d7a8; text-align: left; line-height: 1.3; max-width: 100%;
+  background: #fff; box-shadow: inset 0 0 0 3px #5c8f4f; text-align: left; line-height: 1.3; max-width: 100%;
 }
 .wg-chunk.is-on { background: #e9dcff; box-shadow: inset 0 0 0 3px #8e6cef; }
 .wg-chunk.is-right { background: #fff3b0; box-shadow: inset 0 0 0 3px #e0a800; }
@@ -187,7 +188,7 @@
 .wg-chunk.is-model { animation: wg-glow 1s ease-in-out infinite; box-shadow: inset 0 0 0 3px #ffd43b; background: #fff8d6; }
 @keyframes wg-glow { 0%, 100% { background: #fff8d6; } 50% { background: #ffe27a; } }
 .wg-tapinfo { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.wg-count { margin: 0; font-weight: 800; font-size: 18px; color: #3f6f3a; }
+.wg-count { margin: 0; padding: 4px 14px; border-radius: 999px; background: #fff; border: 3px solid #2b2140; font-weight: 800; font-size: 18px; color: #2f5a2b; }
 
 /* ---------- owner picture ---------- */
 .wg-owner { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
@@ -199,7 +200,7 @@
   border: 0; border-radius: 24px; background: linear-gradient(var(--go-top), var(--go-bottom)); box-shadow: 0 6px 0 var(--go-shadow);
   color: var(--ink) !important; font-family: var(--font-display); font-weight: 800; font-size: 1.35rem;
 }
-.wg-grow[aria-disabled="true"] { filter: grayscale(0.6); opacity: 0.7; }
+.wg-grow[aria-disabled="true"] { background: #e3eadc; box-shadow: 0 6px 0 #b7c2ad; color: #4a4458 !important; }
 .wg-grow:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--go-shadow); }
 .wg-grow.is-model { animation: wg-model 1s ease-in-out infinite; }
 
@@ -225,7 +226,7 @@
 @container (max-aspect-ratio: 4 / 5) {
   .wg-bins.is-sort, .wg-bins.is-roots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .wg-options:not(.is-long) { grid-template-columns: minmax(0, 1fr); width: min(100%, 620px); }
-  .wg-option { min-height: clamp(54px, 8cqh, 96px); }
+  .wg-option { min-height: clamp(64px, 9cqh, 112px); }
   .wg-option-text { font-size: clamp(18px, min(3cqh, 5.2cqw), 30px); }
   .wg-leaf { margin-bottom: 8px; border-radius: 20px clamp(30px, 10cqw, 80px) 20px clamp(30px, 10cqw, 80px); }
   .wg-passage { font-size: clamp(18px, min(3cqh, 5cqw), 30px); }

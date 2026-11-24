@@ -85,12 +85,12 @@ export const STATIC_LINES: Readonly<Record<string, Line>> = {
   "wg.hint.literal": G("That one just looks like the word. Use the roots and their meanings."),
   "wg.hint.wordfor": G("Find the root in each word. Which root means what you need?"),
   "wg.hint.rootcontext": G("Use the root's meaning in the sentence. What would that make happen?"),
-  "wg.hint.clue.definition": G("Words right after a comma, or after is, often explain the mystery word."),
+  "wg.hint.clue.definition": G("Words right after a comma, or after is or which is, often explain the mystery word."),
   "wg.hint.clue.synonym": G("Or can give another name for the mystery word."),
   "wg.hint.clue.example": G("Such as and like give examples. What do the examples have in common?"),
   "wg.hint.clue.restatement": G("In other words, that is, and which means say it again more simply."),
   "wg.hint.clue.cause": G("Because and so link what happened to why. What would cause that?"),
-  "wg.hint.clue.contrast": G("But, unlike, although, however and while signal an opposite."),
+  "wg.hint.clue.contrast": G("But, unlike, although, however and while signal a contrast."),
   "wg.hint.clue.multi": G("The other sentences show what the word is like. What do they point to?"),
   "wg.hint.owners": G("Count the owners. One owner, or more than one?"),
   "wg.hint.own": G("The things belong to someone. That needs an apostrophe."),
@@ -144,7 +144,7 @@ export function itemLines(): Record<string, Line> {
     ...[...PREFIX_WORDS, ...SUFFIX_WORDS, ...GREEK_WORDS].map((w) => [wordLine(w.word), N(w.word)] as [string, Line]),
     ...CLASS_WORDS.filter((w) => !w.classByUse).map((w) => [wordLine(w.word), N(w.word)] as [string, Line]),
     ...FIT_ITEMS.map((x) => [sentenceLine("fit", x.id), N(spoken(x.text))] as [string, Line]),
-    ...FAMILY_ITEMS.map((x) => [sentenceLine("family", x.id), N(`To ${x.known} means ${x.knownMeaning}. What does ${x.target} mean?`)] as [string, Line]),
+    ...FAMILY_ITEMS.map((x) => [sentenceLine("family", x.id), N(`${x.known[0]!.toUpperCase()}${x.known.slice(1)} means ${x.knownMeaning}. What does ${x.target} mean?`)] as [string, Line]),
     ...ROOT_CONTEXT.map((x) => {
       const r = ROOTS.find((y) => y.id === x.root)!;
       return [sentenceLine("rootcontext", x.id), N(`${spoken(x.text)} ${r.id === "scrib" ? "Scrib or script" : r.id[0]!.toUpperCase() + r.id.slice(1)} means ${r.meaning}. ${x.ask}`)] as [string, Line];

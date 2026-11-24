@@ -122,14 +122,14 @@ export function praiseFor(ex: Exercise): string[] {
     case "apostrophe": {
       const kind = gapOf(ex).kind;
       if (kind === "no-apostrophe") return ["wg.praise.plural"];
-      if (kind === "contraction" || kind === "its-contraction" || kind === "its-possessive") return ["wg.praise.squeeze"];
+      if (kind === "its-possessive") return ["wg.praise.it"];
+      if (kind === "contraction" || kind === "its-contraction") return ["wg.praise.squeeze"];
       return ["wg.praise.5"];
     }
     default: {
       const kind = gapOf(ex).kind;
       if (kind === "theyre" || kind === "their" || kind === "there") return ["wg.praise.6"];
       if (kind === "youre" || kind === "your") return ["wg.praise.you"];
-      if (kind === "its-contraction" || kind === "its-possessive") return ["wg.praise.it"];
       return ["wg.praise.test"];
     }
   }

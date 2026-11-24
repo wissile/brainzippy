@@ -87,7 +87,7 @@ export function stretchOf(ex: Exercise): { word: string; parts: PartCard[] } | n
   }
   if (m === "rootmeaning") {
     const w = rootWordOf(ex);
-    return { word: w.word, parts: w.parts.map((p) => (w.roots.includes(p) ? partCard(p) : { text: p })) };
+    return { word: w.word, parts: w.parts.map((p) => (w.roots.includes(p) ? partCard(p) : w.notes?.[p] ? { text: p, meaning: w.notes[p] } : { text: p })) };
   }
   return null;
 }
@@ -110,7 +110,7 @@ export function chainOf(ex: Exercise): string[] {
     }
     case "rootmeaning": {
       const w = rootWordOf(ex);
-      return [w.parts.join(" + "), w.parts.map((p) => (ROOT[p] ? ROOT[p]!.meaning : p)).join(" + "), `${w.word}: ${w.answer}`];
+      return [w.parts.join(" + "), w.parts.map((p) => (ROOT[p] ? ROOT[p]!.meaning : w.notes?.[p] ?? p)).join(" + "), `${w.word}: ${w.answer}`];
     }
     case "wordfor": {
       const w = wordForOf(ex);

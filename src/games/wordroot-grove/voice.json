@@ -171,8 +171,8 @@
      "a person who watches a game",
      "a machine that pulls heavy loads",
      "a machine that throws a picture onto a screen",
-     "to throw something out",
-     "to break out suddenly",
+     "to throw or push something out",
+     "to burst out, as if breaking open",
      "to carry goods out of a country",
      "to carry goods into a country",
      "to push medicine in with a needle",
@@ -333,7 +333,7 @@
    "speaker": "gloop"
   },
   "wg.hint.clue.definition": {
-   "text": "Words right after a comma, or after is, often explain the mystery word.",
+   "text": "Words right after a comma, or after is or which is, often explain the mystery word.",
    "speaker": "gloop"
   },
   "wg.hint.clue.synonym": {
@@ -353,7 +353,7 @@
    "speaker": "gloop"
   },
   "wg.hint.clue.contrast": {
-   "text": "But, unlike, although, however and while signal an opposite.",
+   "text": "But, unlike, although, however and while signal a contrast.",
    "speaker": "gloop"
   },
   "wg.hint.clue.multi": {
@@ -750,8 +750,8 @@
   "wg.w.autograph": {
    "text": "autograph"
   },
-  "wg.w.microphone": {
-   "text": "microphone"
+  "wg.w.microbe": {
+   "text": "microbe"
   },
   "wg.w.biography": {
    "text": "biography"
@@ -922,61 +922,61 @@
    "text": "Aiyana planted a blank row of tulips."
   },
   "wg.s.fit.note": {
-   "text": "Sami wrote a blank note to his aunt."
+   "text": "Sami was blank for his aunt's help."
   },
   "wg.s.family.add": {
-   "text": "To add means to put together. What does additional mean?"
+   "text": "Add means to put together. What does additional mean?"
   },
   "wg.s.family.create": {
-   "text": "To create means to make something new. What does creation mean?"
+   "text": "Create means to make something new. What does creation mean?"
   },
   "wg.s.family.protect": {
-   "text": "To protect means to keep safe. What does protection mean?"
+   "text": "Protect means to keep safe. What does protection mean?"
   },
   "wg.s.family.decide": {
-   "text": "To decide means to make up your mind. What does decision mean?"
+   "text": "Decide means to make up your mind. What does decision mean?"
   },
   "wg.s.family.invent": {
-   "text": "To invent means to make something new. What does inventor mean?"
+   "text": "Invent means to make something new. What does inventor mean?"
   },
   "wg.s.family.child": {
-   "text": "To child means a young person. What does childhood mean?"
+   "text": "Child means a young person. What does childhood mean?"
   },
   "wg.s.family.friend": {
-   "text": "To friend means someone you like and trust. What does friendship mean?"
+   "text": "Friend means someone you like and trust. What does friendship mean?"
   },
   "wg.s.family.heal": {
-   "text": "To heal means to get better. What does health mean?"
+   "text": "Heal means to get better. What does health mean?"
   },
   "wg.s.family.explore": {
-   "text": "To explore means to travel and discover. What does explorer mean?"
+   "text": "Explore means to travel and discover. What does explorer mean?"
   },
   "wg.s.family.collect": {
-   "text": "To collect means to gather things. What does collection mean?"
+   "text": "Collect means to gather things. What does collection mean?"
   },
   "wg.s.family.celebrate": {
-   "text": "To celebrate means to have fun for a special day. What does celebration mean?"
+   "text": "Celebrate means to have fun for a special day. What does celebration mean?"
   },
   "wg.s.family.produce": {
-   "text": "To produce means to make. What does product mean?"
+   "text": "Produce means to make. What does product mean?"
   },
   "wg.s.family.equal": {
-   "text": "To equal means the same amount. What does equally mean?"
+   "text": "Equal means the same amount. What does equally mean?"
   },
   "wg.s.family.imagine": {
-   "text": "To imagine means to picture something in your mind. What does imaginary mean?"
+   "text": "Imagine means to picture something in your mind. What does imaginary mean?"
   },
   "wg.s.family.compete": {
-   "text": "To compete means to try to win. What does competition mean?"
+   "text": "Compete means to try to win. What does competition mean?"
   },
   "wg.s.family.sense": {
-   "text": "To sense means good judgment. What does sensible mean?"
+   "text": "Sense means good judgment. What does sensible mean?"
   },
   "wg.s.family.science": {
-   "text": "To science means the study of how the world works. What does scientist mean?"
+   "text": "Science means the study of how the world works. What does scientist mean?"
   },
   "wg.s.family.act": {
-   "text": "To act means to do something. What does action mean?"
+   "text": "Act means to do something. What does action mean?"
   },
   "wg.s.rootcontext.volcano": {
    "text": "The volcano began to erupt. Rupt means break. What happened?"
@@ -1072,7 +1072,7 @@
    "text": "Both blank hats blew off in the wind."
   },
   "wg.s.apostrophe.nests": {
-   "text": "The two blank nests were in the same tree."
+   "text": "The two blank wings were bright blue."
   },
   "wg.s.apostrophe.bike": {
    "text": "Blank bike has a bell and a basket."
@@ -1129,7 +1129,7 @@
    "text": "Raj is taller blank his sister."
   },
   "wg.s.confused.flour": {
-   "text": "First we mix the flour, blank we add the eggs."
+   "text": "First we mix the flour, and blank we add the eggs."
   },
   "wg.s.confused.kite": {
    "text": "Ana's kite flew higher blank the trees."
@@ -1167,14 +1167,14 @@
   "wg.p.sorbinet": {
    "text": "Mei wore a sorbinet, a warm hat with flaps over the ears, in the snow."
   },
-  "wg.p.quosset": {
-   "text": "Raj keeps every quosset, such as apples, pears and plums, in a blue bowl."
+  "wg.p.whindop": {
+   "text": "Raj keeps every whindop, such as apples, pears and plums, in a blue bowl."
   },
   "wg.p.morrick": {
-   "text": "The trail was morrick; in other words, it was steep and hard to climb, so Lena rested often."
+   "text": "The trail near Lena's house was morrick; in other words, it was steep and hard to climb."
   },
   "wg.p.klendor": {
-   "text": "Omar fed the klendor, a tiny fish with orange stripes, that lives in his tank."
+   "text": "After school, Omar fed the klendor, a tiny fish with orange stripes."
   },
   "wg.p.bramtock": {
    "text": "Zara swept the bramtock, or front porch, after the storm."
@@ -1186,46 +1186,46 @@
    "text": "Priya used a gendrop, which is a long spoon for stirring soup, to mix dinner."
   },
   "wg.p.pentrop": {
-   "text": "A pentrop is a party held outside in a park, and Jonah loves them."
+   "text": "A pentrop is a party held outside in a park, and Jonah loves going to one."
   },
   "wg.p.galdrup": {
    "text": "Nia found a galdrup, or smooth, flat stone, by the river."
   },
   "wg.p.holtip": {
-   "text": "Sami's favorite holtip, such as soccer or swimming, keeps him busy all week."
+   "text": "Sami plays a holtip, such as soccer or basketball, every day."
   },
   "wg.p.torvish": {
-   "text": "The puppy felt torvish, which means very sleepy, after its long walk."
+   "text": "The puppy felt torvish, which means very sleepy, on Tuesday afternoon."
   },
   "wg.p.lomvish": {
-   "text": "Kenji's soup was lomvish, or warm but not hot, so he ate it right away."
+   "text": "Kenji's soup was lomvish, or warm but not hot, at lunch on Monday."
   },
   "wg.p.valdish": {
-   "text": "The room was valdish, that is, very neat and tidy, after Aiyana cleaned it."
+   "text": "Aiyana's room was valdish, that is, very neat and tidy, on Saturday morning."
   },
   "wg.p.crennish": {
    "text": "The bread smelled crennish, fresh and warm from the oven, when Ana opened the door."
   },
   "wg.p.skelvy": {
-   "text": "Raj loves skelvy weather, like windy days with gray clouds, for flying kites."
+   "text": "Raj loves skelvy weather, like windy days with gray clouds, more than any other kind."
   },
   "wg.p.trevvy": {
-   "text": "Lena felt trevvy, or nervous, before her piano recital."
+   "text": "Lena felt trevvy, or nervous, on the first day of spring."
   },
   "wg.p.prendle": {
    "text": "Zara will prendle the plants, which means give them a little water, every morning."
   },
-  "wg.p.ravvle": {
-   "text": "Kofi likes to ravvle, or hum quietly, while he draws."
+  "wg.p.pruvel": {
+   "text": "Kofi likes to pruvel, or hum quietly, while he draws."
   },
   "wg.p.wezzle": {
    "text": "Mei's cat will wezzle, in other words, curl up in a ball, on any warm blanket."
   },
-  "wg.p.sprock": {
-   "text": "Omar had to sprock the tent, or fold it up small, before the drive home."
+  "wg.p.wobrin": {
+   "text": "Omar had to wobrin the tent, or fold it up small, before the drive home."
   },
-  "wg.p.splott": {
-   "text": "The baby likes to splott, which means clap and stamp at the same time, when music plays."
+  "wg.p.tirrow": {
+   "text": "The baby likes to tirrow, which means clap and stamp at the same time, when music plays."
   },
   "wg.p.grimvel": {
    "text": "Before the race, Nia grimveled, or stretched her legs, on the grass."
@@ -1234,7 +1234,7 @@
    "text": "The cave was flimmet. Omar couldn't see his own hand. He switched on his flashlight. His friends waited outside."
   },
   "wg.p.blistom": {
-   "text": "Kenji's brother is blistom, but Kenji is quiet. His brother shouts and sings all day long. They both like pizza."
+   "text": "Jonah's brother is blistom, but Jonah is quiet. His brother shouts and sings all day long. They both like pizza."
   },
   "wg.p.snorbit": {
    "text": "Because the path was snorbit, Ana slipped twice. She stepped slowly over the icy stones. Her friends waited by the gate."
@@ -1242,8 +1242,8 @@
   "wg.p.fendro": {
    "text": "Raj's lunch was fendro. He took one bite and fanned his mouth. Then he gulped down a whole glass of water. The cafeteria was busy that day."
   },
-  "wg.p.grevin": {
-   "text": "Although the puppy looked grevin, it was full of energy. It had just run, jumped and chased its tail for an hour. Sami named it Biscuit."
+  "wg.p.rozzick": {
+   "text": "Although the puppy looked rozzick, it was full of energy. Its eyes were half closed, and it kept yawning. Sami named it Biscuit."
   },
   "wg.p.skorvel": {
    "text": "The lemonade was so skorvel that Zara added three spoons of sugar. Even then, her lips puckered. She sat under a big tree."
@@ -1260,8 +1260,8 @@
   "wg.p.quandrel": {
    "text": "Priya practices her quandrel every evening. She plucks its four strings, and soft music fills the room. Her room is painted green."
   },
-  "wg.p.fennick": {
-   "text": "Most of the class felt fennick before the test, but Lena felt calm. Their hands shook as they waited for the papers."
+  "wg.p.stelvin": {
+   "text": "Most of the class felt stelvin before the test, but Lena felt calm. Their hands shook as they waited for the papers."
   },
   "wg.p.flaxim": {
    "text": "Omar needed a flaxim to cross the stream. He laid the long wooden board over the water. Then he walked across it carefully. A frog watched him."
@@ -1311,8 +1311,8 @@
   "wg.spell.sorbinet": {
    "text": "The mystery word is spelled S, O, R, B, I, N, E, T."
   },
-  "wg.spell.quosset": {
-   "text": "The mystery word is spelled Q, U, O, S, S, E, T."
+  "wg.spell.whindop": {
+   "text": "The mystery word is spelled W, H, I, N, D, O, P."
   },
   "wg.spell.morrick": {
    "text": "The mystery word is spelled M, O, R, R, I, C, K."
@@ -1359,17 +1359,17 @@
   "wg.spell.prendle": {
    "text": "The mystery word is spelled P, R, E, N, D, L, E."
   },
-  "wg.spell.ravvle": {
-   "text": "The mystery word is spelled R, A, V, V, L, E."
+  "wg.spell.pruvel": {
+   "text": "The mystery word is spelled P, R, U, V, E, L."
   },
   "wg.spell.wezzle": {
    "text": "The mystery word is spelled W, E, Z, Z, L, E."
   },
-  "wg.spell.sprock": {
-   "text": "The mystery word is spelled S, P, R, O, C, K."
+  "wg.spell.wobrin": {
+   "text": "The mystery word is spelled W, O, B, R, I, N."
   },
-  "wg.spell.splott": {
-   "text": "The mystery word is spelled S, P, L, O, T, T."
+  "wg.spell.tirrow": {
+   "text": "The mystery word is spelled T, I, R, R, O, W."
   },
   "wg.spell.grimvel": {
    "text": "The mystery word is spelled G, R, I, M, V, E, L."
@@ -1386,8 +1386,8 @@
   "wg.spell.fendro": {
    "text": "The mystery word is spelled F, E, N, D, R, O."
   },
-  "wg.spell.grevin": {
-   "text": "The mystery word is spelled G, R, E, V, I, N."
+  "wg.spell.rozzick": {
+   "text": "The mystery word is spelled R, O, Z, Z, I, C, K."
   },
   "wg.spell.skorvel": {
    "text": "The mystery word is spelled S, K, O, R, V, E, L."
@@ -1404,8 +1404,8 @@
   "wg.spell.quandrel": {
    "text": "The mystery word is spelled Q, U, A, N, D, R, E, L."
   },
-  "wg.spell.fennick": {
-   "text": "The mystery word is spelled F, E, N, N, I, C, K."
+  "wg.spell.stelvin": {
+   "text": "The mystery word is spelled S, T, E, L, V, I, N."
   },
   "wg.spell.flaxim": {
    "text": "The mystery word is spelled F, L, A, X, I, M."

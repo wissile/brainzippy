@@ -142,9 +142,9 @@ export const SORTABLE = CLASS_WORDS.filter((x) => !x.classByUse);
 
 /** Frames for the second-miss frame test (docs §4): the class whose frame a word fits. */
 export const FRAMES: Readonly<Record<WordClass, string>> = {
-  noun: "The ___ is here.",
+  noun: "I noticed the ___.",
   verb: "I can ___ it.",
-  adjective: "It is a ___ day.",
+  adjective: "It is very ___.",
   adverb: "She sang ___.",
 };
 
@@ -176,7 +176,7 @@ export const FIT_ITEMS: readonly FitItem[] = [
   fit("bike", "Priya made the last ___ for her new bike.", "payment", "noun", [g("paid", "verb"), g("payable", "adjective")], "The last what? After 'the last' we need a thing, a noun: payment."),
   fit("hands", "The two teams shook hands to show their ___.", "agreement", "noun", [g("agree", "verb"), g("agreeable", "adjective")], "Their what? After 'their' we need a thing, a noun: agreement."),
   fit("puppets", "Jonah laughed with ___ at the puppet show.", "enjoyment", "noun", [g("enjoy", "verb"), g("enjoyable", "adjective")], "With what? After 'with' we need a thing, a noun: enjoyment."),
-  fit("dance", "Every ___ in the dance matched the music.", "movement", "noun", [g("move", "verb"), g("movable", "adjective")], "Every what? After 'every' we need a thing, a noun: movement."),
+  fit("dance", "Every ___ in the dance matched the music.", "movement", "noun", [g("moved", "verb"), g("movable", "adjective")], "Every what? After 'every' we need a thing, a noun: movement."),
   fit("sunrise", "The sunrise will ___ the whole sky.", "brighten", "verb", [g("bright", "adjective"), g("brightness", "noun")], "The sunrise will do what? After 'will' we need an action, a verb: brighten."),
   fit("butter", "Let the butter ___ before you mix it.", "soften", "verb", [g("soft", "adjective"), g("softness", "noun")], "Let the butter do what? An action word, a verb: soften."),
   fit("clouds", "Gray clouds began to ___ the sky.", "darken", "verb", [g("dark", "adjective"), g("darkness", "noun")], "Began to do what? After 'to' we need an action, a verb: darken."),
@@ -184,9 +184,9 @@ export const FIT_ITEMS: readonly FitItem[] = [
   fit("strap", "Ana pulled the strap to ___ it.", "tighten", "verb", [g("tight", "adjective"), g("tightness", "noun")], "To do what? After 'to' we need an action, a verb: tighten."),
   fit("beach", "It was a ___ afternoon at the beach.", "restful", "adjective", [g("restfully", "adverb"), g("restfulness", "noun")], "What kind of afternoon? A describing word, an adjective: restful."),
   fit("dog", "The ___ dog let Tomás pat its head.", "friendly", "adjective", [g("friendliness", "noun"), g("befriend", "verb")], "What kind of dog? A describing word, an adjective, and friendly is one even though it ends in -ly."),
-  fit("owl", "The ___ owl hooted from the tall pine.", "lonely", "adjective", [g("loneliness", "noun"), g("alone", "adverb")], "What kind of owl? A describing word, an adjective: lonely, even with -ly at the end."),
+  fit("owl", "The ___ owl hooted from the tall pine.", "lonely", "adjective", [g("loneliness", "noun"), g("loner", "noun")], "What kind of owl? A describing word, an adjective: lonely, even with -ly at the end."),
   fit("garden", "Aiyana planted a ___ row of tulips.", "lovely", "adjective", [g("loveliness", "noun"), g("love", "verb")], "What kind of row? A describing word, an adjective: lovely, even with -ly at the end."),
-  fit("note", "Sami wrote a ___ note to his aunt.", "thankful", "adjective", [g("thankfully", "adverb"), g("thanks", "noun")], "What kind of note? A describing word, an adjective: thankful."),
+  fit("note", "Sami was ___ for his aunt's help.", "thankful", "adjective", [g("thankfully", "adverb"), g("thankfulness", "noun")], "Sami was what? A describing word, an adjective: thankful."),
 ];
 
 // ---------------------------------------------------------------- L3 two affixes (build) and root families (choice)

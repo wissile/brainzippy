@@ -294,7 +294,7 @@ export const GAME_COPY: Record<string, GameCopy> = {
     helper: "Gloop",
     updated: "2026-11-24",
     title: "Wordroot Grove: a vocabulary and word-parts game for ages 9–11",
-    description: "A vocabulary game for ages 9–11. Children take words apart into prefixes, suffixes and roots, use context clues, and fix apostrophes and mixed-up words.",
+    description: "A vocabulary game for ages 9–11. Children take words apart into prefixes, suffixes and roots, use context clues, and fix apostrophes and commonly confused words.",
     oneLine: "Take words apart with Sarah and Gloop and put the smudged leaves of the Leaf Library back in order.",
     story: "A gentle storm shook the leaves loose in Sarah's Leaf Library and smudged their labels, so nobody on Monster Island can borrow words. Gloop, who can stretch into any shape, pulls words apart into their parts. Your child works out what each word means and relabels the leaves. A finished round earns the Root Reader badge.",
     howToPlay: [
@@ -333,8 +333,8 @@ export const GAME_COPY: Record<string, GameCopy> = {
     ],
     offScreen: "Make a family word tree: write a root on the trunk (such as port) and add a leaf for every word you find that uses it, with what it means.",
     why: {
-      text: "The Common Core standards for grades 3–6 ask children to use affixes, Greek and Latin roots and context as clues to a word's meaning, and US practice guidance for the early grades recommends teaching children to analyze word parts. This game practises both strategies, first separately and then mixed. Word class, apostrophes and confused words are always chosen in a sentence, not drilled as labels. BrainZippy itself has not been studied.",
-      refs: ["ccssela", "foorman2016"],
+      text: "The Common Core standards for grades 3–6 ask children to use affixes, Greek and Latin roots and context as clues to a word's meaning, and a US practice guide for grades 4–12 rates explicit vocabulary instruction, including strategies for working out new words, as supported by strong evidence. This game practises word parts and context clues, first separately and then mixed. Word class, apostrophes and confused words are always chosen in a sentence, not drilled as labels. BrainZippy itself has not been studied.",
+      refs: ["ccssela", "kamil2008"],
     },
     guides: [],
     screenshotAlt: "Wordroot Grove, level 1: a big leaf shows the word unlock, three answer leaves offer lock it again, open the lock and lock it ahead of time, and Sarah the porcupine stands in a leafy grove.",

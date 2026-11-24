@@ -33,16 +33,16 @@ interface Drag { id: string; startX: number; startY: number; active: boolean; dx
 
 const RULE_CHIP: Partial<Record<Tag, string>> = {
   there: "there = a place, or there is", their: "their = belongs to them", theyre: "they're = they are",
-  to: "to = toward", too: "too = also, or very", two: "two = 2",
+  to: "to = toward", too: "too = also, or more than enough", two: "two = 2",
   your: "your = belongs to you", youre: "you're = you are",
   "its-possessive": "its = belongs to it · it's = it is", "its-contraction": "its = belongs to it · it's = it is",
   than: "than compares · then = next", then: "than compares · then = next",
   "no-apostrophe": "just more than one → no apostrophe", irregular: "plural without s → add 's (children's)",
-  contraction: "the apostrophe replaces missing letters (can not → can't)", "plural-owner": "one owner → 's · more than one → s'",
+  contraction: "the apostrophe replaces missing letters (cannot → can't)", "plural-owner": "one owner → 's · more than one → s'",
   "singular-owner": "one owner → 's · more than one → s'",
 };
 const CLUE_NAME: Readonly<Record<string, string>> = {
-  definition: "Definition clue: the words right after it explain it",
+  definition: "Definition clue: the words right after it (or after is / which is) explain it",
   synonym: "Synonym clue: or gives another name",
   example: "Example clue: such as / like give examples",
   restatement: "Restatement clue: in other words / that is / which means",
@@ -156,11 +156,16 @@ export function GroveBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
       setPlaced(Array.from({ length: slots }, (_, i) => (parts[String(i)] === true && last[i] ? last[i]! : null)));
     }
     if (a.kind === "match") {
-      if (st.hintStage === 2 && st.model && typeof st.model === "object" && !Array.isArray(st.model)) setSorted({ ...(st.model as Record<string, string>) });
+      if (st.hintStage === 2 && st.model && typeof st.model === "object" && !Array.isArray(st.model)) {
+        // the model places every card but the last; the child places that one (errorless, docs §4)
+        const m = st.model as Record<string, string>;
+        const last = items[items.length - 1]?.id;
+        setSorted(Object.fromEntries(Object.entries(m).filter(([k]) => k !== last)));
+      }
       else setSorted((s) => Object.fromEntries(Object.entries(s).filter(([k]) => parts[k] === true)));
     }
     if (a.kind === "set") setPicked((p) => p.filter((id) => parts[id] === true && !st.eliminated.includes(id)));
-    if (lastKeyboard.current) focusSel(a.kind === "match" && st.hintStage === 2 ? '[data-testid="done"]' : '[data-testid="choice"]:not([aria-disabled="true"])');
+    if (lastKeyboard.current) focusSel('[data-testid="choice"]:not([aria-disabled="true"])');
   }, [st.phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---------------------------------------------------------------- actions
@@ -333,7 +338,7 @@ export function GroveBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
   );
   const ruleChip = (text: string | undefined) => (text ? <p className="wg-rule" data-testid="rule">{text}</p> : null);
   const chainEl = chainShown ? (
-    <ol className="wg-chain" data-testid="model-chain" aria-label="Worked example">
+    <ol className="wg-chain" data-testid="model-chain" aria-label="Worked example" aria-live="polite">
       {chain.map((c, i) => (
         <li key={i} className={i <= chainUpTo ? "is-on" : ""} aria-hidden={i > chainUpTo}>{c}</li>
       ))}
@@ -434,7 +439,7 @@ export function GroveBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
               data-value={p.id}
               data-text={p.text}
               aria-disabled={disabled || inSlot}
-              aria-label={`Part ${p.text}${meaning ? `, ${meaning}` : ""}. Press to put it on the branch`}
+              aria-label={`Part ${p.text}${meaning ? `, ${meaning}` : ""}${nextModel === p.id ? ", the next part" : ""}. Press to put it on the branch`}
               tabIndex={inSlot ? -1 : undefined}
               {...dragProps(p.id, p.text ?? "", !inSlot)}
               onClick={(e) => {
@@ -454,18 +459,21 @@ export function GroveBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
     const shownSort = solved && st.lastAnswer && typeof st.lastAnswer === "object" && !Array.isArray(st.lastAnswer) ? (st.lastAnswer as Record<string, string>) : sorted;
     const isSort = mode === "sort";
     const textOf = (id: string) => items.find((i) => i.id === id)?.text ?? id;
+    const modelPairs = modelOn && st.model && typeof st.model === "object" && !Array.isArray(st.model) ? (st.model as Record<string, string>) : null;
+    const modelLeft = modelPairs ? items.find((it) => !sorted[it.id]) : undefined;
+    const modelTarget = modelLeft && modelPairs ? modelPairs[modelLeft.id] : undefined;
     const card = (it: AnswerOption, docked: boolean) => {
       const ok = st.attempts > 0 && docked && st.check?.parts?.[it.id] === true;
       return (
         <button
           key={it.id}
           type="button"
-          className={`wg-card ${selected === it.id ? "is-picked" : ""} ${ok || (solved && docked) ? "is-ok" : ""} ${modelOn && docked ? "is-model" : ""} ${dragging(it.id) ? "is-dragging" : ""}`}
+          className={`wg-card ${selected === it.id ? "is-picked" : ""} ${ok || (solved && docked) ? "is-ok" : ""} ${modelOn && !docked ? "is-model" : ""} ${dragging(it.id) ? "is-dragging" : ""}`}
           data-testid={docked ? "docked" : "choice"}
           data-value={it.id}
           aria-disabled={!canAct}
           aria-pressed={docked ? undefined : selected === it.id}
-          aria-label={docked ? `${it.text}, on the ${bins.find((b) => b.id === shownSort[it.id])?.text} branch. Press to take it back` : `${it.text}. Press to pick it up, then press a branch`}
+          aria-label={docked ? `${it.text}, on the ${bins.find((b) => b.id === shownSort[it.id])?.text} branch. Press to take it back` : `${it.text}${modelPairs?.[it.id] ? `, goes on the ${bins.find((b) => b.id === modelPairs[it.id])?.text} branch` : ""}. Press to pick it up, then press a branch`}
           {...(docked ? {} : dragProps(it.id, it.text ?? it.id))}
           onClick={(e) => {
             if (guard(e) || !canAct) return;
@@ -493,7 +501,7 @@ export function GroveBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
           const z: Zone = { kind: "bin", value: b.id };
           const here = items.filter((it) => shownSort[it.id] === b.id);
           return (
-            <div key={b.id} className={`wg-bin ${isHot(z) ? "is-hot" : ""} ${selected ? "is-ready" : ""}`}>
+            <div key={b.id} className={`wg-bin ${isHot(z) ? "is-hot" : ""} ${selected ? "is-ready" : ""} ${modelTarget === b.id ? "is-model" : ""}`}>
               <button type="button" className="wg-bin-btn" data-testid="dock" data-value={b.id} {...zoneProps(z)}
                 aria-label={selected ? `${b.text} branch. Press to put ${textOf(selected)} here` : `${b.text} branch`}
                 onClick={(e) => {
@@ -516,7 +524,7 @@ export function GroveBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
         })}
       </div>
     );
-    action = growButton(canAct && Object.keys(sorted).length === items.length, solved, modelOn, grow, isSort ? "Grow: check the sorting" : "Grow: check the matching");
+    action = growButton(canAct && Object.keys(sorted).length === items.length, solved, modelOn && Object.keys(sorted).length === items.length, grow, isSort ? "Grow: check the sorting" : "Grow: check the matching");
   } else if (mode === "clueTap" && a.kind === "set") {
     const x = passageOf(ex);
     const model = Array.isArray(st.model) ? (st.model as readonly string[]) : [];
@@ -539,7 +547,7 @@ export function GroveBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
                 data-value={o.id}
                 aria-pressed={on}
                 aria-disabled={out(o.id) || !canAct}
-                aria-label={`${o.text}${out(o.id) ? " (not a clue)" : ""}`}
+                aria-label={`${o.text}${out(o.id) ? " (not a clue)" : modelOn && model.includes(o.id) ? ", a clue" : ""}`}
                 onClick={(e) => !guard(e) && toggleChunk(o.id)}
               >
                 {segs.map((s, k) => (s.bold ? <b key={k} className="wg-bold">{s.text}</b> : <Fragment key={k}>{s.text}</Fragment>))}
@@ -659,7 +667,7 @@ export function GroveBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
               data-testid="choice"
               data-value={o.id}
               aria-disabled={out(o.id) || !canAct}
-              aria-label={out(o.id) ? `${o.text}: not this one` : `Choose: ${o.text}`}
+              aria-label={out(o.id) ? `${o.text}: not this one` : `Choose: ${o.text}${modelOn && a.correct === o.id ? ", the answer" : ""}`}
               {...dragProps(o.id, o.text ?? "")}
               onClick={(e) => !guard(e) && choose(o.id)}
             >
