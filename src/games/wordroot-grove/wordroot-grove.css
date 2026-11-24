@@ -1,0 +1,317 @@
+/* Wordroot Grove — game-scoped styles. Everything is prefixed .wg- or scoped with :has(.wg-stage). Keyframes: wg-. */
+
+/* ---------- screen layout (shared GameRunner grid) ---------- */
+.game.play-screen:has(.wg-stage) .tray { display: none; }
+.game.play-screen:has(.wg-stage) .board { padding: 4px; container-type: size; }
+.game.play-screen:has(.wg-stage) .game-top > .top-mid { width: auto; min-width: 0; }
+.wg-bg .wg-drift-leaf { animation: wg-drift 9s ease-in-out infinite alternate; transform-box: fill-box; }
+@keyframes wg-drift { from { translate: 0 0; rotate: -8deg; } to { translate: 40px 60px; rotate: 18deg; } }
+
+/* ---------- stage ---------- */
+.wg-stage {
+  --ink: #2b2140;
+  --leaf: #f4fbec;
+  --lit: #ffe27a;
+  position: relative; flex: 1; width: 100%; min-width: 0; min-height: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: clamp(16px, 5cqh, 64px);
+  -webkit-user-select: none; user-select: none; font-family: var(--font-body); color: var(--ink);
+}
+.wg-stage button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.wg-stage button:focus-visible { outline: 5px solid #ffd43b; outline-offset: 3px; box-shadow: 0 0 0 3px #2b2140; }
+.wg-top { flex: 0 1 auto; min-height: 0; width: 100%; margin-block: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1cqh; }
+.wg-lower { flex: 0 1 auto; min-height: 0; width: 100%; margin-block: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6cqh; }
+
+/* ---------- the big leaf (what the child reads) ---------- */
+.wg-leaf {
+  position: relative; width: min(100%, 900px); display: flex; flex-direction: column; gap: 0.4em;
+  padding: clamp(8px, 1.6cqh, 18px) clamp(14px, 3cqw, 30px) clamp(10px, 2cqh, 22px);
+  background: var(--leaf); border: 5px solid var(--ink); border-radius: 22px clamp(36px, 9cqw, 96px) 22px clamp(36px, 9cqw, 96px);
+  box-shadow: 0 6px 0 rgba(43, 33, 64, 0.18), inset 0 0 0 6px #e1f3cf;
+  transition: transform 300ms var(--ease-out), box-shadow 200ms;
+}
+.wg-leaf::after { /* the stem */
+  content: ""; position: absolute; left: -14px; bottom: -14px; width: 34px; height: 12px; background: #6e4220; border: 4px solid var(--ink); border-radius: 8px; transform: rotate(-38deg);
+}
+.wg-leaf.is-hot { box-shadow: 0 0 0 6px #ffd43b, 0 6px 0 rgba(43, 33, 64, 0.18); }
+.wg-leaf.is-wobble { animation: wg-wobble 600ms ease-in-out; }
+.wg-leaf.is-solved { box-shadow: 0 0 0 6px #ffd43b, inset 0 0 0 6px #fff3b0; }
+@keyframes wg-wobble { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-1.5deg); } 65% { transform: rotate(1.2deg); } }
+.wg-leaf-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; }
+.wg-leaf-label { font-weight: 800; font-size: 1rem; letter-spacing: 0.04em; text-transform: uppercase; color: #3f6f3a; }
+.wg-hear {
+  flex: none; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%;
+  background: #2b6fd6; color: #fff !important; border: 3px solid var(--ink); box-shadow: 0 3px 0 rgba(43, 33, 64, 0.25);
+}
+.wg-hear.is-saying { background: #1d4f9e; box-shadow: 0 0 0 4px #9fe3ff; }
+.wg-leaf-body { display: flex; flex-direction: column; align-items: center; gap: 0.5em; min-width: 0; }
+
+.wg-word { margin: 0; font-weight: 900; font-size: clamp(40px, min(11cqh, 9cqw), 96px); line-height: 1.05; letter-spacing: 0.01em; overflow-wrap: anywhere; text-align: center; }
+.wg-word.is-mid { font-size: clamp(32px, min(8cqh, 7cqw), 72px); }
+.wg-gloss { margin: 0; font-weight: 800; font-size: clamp(22px, min(5.4cqh, 4.4cqw), 40px); line-height: 1.2; text-align: center; }
+.wg-known { margin: 0; font-size: clamp(19px, min(4cqh, 3.4cqw), 30px); line-height: 1.3; text-align: center; }
+.wg-sentence, .wg-passage { margin: 0; max-width: 34em; font-size: clamp(19px, min(4.4cqh, 3.1cqw), 32px); line-height: 1.45; text-align: left; overflow-wrap: break-word; }
+.wg-passage { font-size: clamp(18px, min(3.9cqh, 2.7cqw), 28px); line-height: 1.5; }
+.wg-bold { font-weight: 900; color: #6b3fd6; }
+.wg-gap { display: inline-block; min-width: 4.2em; padding: 0 0.3em; border-bottom: 4px dashed #8e6cef; color: #8e6cef; font-weight: 900; text-align: center; line-height: 1.2; }
+.wg-gap.is-right { border-bottom-style: solid; border-color: #e0a800; color: var(--ink); background: #fff3b0; border-radius: 8px 8px 0 0; }
+.wg-gap.is-wrong { color: #b8304a; }
+.wg-root-note { margin: 0; font-size: clamp(18px, min(3.6cqh, 3cqw), 26px); }
+.wg-root-chip { display: inline-block; padding: 0 0.4em; border-radius: 10px; background: #e9dcff; border: 3px solid #8e6cef; font-weight: 900; }
+.wg-ask { margin: 0; font-weight: 800; font-size: clamp(19px, min(4cqh, 3.2cqw), 28px); }
+.wg-root-mark { background: var(--lit); color: inherit; border-radius: 6px; padding: 0 0.06em; box-shadow: 0 0 0 2px #e0a800; }
+.wg-chunk-text { border-radius: 8px; transition: background 200ms; }
+.wg-chunk-text.is-clue { background: var(--lit); box-shadow: 0 0 0 3px #e0a800; }
+.wg-rule {
+  margin: 0; display: inline-flex; align-items: center; gap: 0.4em; padding: 0.25em 0.7em; border-radius: 14px;
+  background: #e8f6ff; border: 3px dashed #4d96ff; font-weight: 800; font-size: clamp(16px, min(3cqh, 2.6cqw), 22px); text-align: center;
+}
+.wg-owner-icons { height: 1.6em; width: auto; }
+
+/* Gloop's stretch: the word pulls apart into parts, each with its meaning card */
+.wg-stretch { display: flex; align-items: stretch; justify-content: center; flex-wrap: wrap; gap: 0; }
+.wg-part {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 64px; padding: 4px 12px;
+  background: #fff; border: 4px solid var(--ink); border-radius: 16px; animation: wg-split 520ms var(--ease-bounce) both;
+}
+.wg-part.is-base { background: #f1efe9; }
+.wg-part-text { font-weight: 900; font-size: clamp(30px, min(8cqh, 6.4cqw), 64px); line-height: 1; }
+.wg-part-mean { font-weight: 800; font-size: 18px; color: #2f5a2b; }
+.wg-goo { width: clamp(10px, 2cqw, 22px); align-self: center; height: 14px; background: #2ec4b6; border-top: 3px solid var(--ink); border-bottom: 3px solid var(--ink); animation: wg-goo 520ms var(--ease-out) both; }
+.wg-stretch.is-still .wg-part, .wg-stretch.is-still .wg-goo { animation: wg-fade 300ms linear both; }
+@keyframes wg-split { from { transform: scaleX(0.6); opacity: 0.2; } }
+@keyframes wg-goo { from { transform: scaleX(0); } }
+@keyframes wg-fade { from { opacity: 0; } }
+
+/* the worked chain (second miss) */
+.wg-chain { list-style: none; margin: 0.2em 0 0; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; }
+.wg-chain li {
+  opacity: 0; transform: translateY(4px); transition: opacity 260ms, transform 260ms;
+  padding: 0.15em 0.7em; border-radius: 12px; background: #fff3b0; border: 3px solid #e0a800; font-weight: 800; font-size: clamp(16px, min(3cqh, 2.6cqw), 22px); text-align: center;
+}
+.wg-chain li.is-on { opacity: 1; transform: none; }
+.wg-chain li + li::before { content: "→ "; color: #8e6cef; }
+
+/* ---------- answer leaves (choice) ---------- */
+.wg-options { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 1.4cqh 2cqw; width: min(100%, 900px); }
+.wg-options.is-long { grid-template-columns: minmax(0, 1fr); width: min(100%, 620px); }
+.wg-option {
+  position: relative; min-height: clamp(64px, 9cqh, 112px); padding: 6px 14px 6px 50px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  background: #fffdf6; border: 4px solid var(--ink); border-radius: 18px 40px 18px 40px; box-shadow: 0 5px 0 #6db866; touch-action: none; text-align: left;
+  transition: transform var(--t-fast), opacity var(--t-med), filter var(--t-med);
+}
+.wg-option-leaf { position: absolute; left: 8px; top: 50%; width: 34px; height: 34px; transform: translateY(-50%); }
+.wg-option-leaf svg { width: 100%; height: 100%; }
+.wg-option-text { font-weight: 800; font-size: clamp(18px, min(3.4cqh, 3cqw), 30px); line-height: 1.2; }
+.wg-option-root { font-weight: 800; font-size: 18px; color: #2f5a2b; }
+.wg-option:active { transform: translateY(3px); box-shadow: 0 2px 0 #6db866; }
+.wg-option.is-right { background: #fff3b0; box-shadow: 0 0 0 5px #ffd43b; }
+.wg-option.is-wrong { animation: wg-nudge 600ms ease-in-out; }
+.wg-option.is-out { opacity: 0.4; filter: grayscale(0.9); cursor: default; }
+.wg-option.is-model { animation: wg-model 1s ease-in-out infinite; box-shadow: 0 0 0 5px #fff, 0 0 22px #ffd43b; }
+.wg-option.is-dragging { opacity: 0.3; }
+@keyframes wg-nudge { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-7px); } 60% { transform: translateX(7px); } }
+@keyframes wg-model { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+
+/* ---------- word building: branch slots + part tiles ---------- */
+.wg-branch {
+  list-style: none; margin: 0; padding: 8px 10px; display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;
+  background: linear-gradient(transparent 44%, #9a6234 44%, #9a6234 56%, transparent 56%); border-radius: 12px;
+}
+.wg-slot-btn {
+  --sw: clamp(64px, min(16cqw, 13cqh), 140px);
+  min-width: var(--sw); height: clamp(56px, 10cqh, 84px); padding: 0 0.4em; display: flex; align-items: center; justify-content: center;
+  background: #f4f0ff; border: 4px dashed #8e6cef; border-radius: 16px; touch-action: manipulation;
+}
+.wg-slot-text, .wg-ghost { font-weight: 900; font-size: clamp(24px, min(6cqh, 5cqw), 44px); line-height: 1; }
+.wg-ghost { opacity: 0.45; }
+.wg-slot-btn[data-filled="true"] { background: #fffdf6; border-style: solid; border-color: var(--ink); }
+.wg-slot.is-ok .wg-slot-btn { background: #fff3b0; border-color: #e0a800; }
+.wg-slot.is-wrong .wg-slot-btn { animation: wg-nudge 600ms ease-in-out; border-color: #e04f5f; }
+.wg-slot.is-ready .wg-slot-btn, .wg-slot.is-hot .wg-slot-btn { box-shadow: 0 0 0 4px #ffd43b; }
+.wg-built { margin: 0; font-weight: 900; font-size: clamp(26px, min(6cqh, 5cqw), 48px); color: #3f8f4a; animation: wg-fade 400ms linear both; }
+.wg-tiles { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.6cqh 2cqw; max-width: 100%; }
+.wg-tile {
+  position: relative; min-width: clamp(72px, min(16cqw, 15cqh), 140px); min-height: clamp(60px, 11cqh, 96px); padding: 4px 0.5em;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: #fffdf6; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 0 5px 0 #8e6cef; touch-action: none;
+  transition: transform var(--t-fast), opacity var(--t-med), filter var(--t-med);
+}
+.wg-tile-text { font-weight: 900; font-size: clamp(24px, min(6cqh, 5cqw), 44px); line-height: 1; }
+.wg-tile-mean { font-weight: 800; font-size: 18px; color: #2f5a2b; line-height: 1.1; max-width: 9em; text-align: center; }
+.wg-tile:active { transform: translateY(3px); box-shadow: 0 2px 0 #8e6cef; }
+.wg-tile.is-picked { transform: translateY(-8%) rotate(-3deg); box-shadow: 0 0 0 5px #ffd43b, 0 5px 0 #8e6cef; }
+.wg-tile.is-out { opacity: 0.35; filter: grayscale(0.9); cursor: default; }
+.wg-tile.is-model { animation: wg-model 1s ease-in-out infinite; box-shadow: 0 0 0 5px #fff, 0 0 22px #ffd43b; }
+.wg-tile.is-away { visibility: hidden; }
+.wg-tile.is-dragging { opacity: 0.25; }
+
+/* ---------- sorting: cards + branches ---------- */
+.wg-cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.4cqh 2cqw; min-height: 60px; align-items: center; }
+.wg-cards-empty { font-weight: 800; color: #2f5a2b; font-size: 18px; padding: 4px 14px; border-radius: 999px; background: #fff; }
+.wg-card {
+  position: relative; min-height: 56px; min-width: 104px; padding: 6px 14px 6px 44px; display: flex; align-items: center;
+  background: #fffdf6; border: 4px solid var(--ink); border-radius: 16px 34px 16px 34px; box-shadow: 0 5px 0 #6db866; touch-action: none;
+}
+.wg-card-leaf { position: absolute; left: 8px; top: 50%; width: 28px; height: 28px; transform: translateY(-50%); }
+.wg-card-leaf svg { width: 100%; height: 100%; }
+.wg-card-text { font-weight: 900; font-size: clamp(19px, min(3.6cqh, 3cqw), 28px); line-height: 1.1; }
+.wg-card.is-picked { transform: translateY(-6%) rotate(-2deg); box-shadow: 0 0 0 5px #ffd43b; }
+.wg-card.is-ok { background: #fff3b0; }
+.wg-card.is-model { animation: wg-model 1s ease-in-out infinite; }
+.wg-card.is-dragging { opacity: 0.25; }
+.wg-bins { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.2cqh 1.4cqw; width: min(100%, 980px); }
+.wg-bin { display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 6px; border-radius: 18px; background: rgba(255, 255, 255, 0.6); border: 4px solid var(--ink); min-width: 0; }
+.wg-bin-btn {
+  min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px 6px;
+  background: #9a6234; border: 4px solid var(--ink); border-radius: 14px; color: #fff !important;
+}
+.wg-bin-label { font-weight: 900; font-size: clamp(18px, min(3.4cqh, 2.4cqw), 26px); line-height: 1.1; text-align: center; overflow-wrap: anywhere; }
+.wg-bin-hint { font-weight: 800; font-size: 18px; color: #fff; }
+.wg-bin.is-ready .wg-bin-btn, .wg-bin.is-hot .wg-bin-btn { box-shadow: 0 0 0 5px #ffd43b; }
+.wg-bin.is-model { box-shadow: 0 0 0 5px #fff, 0 0 22px #ffd43b; }
+.wg-bin-cards { display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start; gap: 4px; min-height: clamp(48px, 8cqh, 120px); }
+.wg-bin-cards .wg-card { min-width: 0; min-height: 44px; padding: 3px 10px; border-radius: 12px; box-shadow: 0 3px 0 #6db866; }
+.wg-bin-cards .wg-card-leaf { display: none; }
+.wg-bin-cards .wg-card-text { font-size: clamp(17px, min(3cqh, 2.2cqw), 22px); }
+.wg-frame { flex-basis: 100%; font-size: 18px; font-weight: 800; color: #3f6f3a; text-align: center; line-height: 1.15; }
+
+/* ---------- clue tapping ---------- */
+.wg-passage.is-tappable { line-height: 1.3; }
+.wg-chunk {
+  display: inline-block; vertical-align: middle; min-height: 44px; margin: 3px 1px; padding: 0.3em 0.45em; border: 0; border-radius: 12px;
+  background: #fff; box-shadow: inset 0 0 0 3px #5c8f4f; text-align: left; line-height: 1.3; max-width: 100%;
+}
+.wg-chunk.is-on { background: #e9dcff; box-shadow: inset 0 0 0 3px #8e6cef; }
+.wg-chunk.is-right { background: #fff3b0; box-shadow: inset 0 0 0 3px #e0a800; }
+.wg-chunk.is-wrong { box-shadow: inset 0 0 0 3px #e04f5f; }
+.wg-chunk.is-out { opacity: 0.45; cursor: default; text-decoration: line-through 2px rgba(43, 33, 64, 0.4); }
+.wg-chunk.is-model { animation: wg-glow 1s ease-in-out infinite; box-shadow: inset 0 0 0 3px #ffd43b; background: #fff8d6; }
+@keyframes wg-glow { 0%, 100% { background: #fff8d6; } 50% { background: #ffe27a; } }
+.wg-tapinfo { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.wg-count { margin: 0; padding: 4px 14px; border-radius: 999px; background: #fff; border: 3px solid #2b2140; font-weight: 800; font-size: 18px; color: #2f5a2b; }
+
+/* ---------- owner picture ---------- */
+.wg-owner { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+.wg-owner-pic { width: min(100%, clamp(220px, 40cqh * 2.3, 560px)); height: auto; }
+
+/* ---------- Grow ---------- */
+.wg-grow {
+  min-width: 128px; min-height: 64px; padding: 0 18px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: 0; border-radius: 24px; background: linear-gradient(var(--go-top), var(--go-bottom)); box-shadow: 0 6px 0 var(--go-shadow);
+  color: var(--ink) !important; font-family: var(--font-display); font-weight: 800; font-size: 1.35rem;
+}
+.wg-grow[aria-disabled="true"] { background: #e3eadc; box-shadow: 0 6px 0 #b7c2ad; color: #4a4458 !important; }
+.wg-grow:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--go-shadow); }
+.wg-grow.is-model { animation: wg-model 1s ease-in-out infinite; }
+
+/* drag ghost (portalled to <body>) */
+.wg-ghost-drag { position: fixed; z-index: 55; pointer-events: none; display: flex; align-items: center; justify-content: center; will-change: transform; filter: drop-shadow(0 12px 10px rgba(0, 0, 0, 0.3)); }
+.wg-ghost-card { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 0 10px; background: #fffdf6; border: 4px solid #2b2140; border-radius: 18px; font: 800 1.2rem var(--font-body); color: #2b2140; text-align: center; overflow: hidden; }
+
+/* ---------- prompt icon, story ---------- */
+.wg-icon { width: 100%; height: 100%; }
+.wg-talk { display: flex; align-items: flex-end; justify-content: center; }
+.wg-talk .wg-dlg { position: relative; z-index: 1; height: 100%; justify-content: flex-end; padding-bottom: 8px; }
+.wg-talk .dlg-skip { display: none; }
+.story:has(.wg-talk) .subtitle { visibility: hidden; }
+.wg-talk .dlg-stage .dlg-actor { width: clamp(84px, min(26vw, 32vh), 230px); }
+.wg-story-leaf { width: 100%; height: auto; }
+.wg-story-leaf.falls { animation: wg-fall 3.4s ease-in-out infinite alternate; }
+@keyframes wg-fall { from { transform: translate(0, -10px) rotate(-14deg); } to { transform: translate(18px, 26px) rotate(22deg); } }
+.wg-story-label { position: absolute; z-index: 2; font: 900 clamp(18px, 3.6vmin, 34px) var(--font-body); color: #2b2140; background: #fffdf6; border: 3px solid #2b2140; border-radius: 12px; padding: 0 0.4em; }
+.wg-story-label.smudged { filter: blur(1.6px); opacity: 0.75; }
+.wg-magnifier { width: 100%; height: auto; }
+
+/* ---------- tall boards (phones, tablets in portrait) ---------- */
+@container (max-aspect-ratio: 4 / 5) {
+  .wg-bins.is-sort, .wg-bins.is-roots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wg-options:not(.is-long) { grid-template-columns: minmax(0, 1fr); width: min(100%, 620px); }
+  .wg-option { min-height: clamp(64px, 9cqh, 112px); }
+  .wg-option-text { font-size: clamp(18px, min(3cqh, 5.2cqw), 30px); }
+  .wg-leaf { margin-bottom: 8px; border-radius: 20px clamp(30px, 10cqw, 80px) 20px clamp(30px, 10cqw, 80px); }
+  .wg-passage { font-size: clamp(18px, min(3cqh, 5cqw), 30px); }
+  .wg-sentence { font-size: clamp(19px, min(3.6cqh, 5.2cqw), 32px); }
+}
+
+/* ---------- big portrait boards (tablets): one column of large answers, larger reading text ---------- */
+@container (min-width: 700px) and (max-aspect-ratio: 6 / 5) {
+  .wg-stage { gap: clamp(32px, 6cqh, 72px); }
+  .wg-leaf { padding: 20px 36px 26px; }
+  .wg-leaf-label { font-size: 1.2rem; }
+  .wg-hear { width: 64px; height: 64px; }
+  .wg-word { font-size: clamp(72px, 9cqw, 120px); }
+  .wg-gloss { font-size: clamp(34px, 4.4cqw, 48px); }
+  .wg-sentence, .wg-known, .wg-ask, .wg-root-note { font-size: clamp(30px, 3.6cqw, 40px); }
+  .wg-passage { font-size: clamp(28px, 3.3cqw, 36px); }
+  .wg-options, .wg-options.is-long { grid-template-columns: minmax(0, 1fr); width: min(100%, 820px); gap: 18px; }
+  .wg-option { min-height: clamp(88px, 9cqh, 120px); padding-left: 70px; border-radius: 22px 52px 22px 52px; }
+  .wg-option-leaf { width: 46px; height: 46px; left: 12px; }
+  .wg-option-text { font-size: clamp(28px, 3.2cqw, 36px); }
+  .wg-tile { min-width: 120px; min-height: 104px; }
+  .wg-slot-btn { --sw: 130px; height: 104px; }
+  .wg-slot-text, .wg-ghost, .wg-tile-text { font-size: 48px; }
+  .wg-card { min-height: 72px; }
+  .wg-card-text, .wg-bin-label { font-size: 30px; }
+  .wg-bin-btn { min-height: 80px; }
+  .wg-owner-pic { width: min(100%, 760px); }
+  .wg-grow { min-height: 88px; min-width: 180px; font-size: 1.7rem; }
+  .wg-count, .wg-rule, .wg-chain li { font-size: 24px; }
+}
+
+/* ---------- wide boards (landscape phones, desktops): the leaf on the left, answers on the right ---------- */
+@container (min-aspect-ratio: 6 / 5) {
+  .wg-stage { flex-direction: row; gap: 2.4cqw; align-items: center; }
+  .wg-top { flex: 1 1 54%; max-height: 100%; }
+  .wg-lower { flex: 1 1 46%; max-height: 100%; }
+  .wg-leaf { width: 100%; }
+  .wg-options:not(.is-long) { grid-template-columns: minmax(0, 1fr); }
+  .wg-options { width: 100%; }
+  .wg-option { min-height: clamp(52px, 15cqh, 88px); }
+  .wg-option-text { font-size: clamp(18px, min(5.4cqh, 2.2cqw), 26px); }
+  .wg-word { font-size: clamp(40px, min(16cqh, 6.4cqw), 104px); }
+  .wg-gloss { font-size: clamp(20px, min(8cqh, 3cqw), 38px); }
+  .wg-sentence { font-size: clamp(19px, min(6.6cqh, 2.4cqw), 32px); }
+  .wg-passage { font-size: clamp(18px, min(5.6cqh, 2cqw), 27px); }
+  .wg-known, .wg-ask, .wg-root-note { font-size: clamp(18px, min(6cqh, 2.2cqw), 28px); }
+  .wg-part-text { font-size: clamp(28px, min(11cqh, 4.6cqw), 64px); }
+  .wg-stage.mode-sort, .wg-stage.mode-rootmatch { flex-direction: column; gap: 2cqh; }
+  .mode-sort .wg-top, .mode-rootmatch .wg-top, .mode-sort .wg-lower, .mode-rootmatch .wg-lower { flex: 0 1 auto; }
+  .wg-bins { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .wg-bin-btn { min-height: 48px; }
+  .wg-card { min-height: 48px; }
+  .wg-slot-btn { --sw: clamp(64px, min(9cqw, 20cqh), 130px); height: clamp(56px, 16cqh, 84px); }
+  .wg-tile { min-width: clamp(72px, min(10cqw, 22cqh), 130px); min-height: clamp(56px, 17cqh, 92px); }
+  .wg-slot-text, .wg-ghost, .wg-tile-text { font-size: clamp(24px, min(9cqh, 3.6cqw), 44px); }
+  .wg-owner-pic { width: min(100%, clamp(220px, 60cqh * 2.3, 560px)); }
+}
+
+/* ---------- portrait: Sarah stands in the board's lower-left corner ---------- */
+@media (orientation: portrait) {
+  .game.play-screen:has(.wg-stage) {
+    grid-template-areas: "top" "prompt" "board";
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+  .game.play-screen:has(.wg-stage) .mascot-slot {
+    grid-area: board; justify-self: start; align-self: end;
+    width: min(20vw, calc(10vh * 200 / 230)); padding-bottom: 0.5vh; z-index: 2; pointer-events: none;
+  }
+  .game.play-screen:has(.wg-stage) .wg-stage { padding-bottom: 9vh; }
+}
+@media (max-width: 440px) {
+  .game.play-screen:has(.wg-stage) .stars { gap: 1px; padding: 6px 8px; }
+  .game.play-screen:has(.wg-stage) .star-slot svg { width: 17px; }
+}
+
+/* ---------- reduced motion: hold still, keep state readable ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .wg-bg .wg-drift-leaf, .wg-leaf.is-wobble, .wg-option.is-wrong, .wg-option.is-model, .wg-tile.is-model, .wg-slot.is-wrong .wg-slot-btn,
+  .wg-card.is-model, .wg-grow.is-model, .wg-chunk.is-model, .wg-part, .wg-goo, .wg-story-leaf.falls { animation: none !important; }
+  .wg-option.is-model, .wg-tile.is-model, .wg-card.is-model, .wg-grow.is-model, .wg-chunk.is-model { outline: 6px solid #ffd43b; outline-offset: 2px; }
+  .wg-leaf, .wg-option, .wg-tile, .wg-chain li { transition: opacity 200ms linear !important; }
+  .wg-tile.is-picked, .wg-card.is-picked { transform: none; outline: 5px dashed #ffd43b; outline-offset: 3px; }
+}
+.wg-stage.still .wg-leaf, .wg-stage.still .wg-option, .wg-stage.still .wg-tile, .wg-stage.still .wg-card, .wg-stage.still .wg-grow,
+.wg-stage.still .wg-chunk, .wg-stage.still .wg-slot-btn, .wg-stage.still .wg-part, .wg-stage.still .wg-goo { animation: none !important; }
+.wg-stage.still .wg-option.is-model, .wg-stage.still .wg-tile.is-model, .wg-stage.still .wg-card.is-model, .wg-stage.still .wg-grow.is-model,
+.wg-stage.still .wg-chunk.is-model { outline: 6px solid #ffd43b; outline-offset: 2px; }
