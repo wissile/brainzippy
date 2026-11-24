@@ -78,7 +78,7 @@ export const DEVICE_DISTRACTORS: Readonly<Record<Device, readonly Device[]>> = {
   pun: ["simile", "personification", "hyperbole"],
 };
 export const ALSO_FITS: Readonly<Record<Device, readonly Device[]>> = {
-  simile: ["hyperbole"],
+  simile: ["hyperbole", "idiom"],
   metaphor: ["hyperbole", "idiom", "personification"],
   personification: ["metaphor", "hyperbole"],
   hyperbole: ["idiom", "metaphor"],
@@ -139,6 +139,6 @@ export const FIG_LINES: readonly FigLine[] = [
   F("draw", "pun", "The art room poster says, \"Let's draw our own conclusions.\"", "a joke on draw (make a picture) and draw a conclusion (decide)", "students sketch the word conclusion", "the class is ending", "Draw means both sketch and decide here."),
   F("shell", "pun", "A sign at the tide pools asks, \"Shell we explore?\"", "a joke on shell and shall", "the shells are going to explore", "visitors may not touch the shells", "Shell sounds like shall: one sound, two meanings."),
   F("rooting", "pun", "The garden club's banner says, \"We're rooting for you!\"", "a joke on plant roots and rooting for (cheering on) someone", "the club digs up roots for you", "the club wants you to leave", "Rooting means both growing roots and cheering."),
-  F("anytime", "pun", "The clock repair shop's sign says, \"Come in any time.\"", "a joke on clocks (time) and come whenever you like", "the clocks show every time at once", "the shop is always closed", "Time means both what clocks show and when to visit."),
+  F("problems", "pun", "The math club's poster says, \"We've got problems, and we love them.\"", "a joke on math problems and troubles", "the club is in trouble and happy about it", "math is too hard for the club", "Problems means both math questions and troubles."),
   F("wheel", "pun", "The skate shop's door sign says, \"Wheel be right back.\"", "a joke on wheel and we'll", "a wheel is coming back", "the shop sells only wheels", "Wheel sounds like we'll: one sound, two meanings."),
 ];

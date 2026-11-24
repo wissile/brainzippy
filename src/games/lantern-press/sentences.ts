@@ -89,7 +89,7 @@ export const COMBINE: readonly CombineItem[] = [
   K("museum", ["The museum opens at nine.", "The café opens at ten."], "The museum opens at nine, but the café opens at ten.", [
     ["The museum opens at nine, the café opens at ten.", "comma-splice"],
     ["The museum opens at nine because the café opens at ten.", "meaning-shift"],
-    ["The museum and the café open at nine.", "info-loss"],
+    ["The museum and the café open at nine.", "meaning-shift"],
   ], "Two different times: but shows the difference, and both times stay."),
   K("bus", ["Ana missed the bus.", "She walked to school.", "She was only five minutes late."], "Ana missed the bus and walked to school, but she was only five minutes late.", [
     ["Ana missed the bus, she walked to school, she was only five minutes late.", "comma-splice"],
@@ -163,8 +163,8 @@ const M = (id: string, chunks: string[], wrong: number, literal: string, target:
 export const MODIFIERS: readonly ModifierItem[] = [
   M("barking", ["Barking at the mail cart,", "Kenji walked his dog", "to the beach."], 0, "Kenji was barking at the mail cart.", "the dog", "Kenji walked his dog to the beach while it barked at the mail cart.", [
     ["Kenji, barking at the mail cart, walked his dog to the beach.", "still-misplaced"], ["Barking at the mail cart, the dog walked Kenji to the beach.", "meaning-shift"]]),
-  M("plates", ["Ana served cupcakes", "to the guests", "on paper plates."], 2, "The guests were sitting on paper plates.", "the cupcakes", "Ana served cupcakes on paper plates to the guests.", [
-    ["Ana, on paper plates, served cupcakes to the guests.", "still-misplaced"], ["The guests served cupcakes to Ana on paper plates.", "meaning-shift"]]),
+  M("scarf", ["Lena found a scarf", "in the lost-and-found box", "knitted by her grandmother."], 2, "The box was knitted by her grandmother.", "the scarf", "In the lost-and-found box, Lena found a scarf knitted by her grandmother.", [
+    ["Lena, knitted by her grandmother, found a scarf in the lost-and-found box.", "still-misplaced"], ["Her grandmother found a scarf knitted by Lena in the lost-and-found box.", "meaning-shift"]]),
   M("lanterns", ["Hanging from the ceiling,", "Mei admired", "the paper lanterns."], 0, "Mei was hanging from the ceiling.", "the lanterns", "Mei admired the paper lanterns hanging from the ceiling.", [
     ["Mei, hanging from the ceiling, admired the paper lanterns.", "still-misplaced"], ["Hanging from the ceiling, the paper lanterns admired Mei.", "meaning-shift"]]),
   M("shell", ["Raj found", "a shiny shell", "walking along the shore."], 2, "The shell was walking along the shore.", "Raj", "Walking along the shore, Raj found a shiny shell.", [

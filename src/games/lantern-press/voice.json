@@ -529,8 +529,8 @@
   "lp.s.modifier.barking": {
    "text": "Barking at the mail cart, Kenji walked his dog to the beach."
   },
-  "lp.s.modifier.plates": {
-   "text": "Ana served cupcakes to the guests on paper plates."
+  "lp.s.modifier.scarf": {
+   "text": "Lena found a scarf in the lost-and-found box knitted by her grandmother."
   },
   "lp.s.modifier.lanterns": {
    "text": "Hanging from the ceiling, Mei admired the paper lanterns."
@@ -922,8 +922,8 @@
   "lp.s.fig.rooting": {
    "text": "The garden club's banner says, \"We're rooting for you!\""
   },
-  "lp.s.fig.anytime": {
-   "text": "The clock repair shop's sign says, \"Come in any time.\""
+  "lp.s.fig.problems": {
+   "text": "The math club's poster says, \"We've got problems, and we love them.\""
   },
   "lp.s.fig.wheel": {
    "text": "The skate shop's door sign says, \"Wheel be right back.\""
