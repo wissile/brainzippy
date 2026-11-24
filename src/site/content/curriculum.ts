@@ -403,7 +403,7 @@ export const SUBJECTS: readonly SubjectInfo[] = [
     name: "English",
     skillPrefix: "english.",
     updated: "2026-11-24",
-    title: "English games for kids: rhymes, phonics and vocabulary",
+    title: "English games for ages 3–14: rhymes, phonics, vocabulary and editing",
     description: "Story-based English games from rhymes (3–5) and phonics (6–8) to word parts and context clues (9–11) and editing and argument skills (12–14), and how to help at home.",
     intro:
       "English at BrainZippy starts before reading, with the sounds of spoken words, and grows with your child. Rhyme games are listening games for children who don't know letters yet. Phonics games then link sounds to letters, and older children learn to work out new words from their parts and from the sentences around them.",
@@ -429,8 +429,8 @@ export const SUBJECTS: readonly SubjectInfo[] = [
       "Clap the beats in names and words: “Ba-na-na” has three claps.",
     ],
     evidence: {
-      text: "In a long-term study, preschoolers' skill at hearing rhyme and first sounds predicted their reading and spelling years later, and practice in sorting words by sound helped most when it was combined with letters (Bradley & Bryant, 1983). Rhyme is a first step. Reading itself needs children to work with the individual sounds in words and link them to letters, which is where our planned games go next.",
-      refs: ["bradley1983"],
+      text: "In a long-term study, preschoolers' skill at hearing rhyme and first sounds predicted their reading and spelling years later, and practice in sorting words by sound helped most when it was combined with letters (Bradley & Bryant, 1983). Rhyme is a first step: reading itself needs children to work with the individual sounds in words and link them to letters, which is what our phonics games for 6–8 practise. For ages 12–14, a research review of adolescent writing instruction found that teaching students to combine sentences improved their writing, while traditional grammar lessons did not (Graham & Perin, 2007), so our editing game asks which version says what the writer means instead of asking for grammar labels. BrainZippy itself has not been studied.",
+      refs: ["bradley1983", "grahamperin2007"],
     },
   },
   {
