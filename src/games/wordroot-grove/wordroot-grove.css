@@ -18,8 +18,8 @@
 }
 .wg-stage button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .wg-stage button:focus-visible { outline: 5px solid #ffd43b; outline-offset: 3px; }
-.wg-top { flex: 0 1 auto; min-height: 0; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1cqh; }
-.wg-lower { flex: 0 1 auto; min-height: 0; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6cqh; }
+.wg-top { flex: 0 1 auto; min-height: 0; width: 100%; margin-block: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1cqh; }
+.wg-lower { flex: 0 1 auto; min-height: 0; width: 100%; margin-block: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6cqh; }
 
 /* ---------- the big leaf (what the child reads) ---------- */
 .wg-leaf {
@@ -95,13 +95,13 @@
 .wg-options { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 1.4cqh 2cqw; width: min(100%, 860px); }
 .wg-options.is-long { grid-template-columns: minmax(0, 1fr); width: min(100%, 620px); }
 .wg-option {
-  position: relative; min-height: clamp(56px, 9cqh, 84px); padding: 6px 14px 6px 50px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  position: relative; min-height: clamp(56px, 8.5cqh, 96px); padding: 6px 14px 6px 50px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
   background: #fffdf6; border: 4px solid var(--ink); border-radius: 18px 40px 18px 40px; box-shadow: 0 5px 0 #6db866; touch-action: none; text-align: left;
   transition: transform var(--t-fast), opacity var(--t-med), filter var(--t-med);
 }
 .wg-option-leaf { position: absolute; left: 8px; top: 50%; width: 34px; height: 34px; transform: translateY(-50%); }
 .wg-option-leaf svg { width: 100%; height: 100%; }
-.wg-option-text { font-weight: 800; font-size: clamp(18px, min(3.4cqh, 2.7cqw), 26px); line-height: 1.2; }
+.wg-option-text { font-weight: 800; font-size: clamp(18px, min(3.4cqh, 3cqw), 30px); line-height: 1.2; }
 .wg-option-root { font-weight: 800; font-size: 15px; color: #3f6f3a; }
 .wg-option:active { transform: translateY(3px); box-shadow: 0 2px 0 #6db866; }
 .wg-option.is-right { background: #fff3b0; box-shadow: 0 0 0 5px #ffd43b; }
@@ -225,9 +225,10 @@
 @container (max-aspect-ratio: 4 / 5) {
   .wg-bins.is-sort, .wg-bins.is-roots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .wg-options:not(.is-long) { grid-template-columns: minmax(0, 1fr); width: min(100%, 620px); }
-  .wg-option { min-height: clamp(52px, 7.4cqh, 84px); }
-  .wg-leaf { border-radius: 20px clamp(30px, 10cqw, 80px) 20px clamp(30px, 10cqw, 80px); }
-  .wg-passage { font-size: clamp(18px, min(3.2cqh, 4.6cqw), 28px); }
+  .wg-option { min-height: clamp(54px, 8cqh, 96px); }
+  .wg-option-text { font-size: clamp(18px, min(3cqh, 5.2cqw), 30px); }
+  .wg-leaf { margin-bottom: 8px; border-radius: 20px clamp(30px, 10cqw, 80px) 20px clamp(30px, 10cqw, 80px); }
+  .wg-passage { font-size: clamp(18px, min(3cqh, 5cqw), 30px); }
   .wg-sentence { font-size: clamp(19px, min(3.6cqh, 5.2cqw), 32px); }
 }
 

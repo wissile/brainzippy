@@ -61,11 +61,11 @@ function ConversationBeat({ dialogue }: { dialogue: Dialogue }) {
 }
 const conversation = (d: Dialogue): StoryBeat => ({ line: "", holdMs: 120_000, scene: () => <ConversationBeat dialogue={d} /> });
 
-const LABELS = ["unlock", "careful", "telescope", "kindness", "portable", "their"];
+const LABELS = ["unlock", "careful", "telescope", "kindness", "portable"];
 const Leaves = ({ fallen }: { fallen: boolean }) => (
   <>
     {LABELS.map((w, i) => {
-      const x = 12 + i * 15;
+      const x = 10 + i * 13;
       const y = fallen ? 80 + (i % 2) * 6 : 26 + ((i * 13) % 20);
       return (
         <Actor key={w} x={x} y={y} w={11}>
@@ -74,7 +74,7 @@ const Leaves = ({ fallen }: { fallen: boolean }) => (
       );
     })}
     {LABELS.map((w, i) => (
-      <span key={`l${w}`} className={`wg-story-label ${fallen ? "smudged" : ""}`} style={{ left: `${7 + i * 15}%`, top: fallen ? `${64 + (i % 2) * 6}%` : `${10 + ((i * 13) % 20)}%` }} aria-hidden="true">{w}</span>
+      <span key={`l${w}`} className={`wg-story-label ${fallen ? "smudged" : ""}`} style={{ left: `${4 + i * 13}%`, top: fallen ? `${60 + (i % 2) * 7}%` : `${10 + ((i * 13) % 20)}%` }} aria-hidden="true">{w}</span>
     ))}
   </>
 );
@@ -89,8 +89,8 @@ export function storyFor(firstVisit: boolean) {
         <div className="scene">
           <GroveScene />
           <Leaves fallen />
-          <Actor x={86} y={94} w={20} enter="right"><Sarah state="retry" size="100%" /></Actor>
-          <Actor x={70} y={94} w={13} enter="right">
+          <Actor x={89} y={94} w={18} enter="right"><Sarah state="retry" size="100%" /></Actor>
+          <Actor x={75} y={94} w={11} enter="right">
             <div style={{ position: "relative" }}>
               <Gloop state="thinking" size="100%" />
               <div style={{ position: "absolute", right: "-30%", top: "-10%", width: "60%" }}><Magnifier /></div>
