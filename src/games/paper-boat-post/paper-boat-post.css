@@ -206,9 +206,10 @@ button.pb-boat { cursor: grab; border-radius: 24px; }
 
 /* ---------- tall boards (phones, tablets in portrait): the picture that is the only clue gets the room ---------- */
 @container (max-aspect-ratio: 4 / 5) {
-  .mode-noteRead .pb-docks { flex-wrap: wrap; gap: 2cqh 3cqw; }
-  .mode-noteRead .pb-dock { --dw: clamp(110px, min(44cqw, 24cqh * 1.2), 300px); }
-  .mode-noteRead .pb-flag { padding: 3%; }
+  /* note scenes: one row, as wide as the board allows (a wrapped row could slide over the one above) */
+  .mode-noteRead .pb-docks { flex-wrap: nowrap; gap: 2cqw; }
+  .mode-noteRead .pb-dock { --dw: clamp(96px, min(31cqw, 30cqh), 300px); }
+  .mode-noteRead .pb-flag { padding: 2%; }
   .pb-build-top { flex-direction: column; gap: 1cqh; }
   .pb-build-top .pb-boat { --bw: clamp(220px, 90cqw, 560px); }
   .pb-build-top.is-note .pb-boat { --bw: clamp(240px, 96cqw, 660px); }

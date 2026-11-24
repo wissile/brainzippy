@@ -314,6 +314,14 @@ test("layout: targets ≥64px and on screen at the four viewports, every mode; s
         expect(box.x + box.width, `${what} right`).toBeLessThanOrEqual(vp.width + 1);
         expect(box.y + box.height, `${what} bottom`).toBeLessThanOrEqual(vp.height + 1);
       }
+      // no two picture docks overlap (a wrapped row once slid over the row above on phones)
+      const docks = (await Promise.all((await page.locator('[data-testid="dock"], .pb-dock').all()).map((l) => l.boundingBox()))).filter((b): b is NonNullable<typeof b> => !!b);
+      for (let i = 0; i < docks.length; i++)
+        for (let j = i + 1; j < docks.length; j++) {
+          const [a, b] = [docks[i]!, docks[j]!];
+          const overlap = a.x < b.x + b.width - 1 && b.x < a.x + a.width - 1 && a.y < b.y + b.height - 1 && b.y < a.y + a.height - 1;
+          expect(overlap, `${label} ${vp.name} docks ${i} and ${j} overlap ${JSON.stringify([a, b])}`).toBe(false);
+        }
       // the board never covers the prompt pill (the picture clue sits below it)
       const pill = await page.getByTestId("prompt").boundingBox();
       for (const loc of await page.locator(".pb-card, .pb-boat, .pb-fleet, .pb-docks").all()) {
