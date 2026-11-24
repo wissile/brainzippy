@@ -376,7 +376,7 @@ test("tapping parts: a wrong part is greyed with a strategy; the second miss mar
   await expect(page.getByTestId("helper")).toBeVisible({ timeout: 20_000 });
   await answering(page);
   await expect(page.locator(choice(wrong))).toHaveAttribute("aria-disabled", "true");
-  await expect(page.getByTestId("rule")).toContainText("nearest noun");
+  await expect(page.getByTestId("rule")).toContainText("next to the word it describes");
   await missOnce(page, b!);
   await answering(page);
   for (const c of "chunks" in b! ? b.chunks! : []) await expect(page.locator(choice(c))).toHaveClass(/is-model/);

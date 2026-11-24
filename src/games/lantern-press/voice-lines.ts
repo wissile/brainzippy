@@ -51,7 +51,7 @@ export const STATIC_LINES: Readonly<Record<string, Line>> = {
   "lp.prompt.device": S("Which kind of figurative language is this?"),
   "lp.prompt.figMeaning": S("What does this mean here?"),
   "lp.prompt.purpose": S("Which version fits the writer's purpose?"),
-  "lp.prompt.shift": S("Which version fixes the switch in voice?"),
+  "lp.prompt.shift": S("Which version fixes the switch in voice and keeps every fact?"),
   "lp.prompt.evidenceTap": S("Tap the 2 sentences that are evidence for the claim. Then press Check."),
   "lp.prompt.claimSort": S("Label each sentence. Then press Check."),
   "lp.prompt.strongest": S("Which evidence is strongest?"),
@@ -59,7 +59,7 @@ export const STATIC_LINES: Readonly<Record<string, Line>> = {
   "lp.prompt.enough": S("Is that enough evidence?"),
   // round start (Hoot explains the idea)
   "lp.help.combine": H("Connectives carry meaning: cause, contrast, time, condition."),
-  "lp.help.modifier": H("A describing phrase attaches to the nearest noun."),
+  "lp.help.modifier": H("A describing phrase should sit next to the word it describes."),
   "lp.help.pronoun": H("A pronoun should point to one clear person or thing."),
   "lp.help.concise": H("Cut words that repeat an idea, never words that add one."),
   "lp.help.connotation": H("Words with the same meaning can carry different feelings."),
@@ -94,6 +94,7 @@ export const STATIC_LINES: Readonly<Record<string, Line>> = {
   "lp.hint.relevant": H("Is it about the claim? Is it more than one person's view?"),
   "lp.hint.sample": H("How many were checked? Could they speak for everyone?"),
   "lp.hint.strict": H("Evidence doesn't have to be perfect. Is there enough to be fair?"),
+  "lp.hint.fact": H("Check the facts. Does it still say exactly what happened?"),
   "lp.hint.off": H("Does each sentence back the claim, or just sit beside it?"),
   // second miss (Sarah models; the board shows the worked steps)
   "lp.hint.show": S("Let's work through it together."),

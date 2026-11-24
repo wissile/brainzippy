@@ -17,7 +17,7 @@ import {
 import {
   COMBINE, CONCISE, CONNECTIVES, CUTS, EXCLUDED_USAGE, MODIFIERS, ORDERS, PRONOUNS, PURPOSES, SHIFTS, TAGS,
 } from "../../src/games/lantern-press/sentences";
-import { ALSO_FITS, CONNOTE, DEVICES, DEVICE_DISTRACTORS, DEVICE_LABEL, FIG_LINES, WORD_GROUPS, type Device } from "../../src/games/lantern-press/words";
+import { ALSO_FITS, CONNOTE, DEVICES, DEVICE_DISTRACTORS, DEVICE_LABEL, FIG_LINES, SORT_GROUPS, WORD_GROUPS, type Device } from "../../src/games/lantern-press/words";
 import { allLines } from "../../src/games/lantern-press/voice-lines";
 
 const voice = JSON.parse(readFileSync("src/games/lantern-press/voice.json", "utf8")) as { lines: Record<string, { text: string; vary?: Record<string, string[]>; speaker?: string }> };
@@ -131,13 +131,36 @@ describe("lantern press: structure", () => {
     expect(ARTICLES.length).toBeGreaterThanOrEqual(16);
   });
 
-  it("levels 8–9: the two questions of a pair read the same article (L8 items 0+1 and 4+5; L9 items 2+3 and 6+7)", () => {
+  it("articles: every level-8 item reads its own article; at level 9 items 2+3 and 6+7 share one, with different question types", () => {
     for (const s of SEEDS) {
       const b8 = band(8, s);
-      for (const [i, j] of [[0, 1], [4, 5]] as const) expect(articleOf(b8[i]!).id, `${b8[i]!.id} / ${b8[j]!.id}`).toBe(articleOf(b8[j]!).id);
-      expect(new Set([0, 2, 4, 6].map((i) => articleOf(b8[i]!).id)).size).toBe(4);
+      expect(new Set([0, 1, 2, 4, 5, 6].map((i) => articleOf(b8[i]!).id)).size, `seed ${s}`).toBe(6);
       const b9 = band(9, s);
-      for (const [i, j] of [[2, 3], [6, 7]] as const) expect(articleOf(b9[i]!).id, `${b9[i]!.id} / ${b9[j]!.id}`).toBe(articleOf(b9[j]!).id);
+      for (const [i, j] of [[2, 3], [6, 7]] as const) {
+        expect(articleOf(b9[i]!).id, `${b9[i]!.id} / ${b9[j]!.id}`).toBe(articleOf(b9[j]!).id);
+        // "which sentence doesn't support?" then the evidence question: never a labelling item that the first answer gives away
+        expect([modeOf(b9[i]!), modeOf(b9[j]!)]).toEqual(["offTap", "evidenceTap"]);
+      }
+    }
+  });
+
+  it("no answer-length tell: in every choice mode the right option is neither the shortest nor the longest in more than 60% of items", () => {
+    const seeds = Array.from({ length: 80 }, (_, i) => i * 104729 + 3);
+    const stat: Record<string, { n: number; short: number; long: number }> = {};
+    for (let lv = 0; lv <= LP_MAX_LEVEL; lv++) for (const sd of seeds) for (const e of band(lv, sd)) {
+      const a = e.answer;
+      if (a.kind !== "choice") continue;
+      const lens = a.options.map((o) => (o.text ?? "").length);
+      const r = a.options.find((o) => o.id === a.correct)!.text!.length;
+      const st = (stat[modeOf(e)] ??= { n: 0, short: 0, long: 0 });
+      st.n++;
+      if (r === Math.min(...lens)) st.short++;
+      if (r === Math.max(...lens)) st.long++;
+    }
+    expect(Object.keys(stat).length).toBeGreaterThanOrEqual(12);
+    for (const [m, st] of Object.entries(stat)) {
+      expect(st.short / st.n, `${m} shortest`).toBeLessThanOrEqual(0.6);
+      expect(st.long / st.n, `${m} longest`).toBeLessThanOrEqual(0.6);
     }
   });
 
@@ -214,7 +237,12 @@ describe("lantern press: content rules", () => {
       expect(a.options.map((o) => o.text), ex.id).toEqual([...source]);
       expect(a.options.length).toBeGreaterThanOrEqual(3);
     }
-    for (const m of MODIFIERS) expect(m.wrong).toBeLessThan(m.chunks.length);
+    for (const m of MODIFIERS) {
+      expect(m.wrong).toBeLessThan(m.chunks.length);
+      // only the marked phrase moves in the fix: the other chunks stay together, so no other chunk is also "in the wrong place"
+      const others = m.chunks.filter((_, i) => i !== m.wrong).map((c) => c.replace(/[,.]$/, "").toLowerCase());
+      if (m.wrong === 2) expect(m.fix.toLowerCase(), m.id).toContain(others.join(" "));
+    }
     for (const c of CUTS) {
       expect(c.why).toHaveLength(c.cut.length);
       expect(c.cut.length).toBeLessThanOrEqual(2);
@@ -280,12 +308,17 @@ describe("lantern press: content rules", () => {
       expect(WORD_GROUPS.some((g) => g.id === c.group), c.id).toBe(true);
     }
     for (const g of WORD_GROUPS) expect(new Set([g.positive, g.neutral, g.negative]).size).toBe(3);
+    // the cue a hint quotes is in the sentence
+    for (const c of CONNOTE) expect(c.text.toLowerCase(), c.id).toContain(c.cue.toLowerCase());
     expect(WORD_GROUPS.flatMap((g) => [g.positive, g.neutral, g.negative])).not.toEqual(expect.arrayContaining(["skinny", "slender", "thin"]));
     for (const ex of ITEMS.filter((e) => modeOf(e) === "feelSort")) {
       const a = ex.answer;
       if (a.kind !== "match") continue;
       const [g1, g2] = sortGroupsOf(ex);
       expect(g1.id).not.toBe(g2.id);
+      // only clear-cut groups are sorted without a sentence
+      expect(SORT_GROUPS).toContain(g1.id);
+      expect(SORT_GROUPS).toContain(g2.id);
       const counts = Object.values(a.pairs).reduce<Record<string, number>>((m, f) => ({ ...m, [f]: (m[f] ?? 0) + 1 }), {});
       expect(counts).toEqual({ positive: 2, neutral: 2, negative: 2 });
     }

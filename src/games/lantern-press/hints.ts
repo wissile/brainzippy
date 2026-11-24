@@ -46,6 +46,7 @@ const TAG_HINT: Readonly<Record<Tag, string>> = {
   opinion: "lp.hint.check",
   "small-sample": "lp.hint.sample",
   "too-strict": "lp.hint.strict",
+  "changed-fact": "lp.hint.fact",
 };
 
 /** First-miss line (Hoot), keyed by what the miss shows (ENGLISH_PATH §6.6, docs §4 "1st miss"). */
@@ -56,7 +57,6 @@ export function hintFor(s: ExerciseState): string {
   const tag = typeof last === "string" ? tagOf(ex, last) : undefined;
   // a meaning shift in a rewrite item means "who does what" changed; elsewhere, the connective's meaning
   if (tag === "meaning-shift" && (m === "modFix" || m === "pronFix")) return "lp.hint.who";
-  if (tag === "meaning-shift" && (m === "purpose")) return "lp.hint.focus";
   if (tag) return TAG_HINT[tag];
   switch (m) {
     case "order": return "lp.hint.order";

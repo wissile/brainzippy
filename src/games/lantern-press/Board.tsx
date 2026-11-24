@@ -51,6 +51,7 @@ const TAG_RULE: Partial<Record<Tag, string>> = {
   opinion: "Checkable? An opinion isn't something anyone could check.",
   "small-sample": "How many were checked? Could they speak for everyone in the claim?",
   "too-strict": "Evidence doesn't have to be perfect, just enough to be fair.",
+  "changed-fact": "That version changes a fact. Keep every fact exactly as it is.",
 };
 const RELATIONS = "reason → because · result → so · surprise → although, but · time → until, before, when · condition → if, unless · purpose → so (that)";
 /** Short label hints at the first miss (≤ 2 lines in a phone's 2-column grid). */
@@ -425,7 +426,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
       body = (
         <>
           {gapSentence(n.text)}
-          {strategy && rule(`The writer is ${n.cue}: ${n.want === "positive" ? "a positive" : "a negative"} feeling. ${tagRule ?? ""}`.trim())}
+          {strategy && rule(`The clue "${n.cue}" shows ${n.want === "positive" ? "a positive" : "a negative"} feeling. ${tagRule ?? ""}`.trim())}
           {modelOn && <p className="lp-key">{g.positive} (+) · {g.neutral} (0) · {g.negative} (−): all mean {g.core}</p>}
         </>
       );
@@ -521,7 +522,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
           {a.options.map((o, i) => <Fragment key={o.id}>{chunk(o, i)}{" "}</Fragment>)}
         </p>
         {strategy && rule(
-          mode === "modTap" ? "A describing phrase attaches to the nearest noun. Read each phrase with the word beside it."
+          mode === "modTap" ? "A describing phrase should sit next to the word it describes. Read each phrase with the word beside it."
           : mode === "pronTap" ? `People and things here: ${pronounOf(ex).could.join(" · ")}. Could a word point to both?`
           : cutOf(ex).cut.length === 2 && cutOf(ex).why[0] ? `Hint: ${cutOf(ex).why[0]} What else repeats?` : "Read it without each part. Did any meaning disappear?",
         )}

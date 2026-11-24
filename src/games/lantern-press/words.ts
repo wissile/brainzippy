@@ -11,6 +11,8 @@ export const FEELING_MARK: Readonly<Record<Feeling, string>> = { positive: "+", 
 /** Near-synonyms with the same core meaning and a clear-cut polarity (teacher review pending; docs §11). */
 export interface WordGroup { id: string; positive: string; neutral: string; negative: string; core: string }
 const G = (id: string, positive: string, neutral: string, negative: string, core: string): WordGroup => ({ id, positive, neutral, negative, core });
+/** Groups clear-cut enough to sort without a sentence (QA/content review): the others are used only in context. */
+export const SORT_GROUPS: readonly string[] = ["smell", "young", "old", "small", "unusual"];
 export const WORD_GROUPS: readonly WordGroup[] = [
   G("smell", "aroma", "smell", "stench", "a smell"),
   G("sure", "confident", "sure", "arrogant", "sure of yourself"),
@@ -29,16 +31,16 @@ const N = (id: string, text: string, group: string, want: "positive" | "negative
 export const CONNOTE: readonly ConnoteItem[] = [
   N("cafe", "The review praised the island café: its kitchen was full of the ___ of fresh bread.", "smell", "positive", "praised"),
   N("market", "Holding his nose, Kenji complained that the fish market had a ___.", "smell", "negative", "complained"),
-  N("debate", "Proud of her brother, Zara said he sounded ___ in the debate.", "sure", "positive", "proud"),
+  N("debate", "Wanting to praise her brother, Zara said he sounded ___ in the debate.", "sure", "positive", "wanting to praise"),
   N("boast", "Tired of his bragging, the team called the new player ___.", "sure", "negative", "tired of his bragging"),
   N("questions", "Kenji's grandmother loves his questions and calls him ___.", "curious", "positive", "loves"),
-  N("neighbor", "The neighbor complained that the cat was ___ about everything.", "curious", "negative", "complained"),
+  N("neighbor", "The neighbor complained that the cat was ___ and poked its nose into every bag.", "curious", "negative", "complained"),
   N("never", "Admiring how she never gave up, the coach called Nia ___.", "firm", "positive", "admiring"),
   N("refused", "Annoyed that he refused to listen, Raj called his brother ___.", "firm", "negative", "annoyed"),
   N("energy", "The article praised the ninety-year-old dancer for his ___ energy.", "young", "positive", "praised"),
   N("sulking", "Teasing her brother for sulking, Mei called him ___.", "young", "negative", "teasing"),
-  N("lighthouse", "Proud of the island's lighthouse, the tour guide called it ___.", "known", "positive", "proud"),
-  N("pirate", "The museum sign warned visitors about a ___ pirate who stole from every port.", "known", "negative", "warned"),
+  N("lighthouse", "Wanting visitors to admire the island's lighthouse, the tour guide called it ___.", "known", "positive", "admire"),
+  N("pirate", "The museum sign told the story of a ___ pirate who stole from every port.", "known", "negative", "stole from every port"),
   N("jacket", "The shop wanted shoppers to love the jacket, so it called the style ___.", "old", "positive", "wanted shoppers to love"),
   N("phone", "Frustrated with his slow phone, Omar called it ___.", "old", "negative", "frustrated"),
   N("cottage", "The travel article invited readers to stay in a ___ seaside cottage.", "small", "positive", "invited readers"),
@@ -98,7 +100,7 @@ export const FIG_LINES: readonly FigLine[] = [
   F("bear", "simile", "After the long swim, Ana was as hungry as a bear.", "she was very hungry", "she turned into a bear", "she was grumpy", "As hungry as a bear compares her hunger to a bear's."),
   F("moons", "simile", "The lanterns along the dock glowed like a row of tiny moons.", "they shone softly in a line", "there were real moons on the dock", "the lanterns were broken", "Like a row of tiny moons compares the lanterns to moons."),
   F("mouse", "simile", "During his first week, the new student was as quiet as a mouse.", "he spoke very little", "he squeaked and hid in holes", "he was very loud", "As quiet as a mouse compares him to a mouse."),
-  F("whistle", "simile", "Her voice cut through the noise like a whistle.", "it was sharp and easy to hear", "she blew a real whistle", "she was whispering", "Like a whistle compares her voice to a whistle."),
+  F("whistle", "simile", "Her voice rang out over the noise like a whistle.", "it was sharp and easy to hear", "she blew a real whistle", "she was whispering", "Like a whistle compares her voice to a whistle."),
   // metaphor
   F("treasure", "metaphor", "The library is a treasure chest of stories.", "it holds many valuable stories", "it is a wooden box full of gold", "it is hard to get into", "It says the library is a treasure chest, with no like or as."),
   F("blackhole", "metaphor", "Omar's backpack is a black hole for lost homework.", "homework disappears in it", "it is a hole in outer space", "it is very neat and tidy", "It says the backpack is a black hole, with no like or as."),

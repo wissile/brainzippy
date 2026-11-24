@@ -132,7 +132,7 @@
    "speaker": "sarah"
   },
   "lp.prompt.shift": {
-   "text": "Which version fixes the switch in voice?",
+   "text": "Which version fixes the switch in voice and keeps every fact?",
    "speaker": "sarah"
   },
   "lp.prompt.evidenceTap": {
@@ -160,7 +160,7 @@
    "speaker": "hoot"
   },
   "lp.help.modifier": {
-   "text": "A describing phrase attaches to the nearest noun.",
+   "text": "A describing phrase should sit next to the word it describes.",
    "speaker": "hoot"
   },
   "lp.help.pronoun": {
@@ -293,6 +293,10 @@
   },
   "lp.hint.strict": {
    "text": "Evidence doesn't have to be perfect. Is there enough to be fair?",
+   "speaker": "hoot"
+  },
+  "lp.hint.fact": {
+   "text": "Check the facts. Does it still say exactly what happened?",
    "speaker": "hoot"
   },
   "lp.hint.off": {
@@ -461,7 +465,7 @@
    "text": "The concert was moved indoors. The forecast said heavy rain."
   },
   "lp.s.combine.chain": {
-   "text": "Kenji fixed the bike chain. He used a borrowed tool. The shop was closed."
+   "text": "Nia fixed the bike chain. She used a borrowed tool. The shop was closed."
   },
   "lp.s.combine.garden": {
    "text": "The garden needs water. It hasn't rained for two weeks."
@@ -488,7 +492,7 @@
    "text": "The recycling bins are full. Collection is on Monday. Please keep your cans at home until then."
   },
   "lp.s.combine.spelling": {
-   "text": "Priya won the spelling bee. She had practiced every evening."
+   "text": "Jonah won the spelling bee. He had practiced every evening."
   },
   "lp.s.order.lighthouse": {
    "text": "The path was steep. The walkers still reached the lighthouse before dark."
@@ -530,7 +534,7 @@
    "text": "Barking at the mail cart, Kenji walked his dog to the beach."
   },
   "lp.s.modifier.scarf": {
-   "text": "Lena found a scarf in the lost-and-found box knitted by her grandmother."
+   "text": "Lena found a scarf in the lost-and-found box humming a tune."
   },
   "lp.s.modifier.lanterns": {
    "text": "Hanging from the ceiling, Mei admired the paper lanterns."
@@ -539,7 +543,7 @@
    "text": "Raj found a shiny shell walking along the shore."
   },
   "lp.s.modifier.cold": {
-   "text": "The coach handed out water bottles to the players that were ice cold."
+   "text": "The coach handed out water bottles to the players blowing her whistle."
   },
   "lp.s.modifier.wrapped": {
    "text": "Wrapped in shiny paper, Zara gave her brother the gift."
@@ -551,7 +555,7 @@
    "text": "Running late for the ferry, Nia's sandwich was left on the kitchen table."
   },
   "lp.s.modifier.bell": {
-   "text": "Mina bought a bike from a neighbor with a squeaky bell."
+   "text": "Mina rang the bike bell at the crossing grinning from ear to ear."
   },
   "lp.s.modifier.bed": {
    "text": "Tomás read about the shipwreck lying in bed."
@@ -572,7 +576,7 @@
    "text": "Aiyana noticed a crab on the rocks wearing her new sandals."
   },
   "lp.s.modifier.loaf": {
-   "text": "The baker gave a loaf to the boy still warm from the oven."
+   "text": "The baker handed the girl a fresh loaf dusting flour off his hands."
   },
   "lp.s.pronoun.map": {
    "text": "When Mina met Lucia at the library, she gave her a map."
@@ -725,7 +729,7 @@
    "text": "The reason why the ferry was late is because the engine needed fixing."
   },
   "lp.s.concise.robotics": {
-   "text": "Kenji made the decision to join the robotics club."
+   "text": "Zara made the decision to join the robotics club."
   },
   "lp.s.concise.ocean": {
    "text": "The library has a large number of books about the ocean."
@@ -755,7 +759,7 @@
    "text": "Holding his nose, Kenji complained that the fish market had a blank."
   },
   "lp.s.connote.debate": {
-   "text": "Proud of her brother, Zara said he sounded blank in the debate."
+   "text": "Wanting to praise her brother, Zara said he sounded blank in the debate."
   },
   "lp.s.connote.boast": {
    "text": "Tired of his bragging, the team called the new player blank."
@@ -764,7 +768,7 @@
    "text": "Kenji's grandmother loves his questions and calls him blank."
   },
   "lp.s.connote.neighbor": {
-   "text": "The neighbor complained that the cat was blank about everything."
+   "text": "The neighbor complained that the cat was blank and poked its nose into every bag."
   },
   "lp.s.connote.never": {
    "text": "Admiring how she never gave up, the coach called Nia blank."
@@ -779,10 +783,10 @@
    "text": "Teasing her brother for sulking, Mei called him blank."
   },
   "lp.s.connote.lighthouse": {
-   "text": "Proud of the island's lighthouse, the tour guide called it blank."
+   "text": "Wanting visitors to admire the island's lighthouse, the tour guide called it blank."
   },
   "lp.s.connote.pirate": {
-   "text": "The museum sign warned visitors about a blank pirate who stole from every port."
+   "text": "The museum sign told the story of a blank pirate who stole from every port."
   },
   "lp.s.connote.jacket": {
    "text": "The shop wanted shoppers to love the jacket, so it called the style blank."
@@ -818,7 +822,7 @@
    "text": "During his first week, the new student was as quiet as a mouse."
   },
   "lp.s.fig.whistle": {
-   "text": "Her voice cut through the noise like a whistle."
+   "text": "Her voice rang out over the noise like a whistle."
   },
   "lp.s.fig.treasure": {
    "text": "The library is a treasure chest of stories."
@@ -980,7 +984,7 @@
    "text": "The volunteers sorted the cans, and the bottles were washed by them."
   },
   "lp.s.shift.jam": {
-   "text": "Mei baked the bread, and the jam was made by her too."
+   "text": "Omar baked the bread, and the jam was made by him too."
   },
   "lp.s.shift.robot": {
    "text": "Our team built the robot, and the code was written by us as well."
@@ -989,7 +993,7 @@
    "text": "Zara found the lost kitten, and it was carried home by her."
   },
   "lp.s.shift.sign": {
-   "text": "The ranger checked the trail, and the broken sign was fixed by him."
+   "text": "The ranger checked the trail, and the broken sign was fixed by her."
   },
   "lp.s.shift.pools": {
    "text": "Omar measured the tide pools, and the crabs were counted by him."
@@ -1004,7 +1008,7 @@
    "text": "The letters were sorted by the post office, and then the post office delivered them."
   },
   "lp.a.sundays": {
-   "text": "Open the library on Sundays. The library should open on Sundays. Last term's sign-in sheets show about 40 visitors every Saturday. The library also has bright blue doors. A survey at the desk found that 25 of those visitors work on weekdays. So a Sunday opening would serve people who can't come in during the week."
+   "text": "Open the library on Sundays. The library should open on Sundays. Sign-in sheets show the library is full by 11 a.m. most Saturdays. The library also has bright blue doors. In a desk survey, 25 of 40 Saturday visitors said they would come on a Sunday. So a Sunday opening would serve people who can't get in on Saturday."
   },
   "lp.a.barrel": {
    "text": "The school garden needs a second rain barrel. The school garden needs a second rain barrel. The garden log shows the one barrel ran dry on 9 of the last 12 dry days. On those days, volunteers carried water from the kitchen in buckets. This means one barrel can't store enough rain for the whole garden. Rain barrels come in green, black and gray."
@@ -1019,13 +1023,13 @@
    "text": "More recycling bins for Harbor Park. Harbor Park needs more recycling bins. Cleanup volunteers collected 60 cans from the grass in one weekend. The park has two recycling bins, both near the main gate. So people far from the gate have nowhere close to put their cans. The park's fountain was repaired last spring."
   },
   "lp.a.lights": {
-   "text": "Keep the skate ramp lights on. The skate ramp lights should stay on until 8 p.m. Skating is obviously the coolest sport on the island. A youth club count found 15 skaters still on the ramp at 6:30 most evenings. The lights switch off at 6:30, and the ramp has no other lighting. This means skaters are riding in the dark, which is unsafe."
+   "text": "Keep the skate ramp lights on. The skate ramp lights should stay on until 8 p.m. Skating is obviously the coolest sport on the island. A youth club count found 15 skaters still on the ramp at 7:30 most evenings. The lights switch off at 6:30, and the ramp has no other lighting. This means skaters are riding in the dark, which is unsafe."
   },
   "lp.a.soup": {
    "text": "Bring back soup at lunch. The school should bring back a soup option at lunch. In a survey, 120 of 200 students chose soup as their favorite winter lunch. The cafeteria was painted yellow two years ago. Kitchen records show soup cost less per serving than sandwiches. So soup would be both popular and affordable."
   },
   "lp.a.boardwalk": {
-   "text": "A boardwalk for the tide pools. The island should build a boardwalk to the tide pools. Rangers report that most visitors step right onto the rocks to reach the pools. Last year's survey counted far fewer sea stars beside the path than in the far pools. This means a boardwalk could protect the animals by keeping feet off the rocks. Sea stars can be orange, purple or brown."
+   "text": "A boardwalk for the tide pools. The island should build a boardwalk to the tide pools. Rangers report that most visitors step right onto the rocks to reach the pools. Last year's survey counted far fewer sea stars beside the path than in pools away from the path. This means a boardwalk could protect the animals by keeping feet off the rocks. Sea stars can be orange, purple or brown."
   },
   "lp.a.rack": {
    "text": "A bike rack for the community hall. The community hall needs a bike rack. During one week of events, staff counted 22 bikes leaning against the walls. The hall can hold 150 people for a concert. Two of those bikes blocked the fire door. So a rack would keep the doors clear and the bikes tidy."
@@ -1109,7 +1113,7 @@
    "text": "One rainy Monday, the ferry ran late. Is that enough to say the ferry is usually late?"
   },
   "lp.s.enough.muffins": {
-   "text": "A café owner says her muffins are the best on the island. Is that enough to say they are the best?"
+   "text": "A café owner says his muffins are the best on the island. Is that enough to say they are the best?"
   },
   "lp.s.enough.seastars": {
    "text": "Rangers counted the sea stars in every tide pool each spring for five years, and the count fell every year. Is that enough to say the number of sea stars has gone down?"

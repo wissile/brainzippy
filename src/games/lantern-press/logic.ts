@@ -164,7 +164,7 @@ export function chainOf(ex: Exercise): string[] {
     case "connote": {
       const n = connoteOf(ex);
       const g = groupById(n.group);
-      return [`${g.positive} (+) · ${g.neutral} (0) · ${g.negative} (−)`, `The writer is ${n.cue} → ${n.want === "positive" ? "+" : "−"}: ${g[n.want]}`];
+      return [`${g.positive} (+) · ${g.neutral} (0) · ${g.negative} (−)`, `Clue: "${n.cue}" → ${n.want === "positive" ? "+" : "−"}: ${g[n.want]}`];
     }
     case "feelSort": return [];
     case "device": {

@@ -11,11 +11,11 @@ export type Tag =
   | "reversed" | "wrong-relation" | "comma-splice" | "run-on" | "meaning-shift" | "info-loss"
   | "still-misplaced" | "still-ambiguous" | "wordy" | "wrong-connotation" | "neutral"
   | "wrong-device" | "literal" | "misread" | "wrong-focus" | "shift"
-  | "irrelevant" | "anecdote" | "opinion" | "small-sample" | "too-strict";
+  | "irrelevant" | "anecdote" | "opinion" | "small-sample" | "too-strict" | "changed-fact";
 export const TAGS: readonly Tag[] = [
   "reversed", "wrong-relation", "comma-splice", "run-on", "meaning-shift", "info-loss", "still-misplaced", "still-ambiguous", "wordy",
   "wrong-connotation", "neutral", "wrong-device", "literal", "misread", "wrong-focus", "shift", "irrelevant", "anecdote", "opinion",
-  "small-sample", "too-strict",
+  "small-sample", "too-strict", "changed-fact",
 ];
 /** Usages that guides disagree on: never tagged as an error (docs §3.2). */
 export const EXCLUDED_USAGE = ["split-infinitive", "which-that", "initial-conjunction", "singular-they", "data-plural"] as const;
@@ -34,10 +34,10 @@ const C = (id: string, text: string, answer: string, relation: Relation, d: [str
 /** "___" marks the gap. Exactly one connective makes sense; "and" is never offered (it is always grammatical). */
 export const CONNECTIVES: readonly ConnectiveItem[] = [
   C("fog", "The ferry left late ___ the fog was thick.", "because", "cause", [["although", "wrong-relation"], ["so", "reversed"]], "The thick fog is the reason the ferry left late."),
-  C("tent", "The bake-off tent was packed, ___ Kofi set up his table outside.", "so", "result", [["because", "reversed"], ["although", "wrong-relation"]], "Setting up outside is the result of the packed tent."),
+  C("tent", "The bake-off tent was packed, ___ Kofi set up his table outside.", "so", "result", [["because", "reversed"], ["unless", "wrong-relation"]], "Setting up outside is the result of the packed tent."),
   C("exams", "The library is staying open late ___ exams start next week.", "because", "cause", [["although", "wrong-relation"], ["so", "reversed"]], "Exams next week are the reason for the late hours."),
   C("steep", "___ the path was steep, the walkers reached the lighthouse before dark.", "Although", "contrast", [["Because", "wrong-relation"], ["Until", "wrong-relation"]], "A steep path would slow them down, so reaching it before dark is a surprise."),
-  C("drum", "Mei kept practicing the drum part ___ she could play it with her eyes closed.", "until", "time", [["although", "wrong-relation"], ["unless", "wrong-relation"]], "She practiced up to the time she could play it with her eyes closed."),
+  C("drum", "Mei kept practicing the drum part ___ she could play it with her eyes closed.", "until", "time", [["because", "wrong-relation"], ["unless", "wrong-relation"]], "She practiced up to the time she could play it with her eyes closed."),
   C("wheel", "Students can use the pottery wheel ___ they sign the safety sheet first.", "if", "condition", [["unless", "reversed"], ["because", "wrong-relation"]], "Signing the sheet is the condition for using the wheel."),
   C("ducks", "Please don't feed the ducks ___ the ranger says it's okay.", "unless", "condition", [["because", "wrong-relation"], ["so", "wrong-relation"]], "The ranger's okay is the only condition that changes the rule."),
   C("boots", "Zara wore her heavy boots ___ the trail was dry.", "although", "contrast", [["because", "wrong-relation"], ["so", "reversed"]], "Heavy boots on a dry trail are a surprise."),
@@ -46,11 +46,11 @@ export const CONNECTIVES: readonly ConnectiveItem[] = [
   C("crossword", "Raj finished the crossword ___ the bus reached his stop.", "before", "time", [["because", "wrong-relation"], ["unless", "wrong-relation"]], "One thing happened earlier than the other: a time link."),
   C("market", "___ it rained all morning, the market still opened at ten.", "Although", "contrast", [["Because", "wrong-relation"], ["Unless", "wrong-relation"]], "Rain would keep a market closed, so opening anyway is a surprise."),
   C("choir", "The choir sang without microphones, ___ everyone in the hall could hear them.", "but", "contrast", [["so", "reversed"], ["unless", "wrong-relation"]], "No microphones, yet everyone heard: a surprise."),
-  C("bins", "The new bins are labeled with pictures ___ younger children know where things go.", "so", "purpose", [["although", "wrong-relation"], ["unless", "wrong-relation"]], "The pictures are there for a purpose: helping younger children."),
+  C("bins", "The new bins are labeled with pictures ___ younger children know where things go.", "so", "purpose", [["because", "reversed"], ["unless", "wrong-relation"]], "The pictures are there for a purpose: helping younger children."),
   C("puzzle", "The puzzle looked easy, ___ it took the whole class an hour.", "but", "contrast", [["so", "reversed"], ["because", "wrong-relation"]], "An easy-looking puzzle taking an hour is a surprise."),
   C("lemon", "The bakery sold out by noon ___ Priya's lemon bread was so popular.", "because", "cause", [["although", "wrong-relation"], ["so", "reversed"]], "The popular bread is the reason it sold out."),
   C("picnic", "The picnic will be on the beach ___ it rains, in which case it moves to the hall.", "unless", "condition", [["if", "reversed"], ["because", "wrong-relation"]], "Rain is the condition that moves the picnic."),
-  C("jam", "Jonah wrote the date on every jar ___ nobody would eat old jam.", "so", "purpose", [["although", "wrong-relation"], ["unless", "wrong-relation"]], "The dates have a purpose: keeping old jam from being eaten."),
+  C("jam", "Jonah wrote the date on every jar ___ nobody would eat old jam.", "so", "purpose", [["until", "wrong-relation"], ["unless", "wrong-relation"]], "The dates have a purpose: keeping old jam from being eaten."),
   C("bridge", "The bridge was repaired last spring, ___ the ferry still carries most of the bikes.", "but", "contrast", [["so", "reversed"], ["because", "wrong-relation"]], "A repaired bridge should take the bikes, so the ferry still carrying them is a surprise."),
   C("debate", "Nia's team won the debate ___ they had less time to prepare.", "although", "contrast", [["because", "wrong-relation"], ["so", "reversed"]], "Less time should make winning harder: a surprise."),
   C("lamp", "The lighthouse lamp turns on ___ the sun goes down.", "when", "time", [["although", "wrong-relation"], ["unless", "wrong-relation"]], "The lamp and the sunset happen at the same time."),
@@ -76,10 +76,10 @@ export const COMBINE: readonly CombineItem[] = [
     ["The concert was moved indoors, the forecast said heavy rain.", "comma-splice"],
     ["Although the forecast said heavy rain, the concert was moved indoors.", "meaning-shift"],
   ], "The forecast is the reason for the move: because."),
-  K("chain", ["Kenji fixed the bike chain.", "He used a borrowed tool.", "The shop was closed."], "Because the shop was closed, Kenji fixed the bike chain with a borrowed tool.", [
-    ["Kenji fixed the bike chain with a borrowed tool, the shop was closed.", "comma-splice"],
-    ["Kenji fixed the bike chain with a borrowed tool, so the shop was closed.", "reversed"],
-    ["Because the shop was closed, Kenji fixed the bike chain.", "info-loss"],
+  K("chain", ["Nia fixed the bike chain.", "She used a borrowed tool.", "The shop was closed."], "Because the shop was closed, Nia fixed the bike chain with a borrowed tool.", [
+    ["Nia fixed the bike chain with a borrowed tool, the shop was closed.", "comma-splice"],
+    ["Nia fixed the bike chain with a borrowed tool, so the shop was closed.", "reversed"],
+    ["Because the shop was closed, Nia fixed the bike chain.", "info-loss"],
   ], "The closed shop is the reason; the borrowed tool must stay."),
   K("garden", ["The garden needs water.", "It hasn't rained for two weeks."], "The garden needs water because it hasn't rained for two weeks.", [
     ["The garden needs water, it hasn't rained for two weeks.", "comma-splice"],
@@ -89,7 +89,7 @@ export const COMBINE: readonly CombineItem[] = [
   K("museum", ["The museum opens at nine.", "The café opens at ten."], "The museum opens at nine, but the café opens at ten.", [
     ["The museum opens at nine, the café opens at ten.", "comma-splice"],
     ["The museum opens at nine because the café opens at ten.", "meaning-shift"],
-    ["The museum and the café open at nine.", "meaning-shift"],
+    ["The museum and the café open at nine.", "changed-fact"],
   ], "Two different times: but shows the difference, and both times stay."),
   K("bus", ["Ana missed the bus.", "She walked to school.", "She was only five minutes late."], "Ana missed the bus and walked to school, but she was only five minutes late.", [
     ["Ana missed the bus, she walked to school, she was only five minutes late.", "comma-splice"],
@@ -121,10 +121,10 @@ export const COMBINE: readonly CombineItem[] = [
     ["Although the recycling bins are full, collection is on Monday, so please keep your cans at home until then.", "meaning-shift"],
     ["The recycling bins are full, so please keep your cans at home until then.", "info-loss"],
   ], "Keep every fact (full bins, Monday); keeping cans at home is the result: so."),
-  K("spelling", ["Priya won the spelling bee.", "She had practiced every evening."], "Priya won the spelling bee because she had practiced every evening.", [
-    ["Priya won the spelling bee, she had practiced every evening.", "comma-splice"],
-    ["Priya won the spelling bee, so she had practiced every evening.", "reversed"],
-    ["Priya won the spelling bee although she had practiced every evening.", "wrong-relation"],
+  K("spelling", ["Jonah won the spelling bee.", "He had practiced every evening."], "Jonah won the spelling bee because he had practiced every evening.", [
+    ["Jonah won the spelling bee, he had practiced every evening.", "comma-splice"],
+    ["Jonah won the spelling bee, so he had practiced every evening.", "reversed"],
+    ["Jonah won the spelling bee although he had practiced every evening.", "wrong-relation"],
   ], "Practicing is the reason for the win: because."),
 ];
 
@@ -142,11 +142,11 @@ export const ORDERS: readonly OrderItem[] = [
   O("lawn", ["The hall was booked.", "The choir practiced on the lawn."], ["The choir practiced", "on the lawn", "because", "the hall was booked."], "unless", "wrong-relation", "The booked hall is the reason, so the link is because."),
   O("sunrise", ["Kofi set his alarm for six.", "He wanted to see the sunrise."], ["Kofi set his alarm", "for six", "because", "he wanted to see the sunrise."], "although", "wrong-relation", "Seeing the sunrise is his reason, so the link is because."),
   O("canoe", ["Wear a life jacket.", "Then you can take the canoe out on the bay."], ["You can take the canoe", "out on the bay", "if", "you wear a life jacket."], "unless", "reversed", "The life jacket is the condition, so the link is if."),
-  O("final", ["Zara's team lost the first game.", "They still won the final on Saturday."], ["Zara's team won the final", "on Saturday", "although", "they lost the first game."], "because", "wrong-relation", "Losing first makes the win a surprise, so the link is although."),
+  O("final", ["Zara's team lost the first game.", "They still won the final on Saturday."], ["Zara's team won the final", "on Saturday", "although", "they had lost the first game."], "because", "wrong-relation", "Losing first makes the win a surprise, so the link is although."),
   O("gate", ["Someone left the gate open.", "The goats got into the garden last night."], ["The goats got into the garden", "last night", "because", "someone left the gate open."], "so", "reversed", "The open gate is the reason, so the link is because."),
   O("bench", ["The museum was crowded.", "Nia still found a quiet bench near the fossils."], ["Nia found a quiet bench", "near the fossils", "although", "the museum was crowded."], "because", "wrong-relation", "A quiet bench in a crowd is a surprise, so the link is although."),
   O("dry", ["The skate ramp stays closed this week.", "It will open when the wood is dry."], ["The skate ramp stays closed", "this week", "until", "the wood is dry."], "because", "wrong-relation", "It stays closed up to a time: until."),
-  O("ferry", ["Omar checked the timetable twice.", "He still missed the early ferry on Monday."], ["Omar missed the early ferry", "on Monday", "although", "he checked the timetable twice."], "because", "wrong-relation", "Checking twice and still missing it is a surprise: although."),
+  O("ferry", ["Omar checked the timetable twice.", "He still missed the early ferry on Monday."], ["Omar missed the early ferry", "on Monday", "although", "he had checked the timetable twice."], "because", "wrong-relation", "Checking twice and still missing it is a surprise: although."),
   O("power", ["The power went out.", "The lighthouse keeper lit an oil lamp."], ["The lighthouse keeper lit", "an oil lamp", "because", "the power went out."], "unless", "wrong-relation", "The power cut is the reason, so the link is because."),
   O("window", ["Lena moved the plant to the window.", "She wanted it to get more light."], ["Lena moved the plant", "to the window", "so", "it would get more light."], "although", "wrong-relation", "More light is her purpose, so the link is so."),
 ];
@@ -163,36 +163,36 @@ const M = (id: string, chunks: string[], wrong: number, literal: string, target:
 export const MODIFIERS: readonly ModifierItem[] = [
   M("barking", ["Barking at the mail cart,", "Kenji walked his dog", "to the beach."], 0, "Kenji was barking at the mail cart.", "the dog", "Kenji walked his dog to the beach while it barked at the mail cart.", [
     ["Kenji, barking at the mail cart, walked his dog to the beach.", "still-misplaced"], ["Barking at the mail cart, the dog walked Kenji to the beach.", "meaning-shift"]]),
-  M("scarf", ["Lena found a scarf", "in the lost-and-found box", "knitted by her grandmother."], 2, "The box was knitted by her grandmother.", "the scarf", "In the lost-and-found box, Lena found a scarf knitted by her grandmother.", [
-    ["Lena, knitted by her grandmother, found a scarf in the lost-and-found box.", "still-misplaced"], ["Her grandmother found a scarf knitted by Lena in the lost-and-found box.", "meaning-shift"]]),
+  M("scarf", ["Lena found a scarf", "in the lost-and-found box", "humming a tune."], 2, "The box was humming a tune.", "Lena", "Humming a tune, Lena found a scarf in the lost-and-found box.", [
+    ["A scarf in the lost-and-found box, humming a tune, was found by Lena.", "still-misplaced"], ["Humming a tune, the scarf found Lena.", "meaning-shift"]]),
   M("lanterns", ["Hanging from the ceiling,", "Mei admired", "the paper lanterns."], 0, "Mei was hanging from the ceiling.", "the lanterns", "Mei admired the paper lanterns hanging from the ceiling.", [
     ["Mei, hanging from the ceiling, admired the paper lanterns.", "still-misplaced"], ["Hanging from the ceiling, the paper lanterns admired Mei.", "meaning-shift"]]),
   M("shell", ["Raj found", "a shiny shell", "walking along the shore."], 2, "The shell was walking along the shore.", "Raj", "Walking along the shore, Raj found a shiny shell.", [
-    ["A shiny shell, walking along the shore, was found by Raj.", "still-misplaced"], ["Walking along the shore, a shiny shell found Raj.", "meaning-shift"]]),
-  M("cold", ["The coach handed out water bottles", "to the players", "that were ice cold."], 2, "The players were ice cold.", "the water bottles", "The coach handed out ice-cold water bottles to the players.", [
-    ["The coach, ice cold, handed out water bottles to the players.", "still-misplaced"], ["The players handed out ice-cold water bottles to the coach.", "meaning-shift"]]),
+    ["A shiny shell, walking along the shore, was found by Raj.", "still-misplaced"], ["Walking along the shore, a shell found Raj.", "meaning-shift"]]),
+  M("cold", ["The coach handed out water bottles", "to the players", "blowing her whistle."], 2, "The players were blowing her whistle.", "the coach", "Blowing her whistle, the coach handed out water bottles to the players.", [
+    ["The players, blowing her whistle, got water bottles from the coach.", "still-misplaced"], ["Blowing a whistle, the players handed the coach water.", "meaning-shift"]]),
   M("wrapped", ["Wrapped in shiny paper,", "Zara gave her brother", "the gift."], 0, "Zara was wrapped in shiny paper.", "the gift", "Zara gave her brother the gift wrapped in shiny paper.", [
     ["Zara, wrapped in shiny paper, gave her brother the gift.", "still-misplaced"], ["Wrapped in shiny paper, her brother gave Zara the gift.", "meaning-shift"]]),
   M("binoculars", ["Omar saw", "a pod of dolphins", "looking through his binoculars."], 2, "The dolphins were looking through his binoculars.", "Omar", "Looking through his binoculars, Omar saw a pod of dolphins.", [
-    ["A pod of dolphins, looking through his binoculars, was seen by Omar.", "still-misplaced"], ["Looking through his binoculars, a pod of dolphins saw Omar.", "meaning-shift"]]),
+    ["A pod of dolphins, looking through his binoculars, was seen by Omar.", "still-misplaced"], ["Looking through binoculars, the dolphins saw Omar.", "meaning-shift"]]),
   M("sandwich", ["Running late for the ferry,", "Nia's sandwich was left", "on the kitchen table."], 0, "The sandwich was running late for the ferry.", "Nia", "Running late for the ferry, Nia left her sandwich on the kitchen table.", [
     ["Nia's sandwich, running late for the ferry, was left on the kitchen table.", "still-misplaced"], ["Nia's sandwich made her late for the ferry.", "meaning-shift"]]),
-  M("bell", ["Mina bought a bike", "from a neighbor", "with a squeaky bell."], 2, "The neighbor had a squeaky bell.", "the bike", "Mina bought a bike with a squeaky bell from a neighbor.", [
-    ["Mina, with a squeaky bell, bought a bike from a neighbor.", "still-misplaced"], ["A neighbor bought a bike with a squeaky bell from Mina.", "meaning-shift"]]),
+  M("bell", ["Mina rang the bike bell", "at the crossing", "grinning from ear to ear."], 2, "The crossing was grinning from ear to ear.", "Mina", "Grinning from ear to ear, Mina rang the bike bell at the crossing.", [
+    ["Mina rang the bike bell at the crossing, which was grinning from ear to ear.", "still-misplaced"], ["Grinning from ear to ear, the bell rang at Mina.", "meaning-shift"]]),
   M("bed", ["Tomás read", "about the shipwreck", "lying in bed."], 2, "The shipwreck was lying in bed.", "Tomás", "Lying in bed, Tomás read about the shipwreck.", [
     ["The shipwreck, lying in bed, was read about by Tomás.", "still-misplaced"], ["Tomás read about the shipwreck before lying in bed.", "meaning-shift"]]),
   M("box", ["After finishing the puzzle,", "the box was put away", "by Lena."], 0, "The box finished the puzzle.", "Lena", "After finishing the puzzle, Lena put the box away.", [
     ["The box, after finishing the puzzle, was put away by Lena.", "still-misplaced"], ["After Lena put the box away, she finished the puzzle.", "meaning-shift"]]),
   M("flashlight", ["The ranger showed the children", "a turtle", "using a flashlight."], 2, "The turtle was using a flashlight.", "the ranger", "Using a flashlight, the ranger showed the children a turtle.", [
-    ["The ranger showed the children, using a flashlight, a turtle.", "still-misplaced"], ["Using a flashlight, the children showed the ranger a turtle.", "meaning-shift"]]),
+    ["The ranger showed the children, using a flashlight, a turtle.", "still-misplaced"], ["Using a flashlight, the kids showed the ranger a turtle.", "meaning-shift"]]),
   M("blue", ["Painted bright blue,", "Kofi parked his boat", "by the dock."], 0, "Kofi was painted bright blue.", "the boat", "Kofi parked his boat, which was painted bright blue, by the dock.", [
     ["Kofi, painted bright blue, parked his boat by the dock.", "still-misplaced"], ["Painted bright blue, the dock was where Kofi parked his boat.", "meaning-shift"]]),
   M("melted", ["Melted by the sun,", "Jonah threw away", "the chocolate bar."], 0, "Jonah was melted by the sun.", "the chocolate bar", "Jonah threw away the chocolate bar melted by the sun.", [
     ["Jonah, melted by the sun, threw away the chocolate bar.", "still-misplaced"], ["Jonah melted the chocolate bar in the sun and threw it away.", "meaning-shift"]]),
   M("sandals", ["Aiyana noticed", "a crab on the rocks", "wearing her new sandals."], 2, "The crab was wearing her new sandals.", "Aiyana", "Wearing her new sandals, Aiyana noticed a crab on the rocks.", [
-    ["A crab on the rocks, wearing her new sandals, was noticed by Aiyana.", "still-misplaced"], ["Wearing her new sandals, a crab noticed Aiyana on the rocks.", "meaning-shift"]]),
-  M("loaf", ["The baker gave a loaf", "to the boy", "still warm from the oven."], 2, "The boy was still warm from the oven.", "the loaf", "The baker gave the boy a loaf still warm from the oven.", [
-    ["Still warm from the oven, the baker gave a loaf to the boy.", "still-misplaced"], ["The boy gave the baker a loaf still warm from the oven.", "meaning-shift"]]),
+    ["A crab on the rocks, wearing her new sandals, was noticed by Aiyana.", "still-misplaced"], ["Wearing her new sandals, a crab noticed Aiyana.", "meaning-shift"]]),
+  M("loaf", ["The baker handed the girl", "a fresh loaf", "dusting flour off his hands."], 2, "The loaf was dusting flour off his hands.", "the baker", "Dusting flour off his hands, the baker handed the girl a fresh loaf.", [
+    ["A fresh loaf, dusting flour off his hands, was handed to the girl by the baker.", "still-misplaced"], ["Dusting flour off her hands, the girl handed the baker a loaf.", "meaning-shift"]]),
 ];
 
 // ---------------------------------------------------------------- L3 pronoun reference
@@ -225,7 +225,7 @@ export const PRONOUNS: readonly PronounItem[] = [
     ["Tomás put his phone on the speaker, and then that stopped working.", "still-ambiguous"], ["Tomás put his phone on the speaker, and then the phone stopped working.", "meaning-shift"]]),
   P("idea", ["The coach told Sami that", "his", "idea would help the team."], [1], ["the coach", "Sami"], "It was Sami's idea.", "The coach told Sami, \"Your idea will help the team.\"", [
     ["The coach told Sami that his idea was going to help the team.", "still-ambiguous"], ["The coach told Sami, \"My idea will help the team.\"", "meaning-shift"]]),
-  P("cousin", ["Jonah emailed", "his", "cousin after", "he", "moved to the island."], [3], ["Jonah", "his cousin"], "The cousin moved to the island.", "After his cousin moved to the island, Jonah emailed him.", [
+  P("cousin", ["Jonah emailed", "his", "cousin after", "he", "moved to the island."], [3], ["Jonah", "his cousin"], "The cousin moved to the island.", "Jonah emailed his cousin after the cousin moved to the island.", [
     ["After he moved to the island, Jonah emailed his cousin.", "still-ambiguous"], ["After Jonah moved to the island, he emailed his cousin.", "meaning-shift"]]),
   P("vacation", ["Kenji wrote to Omar while", "he", "was on vacation."], [1], ["Kenji", "Omar"], "Omar was on vacation.", "While Omar was on vacation, Kenji wrote to him.", [
     ["Kenji wrote to Omar when he was on vacation.", "still-ambiguous"], ["While Kenji was on vacation, he wrote to Omar.", "meaning-shift"]]),
@@ -272,7 +272,7 @@ export const CONCISE: readonly ConciseItem[] = [
   Q("rain", "In the event that it rains, the market will move into the school gym.", "If it rains, the market will move into the school gym.", "The market will move into the school gym.", "In the case that it should rain, the market will move into the school gym.", "In the event that → If"),
   Q("repairs", "At this point in time, the skate ramp is closed for repairs.", "The skate ramp is now closed for repairs.", "The skate ramp is closed.", "At the present moment in time, the skate ramp is closed for repairs.", "At this point in time → now"),
   Q("engine", "The reason why the ferry was late is because the engine needed fixing.", "The ferry was late because the engine needed fixing.", "The ferry was late.", "The reason the ferry was late is due to the fact that the engine needed fixing.", "The reason why … is because → because"),
-  Q("robotics", "Kenji made the decision to join the robotics club.", "Kenji decided to join the robotics club.", "Kenji joined a club.", "Kenji came to the decision that he would join the robotics club.", "made the decision to → decided to"),
+  Q("robotics", "Zara made the decision to join the robotics club.", "Zara decided to join the robotics club.", "Zara joined a club.", "Zara came to the decision that she would join the robotics club.", "made the decision to → decided to"),
   Q("ocean", "The library has a large number of books about the ocean.", "The library has many books about the ocean.", "The library has books.", "The library has a very large number of books on the subject of the ocean.", "a large number of → many"),
   Q("pie", "Mei is of the opinion that the bake-off should have a pie category.", "Mei thinks the bake-off should have a pie category.", "Mei wants a bake-off.", "Mei holds the opinion and belief that the bake-off should have a pie category.", "is of the opinion that → thinks"),
   Q("survey", "The tide-pool survey was conducted by the students for the purpose of counting crabs.", "The students did the tide-pool survey to count crabs.", "The students did a survey.", "The students conducted the tide-pool survey with the purpose and aim of counting crabs.", "for the purpose of counting → to count"),
@@ -290,34 +290,34 @@ const V = (id: string, purpose: string, passive: boolean, doer: string, thing: s
 export const PURPOSES: readonly PurposeItem[] = [
   V("window", "Focus on the window, not on what broke it.", true, "the storm", "the window", "The window was broken during the storm.", [["The storm broke the window.", "wrong-focus"], ["During the storm, something broke the window.", "wrong-focus"]]),
   V("cleanup", "Make it clear that the volunteers did the cleanup.", false, "the volunteers", "the beach", "The volunteers cleaned up the beach on Saturday.", [["The beach was cleaned up on Saturday.", "wrong-focus"], ["Cleaning up the beach happened on Saturday.", "wrong-focus"]]),
-  V("map", "Nobody knows who took the map. Report only what happened to it.", true, "an unknown person", "the map", "The old map was taken from the museum last night.", [["A thief from the harbor took the old map from the museum last night.", "meaning-shift"], ["The museum took the old map last night.", "meaning-shift"]]),
-  V("decision", "Make it clear who made the decision: the coach.", false, "the coach", "the game", "The coach moved the game to Sunday.", [["The game was moved to Sunday.", "wrong-focus"], ["The game was moved to Sunday by the weather.", "meaning-shift"]]),
+  V("map", "Nobody knows who took the map. Report only what happened to it.", true, "an unknown person", "the map", "The old map was taken from the museum last night.", [["A thief from the harbor took the old map from the museum last night.", "changed-fact"], ["The museum took the old map last night.", "changed-fact"]]),
+  V("decision", "Make it clear who made the decision: the coach.", false, "the coach", "the game", "The coach moved the game to Sunday.", [["The game was moved to Sunday.", "wrong-focus"], ["The game was moved to Sunday by the weather.", "changed-fact"]]),
   V("samples", "A science report: focus on what was done, not on who did it.", true, "the students", "the water samples", "The water samples were collected at low tide.", [["We collected the water samples at low tide.", "wrong-focus"], ["At low tide, the students collected the water samples.", "wrong-focus"]]),
   V("mural", "Give credit to the student who painted the mural.", false, "Kofi", "the mural", "Kofi painted the mural by the library door.", [["The mural by the library door was painted.", "wrong-focus"], ["A mural appeared by the library door.", "wrong-focus"]]),
   V("gate", "A safety notice: the important thing is the gate, not who locks it.", true, "the caretaker", "the gate", "The gate is locked every night at nine.", [["The caretaker locks the gate every night at nine.", "wrong-focus"], ["Every night at nine, someone locks the gate.", "wrong-focus"]]),
   V("vase", "Report what happened to the vase without blaming anyone.", true, "Rumble", "the vase", "The vase was knocked off the shelf.", [["Rumble knocked the vase off the shelf.", "wrong-focus"], ["Rumble's tail knocked the vase off the shelf.", "wrong-focus"]]),
   V("award", "Make it clear who won the award: Priya's team.", false, "Priya's team", "the award", "Priya's team won the design award.", [["The design award was won.", "wrong-focus"], ["The design award was given out.", "wrong-focus"]]),
   V("bridge", "The news is the bridge, not the builders.", true, "the builders", "the bridge", "The new bridge was finished on Friday.", [["The builders finished the new bridge on Friday.", "wrong-focus"], ["On Friday, the builders finished the new bridge.", "wrong-focus"]]),
-  V("fair", "Show that the students organized the fair themselves.", false, "the students", "the fair", "The students organized the science fair themselves.", [["The science fair was organized.", "wrong-focus"], ["The science fair was organized by the school.", "meaning-shift"]]),
-  V("bread", "A menu note: what matters is the bread, not the baker.", true, "the baker", "the bread", "All our bread is baked fresh every morning.", [["Our baker bakes all the bread fresh every morning.", "wrong-focus"], ["Every morning, Mei bakes all our bread fresh.", "wrong-focus"]]),
+  V("fair", "Show that the students organized the fair themselves.", false, "the students", "the fair", "The students organized the science fair themselves.", [["The science fair was organized.", "wrong-focus"], ["The science fair was organized by the school.", "changed-fact"]]),
+  V("bread", "A menu note: what matters is the bread, not the baker.", true, "the baker", "the bread", "All our bread is baked fresh every morning.", [["Our baker bakes all the bread fresh every morning.", "wrong-focus"], ["Every morning, Kofi bakes all our bread fresh.", "wrong-focus"]]),
 ];
 
-/** Fix an inappropriate shift from active to passive (or back) in one sentence. */
+/** Fix an inappropriate shift from active to passive (or back) in one sentence, keeping every fact (who did it). */
 export interface ShiftItem { id: string; text: string; answer: string; doer: string; distractors: readonly Tagged[] }
 const S = (id: string, text: string, doer: string, answer: string, flipped: string, lost: string): ShiftItem =>
-  ({ id, text, doer, answer, distractors: [{ text: flipped, tag: "shift" }, { text: lost, tag: "shift" }] });
+  ({ id, text, doer, answer, distractors: [{ text: flipped, tag: "shift" }, { text: lost, tag: "info-loss" }] });
 export const SHIFTS: readonly ShiftItem[] = [
-  S("fence", "Tomás painted the fence, and then the gate was painted by him.", "Tomás", "Tomás painted the fence and then the gate.", "The fence was painted by Tomás, and then he painted the gate.", "Tomás painted the fence, and then the gate was painted."),
-  S("poem", "Nia wrote the poem, and it was read aloud by her at the assembly.", "Nia", "Nia wrote the poem and read it aloud at the assembly.", "The poem was written by Nia, and she read it aloud at the assembly.", "Nia wrote the poem, and it was read aloud at the assembly."),
-  S("seeds", "The class planted the seeds, and then the beds were watered by them.", "the class", "The class planted the seeds and then watered the beds.", "The seeds were planted by the class, and then they watered the beds.", "The class planted the seeds, and then the beds were watered."),
-  S("tent", "Kenji packed the tent, and the stove was carried to the car by him.", "Kenji", "Kenji packed the tent and carried the stove to the car.", "The tent was packed by Kenji, and he carried the stove to the car.", "Kenji packed the tent, and the stove was carried to the car."),
-  S("cans", "The volunteers sorted the cans, and the bottles were washed by them.", "the volunteers", "The volunteers sorted the cans and washed the bottles.", "The cans were sorted by the volunteers, and they washed the bottles.", "The volunteers sorted the cans, and the bottles were washed."),
-  S("jam", "Mei baked the bread, and the jam was made by her too.", "Mei", "Mei baked the bread and made the jam too.", "The bread was baked by Mei, and she made the jam too.", "Mei baked the bread, and the jam was made too."),
-  S("robot", "Our team built the robot, and the code was written by us as well.", "our team", "Our team built the robot and wrote the code as well.", "The robot was built by our team, and we wrote the code as well.", "Our team built the robot, and the code was written as well."),
-  S("kitten", "Zara found the lost kitten, and it was carried home by her.", "Zara", "Zara found the lost kitten and carried it home.", "The lost kitten was found by Zara, and she carried it home.", "Zara found the lost kitten, and it was carried home."),
-  S("sign", "The ranger checked the trail, and the broken sign was fixed by him.", "the ranger", "The ranger checked the trail and fixed the broken sign.", "The trail was checked by the ranger, and he fixed the broken sign.", "The ranger checked the trail, and the broken sign was fixed."),
-  S("pools", "Omar measured the tide pools, and the crabs were counted by him.", "Omar", "Omar measured the tide pools and counted the crabs.", "The tide pools were measured by Omar, and he counted the crabs.", "Omar measured the tide pools, and the crabs were counted."),
-  S("poster", "Priya designed the poster, and the copies were printed by her at the library.", "Priya", "Priya designed the poster and printed the copies at the library.", "The poster was designed by Priya, and she printed the copies at the library.", "Priya designed the poster, and the copies were printed at the library."),
-  S("song", "The choir learned the song, and it was performed by them at the harbor festival.", "the choir", "The choir learned the song and performed it at the harbor festival.", "The song was learned by the choir, and they performed it at the harbor festival.", "The choir learned the song, and it was performed at the harbor festival."),
-  S("letters", "The letters were sorted by the post office, and then the post office delivered them.", "the post office", "The post office sorted the letters and then delivered them.", "The post office sorted the letters, and then they were delivered by it.", "The letters were sorted, and then the post office delivered them."),
+  S("fence", "Tomás painted the fence, and then the gate was painted by him.", "Tomás", "Tomás painted the fence and then the gate.", "The fence was painted by Tomás, and then he painted the gate.", "The fence and then the gate were painted."),
+  S("poem", "Nia wrote the poem, and it was read aloud by her at the assembly.", "Nia", "Nia wrote the poem and read it aloud at the assembly.", "The poem was written by Nia, and she read it aloud at the assembly.", "The poem was written and then read aloud."),
+  S("seeds", "The class planted the seeds, and then the beds were watered by them.", "the class", "The class planted the seeds and then watered the beds.", "The seeds were planted by the class, and then they watered the beds.", "The seeds were planted and the beds watered."),
+  S("tent", "Kenji packed the tent, and the stove was carried to the car by him.", "Kenji", "Kenji packed the tent and carried the stove to the car.", "The tent was packed by Kenji, and he carried the stove to the car.", "The tent was packed and the stove carried."),
+  S("cans", "The volunteers sorted the cans, and the bottles were washed by them.", "the volunteers", "The volunteers sorted the cans and washed the bottles.", "The cans were sorted by the volunteers, and they washed the bottles.", "The cans were sorted and the bottles washed."),
+  S("jam", "Omar baked the bread, and the jam was made by him too.", "Omar", "Omar baked the bread and made the jam too.", "The bread was baked by Omar, and he made the jam too.", "The bread was baked and the jam made."),
+  S("robot", "Our team built the robot, and the code was written by us as well.", "our team", "Our team built the robot and wrote the code as well.", "The robot was built by our team, and we wrote the code as well.", "The robot was built and the code written."),
+  S("kitten", "Zara found the lost kitten, and it was carried home by her.", "Zara", "Zara found the lost kitten and carried it home.", "The lost kitten was found by Zara, and she carried it home.", "The kitten was found and carried home."),
+  S("sign", "The ranger checked the trail, and the broken sign was fixed by her.", "the ranger", "The ranger checked the trail and fixed the broken sign.", "The trail was checked by the ranger, and she fixed the broken sign.", "The trail was checked and the sign fixed."),
+  S("pools", "Omar measured the tide pools, and the crabs were counted by him.", "Omar", "Omar measured the tide pools and counted the crabs.", "The tide pools were measured by Omar, and he counted the crabs.", "The pools were measured and the crabs counted."),
+  S("poster", "Priya designed the poster, and the copies were printed by her at the library.", "Priya", "Priya designed the poster and printed the copies at the library.", "The poster was designed by Priya, and she printed the copies at the library.", "The poster was designed and the copies printed."),
+  S("song", "The choir learned the song, and it was performed by them at the harbor festival.", "the choir", "The choir learned the song and performed it at the harbor festival.", "The song was learned by the choir, and they performed it at the harbor festival.", "The song was learned and then performed."),
+  S("letters", "The letters were sorted by the post office, and then the post office delivered them.", "the post office", "The post office sorted the letters and then delivered them.", "The post office sorted the letters, and then they were delivered by it.", "The letters were sorted and then delivered."),
 ];

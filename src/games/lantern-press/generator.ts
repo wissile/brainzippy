@@ -3,7 +3,7 @@ import { type Rng, createRng, hashSeed } from "../../engine/rng";
 import { ARTICLES, type Article, ENOUGH, ROLES, ROLE_LABEL, STRONGEST } from "./articles";
 import { MODE, TUTORIAL_ITEM, answerTextOf, claimIndex, optId, spoken } from "./logic";
 import { COMBINE, CONCISE, CONNECTIVES, CUTS, MODIFIERS, ORDERS, PRONOUNS, PURPOSES, SHIFTS, type Tagged } from "./sentences";
-import { CONNOTE, DEVICES, DEVICE_DISTRACTORS, DEVICE_LABEL, FEELINGS, FIG_LINES, WORD_GROUPS } from "./words";
+import { CONNOTE, DEVICES, DEVICE_DISTRACTORS, DEVICE_LABEL, FEELINGS, FIG_LINES, SORT_GROUPS, WORD_GROUPS } from "./words";
 
 /**
  * The Lantern Press — procedural rounds. PURE and deterministic: same (level, rng, index, band) → same exercise.
@@ -19,8 +19,9 @@ import { CONNOTE, DEVICES, DEVICE_DISTRACTORS, DEVICE_LABEL, FEELINGS, FIG_LINES
  *   8 claims         tap the 2 pieces of evidence · sort an article's sentences (claim / evidence / reasoning / doesn't support)
  *   9 evaluating     strongest evidence · tap the sentence that doesn't support · is it enough? · every odd item is review
  * Modes alternate by index % 2. From level 3, items with index % 4 === 3 are interleaved review from an earlier level,
- * stamped with that level's skill (ENGLISH_PATH §3.2). At levels 8–9 the two questions of a pair read one article
- * (L8: items 0+1 and 4+5; L9: items 2+3 and 6+7, where 3 and 7 review level 8 on the same article). Banks are
+ * stamped with that level's skill (ENGLISH_PATH §3.2). At level 9 the two questions of a pair read one article
+ * (L9: items 2+3 and 6+7: "which sentence doesn't support?", then the evidence question as level-8 review; at L8 every
+ * item reads its own article, so a labelling item never follows a question that gives its answers away). Banks are
  * shuffled once per band (band.seed), so a band never repeats an item.
  */
 export const SKILLS = {
@@ -185,8 +186,11 @@ function genConnote(c: Ctx, pos: number): Gen {
   } as Gen;
 }
 function genFeelSort(c: Ctx, pos: number): Gen {
-  const order = createRng(hashSeed(c.band.seed, "groups")).shuffle(WORD_GROUPS.map((_, i) => i));
-  const [i1, i2] = [order[(2 * pos) % order.length]!, order[(2 * pos + 1) % order.length]!];
+  // only clear-cut groups are sorted out of context (QA/content review); a band uses distinct pairs of them
+  const ids = SORT_GROUPS.map((g) => WORD_GROUPS.findIndex((w) => w.id === g));
+  const pairs = ids.flatMap((a, i) => ids.slice(i + 1).map((b) => [a, b] as const));
+  const [p1, p2] = createRng(hashSeed(c.band.seed, "groups")).shuffle(pairs)[pos % pairs.length]!;
+  const [i1, i2] = c.rng.chance(0.5) ? [p1, p2] : [p2, p1];
   const groups = [WORD_GROUPS[i1]!, WORD_GROUPS[i2]!];
   const words = groups.flatMap((g) => FEELINGS.map((f) => [g[f], f] as const));
   const items = c.rng.shuffle(words.map(([w]) => ({ id: w, text: w })));
@@ -251,7 +255,7 @@ function genShift(c: Ctx, pos: number): Gen {
     ...c.base, id: `lp-shift-${item.id}-${c.tag}`,
     objective: "Fix a sentence that switches between active and passive voice for no reason",
     answer: { kind: "choice", ...a }, objectKind: "proof", params: { m: MODE.shift, k: index },
-    prompt: { line: "lp.prompt.shift", text: "Which version fixes the switch in voice?" },
+    prompt: { line: "lp.prompt.shift", text: "Which version fixes the switch in voice and keeps every fact?" },
     a11yDescription: `Sentence: ${item.text} Three versions: ${listed(a.options)}. Choose the one that keeps one doer in charge.`,
   } as Gen;
 }
@@ -334,9 +338,9 @@ function generateAt(level: number, c: Ctx, index: number): Gen {
     case 6: return even ? genDevice(c, index) : genFigMeaning(c, index);
     case 7: return even ? genPurpose(c, half) : genShift(c, half);
     case 8: {
-      // articles: a0 → items 0 (tap) + 1 (sort) · a1 → item 2 (tap) · a2 → items 4 + 5 · a3 → item 6 (sort)
-      const slot = [0, 0, 1, 1, 2, 2, 3, 3][index % 8]!;
-      const art = articleAt(c.band, "article", slot);
+      // every level-8 item reads its own article: a labelling item right after an evidence item on the same article
+      // would give away two or three labels (QA review)
+      const art = articleAt(c.band, "article", index % 8);
       return index % 8 === 6 || index % 2 === 1 ? genClaimSort(c, art) : genEvidenceTap(c, art);
     }
     default: {
@@ -357,10 +361,9 @@ export const generateLanternPress: ExerciseGenerator = (level, rng, index, band)
   const ctx = (src: number, t: string): Ctx => ({ rng, band: b, tag: t, base: { ages: LP_AGES, skillId: LEVEL_SKILL[src], interaction: "choose", seed: rng.int(1, 999_999) } });
   if (isReview(lv, index)) {
     if (lv === 9 && index % 4 === 3) {
-      // the second question on the article of item index - 1: a level-8 question (claim and evidence), as review
-      const art = articleAt(b, "article9", index % 8 < 4 ? 0 : 1);
-      const c = ctx(8, `r8-${tag}`);
-      return rng.int(0, 1) === 0 ? genEvidenceTap(c, art) : genClaimSort(c, art);
+      // the second question on the article of item index - 1 ("which sentence doesn't support?"): the evidence
+      // question, as level-8 review. A different question type, so the first answer gives little away (QA review)
+      return genEvidenceTap(ctx(8, `r8-${tag}`), articleAt(b, "article9", index % 8 < 4 ? 0 : 1));
     }
     const src = lv === 9 ? rng.int(0, 7) : rng.int(Math.max(0, lv - 4), lv - 1);
     const at = rng.int(0, 1) === 0 ? index : index - 1;
