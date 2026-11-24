@@ -314,7 +314,9 @@
   .game.play-screen:has(.lp-stage) > .helper {
     position: relative; inset: auto; grid-area: mascot; align-self: start; justify-self: stretch; z-index: 3;
     flex-direction: column; align-items: center; gap: 6px; margin-top: 6px; min-width: 0;
+    animation-name: helper-pop; /* pops in place instead of sliding in across the prompt and the board */
   }
+  .game.play-screen:has(.lp-stage) > .helper.leaving { animation-name: helper-drop; }
   .game.play-screen:has(.lp-stage) > .helper .helper-bubble { max-width: 100%; margin-top: 0; }
   .game.play-screen:has(.lp-stage) > .helper .helper-bubble.tail-right::after { right: auto; top: auto; bottom: -14px; left: 50%; margin: 0 0 0 -11px; transform: rotate(45deg); }
 }

@@ -549,6 +549,7 @@ test("layout: targets ≥ 44px, on screen and never overlapping at the four view
     [1, "combine"], [1, "order"], [2, "modTap"], [2, "modFix"], [3, "pronTap"], [3, "pronFix"], [4, "cutTap"], [4, "concise"], [5, "connote"], [5, "feelSort"],
     [6, "device"], [6, "figMeaning"], [7, "purpose"], [7, "shift"], [8, "evidenceTap"], [8, "claimSort"], [9, "strongest"], [9, "offTap"], [9, "enough"],
   ] as const;
+  let missHelpers = 0;
   for (const [level, mode] of MODES) {
     await goLevel(page, level);
     const b = await toMode(page, mode);
@@ -561,12 +562,13 @@ test("layout: targets ≥ 44px, on screen and never overlapping at the four view
         for (const id of ids) await press(page, choice(id));
         await press(page, '[data-testid="done"]');
       } else await missOnce(page, b);
-      await answering(page);
       // Hoot's first-miss strategy on a large landscape screen (the one place his bubble floats)
-      if (await page.getByTestId("helper").isVisible().catch(() => false)) {
+      if (await page.getByTestId("helper").waitFor({ state: "visible", timeout: 10_000 }).then(() => true).catch(() => false)) {
         await helperClear(`helper-miss1-L${level + 1}-${mode} 1280x800`);
         await page.screenshot({ path: `${REVIEW}/helper-miss1-L${level + 1}-${mode}-1280x800.png` });
+        missHelpers++;
       }
+      await answering(page);
       await helperGone(page);
       await check(`miss1-L${level + 1}-${mode}`);
       if (mode === "order") {
@@ -581,6 +583,7 @@ test("layout: targets ≥ 44px, on screen and never overlapping at the four view
       await check(`miss2-L${level + 1}-${mode}`);
     }
   }
+  expect(missHelpers, "first-miss helper bubbles checked").toBeGreaterThan(0);
   // reward after a level-1 round by tap
   await goLevel(page, 0);
   await playRest(page, "tap");
