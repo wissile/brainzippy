@@ -17,6 +17,10 @@
     "path.view.end": { "text": "You explored this whole path! Play again, or choose a new adventure." },
     "path.offer.tired": { "text": "Great playing! Want to try another path for a while? You can come back anytime." },
     "path.offer.tricky": { "text": "Shall we try another path for a bit? This one will wait for you." },
-    "path.offer.end": { "text": "You explored this whole path! Want to try another one?" }
+    "path.offer.end": { "text": "You explored this whole path! Want to try another one?" },
+    "path.note.skip": { "text": "Zoom! You're ready for a bigger challenge!" },
+    "path.note.next": { "text": "You're ready for the next stop on your path!" },
+    "path.note.down": { "text": "Great practice! Next time: a warm-up round!" },
+    "path.note.end": { "text": "You explored the whole path!" }
   }
 }

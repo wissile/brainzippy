@@ -523,6 +523,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
   const { Mascot, Background, ObjectArt, Basket, Sticker } = skin;
   const profile = loadState().profile;
   const backTo = hooks.backTo?.(game.id) ?? (profile.step === "done" ? "/map" : `/play/${loadState().ageBand ?? "ages-3-5"}`);
+  const backLabel = backTo === "/path" ? "Back to my path" : "Back to the map";
   const ex = st?.exercise;
   const doneCount = prog.results.length;
   const bubble = helper ? "" : caption; // while a helper talks, only the helper's bubble shows
@@ -548,7 +549,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
     return (
       <main className="game intro-screen">
         <Background />
-        <div className="game-top"><NavButton to={backTo} kind="back" label="Back to the map" /><span className="level-chip" data-testid="level">Level {level + 1}</span><AudioButtons /></div>
+        <div className="game-top"><NavButton to={backTo} kind="back" label={backLabel} /><span className="level-chip" data-testid="level">Level {level + 1}</span><AudioButtons /></div>
         <div className="intro-card">
           <div className="intro-mascot"><Mascot state={mascot} talking={speaking} size="100%" /></div>
           <SpeechBubble text={bubble || (resume ? (skin.intro?.backText ?? "Welcome back! Let's keep counting!") : (skin.intro?.text ?? "Hi! I'm Bobbo! Will you help me count my snacks?"))} tail="left" className="intro-bubble" />
@@ -565,7 +566,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
     return (
       <main className={`game reward-screen stage-${stage}`}>
         <Background />
-        <div className="game-top"><NavButton to={backTo} kind="back" label="Back to the map" /><Stars total={game.progression.roundLength} done={doneCount} /><AudioButtons /></div>
+        <div className="game-top"><NavButton to={backTo} kind="back" label={backLabel} /><Stars total={game.progression.roundLength} done={doneCount} /><AudioButtons /></div>
         {stage === "complete" ? (
           <div className="complete-wrap">
             <div className="complete-mascot"><Mascot state="celebrating" talking={speaking} size="100%" /></div>
@@ -651,7 +652,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
     <main className={`game play-screen kind-${ex.interaction}`} data-testid="game-screen" data-exercise={ex.id} data-phase={st.phase}>
       <Background />
       <div className="game-top">
-        <NavButton to={backTo} kind="back" label="Back to the map" />
+        <NavButton to={backTo} kind="back" label={backLabel} />
         <span className="top-mid"><span className="level-chip" data-testid="level">Lv {level + 1}</span><Stars total={game.progression.roundLength} done={doneCount} /></span>
         <AudioButtons />
       </div>

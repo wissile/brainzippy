@@ -147,6 +147,8 @@ export interface ExerciseResult {
   attempts: number;     // number of submitted answers, including the final correct one
   firstTry: boolean;
   hintsShown: number;
+  /** Chance a random first answer would be right (0 = built/typed answers); learning paths' struggling rule (docs/PATHS.md C1). */
+  chance?: number;
 }
 
 export interface ProgressionConfig {

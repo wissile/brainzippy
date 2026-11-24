@@ -9,6 +9,7 @@ import { IconPlay } from "../ui/icons";
 import { visiblePaths } from "./flags";
 import type { LearningPath } from "./registry";
 import { currentPath, currentStop, pickPath, preparePlay, setPathPlay } from "./state";
+import { SubjectIcon } from "./SubjectIcon";
 import { useSpeakOnMount } from "./useSpeak";
 import "./paths.css";
 
@@ -23,6 +24,11 @@ export function PathPicker() {
   const moved = useRef(false);
   useSpeakOnMount(() => [{ id: "path.pick.hello" }], () => moved.current);
   const chosen = paths.find((p) => p.id === sel) ?? null;
+  // screen change: focus the selected card, else the heading (keyboard and screen-reader users land in the new screen)
+  useEffect(() => {
+    const card = sel ? document.querySelector<HTMLElement>(`[data-testid="path-card-${sel}"]`) : null;
+    (card ?? document.getElementById("path-picker-title"))?.focus({ preventScroll: true });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const choose = (p: LearningPath) => {
     moved.current = true;
@@ -39,7 +45,7 @@ export function PathPicker() {
 
   return (
     <section className="paths-panel path-picker" data-testid="path-picker" aria-labelledby="path-picker-title">
-      <h2 id="path-picker-title" className="paths-heading">Choose your adventure</h2>
+      <h2 id="path-picker-title" className="paths-heading" tabIndex={-1}>Choose your adventure</h2>
       <ul className="path-cards" role="list">
         {paths.map((p) => (
           <li key={p.id}>
@@ -53,9 +59,17 @@ export function PathPicker() {
               aria-label={`${p.title}${cur === p.id ? ", your path" : ""}. Hear it and choose`}
               onClick={() => choose(p)}
             >
-              <span className="path-card-host" aria-hidden="true"><Critter id={p.host} color={p.library.theme.main} /></span>
+              <span className="path-card-host" aria-hidden="true">
+                <Critter id={p.host} color={p.library.theme.main} />
+                <span className="path-card-subject"><SubjectIcon id={p.id} /></span>
+              </span>
               <span className="path-card-title" aria-hidden="true">{p.title}</span>
               {cur === p.id && <span className="path-card-badge" aria-hidden="true">Your path</span>}
+              {sel === p.id && (
+                <span className="path-card-tick" aria-hidden="true" data-testid="path-card-tick">
+                  <svg viewBox="0 0 24 24"><path d="M5 12.5 L10 17 L19 7" fill="none" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </span>
+              )}
             </button>
           </li>
         ))}
@@ -88,6 +102,7 @@ function PathViewFor({ path }: { path: LearningPath }) {
   const moved = useRef(false);
   const trail = useRef<HTMLOListElement>(null);
   useSpeakOnMount(() => [sayTitle(path), { id: atEnd ? "path.view.end" : "path.view.hello" }], () => moved.current);
+  useEffect(() => document.getElementById("path-title")?.focus({ preventScroll: true }), []);
 
   // keep the current stop in view on the sideways trail (without scrolling the page)
   useEffect(() => {
@@ -115,7 +130,7 @@ function PathViewFor({ path }: { path: LearningPath }) {
         <button type="button" className="path-hero-host" data-testid="path-hear" aria-label={`Hear: ${path.title}`} onClick={hear}>
           <Critter id={path.host} color={path.library.theme.main} />
         </button>
-        <h2 id="path-title" className="path-title" data-testid="path-title">{path.title}</h2>
+        <h2 id="path-title" className="path-title" data-testid="path-title" tabIndex={-1}>{path.title}</h2>
       </header>
       <ol className="path-trail" ref={trail} aria-label={`Your path: ${path.worlds.length} stops`} data-testid="path-trail">
         {path.worlds.map((w, i) => {

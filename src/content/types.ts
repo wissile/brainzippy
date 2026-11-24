@@ -133,6 +133,8 @@ export interface World {
   voice: string;
   /** Position on the Monster Island map, in % of the map (omit to keep the world off the map). */
   map?: { x: number; y: number };
+  /** Learning paths (docs/PATHS.md U2): level at which the path hands the child to the next world (default maxLevel). */
+  handoff?: number;
 }
 
 export interface ContentPack {

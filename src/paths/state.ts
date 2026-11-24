@@ -1,5 +1,6 @@
 import { localDate } from "../daily/date";
-import { type OfferReason, type PathNote, type PathsState, choosePath, placementAge, recordPathRound } from "../engine/pathProgress";
+import { type AgeRange, type OfferReason, type PathNote, type PathsState, choosePath, placementAge, recordPathRound } from "../engine/pathProgress";
+import { isMastered } from "../daily/memory";
 import type { ExerciseResult } from "../engine/types";
 import { loadState, saveState } from "../services/storage";
 import { visiblePaths } from "./flags";
@@ -11,11 +12,13 @@ import { type LearningPath, pathOfWorld, toPathDef } from "./registry";
  * (Deliberately does not import src/daily/store, which imports this module for the daily-plan preference.)
  */
 
-/** "ages-6-8" → 7 (A1); unknown → 4 (the youngest band, like the daily planner). */
-export function childAge(ageBand: string | null = loadState().ageBand): number {
+/** "ages-6-8" → [6, 8]; unknown → the youngest band (like the daily planner). */
+export function childBand(ageBand: string | null = loadState().ageBand): AgeRange {
   const m = ageBand?.match(/^ages-(\d+)-(\d+)$/);
-  return placementAge(m ? [Number(m[1]), Number(m[2])] : [3, 5]);
+  return m ? [Number(m[1]), Number(m[2])] : [3, 5];
 }
+/** A1: "ages-6-8" → 7. */
+export const childAge = (ageBand: string | null = loadState().ageBand): number => placementAge(childBand(ageBand));
 
 export const getPaths = (): PathsState => loadState().paths;
 
@@ -39,7 +42,7 @@ export function currentStop(path: LearningPath): { world: LearningPath["worlds"]
 export function pickPath(path: LearningPath): void {
   const st = loadState();
   const levels = st.progress.levels ?? {};
-  const r = choosePath(st.paths, toPathDef(path), childAge(st.ageBand), levels);
+  const r = choosePath(st.paths, toPathDef(path), childBand(st.ageBand), levels);
   const patch: Parameters<typeof saveState>[0] = { paths: r.state };
   if (r.setLevel) patch.progress = { ...st.progress, levels: { ...levels, [r.setLevel.world]: r.setLevel.level } };
   saveState(patch);
@@ -67,17 +70,22 @@ export function recordRound(round: { gameId: string; level: number; results: rea
   if (!path) return null;
   const st = loadState();
   const levels = st.progress.levels ?? {};
-  const out = recordPathRound(st.paths, { path: toPathDef(path), day: localDate(now), age: childAge(st.ageBand), round: { world: round.gameId, level: round.level, results: round.results }, levels });
+  // mastery data (daily memory, M1) for U2/T3: the daily hooks have already logged this round
+  const mem = st.progress.daily?.skills ?? {};
+  const mastered = Object.keys(mem).filter((id) => isMastered(mem[id]));
+  const out = recordPathRound(st.paths, { path: toPathDef(path), day: localDate(now), band: childBand(st.ageBand), round: { world: round.gameId, level: round.level, results: round.results }, levels, mastered });
   const patch: Parameters<typeof saveState>[0] = { paths: out.state };
   if (Object.keys(out.levels).length) patch.progress = { ...st.progress, levels: { ...levels, ...out.levels } };
   saveState(patch);
   return { path, note: out.note, offer: out.offer };
 }
 
-/** For the daily planner: the chosen visible path and its current world (null = plan exactly as without paths). */
-export function pathFocus(): { path: string; world: string } | null {
+/** For the daily planner: the chosen visible path, its current world and an owed warm-up world (D1); null = plan as without paths. */
+export function pathFocus(): { path: string; world: string; warm: string | null } | null {
   const p = currentPath();
-  return p ? { path: p.id, world: currentStop(p).world.id } : null;
+  if (!p) return null;
+  const warm = getPaths().by[p.id]?.warm ?? null;
+  return { path: p.id, world: currentStop(p).world.id, warm: warm && p.worlds.some((w) => w.id === warm) ? warm : null };
 }
 
 // ---------------------------------------------------------------- "this round was started from the path view"
