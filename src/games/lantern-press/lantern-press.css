@@ -7,9 +7,12 @@
 .game.play-screen:has(.lp-stage) .game-top > .top-mid { width: auto; min-width: 0; }
 .game.play-screen:has(.lp-stage) .burst { display: none; } /* no confetti for this age: the proof turns gold instead */
 .game.play-screen:has(.lp-stage) .prompt-text { font-size: clamp(1.15rem, 1.3vw + 0.7rem, 2rem); line-height: 1.12; }
-.game.play-screen:has(.lp-stage) .prompt-caption { font-size: 1.2rem; line-height: 1.1; }
-.game.play-screen:has(.lp-stage) .prompt-caption[data-len="m"] { font-size: 1.1rem; }
-.game.play-screen:has(.lp-stage) .prompt-caption[data-len="l"] { font-size: 1rem; }
+@media (max-width: 600px), (max-height: 520px) {
+  /* hint captions are longer than the younger worlds': keep them inside the prompt pill on small screens */
+  .game.play-screen:has(.lp-stage) .prompt-caption { font-size: 1.2rem; line-height: 1.1; }
+  .game.play-screen:has(.lp-stage) .prompt-caption[data-len="m"] { font-size: 1.1rem; }
+  .game.play-screen:has(.lp-stage) .prompt-caption[data-len="l"] { font-size: 1rem; }
+}
 .lp-bg .lp-sway { animation: lp-sway 6s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 0; }
 @keyframes lp-sway { from { rotate: -2deg; } to { rotate: 2deg; } }
 

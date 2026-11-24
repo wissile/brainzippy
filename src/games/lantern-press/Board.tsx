@@ -548,7 +548,8 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
             const id = shown[i] ?? null;
             const ok = st.attempts > 0 && canAct && id && st.check?.parts?.[String(i)] === true;
             const bad = wrongNow && st.check?.parts?.[String(i)] === false;
-            const ghost = model && (alongIndex >= i || (alongIndex < 0 && canAct)) && !id ? model[i] : undefined;
+            // second miss: every empty place shows its card faintly once the worked step has been shown
+            const ghost = model && (alongIndex >= 0 || canAct) && !id ? model[i] : undefined;
             const z: Zone = { kind: "slot", value: String(i) };
             return (
               <li key={i} className={`lp-slot ${ok || solved ? "is-ok" : ""} ${bad ? "is-wrong" : ""} ${isHot(z) ? "is-hot" : ""}`}>
