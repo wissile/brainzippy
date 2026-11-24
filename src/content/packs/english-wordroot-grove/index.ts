@@ -26,7 +26,7 @@ const pack: ContentPack = {
       id: "wordroot-grove",
       subject: "english",
       topic: "english.vocab",
-      skills: ["english.vocab.affix", "english.grammar.word-class", "english.vocab.roots", "english.vocab.context", "english.grammar.apostrophe", "english.grammar.confused-words"],
+      skills: ["english.vocab.affix", "english.vocab.roots", "english.grammar.word-class", "english.vocab.context", "english.grammar.apostrophe", "english.grammar.confused-words"],
       ages: [9, 11],
       maxLevel: 9,
       title: "Wordroot Grove",
