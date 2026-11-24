@@ -37,7 +37,7 @@ describe("content registry integrity", () => {
       const mod = await w.load();
       expect(typeof mod.default, w.id).toBe("function");
     }
-  });
+  }, 60_000); // transforms every game's code (20 worlds); 5 s was too short under a full parallel run
 
   it("every world's voice file exists", async () => {
     const { existsSync } = await import("node:fs");
