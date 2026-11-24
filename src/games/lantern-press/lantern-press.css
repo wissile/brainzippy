@@ -158,7 +158,8 @@
   position: relative; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;
   background: #fff; border: 0; border-radius: 6px; box-shadow: inset 0 0 0 2px #8f7f5c; touch-action: none;
 }
-.lp-card.is-sentence { padding: 0.3em 0.5em 0.3em 0.6em; }
+.lp-card.is-sentence { display: block; padding: 0.3em 0.5em 0.3em 0.6em; } /* the label chip flows after the last word: no extra line */
+.lp-card.is-sentence .lp-chip { display: inline-block; margin-left: 8px; vertical-align: 1px; }
 .lp-card.is-word { padding: 8px 14px; min-width: 112px; justify-content: center; box-shadow: inset 0 0 0 3px var(--ink), 3px 3px 0 #b9ab8a; }
 .lp-card-text { font-family: var(--serif); font-size: clamp(18px, min(3.1cqh, 2.3cqw), 24px); line-height: 1.3; }
 .lp-card.is-word .lp-card-text { font-family: var(--font-body); font-weight: 800; font-size: clamp(19px, min(3.6cqh, 2.8cqw), 28px); }
@@ -308,8 +309,8 @@
     width: min(18vw, calc(9vh * 200 / 230)); padding-bottom: 0.5vh; z-index: 2; pointer-events: none;
   }
   .game.play-screen:has(.lp-stage) .lp-lower { padding-left: min(19vw, calc(9vh * 200 / 230)); }
-  /* labelling boards need the full width for their label grid; Check stays centred at the bottom, clear of Sarah */
-  .game.play-screen:has(.lp-stage.kind-match) .lp-lower { padding-left: 0; }
+  /* labelling and card boards need the full width; their Check stays centred at the bottom, clear of Sarah */
+  .game.play-screen:has(.lp-stage.kind-match) .lp-lower, .game.play-screen:has(.lp-stage.kind-sequence) .lp-lower { padding-left: 0; }
 }
 @media (max-width: 440px) {
   .game.play-screen:has(.lp-stage) .stars { gap: 1px; padding: 6px 8px; }
