@@ -1,0 +1,1127 @@
+{
+ "_note": "The Lantern Press (prefix lp.). GENERATED from src/games/lantern-press/voice-lines.ts; a unit test keeps the two in sync. Speakers: sarah (editor), hoot (fact-checker), narrator (story beats, item read-aloud). See docs/worlds/lantern-press.md §12.",
+ "lines": {
+  "lp.story.open": {
+   "text": "Evening on Monster Island. In the old boathouse, the Lantern Press warms up."
+  },
+  "lp.story.print": {
+   "text": "The lanterns glow as tonight's paper rolls off the press."
+  },
+  "lp.dlg.in.1": {
+   "text": "Welcome to the Lantern Press. I'm Sarah, the editor.",
+   "speaker": "sarah"
+  },
+  "lp.dlg.in.2": {
+   "text": "Hoot checks every fact. You'll help every sentence say what it means.",
+   "speaker": "sarah"
+  },
+  "lp.dlg.in.3": {
+   "text": "Bring me any claim that needs checking.",
+   "speaker": "hoot"
+  },
+  "lp.dlg.in.4": {
+   "text": "Tonight's first page is on your desk.",
+   "speaker": "sarah"
+  },
+  "lp.dlg.handover.1": {
+   "text": "This is Hoot, our fact-checker. He reads every line twice.",
+   "speaker": "sarah"
+  },
+  "lp.dlg.handover.2": {
+   "text": "Three times, if it makes a claim.",
+   "speaker": "hoot"
+  },
+  "lp.dlg.out.1": {
+   "text": "Page approved. Off to the press.",
+   "speaker": "sarah"
+  },
+  "lp.dlg.out.2": {
+   "text": "You weighed each choice against what the writer meant.",
+   "speaker": "hoot"
+  },
+  "lp.dlg.out.3": {
+   "text": "Your Editor's Pen is ready.",
+   "speaker": "sarah"
+  },
+  "lp.intro": {
+   "text": "The press is ready whenever you are. Tonight's pages are on your desk.",
+   "speaker": "sarah"
+  },
+  "lp.back": {
+   "text": "Welcome back, editor. A fresh page is waiting.",
+   "speaker": "sarah"
+  },
+  "lp.mid.1": {
+   "text": "Two stories proofed. On to the next.",
+   "speaker": "sarah"
+  },
+  "lp.mid.2": {
+   "text": "Halfway through tonight's edition.",
+   "speaker": "sarah"
+  },
+  "lp.mid.3": {
+   "text": "Last stories on the page. The press waits for you.",
+   "speaker": "sarah"
+  },
+  "lp.idle": {
+   "text": "Take your time. Read it once more and ask what the writer means.",
+   "speaker": "sarah"
+  },
+  "lp.prompt.connective": {
+   "text": "Which connective fits?",
+   "speaker": "sarah"
+  },
+  "lp.prompt.combine": {
+   "text": "Which sentence says it best?",
+   "speaker": "sarah"
+  },
+  "lp.prompt.order": {
+   "text": "Put the cards in order to make one sentence. Then press Check.",
+   "speaker": "sarah"
+  },
+  "lp.prompt.modTap": {
+   "text": "Tap the phrase that's in the wrong place. Then press Check.",
+   "speaker": "sarah"
+  },
+  "lp.prompt.modFix": {
+   "text": "Which rewrite says what the writer means?",
+   "speaker": "sarah"
+  },
+  "lp.prompt.pronTap.1": {
+   "text": "Tap the unclear word. Then press Check.",
+   "speaker": "sarah"
+  },
+  "lp.prompt.pronTap.2": {
+   "text": "Tap the 2 unclear words. Then press Check.",
+   "speaker": "sarah"
+  },
+  "lp.prompt.pronFix": {
+   "text": "Which rewrite makes it clear?",
+   "speaker": "sarah"
+  },
+  "lp.prompt.cutTap.1": {
+   "text": "Tap the part that repeats an idea. Then press Check.",
+   "speaker": "sarah"
+  },
+  "lp.prompt.cutTap.2": {
+   "text": "Tap the 2 parts that repeat an idea. Then press Check.",
+   "speaker": "sarah"
+  },
+  "lp.prompt.concise": {
+   "text": "Which version keeps every fact in the fewest words?",
+   "speaker": "sarah"
+  },
+  "lp.prompt.connote": {
+   "text": "Which word fits the writer's purpose?",
+   "speaker": "sarah"
+  },
+  "lp.prompt.feelSort": {
+   "text": "Sort the words: positive, neutral or negative? Then press Check.",
+   "speaker": "sarah"
+  },
+  "lp.prompt.device": {
+   "text": "Which kind of figurative language is this?",
+   "speaker": "sarah"
+  },
+  "lp.prompt.figMeaning": {
+   "text": "What does this mean here?",
+   "speaker": "sarah"
+  },
+  "lp.prompt.purpose": {
+   "text": "Which version fits the writer's purpose?",
+   "speaker": "sarah"
+  },
+  "lp.prompt.shift": {
+   "text": "Which version fixes the switch in voice?",
+   "speaker": "sarah"
+  },
+  "lp.prompt.evidenceTap": {
+   "text": "Tap the 2 sentences that are evidence for the claim. Then press Check.",
+   "speaker": "sarah"
+  },
+  "lp.prompt.claimSort": {
+   "text": "Label each sentence. Then press Check.",
+   "speaker": "sarah"
+  },
+  "lp.prompt.strongest": {
+   "text": "Which evidence is strongest?",
+   "speaker": "sarah"
+  },
+  "lp.prompt.offTap": {
+   "text": "Tap the sentence that doesn't support the claim. Then press Check.",
+   "speaker": "sarah"
+  },
+  "lp.prompt.enough": {
+   "text": "Is that enough evidence?",
+   "speaker": "sarah"
+  },
+  "lp.help.combine": {
+   "text": "Connectives carry meaning: cause, contrast, time, condition.",
+   "speaker": "hoot"
+  },
+  "lp.help.modifier": {
+   "text": "A describing phrase attaches to the nearest noun.",
+   "speaker": "hoot"
+  },
+  "lp.help.pronoun": {
+   "text": "A pronoun should point to one clear person or thing.",
+   "speaker": "hoot"
+  },
+  "lp.help.concise": {
+   "text": "Cut words that repeat an idea, never words that add one.",
+   "speaker": "hoot"
+  },
+  "lp.help.connotation": {
+   "text": "Words with the same meaning can carry different feelings.",
+   "speaker": "hoot"
+  },
+  "lp.help.figurative": {
+   "text": "Figurative language means more than the words say.",
+   "speaker": "hoot"
+  },
+  "lp.help.voice": {
+   "text": "Active puts the doer first. Passive puts the thing done to first.",
+   "speaker": "hoot"
+  },
+  "lp.help.claim": {
+   "text": "Evidence is something someone could check.",
+   "speaker": "hoot"
+  },
+  "lp.help.evaluate": {
+   "text": "Good evidence is relevant, enough, and checkable.",
+   "speaker": "hoot"
+  },
+  "lp.hint.relation": {
+   "text": "Read both ideas. Is the second a reason, a surprise, a result, a time or a condition?",
+   "speaker": "hoot"
+  },
+  "lp.hint.reversed": {
+   "text": "Check the direction. Which idea causes the other?",
+   "speaker": "hoot"
+  },
+  "lp.hint.splice": {
+   "text": "Two full sentences need more than a comma.",
+   "speaker": "hoot"
+  },
+  "lp.hint.runon": {
+   "text": "Two full sentences can't just run together.",
+   "speaker": "hoot"
+  },
+  "lp.hint.meaning": {
+   "text": "Check the connective. Does it say what really happened?",
+   "speaker": "hoot"
+  },
+  "lp.hint.infoloss": {
+   "text": "Shorter isn't always better. Did every fact stay?",
+   "speaker": "hoot"
+  },
+  "lp.hint.order": {
+   "text": "Read both notes. Which connective links them, and where does each card go?",
+   "speaker": "hoot"
+  },
+  "lp.hint.literalmod": {
+   "text": "Read it literally. Who or what does each phrase describe?",
+   "speaker": "hoot"
+  },
+  "lp.hint.stillmod": {
+   "text": "The phrase still sits next to the wrong word. Read it literally.",
+   "speaker": "hoot"
+  },
+  "lp.hint.who": {
+   "text": "Check who does what. Does it match what the writer means?",
+   "speaker": "hoot"
+  },
+  "lp.hint.pronoun": {
+   "text": "Could a word point to two people or things? Then it's unclear.",
+   "speaker": "hoot"
+  },
+  "lp.hint.stillamb": {
+   "text": "That version is still unclear. Who does the pronoun point to?",
+   "speaker": "hoot"
+  },
+  "lp.hint.cut": {
+   "text": "Read it without each part. Did any meaning disappear?",
+   "speaker": "hoot"
+  },
+  "lp.hint.wordy": {
+   "text": "That version still uses extra words for one idea.",
+   "speaker": "hoot"
+  },
+  "lp.hint.feeling": {
+   "text": "Is the writer praising or complaining? Pick the word with that feeling.",
+   "speaker": "hoot"
+  },
+  "lp.hint.neutral": {
+   "text": "That word is neutral. The writer has a feeling here.",
+   "speaker": "hoot"
+  },
+  "lp.hint.sort": {
+   "text": "Does the word sound like praise, a complaint, or a plain description?",
+   "speaker": "hoot"
+  },
+  "lp.hint.device": {
+   "text": "Check each kind. Which one matches how this line works?",
+   "speaker": "hoot"
+  },
+  "lp.hint.literal": {
+   "text": "That's the literal meaning. What does the writer really mean?",
+   "speaker": "hoot"
+  },
+  "lp.hint.misread": {
+   "text": "Read the whole line again. What picture is the writer making?",
+   "speaker": "hoot"
+  },
+  "lp.hint.focus": {
+   "text": "What does the writer want to focus on: the doer or the thing?",
+   "speaker": "hoot"
+  },
+  "lp.hint.shift": {
+   "text": "Keep one doer in charge all the way through.",
+   "speaker": "hoot"
+  },
+  "lp.hint.check": {
+   "text": "Could someone check this sentence, or is it an opinion?",
+   "speaker": "hoot"
+  },
+  "lp.hint.relevant": {
+   "text": "Is it about the claim? Is it more than one person's view?",
+   "speaker": "hoot"
+  },
+  "lp.hint.sample": {
+   "text": "How many were checked? Could they speak for everyone?",
+   "speaker": "hoot"
+  },
+  "lp.hint.strict": {
+   "text": "Evidence doesn't have to be perfect. Is there enough to be fair?",
+   "speaker": "hoot"
+  },
+  "lp.hint.off": {
+   "text": "Does each sentence back the claim, or just sit beside it?",
+   "speaker": "hoot"
+  },
+  "lp.hint.show": {
+   "text": "Let's work through it together.",
+   "speaker": "sarah"
+  },
+  "lp.hint.model": {
+   "text": "Now you finish it. The answer is marked.",
+   "speaker": "sarah"
+  },
+  "lp.retry.1": {
+   "text": "Not yet. What does the writer mean?",
+   "speaker": "sarah"
+  },
+  "lp.retry.2": {
+   "text": "Close. Check it against the claim.",
+   "speaker": "sarah"
+  },
+  "lp.praise.1": {
+   "text": "You matched the connective to the relationship.",
+   "speaker": "sarah"
+  },
+  "lp.praise.2": {
+   "text": "You read it literally and caught the misplaced phrase.",
+   "speaker": "sarah"
+  },
+  "lp.praise.3": {
+   "text": "You checked who each pronoun points to.",
+   "speaker": "sarah"
+  },
+  "lp.praise.4": {
+   "text": "You cut the repeat and kept every fact.",
+   "speaker": "sarah"
+  },
+  "lp.praise.5": {
+   "text": "You matched the word's feeling to the writer's purpose.",
+   "speaker": "sarah"
+  },
+  "lp.praise.6": {
+   "text": "You looked past the literal words.",
+   "speaker": "sarah"
+  },
+  "lp.praise.7": {
+   "text": "You chose the voice for the writer's focus.",
+   "speaker": "sarah"
+  },
+  "lp.praise.8": {
+   "text": "You asked whether it could be checked. That's fact-checking.",
+   "speaker": "sarah"
+  },
+  "lp.praise.combine": {
+   "text": "You kept every idea and linked them clearly.",
+   "speaker": "sarah"
+  },
+  "lp.praise.order": {
+   "text": "You built one clear sentence from the notes.",
+   "speaker": "sarah"
+  },
+  "lp.praise.fix": {
+   "text": "You put the phrase next to the word it describes.",
+   "speaker": "sarah"
+  },
+  "lp.praise.shift": {
+   "text": "You kept one doer in charge.",
+   "speaker": "sarah"
+  },
+  "lp.praise.sort": {
+   "text": "You heard the feeling in each word.",
+   "speaker": "sarah"
+  },
+  "lp.praise.device": {
+   "text": "You named how the line works.",
+   "speaker": "sarah"
+  },
+  "lp.praise.off": {
+   "text": "You spotted the sentence that doesn't back the claim.",
+   "speaker": "sarah"
+  },
+  "lp.praise.evaluate": {
+   "text": "You weighed the evidence: relevant, enough and checkable.",
+   "speaker": "sarah"
+  },
+  "lp.s.connective.cafe": {
+   "text": "The harbor café closed early blank a storm was coming."
+  },
+  "lp.s.connective.fog": {
+   "text": "The ferry left late blank the fog was thick."
+  },
+  "lp.s.connective.tent": {
+   "text": "The bake-off tent was packed, blank Kofi set up his table outside."
+  },
+  "lp.s.connective.exams": {
+   "text": "The library is staying open late blank exams start next week."
+  },
+  "lp.s.connective.steep": {
+   "text": "blank the path was steep, the walkers reached the lighthouse before dark."
+  },
+  "lp.s.connective.drum": {
+   "text": "Mei kept practicing the drum part blank she could play it with her eyes closed."
+  },
+  "lp.s.connective.wheel": {
+   "text": "Students can use the pottery wheel blank they sign the safety sheet first."
+  },
+  "lp.s.connective.ducks": {
+   "text": "Please don't feed the ducks blank the ranger says it's okay."
+  },
+  "lp.s.connective.boots": {
+   "text": "Zara wore her heavy boots blank the trail was dry."
+  },
+  "lp.s.connective.race": {
+   "text": "The bike race was moved to Sunday blank the roads were flooded on Saturday."
+  },
+  "lp.s.connective.tide": {
+   "text": "The tide was coming in, blank the survey team packed up their clipboards."
+  },
+  "lp.s.connective.crossword": {
+   "text": "Raj finished the crossword blank the bus reached his stop."
+  },
+  "lp.s.connective.market": {
+   "text": "blank it rained all morning, the market still opened at ten."
+  },
+  "lp.s.connective.choir": {
+   "text": "The choir sang without microphones, blank everyone in the hall could hear them."
+  },
+  "lp.s.connective.bins": {
+   "text": "The new bins are labeled with pictures blank younger children know where things go."
+  },
+  "lp.s.connective.puzzle": {
+   "text": "The puzzle looked easy, blank it took the whole class an hour."
+  },
+  "lp.s.connective.lemon": {
+   "text": "The bakery sold out by noon blank Priya's lemon bread was so popular."
+  },
+  "lp.s.connective.picnic": {
+   "text": "The picnic will be on the beach blank it rains, in which case it moves to the hall."
+  },
+  "lp.s.connective.jam": {
+   "text": "Jonah wrote the date on every jar blank nobody would eat old jam."
+  },
+  "lp.s.connective.bridge": {
+   "text": "The bridge was repaired last spring, blank the ferry still carries most of the bikes."
+  },
+  "lp.s.connective.debate": {
+   "text": "Nia's team won the debate blank they had less time to prepare."
+  },
+  "lp.s.connective.lamp": {
+   "text": "The lighthouse lamp turns on blank the sun goes down."
+  },
+  "lp.s.connective.steps": {
+   "text": "Tomás read the instructions slowly blank he wouldn't miss a step."
+  },
+  "lp.s.connective.fridays": {
+   "text": "The museum is free on Fridays, blank it is busiest then."
+  },
+  "lp.s.connective.coach": {
+   "text": "Sami couldn't hear the coach blank the crowd was cheering so loudly."
+  },
+  "lp.s.combine.bakeoff": {
+   "text": "The bake-off starts at noon. Ovens are provided. Bring your own apron."
+  },
+  "lp.s.combine.concert": {
+   "text": "The concert was moved indoors. The forecast said heavy rain."
+  },
+  "lp.s.combine.chain": {
+   "text": "Kenji fixed the bike chain. He used a borrowed tool. The shop was closed."
+  },
+  "lp.s.combine.garden": {
+   "text": "The garden needs water. It hasn't rained for two weeks."
+  },
+  "lp.s.combine.museum": {
+   "text": "The museum opens at nine. The café opens at ten."
+  },
+  "lp.s.combine.bus": {
+   "text": "Ana missed the bus. She walked to school. She was only five minutes late."
+  },
+  "lp.s.combine.closed": {
+   "text": "The bridge was closed. Drivers took the ferry."
+  },
+  "lp.s.combine.ramp": {
+   "text": "The skate ramp is open again. Helmets are required. The lights go off at eight."
+  },
+  "lp.s.combine.crabs": {
+   "text": "The tide-pool survey found 14 crabs. Last year it found 30."
+  },
+  "lp.s.combine.drum": {
+   "text": "Rumble wanted to join the band. He didn't own an instrument. He borrowed a drum."
+  },
+  "lp.s.combine.cans": {
+   "text": "The recycling bins are full. Collection is on Monday. Please keep your cans at home until then."
+  },
+  "lp.s.combine.spelling": {
+   "text": "Priya won the spelling bee. She had practiced every evening."
+  },
+  "lp.s.order.lighthouse": {
+   "text": "The path was steep. The walkers still reached the lighthouse before dark."
+  },
+  "lp.s.order.kites": {
+   "text": "The wind was too strong. The kite festival moved into the gym."
+  },
+  "lp.s.order.lawn": {
+   "text": "The hall was booked. The choir practiced on the lawn."
+  },
+  "lp.s.order.sunrise": {
+   "text": "Kofi set his alarm for six. He wanted to see the sunrise."
+  },
+  "lp.s.order.canoe": {
+   "text": "Wear a life jacket. Then you can take the canoe out on the bay."
+  },
+  "lp.s.order.final": {
+   "text": "Zara's team lost the first game. They still won the final on Saturday."
+  },
+  "lp.s.order.gate": {
+   "text": "Someone left the gate open. The goats got into the garden last night."
+  },
+  "lp.s.order.bench": {
+   "text": "The museum was crowded. Nia still found a quiet bench near the fossils."
+  },
+  "lp.s.order.dry": {
+   "text": "The skate ramp stays closed this week. It will open when the wood is dry."
+  },
+  "lp.s.order.ferry": {
+   "text": "Omar checked the timetable twice. He still missed the early ferry on Monday."
+  },
+  "lp.s.order.power": {
+   "text": "The power went out. The lighthouse keeper lit an oil lamp."
+  },
+  "lp.s.order.window": {
+   "text": "Lena moved the plant to the window. She wanted it to get more light."
+  },
+  "lp.s.modifier.barking": {
+   "text": "Barking at the mail cart, Kenji walked his dog to the beach."
+  },
+  "lp.s.modifier.plates": {
+   "text": "Ana served cupcakes to the guests on paper plates."
+  },
+  "lp.s.modifier.lanterns": {
+   "text": "Hanging from the ceiling, Mei admired the paper lanterns."
+  },
+  "lp.s.modifier.shell": {
+   "text": "Raj found a shiny shell walking along the shore."
+  },
+  "lp.s.modifier.cold": {
+   "text": "The coach handed out water bottles to the players that were ice cold."
+  },
+  "lp.s.modifier.wrapped": {
+   "text": "Wrapped in shiny paper, Zara gave her brother the gift."
+  },
+  "lp.s.modifier.binoculars": {
+   "text": "Omar saw a pod of dolphins looking through his binoculars."
+  },
+  "lp.s.modifier.sandwich": {
+   "text": "Running late for the ferry, Nia's sandwich was left on the kitchen table."
+  },
+  "lp.s.modifier.bell": {
+   "text": "Mina bought a bike from a neighbor with a squeaky bell."
+  },
+  "lp.s.modifier.bed": {
+   "text": "Tomás read about the shipwreck lying in bed."
+  },
+  "lp.s.modifier.box": {
+   "text": "After finishing the puzzle, the box was put away by Lena."
+  },
+  "lp.s.modifier.flashlight": {
+   "text": "The ranger showed the children a turtle using a flashlight."
+  },
+  "lp.s.modifier.blue": {
+   "text": "Painted bright blue, Kofi parked his boat by the dock."
+  },
+  "lp.s.modifier.melted": {
+   "text": "Melted by the sun, Jonah threw away the chocolate bar."
+  },
+  "lp.s.modifier.sandals": {
+   "text": "Aiyana noticed a crab on the rocks wearing her new sandals."
+  },
+  "lp.s.modifier.loaf": {
+   "text": "The baker gave a loaf to the boy still warm from the oven."
+  },
+  "lp.s.pronoun.map": {
+   "text": "When Mina met Lucia at the library, she gave her a map."
+  },
+  "lp.s.pronoun.bag": {
+   "text": "The bus driver told Omar that his bag was still on the seat."
+  },
+  "lp.s.pronoun.bike": {
+   "text": "Kofi asked Raj if he could borrow his bike."
+  },
+  "lp.s.pronoun.vase": {
+   "text": "Lena put the vase on the shelf, and then it fell."
+  },
+  "lp.s.pronoun.poster": {
+   "text": "Zara told her sister that she had won the poster contest."
+  },
+  "lp.s.pronoun.dock": {
+   "text": "When the ferry hit the dock, it was badly scratched."
+  },
+  "lp.s.pronoun.list": {
+   "text": "Nia and Mei went to the market, but she forgot the shopping list."
+  },
+  "lp.s.pronoun.fair": {
+   "text": "The teachers met with the students after they finished the science fair."
+  },
+  "lp.s.pronoun.speaker": {
+   "text": "Tomás put his phone on the speaker, and then it stopped working."
+  },
+  "lp.s.pronoun.idea": {
+   "text": "The coach told Sami that his idea would help the team."
+  },
+  "lp.s.pronoun.cousin": {
+   "text": "Jonah emailed his cousin after he moved to the island."
+  },
+  "lp.s.pronoun.vacation": {
+   "text": "Kenji wrote to Omar while he was on vacation."
+  },
+  "lp.s.pronoun.table": {
+   "text": "When the cat jumped onto the table, it wobbled."
+  },
+  "lp.s.pronoun.painting": {
+   "text": "Ana told Mei that her painting was in the show."
+  },
+  "lp.s.pronoun.music": {
+   "text": "The new student said they liked the art room, but Mina told Lena that she preferred the music room."
+  },
+  "lp.s.pronoun.puppy": {
+   "text": "The puppy chased the kitten until it got tired."
+  },
+  "lp.s.note.map": {
+   "text": "The writer means: Mina gave Lucia the map."
+  },
+  "lp.s.note.bag": {
+   "text": "The writer means: The bag is Omar's."
+  },
+  "lp.s.note.bike": {
+   "text": "The writer means: Kofi wants to borrow Raj's bike."
+  },
+  "lp.s.note.vase": {
+   "text": "The writer means: The vase fell."
+  },
+  "lp.s.note.poster": {
+   "text": "The writer means: The sister won."
+  },
+  "lp.s.note.dock": {
+   "text": "The writer means: The ferry was scratched."
+  },
+  "lp.s.note.list": {
+   "text": "The writer means: Mei forgot the list."
+  },
+  "lp.s.note.fair": {
+   "text": "The writer means: The students had finished the science fair."
+  },
+  "lp.s.note.speaker": {
+   "text": "The writer means: The speaker stopped working."
+  },
+  "lp.s.note.idea": {
+   "text": "The writer means: It was Sami's idea."
+  },
+  "lp.s.note.cousin": {
+   "text": "The writer means: The cousin moved to the island."
+  },
+  "lp.s.note.vacation": {
+   "text": "The writer means: Omar was on vacation."
+  },
+  "lp.s.note.table": {
+   "text": "The writer means: The table wobbled."
+  },
+  "lp.s.note.painting": {
+   "text": "The writer means: The painting is Ana's."
+  },
+  "lp.s.note.music": {
+   "text": "The writer means: Mina prefers the music room."
+  },
+  "lp.s.note.puppy": {
+   "text": "The writer means: The puppy got tired."
+  },
+  "lp.s.cut.gifts": {
+   "text": "At 3 p.m. in the afternoon, the club handed out free gifts."
+  },
+  "lp.s.cut.locker": {
+   "text": "The twins shared one single locker all year."
+  },
+  "lp.s.cut.returned": {
+   "text": "Raj returned back the library book on Tuesday."
+  },
+  "lp.s.cut.opinion": {
+   "text": "In my personal opinion, the new bus timetable is easier to read."
+  },
+  "lp.s.cut.club": {
+   "text": "The garden club will meet together at noon to plan for spring."
+  },
+  "lp.s.cut.visitor": {
+   "text": "Each and every visitor must sign the guest book."
+  },
+  "lp.s.cut.outcome": {
+   "text": "The vote's final outcome was announced at 6 p.m. tonight."
+  },
+  "lp.s.cut.salty": {
+   "text": "The soup was too salty, so as a result Mei added more water."
+  },
+  "lp.s.cut.song": {
+   "text": "We'll repeat the song again at the end of the concert."
+  },
+  "lp.s.cut.eye": {
+   "text": "The lighthouse is visible to the eye from the far end of the beach."
+  },
+  "lp.s.cut.circle": {
+   "text": "Kofi built a kite with a round circle painted on it."
+  },
+  "lp.s.cut.evening": {
+   "text": "The ferry will return back to the dock at 5 p.m. in the evening."
+  },
+  "lp.s.cut.antique": {
+   "text": "Sami said the old antique clock still keeps good time."
+  },
+  "lp.s.cut.jointly": {
+   "text": "Both halves of the class worked together jointly on the mural."
+  },
+  "lp.s.concise.hall": {
+   "text": "Due to the fact that the hall was booked, the choir practiced outside."
+  },
+  "lp.s.concise.rain": {
+   "text": "In the event that it rains, the market will move into the school gym."
+  },
+  "lp.s.concise.repairs": {
+   "text": "At this point in time, the skate ramp is closed for repairs."
+  },
+  "lp.s.concise.engine": {
+   "text": "The reason why the ferry was late is because the engine needed fixing."
+  },
+  "lp.s.concise.robotics": {
+   "text": "Kenji made the decision to join the robotics club."
+  },
+  "lp.s.concise.ocean": {
+   "text": "The library has a large number of books about the ocean."
+  },
+  "lp.s.concise.pie": {
+   "text": "Mei is of the opinion that the bake-off should have a pie category."
+  },
+  "lp.s.concise.survey": {
+   "text": "The tide-pool survey was conducted by the students for the purpose of counting crabs."
+  },
+  "lp.s.concise.belongings": {
+   "text": "Please make sure that you take all of your belongings with you when you leave the bus."
+  },
+  "lp.s.concise.volunteers": {
+   "text": "There are three volunteers who help in the garden on Saturdays."
+  },
+  "lp.s.concise.glass": {
+   "text": "The new bins are for the purpose of recycling glass."
+  },
+  "lp.s.concise.tides": {
+   "text": "Omar gave a presentation in which he explained how the tides work."
+  },
+  "lp.s.connote.cafe": {
+   "text": "The review praised the island café: its kitchen was full of the blank of fresh bread."
+  },
+  "lp.s.connote.market": {
+   "text": "Holding his nose, Kenji complained that the fish market had a blank."
+  },
+  "lp.s.connote.debate": {
+   "text": "Proud of her brother, Zara said he sounded blank in the debate."
+  },
+  "lp.s.connote.boast": {
+   "text": "Tired of his bragging, the team called the new player blank."
+  },
+  "lp.s.connote.questions": {
+   "text": "Kenji's grandmother loves his questions and calls him blank."
+  },
+  "lp.s.connote.neighbor": {
+   "text": "The neighbor complained that the cat was blank about everything."
+  },
+  "lp.s.connote.never": {
+   "text": "Admiring how she never gave up, the coach called Nia blank."
+  },
+  "lp.s.connote.refused": {
+   "text": "Annoyed that he refused to listen, Raj called his brother blank."
+  },
+  "lp.s.connote.energy": {
+   "text": "The article praised the ninety-year-old dancer for his blank energy."
+  },
+  "lp.s.connote.sulking": {
+   "text": "Teasing her brother for sulking, Mei called him blank."
+  },
+  "lp.s.connote.lighthouse": {
+   "text": "Proud of the island's lighthouse, the tour guide called it blank."
+  },
+  "lp.s.connote.pirate": {
+   "text": "The museum sign warned visitors about a blank pirate who stole from every port."
+  },
+  "lp.s.connote.jacket": {
+   "text": "The shop wanted shoppers to love the jacket, so it called the style blank."
+  },
+  "lp.s.connote.phone": {
+   "text": "Frustrated with his slow phone, Omar called it blank."
+  },
+  "lp.s.connote.cottage": {
+   "text": "The travel article invited readers to stay in a blank seaside cottage."
+  },
+  "lp.s.connote.closet": {
+   "text": "Fed up with the cluttered hall closet, Omar called it blank."
+  },
+  "lp.s.connote.dish": {
+   "text": "The menu wanted diners to try the new dish, so it described the flavor as blank."
+  },
+  "lp.s.connote.smoothie": {
+   "text": "Making a face at the bitter smoothie, Sami called the taste blank."
+  },
+  "lp.s.fig.handwriting": {
+   "text": "Kenji's handwriting was as neat as a printed page."
+  },
+  "lp.s.fig.lake": {
+   "text": "The lake was as smooth as glass this morning."
+  },
+  "lp.s.fig.bear": {
+   "text": "After the long swim, Ana was as hungry as a bear."
+  },
+  "lp.s.fig.moons": {
+   "text": "The lanterns along the dock glowed like a row of tiny moons."
+  },
+  "lp.s.fig.mouse": {
+   "text": "During his first week, the new student was as quiet as a mouse."
+  },
+  "lp.s.fig.whistle": {
+   "text": "Her voice cut through the noise like a whistle."
+  },
+  "lp.s.fig.treasure": {
+   "text": "The library is a treasure chest of stories."
+  },
+  "lp.s.fig.blackhole": {
+   "text": "Omar's backpack is a black hole for lost homework."
+  },
+  "lp.s.fig.beehive": {
+   "text": "The classroom was a beehive before the field trip."
+  },
+  "lp.s.fig.blanket": {
+   "text": "The fog was a thick gray blanket over the harbor."
+  },
+  "lp.s.fig.rainbow": {
+   "text": "Grandpa's garden is a rainbow in June."
+  },
+  "lp.s.fig.diamonds": {
+   "text": "The stars were diamonds scattered across the sky."
+  },
+  "lp.s.fig.groaned": {
+   "text": "The old ferry groaned as it pulled away from the dock."
+  },
+  "lp.s.fig.whispered": {
+   "text": "The wind whispered through the tall grass."
+  },
+  "lp.s.fig.alarm": {
+   "text": "The alarm clock shouted at six o'clock."
+  },
+  "lp.s.fig.danced": {
+   "text": "The waves danced in the afternoon sun."
+  },
+  "lp.s.fig.kettle": {
+   "text": "The kettle sang on the stove."
+  },
+  "lp.s.fig.waited": {
+   "text": "The empty playground waited for the bell."
+  },
+  "lp.s.fig.million": {
+   "text": "I've told you a million times to close the gate."
+  },
+  "lp.s.fig.ton": {
+   "text": "This backpack weighs a ton."
+  },
+  "lp.s.fig.pancakes": {
+   "text": "Raj ate enough pancakes to feed the whole island."
+  },
+  "lp.s.fig.mile": {
+   "text": "The line for the new ride was a mile long."
+  },
+  "lp.s.fig.century": {
+   "text": "Mei's homework took a hundred years last night."
+  },
+  "lp.s.fig.town": {
+   "text": "The puppy's bark was loud enough to wake the whole town."
+  },
+  "lp.s.fig.beans": {
+   "text": "Don't spill the beans about the surprise party."
+  },
+  "lp.s.fig.cake": {
+   "text": "The math quiz was a piece of cake."
+  },
+  "lp.s.fig.day": {
+   "text": "We've painted for hours, so let's call it a day."
+  },
+  "lp.s.fig.fence": {
+   "text": "Zara was on the fence about joining the choir."
+  },
+  "lp.s.fig.horses": {
+   "text": "Hold your horses; the ferry hasn't docked yet."
+  },
+  "lp.s.fig.books": {
+   "text": "Omar hit the books before the history quiz."
+  },
+  "lp.s.fig.rain": {
+   "text": "\"Great, more rain,\" Omar sighed at the soggy picnic."
+  },
+  "lp.s.fig.waiting": {
+   "text": "Stuck in the long line, Lena muttered, \"I just love waiting.\""
+  },
+  "lp.s.fig.tire": {
+   "text": "Seeing the flat tire, Kofi said, \"Oh, wonderful.\""
+  },
+  "lp.s.fig.start": {
+   "text": "When the bus broke down, Raj said, \"Well, this is a perfect start to the trip.\""
+  },
+  "lp.s.fig.relaxing": {
+   "text": "After the power went out for the third time, Mei said, \"What a relaxing evening.\""
+  },
+  "lp.s.fig.weather": {
+   "text": "\"Lovely weather for a beach day,\" Ana joked as the storm rolled in."
+  },
+  "lp.s.fig.knead": {
+   "text": "A bakery sign says, \"We knead you!\""
+  },
+  "lp.s.fig.draw": {
+   "text": "The art room poster says, \"Let's draw our own conclusions.\""
+  },
+  "lp.s.fig.shell": {
+   "text": "A sign at the tide pools asks, \"Shell we explore?\""
+  },
+  "lp.s.fig.rooting": {
+   "text": "The garden club's banner says, \"We're rooting for you!\""
+  },
+  "lp.s.fig.anytime": {
+   "text": "The clock repair shop's sign says, \"Come in any time.\""
+  },
+  "lp.s.fig.wheel": {
+   "text": "The skate shop's door sign says, \"Wheel be right back.\""
+  },
+  "lp.s.purpose.window": {
+   "text": "The writer's purpose: Focus on the window, not on what broke it."
+  },
+  "lp.s.purpose.cleanup": {
+   "text": "The writer's purpose: Make it clear that the volunteers did the cleanup."
+  },
+  "lp.s.purpose.map": {
+   "text": "The writer's purpose: Nobody knows who took the map. Report only what happened to it."
+  },
+  "lp.s.purpose.decision": {
+   "text": "The writer's purpose: Make it clear who made the decision: the coach."
+  },
+  "lp.s.purpose.samples": {
+   "text": "The writer's purpose: A science report: focus on what was done, not on who did it."
+  },
+  "lp.s.purpose.mural": {
+   "text": "The writer's purpose: Give credit to the student who painted the mural."
+  },
+  "lp.s.purpose.gate": {
+   "text": "The writer's purpose: A safety notice: the important thing is the gate, not who locks it."
+  },
+  "lp.s.purpose.vase": {
+   "text": "The writer's purpose: Report what happened to the vase without blaming anyone."
+  },
+  "lp.s.purpose.award": {
+   "text": "The writer's purpose: Make it clear who won the award: Priya's team."
+  },
+  "lp.s.purpose.bridge": {
+   "text": "The writer's purpose: The news is the bridge, not the builders."
+  },
+  "lp.s.purpose.fair": {
+   "text": "The writer's purpose: Show that the students organized the fair themselves."
+  },
+  "lp.s.purpose.bread": {
+   "text": "The writer's purpose: A menu note: what matters is the bread, not the baker."
+  },
+  "lp.s.shift.fence": {
+   "text": "Tomás painted the fence, and then the gate was painted by him."
+  },
+  "lp.s.shift.poem": {
+   "text": "Nia wrote the poem, and it was read aloud by her at the assembly."
+  },
+  "lp.s.shift.seeds": {
+   "text": "The class planted the seeds, and then the beds were watered by them."
+  },
+  "lp.s.shift.tent": {
+   "text": "Kenji packed the tent, and the stove was carried to the car by him."
+  },
+  "lp.s.shift.cans": {
+   "text": "The volunteers sorted the cans, and the bottles were washed by them."
+  },
+  "lp.s.shift.jam": {
+   "text": "Mei baked the bread, and the jam was made by her too."
+  },
+  "lp.s.shift.robot": {
+   "text": "Our team built the robot, and the code was written by us as well."
+  },
+  "lp.s.shift.kitten": {
+   "text": "Zara found the lost kitten, and it was carried home by her."
+  },
+  "lp.s.shift.sign": {
+   "text": "The ranger checked the trail, and the broken sign was fixed by him."
+  },
+  "lp.s.shift.pools": {
+   "text": "Omar measured the tide pools, and the crabs were counted by him."
+  },
+  "lp.s.shift.poster": {
+   "text": "Priya designed the poster, and the copies were printed by her at the library."
+  },
+  "lp.s.shift.song": {
+   "text": "The choir learned the song, and it was performed by them at the harbor festival."
+  },
+  "lp.s.shift.letters": {
+   "text": "The letters were sorted by the post office, and then the post office delivered them."
+  },
+  "lp.a.sundays": {
+   "text": "Open the library on Sundays. The library should open on Sundays. Last term's sign-in sheets show about 40 visitors every Saturday. The library also has bright blue doors. A survey at the desk found that 25 of those visitors work on weekdays. So a Sunday opening would serve people who can't come in during the week."
+  },
+  "lp.a.barrel": {
+   "text": "The school garden needs a second rain barrel. The school garden needs a second rain barrel. The garden log shows the one barrel ran dry on 9 of the last 12 dry days. On those days, volunteers carried water from the kitchen in buckets. This means one barrel can't store enough rain for the whole garden. Rain barrels come in green, black and gray."
+  },
+  "lp.a.ferry": {
+   "text": "Add an earlier ferry. The ferry should add a trip at 6:30 a.m. Everyone knows the ferry is the best way to see the island. Ticket records show the 7:30 trip was full on 18 of 20 weekdays last month. The ferry office counted 35 riders turned away from that trip in one week. So an earlier trip would carry riders who now can't get on."
+  },
+  "lp.a.savory": {
+   "text": "A savory category for the bake-off. The island bake-off should add a savory category. Last year, 12 of the 40 entries were breads or pies with no sugar. The judges' notes show they had trouble comparing those entries with cakes. The bake-off tent was first put up in the town square. This means a separate savory category would make the judging fairer."
+  },
+  "lp.a.bins": {
+   "text": "More recycling bins for Harbor Park. Harbor Park needs more recycling bins. Cleanup volunteers collected 60 cans from the grass in one weekend. The park has two recycling bins, both near the main gate. So people far from the gate have nowhere close to put their cans. The park's fountain was repaired last spring."
+  },
+  "lp.a.lights": {
+   "text": "Keep the skate ramp lights on. The skate ramp lights should stay on until 8 p.m. Skating is obviously the coolest sport on the island. A youth club count found 15 skaters still on the ramp at 6:30 most evenings. The lights switch off at 6:30, and the ramp has no other lighting. This means skaters are riding in the dark, which is unsafe."
+  },
+  "lp.a.soup": {
+   "text": "Bring back soup at lunch. The school should bring back a soup option at lunch. In a survey, 120 of 200 students chose soup as their favorite winter lunch. The cafeteria was painted yellow two years ago. Kitchen records show soup cost less per serving than sandwiches. So soup would be both popular and affordable."
+  },
+  "lp.a.boardwalk": {
+   "text": "A boardwalk for the tide pools. The island should build a boardwalk to the tide pools. Rangers report that most visitors step right onto the rocks to reach the pools. Last year's survey counted far fewer sea stars beside the path than in the far pools. This means a boardwalk could protect the animals by keeping feet off the rocks. Sea stars can be orange, purple or brown."
+  },
+  "lp.a.rack": {
+   "text": "A bike rack for the community hall. The community hall needs a bike rack. During one week of events, staff counted 22 bikes leaning against the walls. The hall can hold 150 people for a concert. Two of those bikes blocked the fire door. So a rack would keep the doors clear and the bikes tidy."
+  },
+  "lp.a.musicroom": {
+   "text": "Open the music room at lunch. The music room should be open at lunchtime. A sign-up sheet collected 31 names of students who want to practice at lunch. The room schedule shows the room is empty from 12:00 to 12:45 every day. Music is far more fun than any other subject. This means students could practice without taking space from any class."
+  },
+  "lp.a.crosswalk": {
+   "text": "Paint a crosswalk by the market. The town should paint a crosswalk outside the market. A traffic count found 300 people crossing the road there on one Saturday. The nearest crosswalk is 400 meters away. So most shoppers cross where there is no safe place to do it. The market sells fruit from six different farms."
+  },
+  "lp.a.bookswap": {
+   "text": "A book swap shelf at the ferry dock. The ferry dock should have a book swap shelf. Ferry staff timed an average wait of 25 minutes before each trip. The dock was rebuilt with wood from the old pier. A rider survey found that 70 of 100 riders read while they wait. This means a shelf of books would be used by many waiting riders."
+  },
+  "lp.a.evenings": {
+   "text": "Open the community garden in the evening. The community garden should open on weekday evenings. A members' survey found 45 of 60 members can't visit between 9 and 3. Plots left unweeded for a month rose from 5 to 18 this year. Gardening is the most relaxing hobby there is. So evening hours would let members look after their plots."
+  },
+  "lp.a.shade": {
+   "text": "Plant shade trees at the playground. The playground needs shade trees. Rangers measured the slide at 140°F on three July afternoons. The playground has no shade between noon and 4 p.m. The playground's swings were painted red last year. This means children have nowhere cool to play on summer afternoons."
+  },
+  "lp.a.lostfound": {
+   "text": "Move the lost-and-found box. The lost-and-found box should move to the front office. Right now the box is in the gym storeroom, which is locked after 3 p.m. Only 8 of the 50 items left last term were ever collected. So a place that stays open longer would help more items get back to their owners. Most of the lost items were blue water bottles."
+  },
+  "lp.a.benchstop": {
+   "text": "A bench for the lighthouse bus stop. The lighthouse bus stop needs a bench. The lighthouse is clearly the prettiest building on the island. The timetable shows gaps of up to 40 minutes between buses at that stop. Drivers report that older riders often sit on the curb while they wait. This means a bench would give waiting riders a safe place to sit."
+  },
+  "lp.s.strongest.pool": {
+   "text": "Claim: The town pool should open an hour earlier."
+  },
+  "lp.s.strongest.art": {
+   "text": "Claim: The art club needs a bigger room."
+  },
+  "lp.s.strongest.trash": {
+   "text": "Claim: The beach needs more trash cans."
+  },
+  "lp.s.strongest.bikes": {
+   "text": "Claim: The noon ferry should allow bikes."
+  },
+  "lp.s.strongest.graphic": {
+   "text": "Claim: The library should buy more graphic novels."
+  },
+  "lp.s.strongest.chess": {
+   "text": "Claim: The school should start a chess club."
+  },
+  "lp.s.strongest.grip": {
+   "text": "Claim: The skate ramp needs fresh grip paint."
+  },
+  "lp.s.strongest.late": {
+   "text": "Claim: The market should stay open until 7 p.m."
+  },
+  "lp.s.strongest.roof": {
+   "text": "Claim: The ferry dock needs a covered waiting area."
+  },
+  "lp.s.strongest.thursday": {
+   "text": "Claim: The museum should open late on Thursdays."
+  },
+  "lp.s.strongest.guard": {
+   "text": "Claim: The crossing outside the school needs a crossing guard."
+  },
+  "lp.s.strongest.tomatoes": {
+   "text": "Claim: The school garden should grow more tomatoes next year."
+  },
+  "lp.s.enough.timetable": {
+   "text": "Two people on the bus said the timetable is confusing. Is that enough to say most riders find it confusing?"
+  },
+  "lp.s.enough.butter": {
+   "text": "The bake-off judges tasted all 40 entries, and 31 of them used butter. Is that enough to say most entries used butter?"
+  },
+  "lp.s.enough.crab": {
+   "text": "Kofi saw one crab at the tide pools today. Is that enough to say the crab numbers are shrinking?"
+  },
+  "lp.s.enough.lunch": {
+   "text": "A survey of 250 of the school's 300 students found that 200 want a longer lunch. Is that enough to say most students want a longer lunch?"
+  },
+  "lp.s.enough.playground": {
+   "text": "Mina's three friends all prefer the new playground. Is that enough to say the whole town prefers it?"
+  },
+  "lp.s.enough.saturday": {
+   "text": "The library counted visitors every day for a year: Saturday was the busiest day in 50 of the 52 weeks. Is that enough to say Saturday is usually its busiest day?"
+  },
+  "lp.s.enough.monday": {
+   "text": "One rainy Monday, the ferry ran late. Is that enough to say the ferry is usually late?"
+  },
+  "lp.s.enough.muffins": {
+   "text": "A café owner says her muffins are the best on the island. Is that enough to say they are the best?"
+  },
+  "lp.s.enough.seastars": {
+   "text": "Rangers counted the sea stars in every tide pool each spring for five years, and the count fell every year. Is that enough to say the number of sea stars has gone down?"
+  },
+  "lp.s.enough.meeting": {
+   "text": "At the town meeting, the five people who spoke all wanted a new skate park. Is that enough to say most of the town wants one?"
+  },
+  "lp.s.enough.cars": {
+   "text": "A count of every car at the market crossing for two weeks found about 900 cars a day. Is that enough to say the crossing is busy?"
+  },
+  "lp.s.enough.mathbook": {
+   "text": "One student said the new math book is too hard. Is that enough to say the book is too hard for the whole class?"
+  }
+ }
+}

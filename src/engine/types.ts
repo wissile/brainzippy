@@ -104,8 +104,11 @@ export interface Exercise {
  * Optional procedural content: a PURE, deterministic function of (level, rng, index).
  * `level` is 0-based; the engine stamps `difficulty = level + 1`. Same inputs → same exercise.
  * Ids must be unique per (level, index) — include both, e.g. `ca-tap-5-berry-l2n3`.
+ * `band.seed` (passed by generateBand; absent when a test calls a generator directly) is the same for every index of one band (round seed + game + level), so items of a
+ * band can coordinate deterministically: e.g. two questions on one passage, or a no-repeat shuffle of a bank.
  */
-export type ExerciseGenerator = (level: number, rng: Rng, index: number) => Omit<Exercise, "difficulty">;
+export interface GeneratorBand { readonly seed: number }
+export type ExerciseGenerator = (level: number, rng: Rng, index: number, band?: GeneratorBand) => Omit<Exercise, "difficulty">;
 
 export type ValidationReason =
   | "correct"
