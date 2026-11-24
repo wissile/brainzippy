@@ -1,0 +1,1450 @@
+{
+ "_note": "Wordroot Grove (prefix wg.). GENERATED from src/games/wordroot-grove/voice-lines.ts; a unit test keeps the two in sync. Speakers: sarah (host), gloop (helper), narrator (story beats, item read-aloud). See docs/worlds/wordroot-grove.md §12.",
+ "lines": {
+  "wg.story.storm": {
+   "text": "Last night, a gentle storm blew through Wordroot Grove."
+  },
+  "wg.story.open": {
+   "text": "By evening, every leaf in the Leaf Library had its label back."
+  },
+  "wg.dlg.in.1": {
+   "text": "Welcome to Wordroot Grove. Every tree here grows words.",
+   "speaker": "sarah"
+  },
+  "wg.dlg.in.2": {
+   "text": "Roots hold the meaning. Branches add beginnings and endings!",
+   "speaker": "gloop"
+  },
+  "wg.dlg.in.3": {
+   "text": "Last night's storm shook leaves loose and smudged their labels.",
+   "speaker": "sarah"
+  },
+  "wg.dlg.in.4": {
+   "text": "I can stretch a word apart, so we can see its parts.",
+   "speaker": "gloop"
+  },
+  "wg.dlg.in.5": {
+   "text": "Gloop and I need a word detective. Shall we start?",
+   "speaker": "sarah"
+  },
+  "wg.dlg.handover.1": {
+   "text": "This is Gloop. Gloop can stretch into any shape at all.",
+   "speaker": "sarah"
+  },
+  "wg.dlg.handover.2": {
+   "text": "Even a magnifying glass. Watch!",
+   "speaker": "gloop"
+  },
+  "wg.dlg.out.1": {
+   "text": "The Leaf Library is open again!",
+   "speaker": "sarah"
+  },
+  "wg.dlg.out.2": {
+   "text": "You took words apart and used each part's meaning.",
+   "speaker": "gloop"
+  },
+  "wg.dlg.out.3": {
+   "text": "Here's your Root Reader badge.",
+   "speaker": "sarah"
+  },
+  "wg.intro": {
+   "text": "Welcome to the Leaf Library. Will you help me relabel the leaves?",
+   "speaker": "sarah"
+  },
+  "wg.back": {
+   "text": "Welcome back. More smudged leaves are waiting for a word detective.",
+   "speaker": "sarah"
+  },
+  "wg.mid.1": {
+   "text": "Two leaves back on their branches.",
+   "speaker": "sarah"
+  },
+  "wg.mid.2": {
+   "text": "Half the grove is labeled again.",
+   "speaker": "sarah"
+  },
+  "wg.mid.3": {
+   "text": "Nearly done. Check every part of each word.",
+   "speaker": "sarah"
+  },
+  "wg.idle": {
+   "text": "Take your time. Read it again and look for parts or clues.",
+   "speaker": "sarah"
+  },
+  "wg.prompt.meaning": {
+   "text": "What does this word mean?",
+   "speaker": "sarah"
+  },
+  "wg.prompt.build": {
+   "text": "Build a word that means {gloss}.",
+   "speaker": "sarah",
+   "vary": {
+    "gloss": [
+     "open the lock",
+     "take things out of a bag",
+     "undo a knot",
+     "not safe",
+     "not kind",
+     "not fair",
+     "fill it again",
+     "read it again",
+     "paint it again",
+     "tell it again",
+     "build it again",
+     "heat it again",
+     "not like it",
+     "not agree",
+     "not do what you are told",
+     "not honest",
+     "heat it ahead of time",
+     "see some of it before it starts",
+     "pay ahead of time",
+     "full of care",
+     "without care",
+     "full of hope",
+     "without hope",
+     "giving lots of help",
+     "not able to manage without help",
+     "without fear",
+     "causing no harm",
+     "calm and full of rest",
+     "full of thanks",
+     "a person who teaches",
+     "a person who paints",
+     "a person who farms",
+     "a person who builds",
+     "a person who sings",
+     "a person who sails",
+     "a person who acts in plays",
+     "a person who visits",
+     "able to be washed",
+     "able to be read",
+     "able to be broken",
+     "safe to drink",
+     "not giving any help",
+     "not able to be broken",
+     "not able to be read",
+     "in a way that is not fair",
+     "in a way that is not safe",
+     "behavior that is not kind",
+     "the state of being not fair",
+     "a time when people do not agree",
+     "paying money back",
+     "the habit of acting without care",
+     "the feeling of being without help",
+     "in a way that is without hope",
+     "in a way that is full of care",
+     "in a way that is without fear",
+     "in a way that causes no pain",
+     "the feeling of being full of thanks"
+    ]
+   }
+  },
+  "wg.prompt.sort": {
+   "text": "Sort the words by their job.",
+   "speaker": "sarah"
+  },
+  "wg.prompt.fit": {
+   "text": "Which word fits the sentence?",
+   "speaker": "sarah"
+  },
+  "wg.prompt.family": {
+   "text": "Use the word you know. What does the new word mean?",
+   "speaker": "sarah"
+  },
+  "wg.prompt.rootmatch": {
+   "text": "Match each root to its meaning.",
+   "speaker": "sarah"
+  },
+  "wg.prompt.rootmeaning": {
+   "text": "Use the roots. What does this word mean?",
+   "speaker": "sarah"
+  },
+  "wg.prompt.wordfor": {
+   "text": "Which word means {meaning}?",
+   "speaker": "sarah",
+   "vary": {
+    "meaning": [
+     "able to be carried",
+     "able to be seen",
+     "able to be heard",
+     "a person who watches a game",
+     "a machine that pulls heavy loads",
+     "a machine that throws a picture onto a screen",
+     "to throw something out",
+     "to break out suddenly",
+     "to carry goods out of a country",
+     "to carry goods into a country",
+     "to push medicine in with a needle",
+     "to look closely at something",
+     "to build something",
+     "to take one number away from another",
+     "to say what will happen before it happens",
+     "to write or tell what something is like",
+     "a book that tells what words mean",
+     "a big room where people listen to a show",
+     "to break in while someone is talking",
+     "the written words of a play"
+    ]
+   }
+  },
+  "wg.prompt.rootcontext": {
+   "text": "Use the root's meaning to answer the question.",
+   "speaker": "sarah"
+  },
+  "wg.prompt.clue": {
+   "text": "Use the clues. What does the mystery word mean?",
+   "speaker": "sarah"
+  },
+  "wg.prompt.tap.one": {
+   "text": "Tap the clue, then press Grow.",
+   "speaker": "sarah"
+  },
+  "wg.prompt.tap.two": {
+   "text": "Tap both clues, then press Grow.",
+   "speaker": "sarah"
+  },
+  "wg.prompt.owner": {
+   "text": "Which words match the picture?",
+   "speaker": "sarah"
+  },
+  "wg.prompt.apostrophe": {
+   "text": "Which one is written correctly?",
+   "speaker": "sarah"
+  },
+  "wg.prompt.confused": {
+   "text": "Which one fits the sentence?",
+   "speaker": "sarah"
+  },
+  "wg.help.prefix": {
+   "text": "Big words are made of smaller parts. Look at the beginning first.",
+   "speaker": "gloop"
+  },
+  "wg.help.suffix": {
+   "text": "Big words are made of smaller parts. This time, check the ending.",
+   "speaker": "gloop"
+  },
+  "wg.help.parts": {
+   "text": "Find the base word first, then its beginning and its ending.",
+   "speaker": "gloop"
+  },
+  "wg.help.class": {
+   "text": "A word's job tells you its class. Endings give clues too.",
+   "speaker": "gloop"
+  },
+  "wg.help.greek": {
+   "text": "Many science words grow from Greek roots. Each root has a meaning.",
+   "speaker": "gloop"
+  },
+  "wg.help.latin": {
+   "text": "Lots of words grow from Latin roots. Find the root, then use its meaning.",
+   "speaker": "gloop"
+  },
+  "wg.help.context": {
+   "text": "The words around a mystery word often explain it.",
+   "speaker": "gloop"
+  },
+  "wg.help.apostrophe": {
+   "text": "Ask: who owns it? Or is it two words squeezed together?",
+   "speaker": "gloop"
+  },
+  "wg.help.confused": {
+   "text": "These words sound alike but mean different things. Test each one.",
+   "speaker": "gloop"
+  },
+  "wg.hint.prefix": {
+   "text": "Check the beginning. Which prefix is really there, and what does it mean?",
+   "speaker": "gloop"
+  },
+  "wg.hint.suffix": {
+   "text": "Check the ending. Which suffix is really there, and what does it add?",
+   "speaker": "gloop"
+  },
+  "wg.hint.base": {
+   "text": "Don't skip the first part. It changes what the base word means.",
+   "speaker": "gloop"
+  },
+  "wg.hint.build": {
+   "text": "Check each part's meaning. Does it match the meaning you need?",
+   "speaker": "gloop"
+  },
+  "wg.hint.build2": {
+   "text": "Find the base word first. Then add a beginning and an ending, in order.",
+   "speaker": "gloop"
+  },
+  "wg.hint.family": {
+   "text": "Find the word you know inside the new word. Then check what its ending adds.",
+   "speaker": "gloop"
+  },
+  "wg.hint.sort.noun": {
+   "text": "Endings like -ness and -ment often make a noun. Does it name a thing?",
+   "speaker": "gloop"
+  },
+  "wg.hint.sort.verb": {
+   "text": "The ending -en often makes a verb. Is it something you can do?",
+   "speaker": "gloop"
+  },
+  "wg.hint.sort.adjective": {
+   "text": "Endings like -ful, -less and -able often make an adjective. Does it describe?",
+   "speaker": "gloop"
+  },
+  "wg.hint.sort.adverb": {
+   "text": "The ending -ly often makes an adverb. Does it tell how?",
+   "speaker": "gloop"
+  },
+  "wg.hint.sort.trap": {
+   "text": "Careful: not every -ly word is an adverb. In a costly gift, costly describes.",
+   "speaker": "gloop"
+  },
+  "wg.hint.fit.noun": {
+   "text": "The gap needs a thing. Which word names a thing?",
+   "speaker": "gloop"
+  },
+  "wg.hint.fit.verb": {
+   "text": "The gap needs an action. Which word is something you can do?",
+   "speaker": "gloop"
+  },
+  "wg.hint.fit.adjective": {
+   "text": "The gap describes something. Which word describes?",
+   "speaker": "gloop"
+  },
+  "wg.hint.fit.adverb": {
+   "text": "The gap tells how something was done. Which word tells how?",
+   "speaker": "gloop"
+  },
+  "wg.hint.rootmatch": {
+   "text": "Think of a word you know with that root. What does the root do there?",
+   "speaker": "gloop"
+  },
+  "wg.hint.roots": {
+   "text": "Put the meanings of the roots together, in order.",
+   "speaker": "gloop"
+  },
+  "wg.hint.literal": {
+   "text": "That one just looks like the word. Use the roots and their meanings.",
+   "speaker": "gloop"
+  },
+  "wg.hint.wordfor": {
+   "text": "Find the root in each word. Which root means what you need?",
+   "speaker": "gloop"
+  },
+  "wg.hint.rootcontext": {
+   "text": "Use the root's meaning in the sentence. What would that make happen?",
+   "speaker": "gloop"
+  },
+  "wg.hint.clue.definition": {
+   "text": "Words right after a comma, or after is, often explain the mystery word.",
+   "speaker": "gloop"
+  },
+  "wg.hint.clue.synonym": {
+   "text": "Or can give another name for the mystery word.",
+   "speaker": "gloop"
+  },
+  "wg.hint.clue.example": {
+   "text": "Such as and like give examples. What do the examples have in common?",
+   "speaker": "gloop"
+  },
+  "wg.hint.clue.restatement": {
+   "text": "In other words, that is, and which means say it again more simply.",
+   "speaker": "gloop"
+  },
+  "wg.hint.clue.cause": {
+   "text": "Because and so link what happened to why. What would cause that?",
+   "speaker": "gloop"
+  },
+  "wg.hint.clue.contrast": {
+   "text": "But, unlike, although, however and while signal an opposite.",
+   "speaker": "gloop"
+  },
+  "wg.hint.clue.multi": {
+   "text": "The other sentences show what the word is like. What do they point to?",
+   "speaker": "gloop"
+  },
+  "wg.hint.owners": {
+   "text": "Count the owners. One owner, or more than one?",
+   "speaker": "gloop"
+  },
+  "wg.hint.own": {
+   "text": "The things belong to someone. That needs an apostrophe.",
+   "speaker": "gloop"
+  },
+  "wg.hint.its": {
+   "text": "Try it is in the gap. If it works, use it's. If not, its.",
+   "speaker": "gloop"
+  },
+  "wg.hint.plural": {
+   "text": "Does anything belong to them, or is it just more than one?",
+   "speaker": "gloop"
+  },
+  "wg.hint.irregular": {
+   "text": "This plural has no s at the end. Add apostrophe s to show the owners.",
+   "speaker": "gloop"
+  },
+  "wg.hint.contraction": {
+   "text": "Which letters are missing? The apostrophe goes in their place.",
+   "speaker": "gloop"
+  },
+  "wg.hint.they": {
+   "text": "Try they are in the gap. Does it still make sense?",
+   "speaker": "gloop"
+  },
+  "wg.hint.to": {
+   "text": "Is it a number? Does it mean also, or too much? Or does it point somewhere?",
+   "speaker": "gloop"
+  },
+  "wg.hint.you": {
+   "text": "Try you are in the gap. Does it still make sense?",
+   "speaker": "gloop"
+  },
+  "wg.hint.than": {
+   "text": "Are you comparing two things, or telling what came next?",
+   "speaker": "gloop"
+  },
+  "wg.hint.test": {
+   "text": "Try each word in the sentence and read it again.",
+   "speaker": "gloop"
+  },
+  "wg.hint.show": {
+   "text": "Let's work it out together, step by step.",
+   "speaker": "sarah"
+  },
+  "wg.hint.model": {
+   "text": "Now you finish it. The answer is glowing.",
+   "speaker": "sarah"
+  },
+  "wg.retry.1": {
+   "text": "Not yet. Let's look at the parts.",
+   "speaker": "sarah"
+  },
+  "wg.praise.1": {
+   "text": "You split the word into parts and used each meaning.",
+   "speaker": "sarah"
+  },
+  "wg.praise.2": {
+   "text": "You checked the word's job in the sentence.",
+   "speaker": "sarah"
+  },
+  "wg.praise.3": {
+   "text": "You found the clues in the other sentences.",
+   "speaker": "sarah"
+  },
+  "wg.praise.4": {
+   "text": "You noticed the signal word and flipped the meaning.",
+   "speaker": "sarah"
+  },
+  "wg.praise.5": {
+   "text": "You counted the owners before placing the apostrophe.",
+   "speaker": "sarah"
+  },
+  "wg.praise.6": {
+   "text": "You tested it with they are. Good checking.",
+   "speaker": "sarah"
+  },
+  "wg.praise.you": {
+   "text": "You tested it with you are. Good checking.",
+   "speaker": "sarah"
+  },
+  "wg.praise.it": {
+   "text": "You tested it with it is. Good checking.",
+   "speaker": "sarah"
+  },
+  "wg.praise.test": {
+   "text": "You tried each word in the sentence. Good checking.",
+   "speaker": "sarah"
+  },
+  "wg.praise.family": {
+   "text": "You found the word you know inside the new one.",
+   "speaker": "sarah"
+  },
+  "wg.praise.roots": {
+   "text": "You used the root's meaning to work it out.",
+   "speaker": "sarah"
+  },
+  "wg.praise.clue": {
+   "text": "You found the clue and used it.",
+   "speaker": "sarah"
+  },
+  "wg.praise.plural": {
+   "text": "You checked that nothing belongs to them, so no apostrophe.",
+   "speaker": "sarah"
+  },
+  "wg.praise.squeeze": {
+   "text": "You checked which letters were squeezed out.",
+   "speaker": "sarah"
+  },
+  "wg.part.un": {
+   "text": "un means not, or undo.",
+   "speaker": "gloop"
+  },
+  "wg.part.re": {
+   "text": "re means again.",
+   "speaker": "gloop"
+  },
+  "wg.part.dis": {
+   "text": "dis means not, or the opposite.",
+   "speaker": "gloop"
+  },
+  "wg.part.pre": {
+   "text": "pre means before.",
+   "speaker": "gloop"
+  },
+  "wg.part.ful": {
+   "text": "ful means full of.",
+   "speaker": "gloop"
+  },
+  "wg.part.less": {
+   "text": "less means without.",
+   "speaker": "gloop"
+  },
+  "wg.part.er": {
+   "text": "er means a person who does something.",
+   "speaker": "gloop"
+  },
+  "wg.part.or": {
+   "text": "or means a person who does something.",
+   "speaker": "gloop"
+  },
+  "wg.part.able": {
+   "text": "able means able to be.",
+   "speaker": "gloop"
+  },
+  "wg.part.ness": {
+   "text": "ness turns a word into a thing, a noun.",
+   "speaker": "gloop"
+  },
+  "wg.part.ment": {
+   "text": "ment turns an action into a thing, a noun.",
+   "speaker": "gloop"
+  },
+  "wg.part.en": {
+   "text": "en means to make. It makes a verb.",
+   "speaker": "gloop"
+  },
+  "wg.part.ly": {
+   "text": "ly often means in a way. It often makes an adverb.",
+   "speaker": "gloop"
+  },
+  "wg.part.tele": {
+   "text": "tele means far.",
+   "speaker": "gloop"
+  },
+  "wg.part.graph": {
+   "text": "graph means write.",
+   "speaker": "gloop"
+  },
+  "wg.part.phon": {
+   "text": "phon means sound.",
+   "speaker": "gloop"
+  },
+  "wg.part.photo": {
+   "text": "photo means light.",
+   "speaker": "gloop"
+  },
+  "wg.part.micro": {
+   "text": "micro means small.",
+   "speaker": "gloop"
+  },
+  "wg.part.scope": {
+   "text": "scope means look at.",
+   "speaker": "gloop"
+  },
+  "wg.part.auto": {
+   "text": "auto means self.",
+   "speaker": "gloop"
+  },
+  "wg.part.bio": {
+   "text": "bio means life.",
+   "speaker": "gloop"
+  },
+  "wg.part.meter": {
+   "text": "meter means measure.",
+   "speaker": "gloop"
+  },
+  "wg.part.therm": {
+   "text": "therm means heat.",
+   "speaker": "gloop"
+  },
+  "wg.part.geo": {
+   "text": "geo means earth.",
+   "speaker": "gloop"
+  },
+  "wg.part.hydr": {
+   "text": "hydr means water.",
+   "speaker": "gloop"
+  },
+  "wg.part.port": {
+   "text": "port means carry.",
+   "speaker": "gloop"
+  },
+  "wg.part.rupt": {
+   "text": "rupt means break.",
+   "speaker": "gloop"
+  },
+  "wg.part.struct": {
+   "text": "struct means build.",
+   "speaker": "gloop"
+  },
+  "wg.part.spect": {
+   "text": "spect means look.",
+   "speaker": "gloop"
+  },
+  "wg.part.dict": {
+   "text": "dict means say.",
+   "speaker": "gloop"
+  },
+  "wg.part.aud": {
+   "text": "aud means hear.",
+   "speaker": "gloop"
+  },
+  "wg.part.vis": {
+   "text": "vis means see.",
+   "speaker": "gloop"
+  },
+  "wg.part.ject": {
+   "text": "ject means throw.",
+   "speaker": "gloop"
+  },
+  "wg.part.tract": {
+   "text": "tract means pull.",
+   "speaker": "gloop"
+  },
+  "wg.part.scrib": {
+   "text": "scrib or script means write.",
+   "speaker": "gloop"
+  },
+  "wg.w.unlock": {
+   "text": "unlock"
+  },
+  "wg.w.unpack": {
+   "text": "unpack"
+  },
+  "wg.w.untie": {
+   "text": "untie"
+  },
+  "wg.w.unsafe": {
+   "text": "unsafe"
+  },
+  "wg.w.unkind": {
+   "text": "unkind"
+  },
+  "wg.w.unfair": {
+   "text": "unfair"
+  },
+  "wg.w.refill": {
+   "text": "refill"
+  },
+  "wg.w.reread": {
+   "text": "reread"
+  },
+  "wg.w.repaint": {
+   "text": "repaint"
+  },
+  "wg.w.retell": {
+   "text": "retell"
+  },
+  "wg.w.rebuild": {
+   "text": "rebuild"
+  },
+  "wg.w.reheat": {
+   "text": "reheat"
+  },
+  "wg.w.dislike": {
+   "text": "dislike"
+  },
+  "wg.w.disagree": {
+   "text": "disagree"
+  },
+  "wg.w.disobey": {
+   "text": "disobey"
+  },
+  "wg.w.dishonest": {
+   "text": "dishonest"
+  },
+  "wg.w.preheat": {
+   "text": "preheat"
+  },
+  "wg.w.preview": {
+   "text": "preview"
+  },
+  "wg.w.prepay": {
+   "text": "prepay"
+  },
+  "wg.w.careful": {
+   "text": "careful"
+  },
+  "wg.w.careless": {
+   "text": "careless"
+  },
+  "wg.w.hopeful": {
+   "text": "hopeful"
+  },
+  "wg.w.hopeless": {
+   "text": "hopeless"
+  },
+  "wg.w.helpful": {
+   "text": "helpful"
+  },
+  "wg.w.helpless": {
+   "text": "helpless"
+  },
+  "wg.w.fearless": {
+   "text": "fearless"
+  },
+  "wg.w.harmless": {
+   "text": "harmless"
+  },
+  "wg.w.restful": {
+   "text": "restful"
+  },
+  "wg.w.thankful": {
+   "text": "thankful"
+  },
+  "wg.w.teacher": {
+   "text": "teacher"
+  },
+  "wg.w.painter": {
+   "text": "painter"
+  },
+  "wg.w.farmer": {
+   "text": "farmer"
+  },
+  "wg.w.builder": {
+   "text": "builder"
+  },
+  "wg.w.singer": {
+   "text": "singer"
+  },
+  "wg.w.sailor": {
+   "text": "sailor"
+  },
+  "wg.w.actor": {
+   "text": "actor"
+  },
+  "wg.w.visitor": {
+   "text": "visitor"
+  },
+  "wg.w.washable": {
+   "text": "washable"
+  },
+  "wg.w.readable": {
+   "text": "readable"
+  },
+  "wg.w.breakable": {
+   "text": "breakable"
+  },
+  "wg.w.drinkable": {
+   "text": "drinkable"
+  },
+  "wg.w.microscope": {
+   "text": "microscope"
+  },
+  "wg.w.telescope": {
+   "text": "telescope"
+  },
+  "wg.w.telephone": {
+   "text": "telephone"
+  },
+  "wg.w.photograph": {
+   "text": "photograph"
+  },
+  "wg.w.autograph": {
+   "text": "autograph"
+  },
+  "wg.w.microphone": {
+   "text": "microphone"
+  },
+  "wg.w.biography": {
+   "text": "biography"
+  },
+  "wg.w.autobiography": {
+   "text": "autobiography"
+  },
+  "wg.w.thermometer": {
+   "text": "thermometer"
+  },
+  "wg.w.geography": {
+   "text": "geography"
+  },
+  "wg.w.telegraph": {
+   "text": "telegraph"
+  },
+  "wg.w.speedometer": {
+   "text": "speedometer"
+  },
+  "wg.w.autopilot": {
+   "text": "autopilot"
+  },
+  "wg.w.headphones": {
+   "text": "headphones"
+  },
+  "wg.w.geothermal": {
+   "text": "geothermal"
+  },
+  "wg.w.hydrant": {
+   "text": "hydrant"
+  },
+  "wg.w.microchip": {
+   "text": "microchip"
+  },
+  "wg.w.photocopy": {
+   "text": "photocopy"
+  },
+  "wg.w.kindness": {
+   "text": "kindness"
+  },
+  "wg.w.darkness": {
+   "text": "darkness"
+  },
+  "wg.w.softness": {
+   "text": "softness"
+  },
+  "wg.w.fairness": {
+   "text": "fairness"
+  },
+  "wg.w.payment": {
+   "text": "payment"
+  },
+  "wg.w.movement": {
+   "text": "movement"
+  },
+  "wg.w.agreement": {
+   "text": "agreement"
+  },
+  "wg.w.enjoyment": {
+   "text": "enjoyment"
+  },
+  "wg.w.brighten": {
+   "text": "brighten"
+  },
+  "wg.w.soften": {
+   "text": "soften"
+  },
+  "wg.w.darken": {
+   "text": "darken"
+  },
+  "wg.w.sharpen": {
+   "text": "sharpen"
+  },
+  "wg.w.tighten": {
+   "text": "tighten"
+  },
+  "wg.w.shorten": {
+   "text": "shorten"
+  },
+  "wg.w.friendly": {
+   "text": "friendly"
+  },
+  "wg.w.lovely": {
+   "text": "lovely"
+  },
+  "wg.w.lonely": {
+   "text": "lonely"
+  },
+  "wg.w.softly": {
+   "text": "softly"
+  },
+  "wg.w.quickly": {
+   "text": "quickly"
+  },
+  "wg.w.loudly": {
+   "text": "loudly"
+  },
+  "wg.w.slowly": {
+   "text": "slowly"
+  },
+  "wg.w.bravely": {
+   "text": "bravely"
+  },
+  "wg.w.gently": {
+   "text": "gently"
+  },
+  "wg.s.fit.eggs": {
+   "text": "Omar blank carried the eggs to the kitchen."
+  },
+  "wg.s.fit.kitten": {
+   "text": "Mei blank lifted the sleepy kitten."
+  },
+  "wg.s.fit.path": {
+   "text": "Nia blank climbed down the rocky path."
+  },
+  "wg.s.fit.song": {
+   "text": "The twins blank sang the birthday song."
+  },
+  "wg.s.fit.baby": {
+   "text": "Lena blank closed the door so the baby kept sleeping."
+  },
+  "wg.s.fit.bus": {
+   "text": "Kofi blank packed his bag before the bus came."
+  },
+  "wg.s.fit.thanks": {
+   "text": "Everyone thanked Zara for her blank."
+  },
+  "wg.s.fit.stars": {
+   "text": "The blank made the stars easy to see."
+  },
+  "wg.s.fit.bike": {
+   "text": "Priya made the last blank for her new bike."
+  },
+  "wg.s.fit.hands": {
+   "text": "The two teams shook hands to show their blank."
+  },
+  "wg.s.fit.puppets": {
+   "text": "Jonah laughed with blank at the puppet show."
+  },
+  "wg.s.fit.dance": {
+   "text": "Every blank in the dance matched the music."
+  },
+  "wg.s.fit.sunrise": {
+   "text": "The sunrise will blank the whole sky."
+  },
+  "wg.s.fit.butter": {
+   "text": "Let the butter blank before you mix it."
+  },
+  "wg.s.fit.clouds": {
+   "text": "Gray clouds began to blank the sky."
+  },
+  "wg.s.fit.pencil": {
+   "text": "Can you blank my pencil, please?"
+  },
+  "wg.s.fit.strap": {
+   "text": "Ana pulled the strap to blank it."
+  },
+  "wg.s.fit.beach": {
+   "text": "It was a blank afternoon at the beach."
+  },
+  "wg.s.fit.dog": {
+   "text": "The blank dog let Tomás pat its head."
+  },
+  "wg.s.fit.owl": {
+   "text": "The blank owl hooted from the tall pine."
+  },
+  "wg.s.fit.garden": {
+   "text": "Aiyana planted a blank row of tulips."
+  },
+  "wg.s.fit.note": {
+   "text": "Sami wrote a blank note to his aunt."
+  },
+  "wg.s.family.add": {
+   "text": "To add means to put together. What does additional mean?"
+  },
+  "wg.s.family.create": {
+   "text": "To create means to make something new. What does creation mean?"
+  },
+  "wg.s.family.protect": {
+   "text": "To protect means to keep safe. What does protection mean?"
+  },
+  "wg.s.family.decide": {
+   "text": "To decide means to make up your mind. What does decision mean?"
+  },
+  "wg.s.family.invent": {
+   "text": "To invent means to make something new. What does inventor mean?"
+  },
+  "wg.s.family.child": {
+   "text": "To child means a young person. What does childhood mean?"
+  },
+  "wg.s.family.friend": {
+   "text": "To friend means someone you like and trust. What does friendship mean?"
+  },
+  "wg.s.family.heal": {
+   "text": "To heal means to get better. What does health mean?"
+  },
+  "wg.s.family.explore": {
+   "text": "To explore means to travel and discover. What does explorer mean?"
+  },
+  "wg.s.family.collect": {
+   "text": "To collect means to gather things. What does collection mean?"
+  },
+  "wg.s.family.celebrate": {
+   "text": "To celebrate means to have fun for a special day. What does celebration mean?"
+  },
+  "wg.s.family.produce": {
+   "text": "To produce means to make. What does product mean?"
+  },
+  "wg.s.family.equal": {
+   "text": "To equal means the same amount. What does equally mean?"
+  },
+  "wg.s.family.imagine": {
+   "text": "To imagine means to picture something in your mind. What does imaginary mean?"
+  },
+  "wg.s.family.compete": {
+   "text": "To compete means to try to win. What does competition mean?"
+  },
+  "wg.s.family.sense": {
+   "text": "To sense means good judgment. What does sensible mean?"
+  },
+  "wg.s.family.science": {
+   "text": "To science means the study of how the world works. What does scientist mean?"
+  },
+  "wg.s.family.act": {
+   "text": "To act means to do something. What does action mean?"
+  },
+  "wg.s.rootcontext.volcano": {
+   "text": "The volcano began to erupt. Rupt means break. What happened?"
+  },
+  "wg.s.rootcontext.bell": {
+   "text": "The bell interrupted the story. Rupt means break. What did the bell do?"
+  },
+  "wg.s.rootcontext.bike": {
+   "text": "Kofi will inspect his bike before the ride. Spect means look. What will he do?"
+  },
+  "wg.s.rootcontext.crowd": {
+   "text": "The spectators cheered from the stands. Spect means look. Who cheered?"
+  },
+  "wg.s.rootcontext.voice": {
+   "text": "Mei's whisper was barely audible. Aud means hear. What does that tell you?"
+  },
+  "wg.s.rootcontext.fog": {
+   "text": "The fog made the hills invisible. Vis means see. What happened to the hills?"
+  },
+  "wg.s.rootcontext.bridge": {
+   "text": "Workers will construct a new bridge. Struct means build. What will they do?"
+  },
+  "wg.s.rootcontext.token": {
+   "text": "The game machine ejected a shiny token. Ject means throw. What did the machine do?"
+  },
+  "wg.s.rootcontext.magnet": {
+   "text": "The magnet attracted the paper clips. Tract means pull. What did the magnet do?"
+  },
+  "wg.s.rootcontext.drivers": {
+   "text": "Please don't distract the drivers. Tract means pull. What should you not do?"
+  },
+  "wg.s.rootcontext.teacher": {
+   "text": "The coach dictated a list to the team. Dict means say. What did the coach do?"
+  },
+  "wg.s.rootcontext.pet": {
+   "text": "Omar wrote a description of his pet. Scrib or script means write. What did he write?"
+  },
+  "wg.s.rootcontext.apples": {
+   "text": "The farm will export its apples. Port means carry. What will the farm do?"
+  },
+  "wg.s.rootcontext.plants": {
+   "text": "The class will transport the plants to the garden. Port means carry. What will the class do?"
+  },
+  "wg.s.rootcontext.drawing": {
+   "text": "Zara will project her drawing onto the wall. Ject means throw. What will she do?"
+  },
+  "wg.s.rootcontext.show": {
+   "text": "The audience clapped at the end. Aud means hear. Who clapped?"
+  },
+  "wg.s.rootcontext.glasses": {
+   "text": "Nia wears glasses to help her vision. Vis means see. What do the glasses help?"
+  },
+  "wg.s.rootcontext.weather": {
+   "text": "The forecast predicts rain for tomorrow. Dict means say. What does the forecast do?"
+  },
+  "wg.s.apostrophe.chicks": {
+   "text": "The bird fed blank chicks."
+  },
+  "wg.s.apostrophe.raining": {
+   "text": "Blank raining again, so bring a coat."
+  },
+  "wg.s.apostrophe.apples": {
+   "text": "We bought six blank at the market."
+  },
+  "wg.s.apostrophe.horses": {
+   "text": "Three blank are sleeping in the barn."
+  },
+  "wg.s.apostrophe.puppies": {
+   "text": "Four blank played in the park."
+  },
+  "wg.s.apostrophe.coats": {
+   "text": "The blank coats hung in a long row."
+  },
+  "wg.s.apostrophe.relay": {
+   "text": "The blank team won the relay race."
+  },
+  "wg.s.apostrophe.cheese": {
+   "text": "The blank cheese was gone by morning."
+  },
+  "wg.s.apostrophe.shoes": {
+   "text": "The blank shoes were lined up by the door."
+  },
+  "wg.s.apostrophe.shoe": {
+   "text": "I blank find my left shoe."
+  },
+  "wg.s.apostrophe.music": {
+   "text": "Nia blank like loud music."
+  },
+  "wg.s.apostrophe.beach": {
+   "text": "Blank going to the beach tomorrow."
+  },
+  "wg.s.apostrophe.hats": {
+   "text": "Both blank hats blew off in the wind."
+  },
+  "wg.s.apostrophe.nests": {
+   "text": "The two blank nests were in the same tree."
+  },
+  "wg.s.apostrophe.bike": {
+   "text": "Blank bike has a bell and a basket."
+  },
+  "wg.s.apostrophe.book": {
+   "text": "This is blank book, not mine."
+  },
+  "wg.s.confused.backpacks": {
+   "text": "Blank backpacks are on the bus."
+  },
+  "wg.s.confused.books": {
+   "text": "Put the books over blank."
+  },
+  "wg.s.confused.zoo": {
+   "text": "Blank going to the zoo on Friday."
+  },
+  "wg.s.confused.frog": {
+   "text": "Blank is a frog in the pond."
+  },
+  "wg.s.confused.helmets": {
+   "text": "The players put on blank helmets."
+  },
+  "wg.s.confused.party": {
+   "text": "The twins said blank coming to the party."
+  },
+  "wg.s.confused.park": {
+   "text": "Is blank a park near the school?"
+  },
+  "wg.s.confused.tickets": {
+   "text": "Kofi has blank tickets for the show."
+  },
+  "wg.s.confused.come": {
+   "text": "Mei wants to come blank."
+  },
+  "wg.s.confused.library": {
+   "text": "Lena walked blank the library."
+  },
+  "wg.s.confused.soup": {
+   "text": "The soup is blank hot to eat."
+  },
+  "wg.s.confused.gate": {
+   "text": "Jonah ran blank the gate."
+  },
+  "wg.s.confused.apples": {
+   "text": "Nia gave blank apples to each friend."
+  },
+  "wg.s.confused.box": {
+   "text": "This box is heavier blank that one."
+  },
+  "wg.s.confused.lunch": {
+   "text": "We ate lunch, and blank we played outside."
+  },
+  "wg.s.confused.sister": {
+   "text": "Raj is taller blank his sister."
+  },
+  "wg.s.confused.flour": {
+   "text": "First we mix the flour, blank we add the eggs."
+  },
+  "wg.s.confused.kite": {
+   "text": "Ana's kite flew higher blank the trees."
+  },
+  "wg.s.confused.jacket": {
+   "text": "Is this blank jacket?"
+  },
+  "wg.s.confused.song": {
+   "text": "Blank going to love this song."
+  },
+  "wg.s.confused.hands": {
+   "text": "Please wash blank hands before dinner."
+  },
+  "wg.s.confused.ready": {
+   "text": "Tell me when blank ready."
+  },
+  "wg.s.confused.paw": {
+   "text": "The cat licked blank paw."
+  },
+  "wg.s.confused.home": {
+   "text": "Blank time to go home."
+  },
+  "wg.s.confused.nest": {
+   "text": "The bird built blank nest in the oak."
+  },
+  "wg.s.confused.snow": {
+   "text": "I think blank going to snow."
+  },
+  "wg.p.plimbet": {
+   "text": "Ana packed a plimbet, a small bag for carrying a snack, before the hike."
+  },
+  "wg.p.drinnet": {
+   "text": "Kofi filled his drinnet, or water bottle, at the fountain."
+  },
+  "wg.p.sorbinet": {
+   "text": "Mei wore a sorbinet, a warm hat with flaps over the ears, in the snow."
+  },
+  "wg.p.quosset": {
+   "text": "Raj keeps every quosset, such as apples, pears and plums, in a blue bowl."
+  },
+  "wg.p.morrick": {
+   "text": "The trail was morrick; in other words, it was steep and hard to climb, so Lena rested often."
+  },
+  "wg.p.klendor": {
+   "text": "Omar fed the klendor, a tiny fish with orange stripes, that lives in his tank."
+  },
+  "wg.p.bramtock": {
+   "text": "Zara swept the bramtock, or front porch, after the storm."
+  },
+  "wg.p.brindop": {
+   "text": "Tomás hung each brindop, like his hammer and his saw, on the workshop wall."
+  },
+  "wg.p.gendrop": {
+   "text": "Priya used a gendrop, which is a long spoon for stirring soup, to mix dinner."
+  },
+  "wg.p.pentrop": {
+   "text": "A pentrop is a party held outside in a park, and Jonah loves them."
+  },
+  "wg.p.galdrup": {
+   "text": "Nia found a galdrup, or smooth, flat stone, by the river."
+  },
+  "wg.p.holtip": {
+   "text": "Sami's favorite holtip, such as soccer or swimming, keeps him busy all week."
+  },
+  "wg.p.torvish": {
+   "text": "The puppy felt torvish, which means very sleepy, after its long walk."
+  },
+  "wg.p.lomvish": {
+   "text": "Kenji's soup was lomvish, or warm but not hot, so he ate it right away."
+  },
+  "wg.p.valdish": {
+   "text": "The room was valdish, that is, very neat and tidy, after Aiyana cleaned it."
+  },
+  "wg.p.crennish": {
+   "text": "The bread smelled crennish, fresh and warm from the oven, when Ana opened the door."
+  },
+  "wg.p.skelvy": {
+   "text": "Raj loves skelvy weather, like windy days with gray clouds, for flying kites."
+  },
+  "wg.p.trevvy": {
+   "text": "Lena felt trevvy, or nervous, before her piano recital."
+  },
+  "wg.p.prendle": {
+   "text": "Zara will prendle the plants, which means give them a little water, every morning."
+  },
+  "wg.p.ravvle": {
+   "text": "Kofi likes to ravvle, or hum quietly, while he draws."
+  },
+  "wg.p.wezzle": {
+   "text": "Mei's cat will wezzle, in other words, curl up in a ball, on any warm blanket."
+  },
+  "wg.p.sprock": {
+   "text": "Omar had to sprock the tent, or fold it up small, before the drive home."
+  },
+  "wg.p.splott": {
+   "text": "The baby likes to splott, which means clap and stamp at the same time, when music plays."
+  },
+  "wg.p.grimvel": {
+   "text": "Before the race, Nia grimveled, or stretched her legs, on the grass."
+  },
+  "wg.p.flimmet": {
+   "text": "The cave was flimmet. Omar couldn't see his own hand. He switched on his flashlight. His friends waited outside."
+  },
+  "wg.p.blistom": {
+   "text": "Kenji's brother is blistom, but Kenji is quiet. His brother shouts and sings all day long. They both like pizza."
+  },
+  "wg.p.snorbit": {
+   "text": "Because the path was snorbit, Ana slipped twice. She stepped slowly over the icy stones. Her friends waited by the gate."
+  },
+  "wg.p.fendro": {
+   "text": "Raj's lunch was fendro. He took one bite and fanned his mouth. Then he gulped down a whole glass of water. The cafeteria was busy that day."
+  },
+  "wg.p.grevin": {
+   "text": "Although the puppy looked grevin, it was full of energy. It had just run, jumped and chased its tail for an hour. Sami named it Biscuit."
+  },
+  "wg.p.skorvel": {
+   "text": "The lemonade was so skorvel that Zara added three spoons of sugar. Even then, her lips puckered. She sat under a big tree."
+  },
+  "wg.p.kerpin": {
+   "text": "Nia carried the kerpin to the lake. She climbed in and picked up the paddle. Soon she was gliding across the water. Ducks swam nearby."
+  },
+  "wg.p.lumbrit": {
+   "text": "Instead of walking, Jonah decided to lumbrit. He raced down the hill as fast as he could. He reached the bottom first. His shoes were blue."
+  },
+  "wg.p.zorvel": {
+   "text": "The thunder was zorvel. Aiyana covered her ears. The windows rattled in their frames. Then the rain began."
+  },
+  "wg.p.quandrel": {
+   "text": "Priya practices her quandrel every evening. She plucks its four strings, and soft music fills the room. Her room is painted green."
+  },
+  "wg.p.fennick": {
+   "text": "Most of the class felt fennick before the test, but Lena felt calm. Their hands shook as they waited for the papers."
+  },
+  "wg.p.flaxim": {
+   "text": "Omar needed a flaxim to cross the stream. He laid the long wooden board over the water. Then he walked across it carefully. A frog watched him."
+  },
+  "wg.p.nubbick": {
+   "text": "The kitten was nubbick, so it hid under the bed. It shook whenever the doorbell rang. Its fur was gray."
+  },
+  "wg.p.tumvick": {
+   "text": "Kofi thought the movie would be tumvick, but it was exciting from start to finish. He had expected to yawn the whole time. He shared popcorn with Mei."
+  },
+  "wg.p.ulbrin": {
+   "text": "Grandpa keeps an ulbrin by the door. When it rains, he opens it and holds it over his head. He always wears a red coat."
+  },
+  "wg.p.mirvane": {
+   "text": "The old bridge was mirvane, so the town closed it. Its boards were cracked and loose. A new bridge will open in May."
+  },
+  "wg.p.glantrip": {
+   "text": "Tomás wanted a glantrip after his long swim. He stretched out on a soft towel and closed his eyes for an hour. The pool was busy."
+  },
+  "wg.p.kopwell": {
+   "text": "Unlike the kopwell old road, the new road is smooth. The old road is full of bumps and holes. Buses use both roads."
+  },
+  "wg.p.crosvin": {
+   "text": "Zara's shoes were crosvin after she jumped in every puddle. Water squished out with each step. She laughed all the way home."
+  },
+  "wg.p.nalvick": {
+   "text": "Sami pinned the nalvick to the wall. It showed every town on the island and every road between them. He used a red pin."
+  },
+  "wg.p.tolvane": {
+   "text": "Ana's old backpack was tolvane. However, her new one is light and easy to carry. The old one hurt her shoulders. Both are purple."
+  },
+  "wg.p.umbrick": {
+   "text": "The soup was umbrick, so Kenji blew on each spoonful. Steam rose from the bowl. He ate it with bread."
+  },
+  "wg.p.wistrop": {
+   "text": "Mei used a wistrop to dig in the garden. Its sharp metal end cut through the soil, and its long handle saved her back. The tulips bloomed in spring."
+  },
+  "wg.p.crandiv": {
+   "text": "While Raj's dog is crandiv, his cat is lazy. The dog runs, fetches and plays all afternoon. Both pets sleep at night."
+  },
+  "wg.spell.plimbet": {
+   "text": "The mystery word is spelled P, L, I, M, B, E, T."
+  },
+  "wg.spell.drinnet": {
+   "text": "The mystery word is spelled D, R, I, N, N, E, T."
+  },
+  "wg.spell.sorbinet": {
+   "text": "The mystery word is spelled S, O, R, B, I, N, E, T."
+  },
+  "wg.spell.quosset": {
+   "text": "The mystery word is spelled Q, U, O, S, S, E, T."
+  },
+  "wg.spell.morrick": {
+   "text": "The mystery word is spelled M, O, R, R, I, C, K."
+  },
+  "wg.spell.klendor": {
+   "text": "The mystery word is spelled K, L, E, N, D, O, R."
+  },
+  "wg.spell.bramtock": {
+   "text": "The mystery word is spelled B, R, A, M, T, O, C, K."
+  },
+  "wg.spell.brindop": {
+   "text": "The mystery word is spelled B, R, I, N, D, O, P."
+  },
+  "wg.spell.gendrop": {
+   "text": "The mystery word is spelled G, E, N, D, R, O, P."
+  },
+  "wg.spell.pentrop": {
+   "text": "The mystery word is spelled P, E, N, T, R, O, P."
+  },
+  "wg.spell.galdrup": {
+   "text": "The mystery word is spelled G, A, L, D, R, U, P."
+  },
+  "wg.spell.holtip": {
+   "text": "The mystery word is spelled H, O, L, T, I, P."
+  },
+  "wg.spell.torvish": {
+   "text": "The mystery word is spelled T, O, R, V, I, S, H."
+  },
+  "wg.spell.lomvish": {
+   "text": "The mystery word is spelled L, O, M, V, I, S, H."
+  },
+  "wg.spell.valdish": {
+   "text": "The mystery word is spelled V, A, L, D, I, S, H."
+  },
+  "wg.spell.crennish": {
+   "text": "The mystery word is spelled C, R, E, N, N, I, S, H."
+  },
+  "wg.spell.skelvy": {
+   "text": "The mystery word is spelled S, K, E, L, V, Y."
+  },
+  "wg.spell.trevvy": {
+   "text": "The mystery word is spelled T, R, E, V, V, Y."
+  },
+  "wg.spell.prendle": {
+   "text": "The mystery word is spelled P, R, E, N, D, L, E."
+  },
+  "wg.spell.ravvle": {
+   "text": "The mystery word is spelled R, A, V, V, L, E."
+  },
+  "wg.spell.wezzle": {
+   "text": "The mystery word is spelled W, E, Z, Z, L, E."
+  },
+  "wg.spell.sprock": {
+   "text": "The mystery word is spelled S, P, R, O, C, K."
+  },
+  "wg.spell.splott": {
+   "text": "The mystery word is spelled S, P, L, O, T, T."
+  },
+  "wg.spell.grimvel": {
+   "text": "The mystery word is spelled G, R, I, M, V, E, L."
+  },
+  "wg.spell.flimmet": {
+   "text": "The mystery word is spelled F, L, I, M, M, E, T."
+  },
+  "wg.spell.blistom": {
+   "text": "The mystery word is spelled B, L, I, S, T, O, M."
+  },
+  "wg.spell.snorbit": {
+   "text": "The mystery word is spelled S, N, O, R, B, I, T."
+  },
+  "wg.spell.fendro": {
+   "text": "The mystery word is spelled F, E, N, D, R, O."
+  },
+  "wg.spell.grevin": {
+   "text": "The mystery word is spelled G, R, E, V, I, N."
+  },
+  "wg.spell.skorvel": {
+   "text": "The mystery word is spelled S, K, O, R, V, E, L."
+  },
+  "wg.spell.kerpin": {
+   "text": "The mystery word is spelled K, E, R, P, I, N."
+  },
+  "wg.spell.lumbrit": {
+   "text": "The mystery word is spelled L, U, M, B, R, I, T."
+  },
+  "wg.spell.zorvel": {
+   "text": "The mystery word is spelled Z, O, R, V, E, L."
+  },
+  "wg.spell.quandrel": {
+   "text": "The mystery word is spelled Q, U, A, N, D, R, E, L."
+  },
+  "wg.spell.fennick": {
+   "text": "The mystery word is spelled F, E, N, N, I, C, K."
+  },
+  "wg.spell.flaxim": {
+   "text": "The mystery word is spelled F, L, A, X, I, M."
+  },
+  "wg.spell.nubbick": {
+   "text": "The mystery word is spelled N, U, B, B, I, C, K."
+  },
+  "wg.spell.tumvick": {
+   "text": "The mystery word is spelled T, U, M, V, I, C, K."
+  },
+  "wg.spell.ulbrin": {
+   "text": "The mystery word is spelled U, L, B, R, I, N."
+  },
+  "wg.spell.mirvane": {
+   "text": "The mystery word is spelled M, I, R, V, A, N, E."
+  },
+  "wg.spell.glantrip": {
+   "text": "The mystery word is spelled G, L, A, N, T, R, I, P."
+  },
+  "wg.spell.kopwell": {
+   "text": "The mystery word is spelled K, O, P, W, E, L, L."
+  },
+  "wg.spell.crosvin": {
+   "text": "The mystery word is spelled C, R, O, S, V, I, N."
+  },
+  "wg.spell.nalvick": {
+   "text": "The mystery word is spelled N, A, L, V, I, C, K."
+  },
+  "wg.spell.tolvane": {
+   "text": "The mystery word is spelled T, O, L, V, A, N, E."
+  },
+  "wg.spell.umbrick": {
+   "text": "The mystery word is spelled U, M, B, R, I, C, K."
+  },
+  "wg.spell.wistrop": {
+   "text": "The mystery word is spelled W, I, S, T, R, O, P."
+  },
+  "wg.spell.crandiv": {
+   "text": "The mystery word is spelled C, R, A, N, D, I, V."
+  }
+ }
+}
