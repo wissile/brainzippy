@@ -78,6 +78,8 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
   const wrongNow = st.phase === "feedback" && fb?.correct === false;
   const out = (id: string) => st.eliminated.includes(id);
   const hinted = st.hintStage >= 1;
+  /** First-miss strategy notes show at hint stage 1 only; at stage 2 the worked steps replace them (less to read). */
+  const strategy = st.hintStage === 1;
   const modelOn = st.hintStage === 2 && canAct;
   const tried = typeof st.lastAnswer === "string" ? st.lastAnswer : null;
   const triedTag = tried ? tagOf(ex, tried) : undefined;
@@ -366,7 +368,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
       const c = connectiveOf(ex);
       label = "Proof · fill the gap";
       hear = hearBtn([itemLine("connective", c.id)]);
-      body = <>{gapSentence(c.text)}{hinted && rule(tagRule ?? "Is the second idea a reason, a result, a surprise, a time, a condition or a purpose?")}{hinted && <p className="lp-key">{RELATIONS}</p>}</>;
+      body = <>{gapSentence(c.text)}{strategy && rule(tagRule ?? "Is the second idea a reason, a result, a surprise, a time, a condition or a purpose?")}{strategy && <p className="lp-key">{RELATIONS}</p>}</>;
       break;
     }
     case "combine":
@@ -378,8 +380,8 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
       body = (
         <>
           <ul className="lp-notes">{notes.map((n, i) => <li key={i}>{n}</li>)}</ul>
-          {mode === "combine" && hinted && rule(tagRule)}
-          {mode === "order" && hinted && rule("Read both notes: is one a reason, a surprise, a time, a condition or a purpose? Use the card that says so.")}
+          {mode === "combine" && strategy && rule(tagRule)}
+          {mode === "order" && strategy && rule("Read both notes: is one a reason, a surprise, a time, a condition or a purpose? Use the card that says so.")}
         </>
       );
       break;
@@ -389,7 +391,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
       const m = modifierOf(ex);
       label = "Proof";
       hear = hearBtn([itemLine("modifier", m.id)]);
-      if (mode === "modFix") body = <><p className="lp-sentence">{m.chunks.join(" ")}</p>{hinted && rule(`Read literally: ${m.literal} It should describe ${m.target}.`)}{hinted && rule(tagRule, "rule2")}</>;
+      if (mode === "modFix") body = <><p className="lp-sentence">{m.chunks.join(" ")}</p>{strategy && rule(`Read literally: ${m.literal} It should describe ${m.target}.`)}{strategy && rule(tagRule, "rule2")}</>;
       break;
     }
     case "pronTap":
@@ -402,7 +404,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
           <>
             <p className="lp-sentence">{p.chunks.map((c, i) => (p.vague.includes(i) && hinted ? <mark key={i} className="lp-mark">{c} </mark> : <Fragment key={i}>{c} </Fragment>))}</p>
             <p className="lp-note"><span className="lp-note-tag">The writer means</span> {p.means}</p>
-            {hinted && rule(`${p.vague.map((i) => p.chunks[i]).join(", ")} → ${p.could.join(" or ")}? ${tagRule ?? "Name the person or thing the writer means."}`)}
+            {strategy && rule(`${p.vague.map((i) => p.chunks[i]).join(", ")} → ${p.could.join(" or ")}? ${tagRule ?? "Name the person or thing the writer means."}`)}
           </>
         );
       }
@@ -414,7 +416,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
       if (mode === "concise") {
         const c = conciseOf(ex);
         hear = hearBtn([itemLine("concise", c.id)]);
-        body = <><p className="lp-sentence">{c.text}</p>{hinted && rule(tagRule)}</>;
+        body = <><p className="lp-sentence">{c.text}</p>{strategy && rule(tagRule)}</>;
       } else hear = hearBtn([itemLine("cut", cutOf(ex).id)]);
       break;
     }
@@ -426,7 +428,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
       body = (
         <>
           {gapSentence(n.text)}
-          {hinted && rule(`The writer is ${n.cue}: ${n.want === "positive" ? "a positive" : "a negative"} feeling. ${tagRule ?? ""}`.trim())}
+          {strategy && rule(`The writer is ${n.cue}: ${n.want === "positive" ? "a positive" : "a negative"} feeling. ${tagRule ?? ""}`.trim())}
           {modelOn && <p className="lp-key">{g.positive} (+) · {g.neutral} (0) · {g.negative} (−): all mean {g.core}</p>}
         </>
       );
@@ -441,8 +443,8 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
       body = (
         <>
           <blockquote className="lp-quote">{f.text}</blockquote>
-          {mode === "device" && hinted && <ul className="lp-defs" data-testid="rule">{offered.filter((d) => !out(optId(DEVICE_LABEL[d]))).map((d) => <li key={d}>{DEVICE_DEF[d]}</li>)}</ul>}
-          {mode === "figMeaning" && hinted && rule(`${DEVICE_DEF[f.device]} ${tagRule ?? ""}`.trim())}
+          {mode === "device" && strategy && <ul className="lp-defs" data-testid="rule">{offered.filter((d) => !out(optId(DEVICE_LABEL[d]))).map((d) => <li key={d}>{DEVICE_DEF[d]}</li>)}</ul>}
+          {mode === "figMeaning" && strategy && rule(`${DEVICE_DEF[f.device]} ${tagRule ?? ""}`.trim())}
         </>
       );
       break;
@@ -451,28 +453,28 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
       const p = purposeOf(ex);
       label = "Writer's purpose";
       hear = hearBtn([itemLine("purpose", p.id)]);
-      body = <><p className="lp-sentence is-purpose">{p.purpose}</p>{hinted && rule(`Doer: ${p.doer} · Thing: ${p.thing}. Which should come first? ${tagRule ?? ""}`.trim())}</>;
+      body = <><p className="lp-sentence is-purpose">{p.purpose}</p>{strategy && rule(`Doer: ${p.doer} · Thing: ${p.thing}. Which should come first? ${tagRule ?? ""}`.trim())}</>;
       break;
     }
     case "shift": {
       const s = shiftOf(ex);
       label = "Proof";
       hear = hearBtn([itemLine("shift", s.id)]);
-      body = <><p className="lp-sentence">{s.text}</p>{hinted && rule(`The doer is ${s.doer}. Keep ${s.doer} doing every action.`)}</>;
+      body = <><p className="lp-sentence">{s.text}</p>{strategy && rule(`The doer is ${s.doer}. Keep ${s.doer} doing every action.`)}</>;
       break;
     }
     case "strongest": {
       const s = strongestOf(ex);
       label = "Claim to check";
       hear = hearBtn([itemLine("strongest", s.id)]);
-      body = <><p className="lp-sentence is-claim">{s.claim}</p>{hinted && rule(`Three tests: about the claim? Many cases, not one person's view? Could someone check it? ${tagRule ?? ""}`.trim())}</>;
+      body = <><p className="lp-sentence is-claim">{s.claim}</p>{strategy && rule(`Three tests: about the claim? Many cases, not one person's view? Could someone check it? ${tagRule ?? ""}`.trim())}</>;
       break;
     }
     case "enough": {
       const y = enoughOf(ex);
       label = "Fact check";
       hear = hearBtn([itemLine("enough", y.id)]);
-      body = <><p className="lp-sentence">{y.text}</p><p className="lp-ask">{y.question}</p>{hinted && rule(tagRule ?? "How many were checked? Could they speak for everyone in the claim?")}</>;
+      body = <><p className="lp-sentence">{y.text}</p><p className="lp-ask">{y.question}</p>{strategy && rule(tagRule ?? "How many were checked? Could they speak for everyone in the claim?")}</>;
       break;
     }
     default:
@@ -514,14 +516,14 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
       <>
         <h3 className="lp-headline">{art!.headline}</h3>
         <div className="lp-article" role="group" aria-label="Article sentences">{a.options.map(chunk)}</div>
-        {hinted && rule(mode === "offTap" ? "Does each sentence back the claim, or just sit beside it?" : "Evidence is something someone could check, and it must be about the claim.")}
+        {strategy && rule(mode === "offTap" ? "Does each sentence back the claim, or just sit beside it?" : "Evidence is something someone could check, and it must be about the claim.")}
       </>
     ) : (
       <>
         <p className="lp-sentence is-tappable" role="group" aria-label="Sentence parts">
           {a.options.map((o, i) => <Fragment key={o.id}>{chunk(o, i)}{" "}</Fragment>)}
         </p>
-        {hinted && rule(
+        {strategy && rule(
           mode === "modTap" ? "A describing phrase attaches to the nearest noun. Read each phrase with the word beside it."
           : mode === "pronTap" ? `People and things here: ${pronounOf(ex).could.join(" · ")}. Could a word point to both?`
           : cutOf(ex).cut.length === 2 && cutOf(ex).why[0] ? `Hint: ${cutOf(ex).why[0]} What else repeats?` : "Read it without each part. Did any meaning disappear?",
@@ -658,7 +660,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
       body = (
         <>
           <div className="lp-cards is-words" role="group" aria-label="Words to label">{items.map(card)}</div>
-          {hinted && g1 && g2 && rule(`Same meaning, different feeling: ${g1.positive}, ${g1.neutral}, ${g1.negative} all mean ${g1.core}; ${g2.positive}, ${g2.neutral}, ${g2.negative} all mean ${g2.core}.`)}
+          {strategy && g1 && g2 && rule(`Same meaning, different feeling: ${g1.positive}, ${g1.neutral}, ${g1.negative} all mean ${g1.core}; ${g2.positive}, ${g2.neutral}, ${g2.negative} all mean ${g2.core}.`)}
         </>
       );
     }

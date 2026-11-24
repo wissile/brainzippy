@@ -437,18 +437,18 @@ test("layout: targets ≥ 44px, on screen and never overlapping at the four view
       await page.setViewportSize(vp);
       await page.waitForTimeout(450);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1 || document.documentElement.scrollHeight > innerHeight + 1);
-      expect(overflow, `${label} ${vp.name} overflow`).toBe(false);
+      expect.soft(overflow, `${label} ${vp.name} overflow`).toBe(false);
       const sel = '[data-testid="choice"]:visible, [data-testid="slot"], [data-testid="done"], [data-testid="dock"], [data-testid="hear"]';
       const boxes: { what: string; x: number; y: number; width: number; height: number }[] = [];
       for (const loc of await page.locator(sel).all()) {
         const box = await loc.boundingBox();
         if (!box || !(await loc.isVisible())) continue;
         const what = `${label} ${vp.name} ${await loc.getAttribute("data-testid")} ${await loc.getAttribute("data-value")}`;
-        expect(Math.min(box.width, box.height), `${what} tap size`).toBeGreaterThanOrEqual(43.5);
-        expect(box.x, `${what} left`).toBeGreaterThanOrEqual(-1);
-        expect(box.y, `${what} top`).toBeGreaterThanOrEqual(-1);
-        expect(box.x + box.width, `${what} right`).toBeLessThanOrEqual(vp.width + 1);
-        expect(box.y + box.height, `${what} bottom`).toBeLessThanOrEqual(vp.height + 1);
+        expect.soft(Math.min(box.width, box.height), `${what} tap size`).toBeGreaterThanOrEqual(43.5);
+        expect.soft(box.x, `${what} left`).toBeGreaterThanOrEqual(-1);
+        expect.soft(box.y, `${what} top`).toBeGreaterThanOrEqual(-1);
+        expect.soft(box.x + box.width, `${what} right`).toBeLessThanOrEqual(vp.width + 1);
+        expect.soft(box.y + box.height, `${what} bottom`).toBeLessThanOrEqual(vp.height + 1);
         boxes.push({ what, ...box });
       }
       // nothing interactive overlaps anything else interactive, nor the mascot
@@ -458,22 +458,23 @@ test("layout: targets ≥ 44px, on screen and never overlapping at the four view
         for (let j = i + 1; j < boxes.length; j++) {
           const [a, b] = [boxes[i]!, boxes[j]!];
           const overlap = a.x < b.x + b.width - 2 && b.x < a.x + a.width - 2 && a.y < b.y + b.height - 2 && b.y < a.y + a.height - 2;
-          expect(overlap, `${a.what} overlaps ${b.what}`).toBe(false);
+          expect.soft(overlap, `${a.what} overlaps ${b.what}`).toBe(false);
         }
       // the board never covers the prompt pill, and the proof never covers the answers
       const pill = await page.getByTestId("prompt").boundingBox();
       const top = await page.locator(".lp-top").boundingBox();
       const lower = await page.locator(".lp-lower").boundingBox();
-      if (pill && top && top.x < pill.x + pill.width && top.x + top.width > pill.x) expect(top.y, `${label} ${vp.name} board under the prompt`).toBeGreaterThanOrEqual(pill.y + pill.height - 4);
+      if (pill && top && top.x < pill.x + pill.width && top.x + top.width > pill.x) expect.soft(top.y, `${label} ${vp.name} board under the prompt`).toBeGreaterThanOrEqual(pill.y + pill.height - 4);
       if (top && lower) {
         const ov = top.x < lower.x + lower.width - 2 && lower.x < top.x + top.width - 2 && top.y < lower.y + lower.height - 2 && lower.y < top.y + top.height - 2;
-        expect(ov, `${label} ${vp.name} proof overlaps answers`).toBe(false);
+        expect.soft(ov, `${label} ${vp.name} proof overlaps answers`).toBe(false);
       }
       await page.screenshot({ path: `${REVIEW}/${label}-${vp.name}.png` });
     }
     await page.setViewportSize({ width: 1280, height: 800 });
   };
 
+  // (soft expectations: every viewport and mode is checked and photographed, then all problems are reported)
   // story beats at each viewport
   await seed(page, { muted: true, ageBand: "ages-12-14", progress: progressAt(0) });
   await page.goto("/play/lantern-press");
