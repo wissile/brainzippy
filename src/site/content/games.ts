@@ -290,8 +290,7 @@ export const GAME_COPY: Record<string, GameCopy> = {
   "wordroot-grove": {
     id: "wordroot-grove",
     subject: "english",
-    // Sarah (the English path host) is not on the public site yet; Gloop, the helper, stands in on cards
-    critter: "gloop",
+    critter: "sarah",
     helper: "Gloop",
     updated: "2026-11-24",
     title: "Wordroot Grove: a vocabulary and word-parts game for ages 9–11",

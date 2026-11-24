@@ -43,7 +43,7 @@ export function GroveScene() {
       </g>
       <path d="M0 560 Q400 500 800 540 T1600 520 L1600 900 L0 900 Z" fill="url(#wg-ground)" />
       {/* the great tree: trunk, roots spreading over the ground, a round library door */}
-      <g transform="translate(800 0)">
+      <g transform="translate(1330 230) scale(0.6)">
         <path d="M-90 640 Q-70 420 -60 300 L60 300 Q70 420 90 640 Z" fill={BARK} stroke={INK} strokeWidth="6" strokeLinejoin="round" />
         <path d="M-90 630 Q-180 650 -280 700 M-60 640 Q-120 700 -150 760 M90 630 Q190 650 300 690 M60 640 Q130 700 170 770 M0 640 L0 740" fill="none" stroke={BARK_DEEP} strokeWidth="18" strokeLinecap="round" />
         <path d="M-90 630 Q-180 650 -280 700 M-60 640 Q-120 700 -150 760 M90 630 Q190 650 300 690 M60 640 Q130 700 170 770 M0 640 L0 740" fill="none" stroke={BARK} strokeWidth="10" strokeLinecap="round" />

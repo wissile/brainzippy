@@ -12,8 +12,8 @@
   --ink: #2b2140;
   --leaf: #f4fbec;
   --lit: #ffe27a;
-  position: relative; flex: 1; min-width: 0; min-height: 0;
-  display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 1.6cqh;
+  position: relative; flex: 1; width: 100%; min-width: 0; min-height: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 2cqh;
   -webkit-user-select: none; user-select: none; font-family: var(--font-body); color: var(--ink);
 }
 .wg-stage button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -168,9 +168,11 @@
 .wg-bin-label { font-weight: 900; font-size: clamp(18px, min(3.4cqh, 2.4cqw), 26px); line-height: 1.1; text-align: center; overflow-wrap: anywhere; }
 .wg-bin-hint { font-weight: 800; font-size: 14px; color: #ffe9a8; }
 .wg-bin.is-ready .wg-bin-btn, .wg-bin.is-hot .wg-bin-btn { box-shadow: 0 0 0 5px #ffd43b; }
-.wg-bin-cards { display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-height: 8px; }
-.wg-bin-cards .wg-card { min-width: 0; padding-left: 40px; }
-.wg-frame { font-size: 14px; font-weight: 800; color: #3f6f3a; text-align: center; }
+.wg-bin-cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; min-height: 8px; }
+.wg-bin-cards .wg-card { min-width: 0; min-height: 44px; padding: 3px 10px; border-radius: 12px; box-shadow: 0 3px 0 #6db866; }
+.wg-bin-cards .wg-card-leaf { display: none; }
+.wg-bin-cards .wg-card-text { font-size: clamp(17px, min(3cqh, 2.2cqw), 22px); }
+.wg-frame { flex-basis: 100%; font-size: 14px; font-weight: 800; color: #3f6f3a; text-align: center; line-height: 1.15; }
 
 /* ---------- clue tapping ---------- */
 .wg-passage.is-tappable { line-height: 1.3; }
@@ -245,9 +247,11 @@
   .wg-passage { font-size: clamp(18px, min(5.6cqh, 2cqw), 27px); }
   .wg-known, .wg-ask, .wg-root-note { font-size: clamp(18px, min(6cqh, 2.2cqw), 28px); }
   .wg-part-text { font-size: clamp(28px, min(11cqh, 4.6cqw), 64px); }
-  .wg-bins { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .mode-sort .wg-top, .mode-rootmatch .wg-top { flex: 1 1 36%; }
-  .mode-sort .wg-lower, .mode-rootmatch .wg-lower { flex: 1 1 64%; }
+  .wg-stage.mode-sort, .wg-stage.mode-rootmatch { flex-direction: column; gap: 2cqh; }
+  .mode-sort .wg-top, .mode-rootmatch .wg-top, .mode-sort .wg-lower, .mode-rootmatch .wg-lower { flex: 0 1 auto; }
+  .wg-bins { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .wg-bin-btn { min-height: 48px; }
+  .wg-card { min-height: 48px; }
   .wg-slot-btn { --sw: clamp(64px, min(9cqw, 20cqh), 130px); height: clamp(56px, 16cqh, 84px); }
   .wg-tile { min-width: clamp(72px, min(10cqw, 22cqh), 130px); min-height: clamp(56px, 17cqh, 92px); }
   .wg-slot-text, .wg-ghost, .wg-tile-text { font-size: clamp(24px, min(9cqh, 3.6cqw), 44px); }

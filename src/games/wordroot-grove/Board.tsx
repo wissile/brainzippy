@@ -429,7 +429,7 @@ export function GroveBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
             <button
               key={p.id}
               type="button"
-              className={`choice wg-tile ${out(p.id) ? "is-out" : ""} ${nextModel === p.id ? "is-model" : ""} ${selected === p.id ? "is-picked" : ""} ${inSlot ? "is-away" : ""} ${dragging(p.id) ? "is-dragging" : ""}`}
+              className={`wg-tile ${out(p.id) ? "is-out" : ""} ${nextModel === p.id ? "is-model" : ""} ${selected === p.id ? "is-picked" : ""} ${inSlot ? "is-away" : ""} ${dragging(p.id) ? "is-dragging" : ""}`}
               data-testid="choice"
               data-value={p.id}
               data-text={p.text}
@@ -460,7 +460,7 @@ export function GroveBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
         <button
           key={it.id}
           type="button"
-          className={`choice wg-card ${selected === it.id ? "is-picked" : ""} ${ok || (solved && docked) ? "is-ok" : ""} ${modelOn && docked ? "is-model" : ""} ${dragging(it.id) ? "is-dragging" : ""}`}
+          className={`wg-card ${selected === it.id ? "is-picked" : ""} ${ok || (solved && docked) ? "is-ok" : ""} ${modelOn && docked ? "is-model" : ""} ${dragging(it.id) ? "is-dragging" : ""}`}
           data-testid={docked ? "docked" : "choice"}
           data-value={it.id}
           aria-disabled={!canAct}
@@ -534,7 +534,7 @@ export function GroveBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
             <Fragment key={o.id}>
               <button
                 type="button"
-                className={`choice wg-chunk ${on ? "is-on" : ""} ${right ? "is-right" : ""} ${out(o.id) ? "is-out" : ""} ${modelOn && model.includes(o.id) && !on ? "is-model" : ""} ${wrongNow && on && st.check?.parts?.[o.id] === false ? "is-wrong" : ""}`}
+                className={`wg-chunk ${on ? "is-on" : ""} ${right ? "is-right" : ""} ${out(o.id) ? "is-out" : ""} ${modelOn && model.includes(o.id) && !on ? "is-model" : ""} ${wrongNow && on && st.check?.parts?.[o.id] === false ? "is-wrong" : ""}`}
                 data-testid="choice"
                 data-value={o.id}
                 aria-pressed={on}
@@ -655,7 +655,7 @@ export function GroveBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
             <button
               key={o.id}
               type="button"
-              className={`choice wg-option ${state} ${out(o.id) ? "is-out" : ""} ${modelOn && a.correct === o.id ? "is-model" : ""} ${dragging(o.id) ? "is-dragging" : ""}`}
+              className={`wg-option ${state} ${out(o.id) ? "is-out" : ""} ${modelOn && a.correct === o.id ? "is-model" : ""} ${dragging(o.id) ? "is-dragging" : ""}`}
               data-testid="choice"
               data-value={o.id}
               aria-disabled={out(o.id) || !canAct}
