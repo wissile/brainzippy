@@ -46,6 +46,15 @@ const CC = {
   "7.EE.B.4a": "Solve word problems leading to equations of the form px + q = r and p(x + q) = r, where p, q, and r are specific rational numbers. Solve equations of these forms fluently.",
   "8.EE.C.7b": "Solve linear equations with rational number coefficients, including equations whose solutions require expanding expressions using the distributive property and collecting like terms.",
   "RF.K.2.A": "Recognize and produce rhyming words.",
+  "RF.K.2.E": "Add or substitute individual sounds (phonemes) in simple, one-syllable words to make new words.",
+  "RF.1.3.B": "Decode regularly spelled one-syllable words.",
+  "RF.1.3.A": "Know the spelling-sound correspondences for common consonant digraphs.",
+  "RF.1.2.B": "Orally produce single-syllable words by blending sounds (phonemes), including consonant blends.",
+  "RF.1.3.C": "Know final -e and common vowel team conventions for representing long vowel sounds.",
+  "RF.2.3.B": "Know spelling-sound correspondences for additional common vowel teams.",
+  "RF.1.3.E": "Decode two-syllable words following basic patterns by breaking the words into syllables.",
+  "RF.1.4.A": "Read grade-level text with purpose and understanding.",
+  "RF.1.1.A": "Recognize the distinguishing features of a sentence (e.g., first word, capitalization, ending punctuation).",
   "2.MD.C.8": "Solve word problems involving dollar bills, quarters, dimes, nickels, and pennies, using $ and ¢ symbols appropriately.",
 } as const;
 
@@ -213,6 +222,16 @@ export const SKILLS: Record<string, SkillInfo> = {
     plain: "Tell whether two spoken words rhyme, pick a word that rhymes, spot the one that doesn't, and build a chain of rhymes.",
     standards: [std("RF.K.2.A", "foundation")],
   },
+  // Paper Boat Post (English path, ages 6–8)
+  "english.phonics.onset-rime": { name: "Word families", plain: "Change the first letter of a word-family word to make a new word, such as cat to hat.", standards: [std("RF.K.2.E", "foundation")] },
+  "english.phonics.cvc": { name: "Short-vowel words", plain: "Read and spell three-letter words such as cap and bug, and tell them apart from words one letter away.", standards: [std("RF.1.3.B")] },
+  "english.phonics.digraph": { name: "Digraphs (sh, ch, th, ck)", plain: "Read and spell words where two letters make one sound, such as ship, chin and duck.", standards: [std("RF.1.3.A")] },
+  "english.phonics.blend": { name: "Consonant blends", plain: "Read and spell words that start or end with two consonant sounds, such as frog and nest.", standards: [std("RF.1.3.B"), std("RF.1.2.B", "foundation")] },
+  "english.phonics.magic-e": { name: "Final -e", plain: "Read words with a quiet e at the end and tell them from their short-vowel partner, such as cap and cape.", standards: [std("RF.1.3.C")] },
+  "english.phonics.vowel-team": { name: "Vowel teams", plain: "Read and sort words spelled with ai, ay, ee, ea and oa, such as rain, tray, sheep, leaf and boat.", standards: [std("RF.1.3.C"), std("RF.2.3.B")] },
+  "english.phonics.multisyllable": { name: "Longer words", plain: "Read two-syllable words and plurals, and build compound words such as raincoat from two smaller words.", standards: [std("RF.1.3.E")] },
+  "english.read.sentence": { name: "Reading a sentence", plain: "Read a short sentence such as “The hen is in the box.” and choose the picture it describes.", standards: [std("RF.1.4.A")] },
+  "english.sentence.build": { name: "Building a sentence", plain: "Put word cards in order to make a sentence with a capital letter at the start and an end mark.", standards: [std("RF.1.1.A")] },
 
   // Computer science (Toggle's Garden Path)
   "cs.seq.build": { name: "Building a sequence", plain: "Put step-by-step move instructions in order so a character reaches a goal.", standards: [std("1A-AP-10"), std("1A-AP-08", "foundation")] },

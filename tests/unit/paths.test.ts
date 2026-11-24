@@ -49,9 +49,9 @@ describe("path data in the packs", () => {
   });
   it("coverage today (informational): which ages each path still needs", () => {
     const gaps = Object.fromEntries(paths.map((p) => [p.id, pathAgeGaps(p)]));
-    // math has worlds for 4–13; English only for 3–5 (first in line for new games)
+    // math has worlds for 4–13; English for 3–5 (Rhyme Lanterns) and 6–8 (Paper Boat Post)
     expect(gaps.math).toEqual([3, 10, 14]);
-    expect(gaps.english).toEqual([4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].filter((a) => a > 5));
+    expect(gaps.english).toEqual([4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].filter((a) => a > 8));
   });
   it("trail order is by age, and a world never comes before a world that teaches its prerequisite", () => {
     for (const p of paths) {

@@ -1,7 +1,7 @@
 # Paper Boat Post (`paper-boat-post`)
 
 English path, band B · ages 6–8 (L0–L1 also work as an on-ramp for confident 5-year-olds) · host **Sarah**, helper **Zuzu** · music `meadow` · prefix `pb.`
-Status: **proposal (2026-11-23)**. Not built and not reviewed by a literacy specialist. Path context: `docs/curriculum/ENGLISH_PATH.md` (skill map §2.2, hand-over §4). "Aligned with" CCSS RF/L codes verified on thecorestandards.org on 2026-11-23.
+Status: **built (2026-11-23)**, pending independent review (game-design-review, qa-accessibility) and a literacy specialist. What was built and every deviation from this proposal: **§12** below. Path context: `docs/curriculum/ENGLISH_PATH.md` (skill map §2.2, hand-over §4). "Aligned with" CCSS RF/L codes verified on thecorestandards.org on 2026-11-23.
 
 ## 1. What it teaches
 
@@ -154,3 +154,46 @@ Estimate: ≈ 45 line ids and ≈ 430 clips in phase A. The lead renders them wi
 - Phase B phoneme recordings (owner Q3).
 - Literacy-specialist review of the keyword list, minimal-pair sets and tricky-word list.
 - Whether art is shared with Rhyme Lanterns (lead).
+
+## 12. As built (2026-11-23)
+
+**Files.** `src/games/paper-boat-post/`: `words.ts` (grapheme bank, gating, keywords, real-word list), `content.ts` (families, reading sets, sort pools, plurals, compounds, 25 + 25 authored notes, tricky words), `generator.ts` (levels, rotation, interleaved review), `logic.ts` (misconception classifier, tile-permutation safety, model steps), `hints.ts` (round-start line, first-miss hint by misconception, praise), `blocklist.ts`, `Board.tsx` + `paper-boat-post.css` (BoatBoard), `art.tsx` + `pictures-a.tsx` + `pictures-b.tsx` (river scene, boat, ~120 new pictures, critter, River Reader sticker), `story.tsx` (cinematic beat + DialogueScene conversations), `PaperBoatPost.tsx` (skin), `definition.ts`, `voice.json` (621 lines, 720 clips, rendered with each speaker's cast voice). Pack: `src/content/packs/english-paper-boat-post`. Tests: `tests/unit/paper-boat-post.test.ts`, `e2e/paper-boat-post.spec.ts`.
+
+**Levels as built** (index rotation per §3; review items at index 3 and 7 from L4 up come from L(n−4)…L(n−1) with that level's skill):
+
+| L | Built |
+|---|---|
+| 0 | Onset swap in 13 families (68 from→to pairs); 2 keyword-picture tiles; decoy tile always makes a real word |
+| 1 | Read CVC (49 words), 2 docks, far decoy |
+| 2 | Read 3 docks: one vowel-only and one final-only decoy (12 targets, 19 sets, computed); index 2 and 6: critter name tags (9 authored, vowel-swap decoys, checked not real) |
+| 3 | Read as L2 / build the same words (3 slots + confused vowel + look-alike consonant) |
+| 4 | 16 digraph words, read sets + build with one digraph tile and its split letters as decoys |
+| 5 | 12 blend words (dropped-consonant decoys fog/cab/net/wig/ten), build 4 slots |
+| 6 | 15 final -e words, short partner always a decoy; build may be sent without the e (hint names the empty space) |
+| 7 | 20 vowel-team read sets / sort 4 boats into ee·ea, ai·ay or oa·o_e docks |
+| 8 | Two-syllable read (11) · plural read (12, "three foxes / one fox / one box") · compound build (9) |
+| 9 | Read a note, choose 1 of 3 scenes (25) / build a note from cards (25, alternatives: []) |
+
+**Deviations from the proposal.**
+- *Voice catalogue location:* lines live in the world's own `src/games/paper-boat-post/voice.json` (with `speaker`), not in `src/audio/voiceLines.json`. That file is the GAME_AUTHORING contract, is globbed by the runtime and `gen_voice.py`, and keeps the 720 clips in the world's offline bundle (the PWA plugin assigns clips by world voice.json; shared-file clips are precached for everyone). No shared entry was edited.
+- *Prompts:* the reading prompt is "Read the word. Who should get it?" (the proposal's "Read the word on the boat" would speak *boat*, which is a level-7 target; "sail" is one too). The swap prompt is one line per "from" word (`pb.prompt.swap.cat`, `vary.to`), because a template with both `{from}` and `{to}` would be a 34 × 34 cartesian product.
+- *After-answer lines:* the runner's praise slot can't carry string variables, so each target has one `pb.got.<word>` clip ("Cap! You read every letter, front to back.") — the word is spoken for the first time *after* the answer, with process praise for its pattern. Tag praise is `pb.tag.ok.<word>`.
+- *Dock naming:* tapping a dock sends the boat (no separate "tap to hear" control). Instead, with sound on, the docks' pictures are named in turn after the prompt (pictures only, never the sail), and keyboard focus names a dock. `pb.idle` says "Take your time. Look at every letter, front to back."
+- *Word bank changes:* no pictureless decoys (chop, sack, kit dropped); i keyword is **igloo**, not insect (an insect picture reads as "bug"); bike, seed removed as level-6/7 *reading* targets (no one-grapheme partner with a clear picture); *ten* added for tent; sentences use only Bobbo and Zuzu as names (no human figures drawn yet), so the lower-case-name decoy is "bobbo"/"zuzu".
+- *"Read it to me"* (ENGLISH_PATH §6.1) is **not** built: it needs the `assisted` result flag (D5, ET-5); without it a read-aloud would count as a first-try success.
+- *Vowel spacing rule* ("no more than 2 consecutive items share a vowel") is not enforced: the runner orders a round by difficulty and answer kind, not by index, so a generator can't guarantee it. A round never repeats a target (bucketed by index; unit-tested).
+- *Single-storey "a":* the body font (Nunito) is used as is; no font with a single-storey a is bundled. Open.
+- *Art:* pictures shared with Rhyme Lanterns are imported from `src/games/rhyme-lanterns/pictures.tsx` (not copied); the lead may prefer a shared module.
+- *Story:* intro = one cinematic beat (letters blowing off the sails) + a Sarah/Zuzu DialogueScene (first visit: Hoot hands over, then Sarah greets; detected by "no stored level and no sticker"); outro = boats home + a short conversation. The conversation runs inside a StoryPlayer beat (empty line, the beat advances when the talk ends); the StoryPlayer's Skip skips all of it, Next/caption-tap advance a line, Escape ends just the talk.
+- *Blocklist:* world-local (`blocklist.ts`) until a shared English blocklist exists; applied at generation time to every tile set (all ordered fillings, plus one short for quiet-e words) and tested.
+
+**Open.** Literacy-specialist review (keywords, sets, sentences, tricky words); creative-director review of the ~120 new pictures; Sarah's final design (referenced only via `Sarah`/`sarah`); phase B phoneme audio; human listening check of the cast-voice prompts; "Read it to me" once `assisted` exists.
+
+### 12.1 After the independent QA review (2026-11-23)
+- **No target before the answer, including help lines:** `pb.help.blend` no longer says "frog" (now "f and r: fr"); every help/hint/idle/reading-prompt line is checked against every reading target and dock picture (`tests/unit/paper-boat-post.test.ts`, plus the reviewer's `paper-boat-post.qa.test.ts`).
+- **One picture, one name:** `CONFUSABLE` pairs in `content.ts` (cup/mug, mat/rug, dot/pin, pot/pan, hat/cap, tube/pen, hut/house) are never offered together; tube and napkin were redrawn.
+- **Scenes:** in/on are composed from measured picture bounds: ON rests the figure's feet on the thing's surface, IN redraws the container's front (clipped at its rim) over the figure. Scenes that can't be drawn honestly were replaced (in the bus/van/lake, rat in a bag, coat or bug hidden behind a boat or jug, cap vs hat).
+- **Keyboard:** after a tile is placed, focus moves to the next free tile (or Send when full); after a boat is unsorted, focus moves to it in the fleet.
+- **Phones:** on tall boards the note scenes wrap two per row and the build/compound picture is up to 40% of the width, with a speaker badge; the prompt says "Tap the picture to hear it".
+- **Praise:** builds say what was built (`pb.built.*`), swaps `pb.praise.swap`; the after-answer word line stays for reading items.
+- **Other:** Send label in ink; `.still` (reduced motion) also stops the dock nudge, Send pulse and sailing; plural option ids use `fox:3` (allowed by the analytics id pattern); Hoot's hand-over plays only when Rhyme Lanterns progress exists; "This is ten."
