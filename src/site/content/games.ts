@@ -333,7 +333,7 @@ export const GAME_COPY: Record<string, GameCopy> = {
     ],
     offScreen: "Make a family word tree: write a root on the trunk (such as port) and add a leaf for every word you find that uses it, with what it means.",
     why: {
-      text: "The Common Core standards for grades 3–6 ask children to use affixes, Greek and Latin roots and context as clues to a word's meaning, and a US practice guide for grades 4–12 rates explicit vocabulary instruction, including strategies for working out new words, as supported by strong evidence. This game practises word parts and context clues, first separately and then mixed. Word class, apostrophes and confused words are always chosen in a sentence, not drilled as labels. BrainZippy itself has not been studied.",
+      text: "The Common Core standards for grades 3–6 ask children to use affixes, Greek and Latin roots and context as clues to a word's meaning, and a US practice guide for upper elementary through high school recommends explicit vocabulary instruction. This game practises word parts and context clues, first separately and then mixed. Word class, apostrophes and confused words are always chosen in a sentence, not drilled as labels. BrainZippy itself has not been studied.",
       refs: ["ccssela", "kamil2008"],
     },
     guides: [],
