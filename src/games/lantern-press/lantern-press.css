@@ -306,6 +306,19 @@
   .lp-ask { font-size: 18px; }
 }
 
+/* ---------- the helper (Hoot) on large landscape screens ----------
+   The shared helper is fixed to the top-right corner, where it covered the prompt pill's speaker button on long
+   prompts. Here it stands at the top of the mascot column instead (below the prompt row, above Sarah), so it never
+   overlaps the prompt or any control. Small and portrait screens put the helper inline in Sarah's spot already. */
+@media (orientation: landscape) and (min-height: 521px) {
+  .game.play-screen:has(.lp-stage) > .helper {
+    position: relative; inset: auto; grid-area: mascot; align-self: start; justify-self: stretch; z-index: 3;
+    flex-direction: column; align-items: center; gap: 6px; margin-top: 6px; min-width: 0;
+  }
+  .game.play-screen:has(.lp-stage) > .helper .helper-bubble { max-width: 100%; margin-top: 0; }
+  .game.play-screen:has(.lp-stage) > .helper .helper-bubble.tail-right::after { right: auto; top: auto; bottom: -14px; left: 50%; margin: 0 0 0 -11px; transform: rotate(45deg); }
+}
+
 /* ---------- portrait: Sarah stands in the board's lower-left corner ---------- */
 @media (orientation: portrait) {
   .game.play-screen:has(.lp-stage) {

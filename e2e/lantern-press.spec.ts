@@ -433,10 +433,35 @@ test("layout: targets ≥ 44px, on screen and never overlapping at the four view
   const errors = collectErrors(page);
   const { mkdirSync } = await import("node:fs");
   mkdirSync(REVIEW, { recursive: true });
+  /** While Hoot's bubble shows: it never covers the prompt pill, its speaker button or any control, and the speaker button stays clickable. */
+  const helperClear = async (label: string) => {
+    const helper = page.getByTestId("helper");
+    if (!(await helper.isVisible().catch(() => false))) return false;
+    const hb = await helper.boundingBox();
+    if (!hb) return false;
+    const hit = (a: { x: number; y: number; width: number; height: number }, b: { x: number; y: number; width: number; height: number }) =>
+      a.x < b.x + b.width - 1 && b.x < a.x + a.width - 1 && a.y < b.y + b.height - 1 && b.y < a.y + a.height - 1;
+    const pill = await page.getByTestId("prompt").boundingBox();
+    const replay = await page.getByTestId("replay").boundingBox();
+    if (pill) expect.soft(hit(hb, pill), `${label}: helper covers the prompt pill`).toBe(false);
+    if (replay) expect.soft(hit(hb, replay), `${label}: helper covers the speaker button`).toBe(false);
+    for (const loc of await page.locator('[data-testid="choice"]:visible, [data-testid="done"], [data-testid="dock"], [data-testid="hear"], [data-testid="slot"]').all()) {
+      const b = await loc.boundingBox();
+      if (b) expect.soft(hit(hb, b), `${label}: helper covers ${await loc.getAttribute("data-testid")} ${await loc.getAttribute("data-value")}`).toBe(false);
+    }
+    const clickable = await page.getByTestId("replay").evaluate((btn) => {
+      const r = btn.getBoundingClientRect();
+      const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return !!el && (el === btn || btn.contains(el));
+    });
+    expect.soft(clickable, `${label}: speaker button clickable`).toBe(true);
+    return true;
+  };
   const check = async (label: string) => {
     for (const vp of VIEWPORTS) {
       await page.setViewportSize(vp);
       await page.waitForTimeout(450);
+      await helperClear(`${label} ${vp.name}`);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1 || document.documentElement.scrollHeight > innerHeight + 1);
       expect.soft(overflow, `${label} ${vp.name} overflow`).toBe(false);
       const sel = '[data-testid="choice"]:visible, [data-testid="slot"], [data-testid="done"], [data-testid="dock"], [data-testid="hear"]';
@@ -500,6 +525,17 @@ test("layout: targets ≥ 44px, on screen and never overlapping at the four view
   await page.setViewportSize({ width: 1280, height: 800 });
   await press(page, '[data-testid="story-skip"]');
   await answering(page);
+  // Hoot explains at round start: his bubble must leave the prompt and its speaker button clear at every viewport
+  await expect(page.getByTestId("helper")).toBeVisible({ timeout: 20_000 });
+  let shown = 0;
+  for (const vp of VIEWPORTS) {
+    await page.setViewportSize(vp);
+    await page.waitForTimeout(250);
+    if (await helperClear(`helper-start ${vp.name}`)) shown++;
+    await page.screenshot({ path: `${REVIEW}/helper-start-${vp.name}.png` });
+  }
+  expect(shown, "helper seen while checking").toBeGreaterThan(0);
+  await page.setViewportSize({ width: 1280, height: 800 });
   await helperGone(page);
   await check("play-L1-connective");
   await press(page, choice(optId("so")));
@@ -518,7 +554,7 @@ test("layout: targets ≥ 44px, on screen and never overlapping at the four view
     const b = await toMode(page, mode);
     if (!b) continue;
     await check(`play-L${level + 1}-${mode}`);
-    if (["order", "claimSort", "combine", "pronFix", "enough", "feelSort"].includes(mode)) {
+    if (["order", "claimSort", "combine", "pronFix", "enough", "feelSort", "strongest"].includes(mode)) {
       // first miss (strategy) and second miss (worked steps / model) on the densest boards
       if (mode === "order" && "texts" in b) {
         const ids = await tileIds(page, [...b.texts!].reverse());
@@ -526,6 +562,11 @@ test("layout: targets ≥ 44px, on screen and never overlapping at the four view
         await press(page, '[data-testid="done"]');
       } else await missOnce(page, b);
       await answering(page);
+      // Hoot's first-miss strategy on a large landscape screen (the one place his bubble floats)
+      if (await page.getByTestId("helper").isVisible().catch(() => false)) {
+        await helperClear(`helper-miss1-L${level + 1}-${mode} 1280x800`);
+        await page.screenshot({ path: `${REVIEW}/helper-miss1-L${level + 1}-${mode}-1280x800.png` });
+      }
       await helperGone(page);
       await check(`miss1-L${level + 1}-${mode}`);
       if (mode === "order") {
