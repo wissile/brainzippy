@@ -183,7 +183,7 @@ export const FIT_ITEMS: readonly FitItem[] = [
   fit("pencil", "Can you ___ my pencil, please?", "sharpen", "verb", [g("sharp", "adjective"), g("sharpness", "noun")], "Can you do what? An action word, a verb: sharpen."),
   fit("strap", "Ana pulled the strap to ___ it.", "tighten", "verb", [g("tight", "adjective"), g("tightness", "noun")], "To do what? After 'to' we need an action, a verb: tighten."),
   fit("beach", "It was a ___ afternoon at the beach.", "restful", "adjective", [g("restfully", "adverb"), g("restfulness", "noun")], "What kind of afternoon? A describing word, an adjective: restful."),
-  fit("dog", "The ___ dog let Tomás pat its head.", "friendly", "adjective", [g("friendliness", "noun"), g("friend", "noun")], "What kind of dog? A describing word, an adjective, and friendly is one even though it ends in -ly."),
+  fit("dog", "The ___ dog let Tomás pat its head.", "friendly", "adjective", [g("friendliness", "noun"), g("befriend", "verb")], "What kind of dog? A describing word, an adjective, and friendly is one even though it ends in -ly."),
   fit("owl", "The ___ owl hooted from the tall pine.", "lonely", "adjective", [g("loneliness", "noun"), g("alone", "adverb")], "What kind of owl? A describing word, an adjective: lonely, even with -ly at the end."),
   fit("garden", "Aiyana planted a ___ row of tulips.", "lovely", "adjective", [g("loveliness", "noun"), g("love", "verb")], "What kind of row? A describing word, an adjective: lovely, even with -ly at the end."),
   fit("note", "Sami wrote a ___ note to his aunt.", "thankful", "adjective", [g("thankfully", "adverb"), g("thanks", "noun")], "What kind of note? A describing word, an adjective: thankful."),
