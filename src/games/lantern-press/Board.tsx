@@ -673,7 +673,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
               data-testid="dock"
               data-value={b.id}
               aria-disabled={!canAct}
-              aria-label={`${b.text}${hinted ? ` (${BIN_HINT[b.id]})` : ""}${selected ? `. Press to label "${textOf(selected)}" ${b.text}` : ". Pick a card first"}`}
+              aria-label={`${b.text}${strategy ? ` (${BIN_HINT[b.id]})` : ""}${selected ? `. Press to label "${textOf(selected)}" ${b.text}` : ". Pick a card first"}`}
               {...zoneProps(z)}
               onClick={(e) => {
                 if (guard(e) || !selected) return;
@@ -681,7 +681,7 @@ export function PressBoard({ st, act, alongIndex, busy: busyProp }: BoardProps) 
               }}
             >
               <span className="lp-bin-label">{mode === "feelSort" ? `${FEELING_MARK[b.id as Feeling]} ${b.text}` : b.text}</span>
-              {hinted && <span className="lp-bin-hint" aria-hidden="true">{BIN_HINT[b.id]}</span>}
+              {strategy && <span className="lp-bin-hint" aria-hidden="true">{BIN_HINT[b.id]}</span>}
             </button>
           );
         })}

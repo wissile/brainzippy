@@ -223,6 +223,11 @@
   .lp-proof-label { font-size: 0.82rem; letter-spacing: 0.03em; }
   .lp-stage.kind-match .lp-headline { display: none; }
   .lp-bin { padding: 4px 6px; }
+  .lp-proof { padding: 6px 12px 10px; }
+  .lp-sentence, .lp-notes, .lp-quote { line-height: 1.35; }
+  .lp-stick { padding: 6px; gap: 5px; }
+  .lp-slot-btn { min-height: 46px; }
+  .lp-check { min-height: 50px; }
 }
 
 /* ---------- big portrait boards (tablets): roomier, larger reading text ---------- */
