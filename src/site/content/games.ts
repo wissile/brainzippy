@@ -239,8 +239,7 @@ export const GAME_COPY: Record<string, GameCopy> = {
   "paper-boat-post": {
     id: "paper-boat-post",
     subject: "english",
-    // Sarah (the English path host) is not on the public site yet; Zuzu, the helper, stands in on cards
-    critter: "zuzu",
+    critter: "sarah",
     helper: "Zuzu",
     updated: "2026-11-23",
     title: "Paper Boat Post: a phonics and reading game for ages 6–8",

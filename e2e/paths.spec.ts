@@ -193,7 +193,7 @@ test("accepting the offer opens the picker; switching path keeps each path's sto
 
   await press(page, '[data-testid="path-card-english"]');
   await press(page, '[data-testid="path-go"]');
-  await expect(page.getByTestId("path-title")).toHaveText("Learn English with Hoot");
+  await expect(page.getByTestId("path-title")).toHaveText("Learn English with Sarah");
   await expect(page.getByTestId("path-view")).toHaveAttribute("data-world", "rhyme-lanterns");
   let st = await stored(page);
   expect(st.paths.cur).toBe("english");

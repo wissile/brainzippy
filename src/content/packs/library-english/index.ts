@@ -13,10 +13,10 @@ const pack: ContentPack = {
       id: "english",
       title: "English",
       kidTitle: "Word Woods",
-      host: "hoot",
+      host: "sarah", // approved by the owner 2026-11-24 (was Hoot, who stays the Rhyme Lanterns storyteller)
       theme: { main: "#6BCB77", soft: "#E8F7EA", deep: "#1F6B2B", token: "--hoot" },
       ages: [3, 14],
-      pitch: "Play with sounds and words with Hoot.",
+      pitch: "Play with sounds and words with Sarah.",
       description: "Listening, phonics, reading, spelling and vocabulary through story games, starting with rhymes and sounds for children who can't read yet.",
       status: "live",
       order: 2,
