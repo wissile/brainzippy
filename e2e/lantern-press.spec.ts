@@ -256,14 +256,15 @@ async function missOnce(page: Page, b: Board) {
   }
   throw new Error(`no miss helper for ${b.mode}`);
 }
-/** Play correctly until a mode is on screen (one miss on choice items first, so the round doesn't step up past it). */
-async function toMode(page: Page, mode: string, tries = 7) {
+/** Play until a mode is on screen (one miss on each item first, so the round never steps up past the wanted level). */
+async function toMode(page: Page, mode: string, tries = 10) {
   for (let i = 0; i < tries; i++) {
     const b = await readBoard(page);
     if (b.mode === mode) return b;
-    if ("value" in b && b.value) {
+    if (!("texts" in b && b.texts)) {
       await missOnce(page, b);
       await answering(page);
+      await helperGone(page);
     }
     await give(page, b, "tap");
     await nextExercise(page, b.id);

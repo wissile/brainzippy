@@ -147,7 +147,7 @@
 .lp-tile:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #47506a; }
 .lp-tile.is-out { opacity: 0.38; filter: grayscale(0.9); cursor: default; text-decoration: line-through 2px rgba(43, 33, 64, 0.45); }
 .lp-tile.is-model { animation: lp-model 1.4s ease-in-out infinite; }
-.lp-tile.is-away { visibility: hidden; }
+.lp-tile.is-away { display: none; } /* placed on the stick: out of the tray (and out of the tab order) */
 .lp-tile.is-dragging { opacity: 0.25; }
 
 /* ---------- labelling cards (match) ---------- */
@@ -308,6 +308,8 @@
     width: min(18vw, calc(9vh * 200 / 230)); padding-bottom: 0.5vh; z-index: 2; pointer-events: none;
   }
   .game.play-screen:has(.lp-stage) .lp-lower { padding-left: min(19vw, calc(9vh * 200 / 230)); }
+  /* labelling boards need the full width for their label grid; Check stays centred at the bottom, clear of Sarah */
+  .game.play-screen:has(.lp-stage.kind-match) .lp-lower { padding-left: 0; }
 }
 @media (max-width: 440px) {
   .game.play-screen:has(.lp-stage) .stars { gap: 1px; padding: 6px 8px; }
