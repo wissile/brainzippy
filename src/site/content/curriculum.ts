@@ -55,6 +55,13 @@ const CC = {
   "RF.1.3.E": "Decode two-syllable words following basic patterns by breaking the words into syllables.",
   "RF.1.4.A": "Read grade-level text with purpose and understanding.",
   "RF.1.1.A": "Recognize the distinguishing features of a sentence (e.g., first word, capitalization, ending punctuation).",
+  "L.3.4.B": "Determine the meaning of the new word formed when a known affix is added to a known word (e.g., agreeable/disagreeable, comfortable/uncomfortable, care/careless, heat/preheat).",
+  "L.3.1.A": "Explain the function of nouns, pronouns, verbs, adjectives, and adverbs in general and their functions in particular sentences.",
+  "L.4.4.B": "Use common, grade-appropriate Greek and Latin affixes and roots as clues to the meaning of a word (e.g., telegraph, photograph, autograph).",
+  "L.4.4.A": "Use context (e.g., definitions, examples, or restatements in text) as a clue to the meaning of a word or phrase.",
+  "L.2.2.C": "Use an apostrophe to form contractions and frequently occurring possessives.",
+  "L.3.2.D": "Form and use possessives.",
+  "L.4.1.G": "Correctly use frequently confused words (e.g., to, too, two; there, their).",
   "2.MD.C.8": "Solve word problems involving dollar bills, quarters, dimes, nickels, and pennies, using $ and ¢ symbols appropriately.",
 } as const;
 
@@ -108,7 +115,7 @@ function std(code: keyof typeof CC | keyof typeof OTHER, fit: Standard["fit"] = 
     const o = OTHER[code as keyof typeof OTHER];
     return { code, text: o.text, fit, ref: o.ref };
   }
-  return { code, text: CC[code as keyof typeof CC], fit, ref: code.startsWith("RF.") ? "ccssela" : "ccss" };
+  return { code, text: CC[code as keyof typeof CC], fit, ref: code.startsWith("RF.") || code.startsWith("L.") ? "ccssela" : "ccss" };
 }
 
 export const SKILLS: Record<string, SkillInfo> = {
@@ -232,6 +239,13 @@ export const SKILLS: Record<string, SkillInfo> = {
   "english.phonics.multisyllable": { name: "Longer words", plain: "Read two-syllable words and plurals, and build compound words such as raincoat from two smaller words.", standards: [std("RF.1.3.E")] },
   "english.read.sentence": { name: "Reading a sentence", plain: "Read a short sentence such as “The hen is in the box.” and choose the picture it describes.", standards: [std("RF.1.4.A")] },
   "english.sentence.build": { name: "Building a sentence", plain: "Put word cards in order to make a sentence with a capital letter at the start and an end mark.", standards: [std("RF.1.1.A")] },
+  // Wordroot Grove (English path, ages 9–11)
+  "english.vocab.affix": { name: "Prefixes and suffixes", plain: "Work out what a word means from a base word plus parts such as un-, re-, -ful and -less (unlock, careless), and build a word for a meaning.", standards: [std("L.3.4.B")] },
+  "english.grammar.word-class": { name: "Nouns, verbs, adjectives and adverbs", plain: "Tell nouns, verbs, adjectives and adverbs apart by their endings and by the job they do in a sentence.", standards: [std("L.3.1.A")] },
+  "english.vocab.roots": { name: "Greek and Latin roots", plain: "Use roots such as tele (far), micro (small), port (carry) and spect (look) to work out what words like telescope and portable mean.", standards: [std("L.4.4.B")] },
+  "english.vocab.context": { name: "Context clues", plain: "Work out what an unfamiliar word means from clues in the same sentence or the sentences around it (definitions, examples, contrasts, causes).", standards: [std("L.4.4.A")] },
+  "english.grammar.apostrophe": { name: "Apostrophes", plain: "Use apostrophes for contractions (can't) and for one owner or several owners (the cat's toys, the cats' toys), and none for plain plurals.", standards: [std("L.2.2.C", "foundation"), std("L.3.2.D")] },
+  "english.grammar.confused-words": { name: "Commonly confused words", plain: "Choose between words that sound alike, such as there, their and they're, or to, too and two, in a sentence.", standards: [std("L.4.1.G")] },
 
   // Computer science (Toggle's Garden Path)
   "cs.seq.build": { name: "Building a sequence", plain: "Put step-by-step move instructions in order so a character reaches a goal.", standards: [std("1A-AP-10"), std("1A-AP-08", "foundation")] },
