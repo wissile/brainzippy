@@ -1,0 +1,74 @@
+# Voice render (D-040): renders voice lines with ElevenLabs using the repository secret ELEVENLABS_API_KEY, which never
+# leaves GitHub. mode=quota prints the plan, credits left and the cost of pending work (no audio is made).
+# mode=render renders pending clips and pushes them to the branch `voice-render` (built on main and resumable: rerun to
+# continue). The clips are reviewed there and merged by the main agent; nothing deploys from this workflow.
+name: Voice render
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "quota or render"
+        required: true
+        default: "quota"
+      only:
+        description: "Only keys starting with this prefix (optional)"
+        required: false
+        default: ""
+      speaker:
+        description: "Only this speaker id (optional)"
+        required: false
+        default: ""
+      limit:
+        description: "Render at most N clips (0 = all pending)"
+        required: false
+        default: "0"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: voice-render
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:  # inputs reach the shell only as env vars (no expression injection)
+      ONLY: ${{ inputs.only }}
+      SPEAKER: ${{ inputs.speaker }}
+      LIMIT: ${{ inputs.limit }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Continue from the voice-render branch if it exists
+        run: |
+          if git ls-remote --exit-code --heads origin voice-render > /dev/null; then
+            git fetch -q origin voice-render && git checkout -q -B voice-render origin/voice-render
+            git -c user.name=brainzippy-bot -c user.email=hello@brainzippy.com merge -q --no-edit origin/main
+          else
+            git checkout -q -b voice-render
+          fi
+      - name: Install ffmpeg
+        run: |
+          if ! command -v ffmpeg > /dev/null; then sudo apt-get update -q && sudo apt-get install -y -q ffmpeg; fi
+          ffmpeg -version | head -1
+      - name: Quota
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: python3 scripts/gen_voice_eleven.py --quota --only "$ONLY" --speaker "$SPEAKER"
+      - name: Render
+        if: inputs.mode == 'render'
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: python3 scripts/gen_voice_eleven.py --only "$ONLY" --speaker "$SPEAKER" --limit "$LIMIT"
+      - name: Push clips to branch voice-render
+        if: always() && inputs.mode == 'render'
+        run: |
+          git config user.name "brainzippy-bot"
+          git config user.email "hello@brainzippy.com"
+          git add public/audio/voice
+          git diff --cached --quiet || git commit -q -m "Voice render (ElevenLabs) $(date -u +%Y-%m-%dT%H:%MZ) only=$ONLY speaker=$SPEAKER"
+          git push -q origin voice-render

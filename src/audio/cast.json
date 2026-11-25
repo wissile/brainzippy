@@ -1,5 +1,5 @@
 {
- "_comment": "Voice cast (docs/ANIMATION_AUDIO.md > Character voices). speaker id -> Kokoro base voice or blend ('a:0.6+b:0.4') + post-processing in scripts/voice_cast.py. Shared by scripts/gen_voice.py and src/audio/cast.ts. speed = Kokoro speaking rate; pitchSemitones = total pitch shift; formantSemitones = the part of it that also moves formants (smaller vocal tract = younger); tempo = final tempo after processing. Every voice is original synthetic speech and imitates no real performer or existing character. 'provisional' = character still in design; voice may change.",
+ "_comment": "eleven = ElevenLabs voice (D-040, scripts/gen_voice_eleven.py); speakers without it keep their Kokoro clips. Voice cast (docs/ANIMATION_AUDIO.md > Character voices). speaker id -> Kokoro base voice or blend ('a:0.6+b:0.4') + post-processing in scripts/voice_cast.py. Shared by scripts/gen_voice.py and src/audio/cast.ts. speed = Kokoro speaking rate; pitchSemitones = total pitch shift; formantSemitones = the part of it that also moves formants (smaller vocal tract = younger); tempo = final tempo after processing. Every voice is original synthetic speech and imitates no real performer or existing character. 'provisional' = character still in design; voice may change.",
  "testSentence": "Hi there! I'm so happy you're here. Shall we play a game together?",
  "speakers": {
   "narrator": {
@@ -8,23 +8,27 @@
    "description": "The BrainZippy guide voice chosen by the owner (2026-11-17). Unprocessed; every existing clip uses it."
   },
   "bobbo": {
+   "eleven": { "voice": "TX3LPaxmHKxFdv7VOQHJ", "name": "Liam" },
    "name": "Bobbo", "color": "#FF9F43", "group": "crew",
    "kokoroVoice": "am_puck:0.65+af_nicole:0.35", "lang": "en-us", "speed": 1.05, "pitchSemitones": 10.5, "formantSemitones": 3.5, "tempo": 1.0,
    "eq": { "warmthDb": 1.5 },
    "description": "Little boy, warm and eager, a touch breathless; quick bursts of words."
   },
   "zuzu": {
+   "eleven": { "voice": "cgSgspJ2msm6clMCkdW9", "name": "Jessica" },
    "name": "Zuzu", "color": "#8E6CEF", "group": "crew",
    "kokoroVoice": "bf_lily", "lang": "en-gb", "speed": 0.95, "pitchSemitones": 6, "formantSemitones": 2.5, "tempo": 1.0,
    "description": "Girl with a dramatic, sing-song British lilt; the widest pitch swoops in the cast."
   },
   "gloop": {
+   "eleven": { "voice": "EXAVITQu4vr4xnSDxMaL", "name": "Sarah" },
    "name": "Gloop", "color": "#2EC4B6", "group": "crew",
    "kokoroVoice": "af_jessica", "lang": "en-us", "speed": 0.95, "pitchSemitones": 5.5, "formantSemitones": 3, "tempo": 1.0,
    "eq": { "brightnessDb": 1.5 },
    "description": "The smallest, highest voice: curious and giggly, questions that bounce up at the end."
   },
   "hoot": {
+   "eleven": { "voice": "JBFqnCBsd6RMkjVDRZzb", "name": "George" },
    "name": "Hoot", "color": "#6BCB77", "group": "crew",
    "kokoroVoice": "bm_fable", "lang": "en-gb", "speed": 0.92, "pitchSemitones": 9, "formantSemitones": 3.5, "tempo": 1.0,
    "description": "Older boy storyteller with a British lilt; warm, a bit theatrical, very clear words."
@@ -97,6 +101,7 @@
    "description": "PROVISIONAL (pilot path; character in design): upbeat, adventurous older-kid co-pilot; steady and sure."
   },
   "sarah": {
+   "eleven": { "voice": "FGY2WhTYpPnrIDTdsKH5", "name": "Laura" },
    "name": "Sarah", "color": "#D6336C", "group": "host", "provisional": true,
    "kokoroVoice": "af_sarah", "lang": "en-us", "speed": 0.95, "pitchSemitones": 4.5, "formantSemitones": 2, "tempo": 1.0,
    "description": "PROVISIONAL (English path; character in design): warm, expressive girl who loves words."
