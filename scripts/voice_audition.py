@@ -91,20 +91,37 @@ class ElevenLabs:
         if self._voices is None:
             raw = json.loads(http("https://api.elevenlabs.io/v1/voices", None, {"xi-api-key": self.key}, "GET"))
             self._voices = [v for v in raw.get("voices", []) if v.get("category") in ("premade", None)] or raw.get("voices", [])
-        # prefer young voices, then the rest; ElevenLabs does not offer child voices (its policy)
-        def rank(v: dict) -> tuple[int, str]:
+        # Child-friendly voices first: warm, playful, bright, gentle, calm. Skip harsh ones (fierce, dominant, rough...).
+        # ElevenLabs does not offer child voices (its policy), so these are young-adult voices.
+        good = ("playful", "bright", "warm", "cute", "friendly", "cheerful", "gentle", "soft", "calm", "sweet", "kind",
+                "optimist", "quirky", "enthusiast", "energetic", "reassuring", "upbeat", "storyteller", "narrat", "childlike", "animated")
+        bad = ("fierce", "warrior", "dominant", "firm", "rough", "deep", "gravel", "intense", "seductive", "sultry", "raspy", "villain", "dark")
+        def words(v: dict) -> str:
+            lab = v.get("labels") or {}
+            return " ".join([v.get("name", ""), v.get("description") or ""] + [str(x) for x in lab.values()]).lower()
+        def score(v: dict) -> tuple[int, str]:
+            w = words(v)
             age = (v.get("labels") or {}).get("age", "")
-            return (0 if age == "young" else 1 if age == "middle_aged" or age == "middle aged" else 2, v.get("name", ""))
-        picked = sorted(self._voices, key=rank)[:8]
+            s = sum(2 for g in good if g in w) - sum(5 for b in bad if b in w) + (2 if age == "young" else 0)
+            return (-s, v.get("name", ""))
+        ranked = [v for v in sorted(self._voices, key=score) if not any(b in words(v) for b in bad)]
+        # keep a mix: up to 5 female and 3 male voices, best first
+        fem = [v for v in ranked if (v.get("labels") or {}).get("gender") == "female"][:5]
+        male = [v for v in ranked if (v.get("labels") or {}).get("gender") != "female"][:3]
+        picked = fem + male
         out = []
         for v in picked:
             lab = v.get("labels") or {}
             out.append((v["voice_id"], f"{v.get('name','?')} ({', '.join(str(x) for x in [lab.get('age'), lab.get('gender'), lab.get('accent'), lab.get('description') or lab.get('descriptive')] if x)})"))
+        self._picked = out
         return out
 
     def dialogue_cast(self) -> dict[str, str]:
-        vs = [v for v, _ in self.voices()]
-        return {"bobbo": vs[0], "zuzu": vs[1 % len(vs)], "gloop": vs[2 % len(vs)]}
+        vs = self.voices()
+        fem = [v for v, d in vs if "female" in d]
+        male = [v for v, d in vs if "female" not in d]
+        # Bobbo: bouncy (best male), Zuzu: bright (best female), Gloop: warm (second female)
+        return {"bobbo": (male or fem)[0], "zuzu": fem[0] if fem else vs[0][0], "gloop": fem[1] if len(fem) > 1 else vs[-1][0]}
 
     def synth(self, voice: str, text: str) -> bytes:
         body = json.dumps({"text": text, "model_id": "eleven_multilingual_v2", "voice_settings": {"stability": 0.45, "similarity_boost": 0.8, "style": 0.35}}).encode()
