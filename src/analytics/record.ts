@@ -13,6 +13,8 @@ const SCREEN_FOR: Record<string, string> = {
   "/hello": "hello",
   "/parents": "parents",
   "/plan": "plan",
+  "/path": "path",
+  "/paths": "path-picker",
 };
 
 let lastScreen = "";

@@ -25,7 +25,7 @@ const any = (values: readonly string[]): Rule => ({ values: ["", ...values] });
 export const DEVICES = ["phone", "tablet", "desktop"] as const;
 export const AGE_BANDS = ["ages-3-5", "ages-6-8", "ages-9-11", "ages-12-14", "unknown"] as const;
 export const ONB_STEPS = ["intro", "pop", "build", "name", "kid", "age", "grownup", "done"] as const;
-export const SCREENS = ["map", "explore", "grown-ups", "hello", "parents", "plan", "play", "end-of-day", "privacy-link"] as const;
+export const SCREENS = ["map", "explore", "grown-ups", "hello", "parents", "plan", "play", "end-of-day", "privacy-link", "path", "path-picker"] as const;
 export const OUTCOMES = ["first-try", "second-try", "later", "after-model"] as const;
 export const SECONDS_BUCKETS = ["0-5", "5-10", "10-20", "20-40", "40-90", "90+"] as const;
 export const ROUND_SOURCES = ["daily", "explore", "map", "resume", "again"] as const;

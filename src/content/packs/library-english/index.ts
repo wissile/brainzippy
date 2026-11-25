@@ -21,7 +21,7 @@ const pack: ContentPack = {
       status: "live",
       order: 2,
       // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
-      path: { title: "Learn English with {host}", line: "path.english.title", live: false },
+      path: { title: "Learn English with {host}", line: "path.english.title", live: true }, // live 2026-11-25: owner approved; worlds cover ages 3–14
       art: "island-word-woods",
     },
   ],

@@ -58,15 +58,16 @@ async function tabTo(page: Page, testid: string, max = 60) {
   throw new Error(`Tab never reached ${testid}`);
 }
 
-test("no live path yet: no path UI, and /paths falls back to the map", async ({ page }) => {
+test("only live paths show without the dev override: English is live (ages 3–14), the others are not yet", async ({ page }) => {
   await start(page);
   await page.goto("/map");
   await expect(page.getByTestId("trail")).toBeVisible();
   await expect(page.getByTestId("view-explore")).toBeVisible();
-  await expect(page.getByTestId("view-path")).toHaveCount(0);
+  await expect(page.getByTestId("view-path")).toBeVisible(); // a live path exists
   await page.goto("/paths");
-  await expect(page).toHaveURL(/\/map$/);
-  await expect(page.getByTestId("path-picker")).toHaveCount(0);
+  await expect(page.getByTestId("path-picker")).toBeVisible();
+  await expect(page.getByTestId("path-card-english")).toContainText("Learn English with Sarah");
+  for (const id of ["math", "pilot", "cs", "money", "science"]) await expect(page.getByTestId(`path-card-${id}`)).toHaveCount(0);
 });
 
 test("pick a path, hear its title, play from it, come back to the path", async ({ page }, info) => {
