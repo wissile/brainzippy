@@ -164,7 +164,7 @@ for (const vp of [{ width: 390, height: 844 }, { width: 915, height: 412 }, { wi
     await page.goto("/map");
     await expect(page.getByTestId("trail")).toHaveAttribute("data-stops", "10");
     await page.waitForTimeout(1500);
-    await noOverflow(page, '[data-testid^="stop-"], [data-testid="today-progress"], [data-testid="view-today"], [data-testid="view-explore"], [data-testid="map-grown-ups"], [data-testid="sound-toggle"]');
+    await noOverflow(page, '[data-testid^="stop-"], [data-testid="today-progress"], [data-testid="view-islands"], [data-testid="view-explore"], [data-testid="map-grown-ups"], [data-testid="sound-toggle"]');
     for (const b of await page.locator('[data-testid^="stop-"]').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()))) expect(Math.min(b.width, b.height)).toBeGreaterThanOrEqual(44);
     await page.screenshot({ path: `${SHOTS}/${vp.width}x${vp.height}-trail10.png` });
     await press(page, '[data-testid="view-explore"]');

@@ -24,7 +24,7 @@ const pack: ContentPack = {
       status: "live",
       order: 11,
       // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
-      path: { title: "Learn to fly with {host}", line: "path.pilot.title", live: false },
+      path: { title: "Learn to fly with {host}", line: "path.pilot.title", live: false, soon: true },
     },
   ],
   topics: [

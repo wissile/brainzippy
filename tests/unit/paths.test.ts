@@ -12,7 +12,7 @@ import { allPaths, pathAgeGaps, pathWorlds, renderPathTitle, toPathDef } from ".
 import { childAge, childBand, currentPath, currentStop, isPathPlay, pathFocus, pickPath, recordRound, setPathPlay } from "../../src/paths/state";
 import { noteLine, noteText } from "../../src/paths/PathGate";
 import { clearState, loadState, saveState } from "../../src/services/storage";
-import { hasSubjectIcon } from "../../src/paths/SubjectIcon";
+import { artIdOf } from "../../src/paths/islands/data";
 import { buildRound } from "../../src/engine/round";
 import { applyResult, initialProgression, isRoundComplete, markPlayed, selectNextExercise, startDifficultyFor } from "../../src/engine/progression";
 
@@ -102,9 +102,12 @@ describe("path data in the packs", () => {
   });
 });
 
-describe("picker pictures and hand-off levels", () => {
-  it("every path has its own subject picture (pre-readers tell paths apart)", () => {
-    for (const p of allPaths()) expect(hasSubjectIcon(p.id), p.id).toBe(true);
+describe("island pictures and hand-off levels", () => {
+  it("every live or coming-soon path has its own island (pre-readers tell journeys apart by their island, D-041)", () => {
+    for (const p of allPaths()) if (p.live || p.library.path?.soon) expect(artIdOf(p.id), p.id).not.toBe("generic");
+  });
+  it("at most one path is marked as coming soon (the fogged island)", () => {
+    expect(allPaths().filter((p) => p.library.path?.soon && !p.live).length).toBeLessThanOrEqual(1);
   });
   it("a world's hand-off level, when a pack sets one, is a level of that world", () => {
     for (const w of registry.worlds) if (w.handoff !== undefined) expect(Number.isInteger(w.handoff) && w.handoff >= 0 && w.handoff <= w.maxLevel, w.id).toBe(true);

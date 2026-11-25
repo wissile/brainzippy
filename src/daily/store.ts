@@ -54,7 +54,9 @@ export function ensurePlan(day: LocalDate = today()): DailyPlan {
   const limit = getDailySettings().limit;
   // D-034 PP1: a visible chosen path puts its current world first; choosing another path re-plans (kept stops stay)
   const focus = pathFocus();
-  const reg = focus ? hashSeed(registryFingerprint(playableWorlds()), "path", focus.path) : registryFingerprint(playableWorlds());
+  // D-041: a grown-up changing the age group re-plans today's unplayed stops too (played ones stay)
+  const base = hashSeed(registryFingerprint(playableWorlds()), "age", loadState().ageBand ?? "");
+  const reg = focus ? hashSeed(base, "path", focus.path) : base;
   const old = log.plan;
   if (old && old.day === day && old.k === limit && old.reg === reg) return old;
   const input = plannerInput(day, log, limit);

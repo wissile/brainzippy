@@ -75,6 +75,8 @@ export interface LibraryPath {
   line: string;
   /** Show this path to children. Flip to true once every age 3–14 has a world (the test lists missing ages). */
   live: boolean;
+  /** Not live yet but next in line: the ocean map shows its island in fog, "coming soon" (D-041). At most one should set it. */
+  soon?: boolean;
   /** Optional explicit trail order of world ids (default: by youngest age, then oldest age, then id). */
   worlds?: readonly string[];
 }
