@@ -3,6 +3,7 @@
  "testSentence": "Hi there! I'm so happy you're here. Shall we play a game together?",
  "speakers": {
   "narrator": {
+   "eleven": { "voice": "hpp4J3VqNfWAUOO0d1Us", "name": "Bella" },
    "name": "Narrator", "color": "#5A5070", "group": "narrator",
    "kokoroVoice": "af_bella", "lang": "en-us", "speed": 0.95,
    "description": "The BrainZippy guide voice chosen by the owner (2026-11-17). Unprocessed; every existing clip uses it."
