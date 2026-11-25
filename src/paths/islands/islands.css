@@ -165,7 +165,7 @@
 @media (max-width: 420px) {
   .map-top.daily-top { padding-left: 8px; padding-right: 8px; }
   .daily-top .daily-chips { gap: 4px; margin-right: 4px; }
-  .age-badge { margin-left: 2px; padding: 0 6px; }
+  .age-badge { margin-left: 2px; padding: 0 6px; min-width: 44px; }
 }
 @media (max-height: 520px) {
   .ocean, .journey { top: calc(max(10px, env(safe-area-inset-top)) + 76px); }
