@@ -33,9 +33,10 @@ export function buildRound(game: GameDefinition, opts: { level: number; seed: nu
   return { gameId: game.id, level, seed, exercises };
 }
 
-/** Generate `count` exercises for one 0-based level (difficulty = level + 1). */
+/** Generate `count` exercises for one 0-based level (difficulty = level + 1). Every index gets its own RNG; all share `band.seed`. */
 export function generateBand(game: GameDefinition, level: number, seed: number, count: number): Exercise[] {
   const gen = game.generate;
   if (!gen) return [];
-  return Array.from({ length: count }, (_, i) => ({ ...gen(level, createRng(hashSeed(seed, game.id, level, i)), i), difficulty: level + 1 }));
+  const band = { seed: hashSeed(seed, game.id, level, "band") };
+  return Array.from({ length: count }, (_, i) => ({ ...gen(level, createRng(hashSeed(seed, game.id, level, i)), i, band), difficulty: level + 1 }));
 }

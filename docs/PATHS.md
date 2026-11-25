@@ -11,7 +11,7 @@ Owner request (2026-11-23): children should know which path they are on ("learn 
 | Path | Title today | Ages with a world | Missing ages |
 |---|---|---|---|
 | math | Count and build with Bobbo | 4–9, 11–13 | 3, 10, 14 |
-| english | Learn English with Hoot (→ Sarah) | 3–5 | 6–14 |
+| english | Learn English with Sarah | 3–14 (Rhyme Lanterns, Paper Boat Post, Wordroot Grove, The Lantern Press) | — (not live: owner decision) |
 | pilot | Learn to fly with Zephy (→ Ziggy) | 6–9 | 3–5, 10–14 |
 | cs | Learn to code with Toggle | 5–10 | 3–4, 11–14 |
 | cyber | Stay safe online with Fenn | 7–11 | 3–6, 12–14 |

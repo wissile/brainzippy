@@ -66,6 +66,26 @@ const CC = {
   "L.2.2.C": "Use an apostrophe to form contractions and frequently occurring possessives.",
   "L.3.2.D": "Form and use possessives.",
   "L.4.1.G": "Correctly use frequently confused words (e.g., to, too, two; there, their).",
+  "L.3.1.H": "Use coordinating and subordinating conjunctions.",
+  "L.5.3.A": "Expand, combine, and reduce sentences for meaning, reader/listener interest, and style.",
+  "L.6.3.A": "Vary sentence patterns for meaning, reader/listener interest, and style.",
+  "L.7.1.B": "Choose among simple, compound, complex, and compound-complex sentences to signal differing relationships among ideas.",
+  "L.7.1.C": "Place phrases and clauses within a sentence, recognizing and correcting misplaced and dangling modifiers.",
+  "L.6.1.D": "Recognize and correct vague pronouns (i.e., ones with unclear or ambiguous antecedents).",
+  "L.7.3.A": "Choose language that expresses ideas precisely and concisely, recognizing and eliminating wordiness and redundancy.",
+  "L.6.5.C": "Distinguish among the connotations (associations) of words with similar denotations (definitions) (e.g., stingy, scrimping, economical, unwasteful, thrifty).",
+  "L.7.5.C": "Distinguish among the connotations (associations) of words with similar denotations (definitions) (e.g., refined, respectful, polite, diplomatic, condescending).",
+  "L.8.5.C": "Distinguish among the connotations (associations) of words with similar denotations (definitions) (e.g., bullheaded, willful, firm, persistent, resolute).",
+  "L.4.5.A": "Explain the meaning of simple similes and metaphors (e.g., as pretty as a picture) in context.",
+  "L.5.5.A": "Interpret figurative language, including similes and metaphors, in context.",
+  "L.6.5.A": "Interpret figures of speech (e.g., personification) in context.",
+  "L.8.5.A": "Interpret figures of speech (e.g. verbal irony, puns) in context.",
+  "L.8.1.B": "Form and use verbs in the active and passive voice.",
+  "L.8.1.D": "Recognize and correct inappropriate shifts in verb voice and mood.",
+  "L.8.3.A": "Use verbs in the active and passive voice and in the conditional and subjunctive mood to achieve particular effects (e.g., emphasizing the actor or the action; expressing uncertainty or describing a state contrary to fact).",
+  "RI.6.8": "Trace and evaluate the argument and specific claims in a text, distinguishing claims that are supported by reasons and evidence from claims that are not.",
+  "RI.7.8": "Trace and evaluate the argument and specific claims in a text, assessing whether the reasoning is sound and the evidence is relevant and sufficient to support the claims.",
+  "RI.8.8": "Delineate and evaluate the argument and specific claims in a text, assessing whether the reasoning is sound and the evidence is relevant and sufficient; recognize when irrelevant evidence is introduced.",
   "2.MD.C.8": "Solve word problems involving dollar bills, quarters, dimes, nickels, and pennies, using $ and ¢ symbols appropriately.",
 } as const;
 
@@ -119,7 +139,7 @@ function std(code: keyof typeof CC | keyof typeof OTHER, fit: Standard["fit"] = 
     const o = OTHER[code as keyof typeof OTHER];
     return { code, text: o.text, fit, ref: o.ref };
   }
-  return { code, text: CC[code as keyof typeof CC], fit, ref: code.startsWith("RF.") || code.startsWith("L.") ? "ccssela" : "ccss" };
+  return { code, text: CC[code as keyof typeof CC], fit, ref: code.startsWith("RF.") || code.startsWith("L.") || code.startsWith("RI.") ? "ccssela" : "ccss" };
 }
 
 export const SKILLS: Record<string, SkillInfo> = {
@@ -250,6 +270,15 @@ export const SKILLS: Record<string, SkillInfo> = {
   "english.vocab.context": { name: "Context clues", plain: "Work out what an unfamiliar word means from clues in the same sentence or the sentences around it (definitions, examples, contrasts, causes).", standards: [std("L.4.4.A"), std("L.5.4.A")] },
   "english.grammar.apostrophe": { name: "Apostrophes", plain: "Use apostrophes for contractions (can't) and for one owner or several owners (the cat's toys, the cats' toys), and none for plain plurals.", standards: [std("L.2.2.C", "foundation"), std("L.3.2.D")] },
   "english.grammar.confused-words": { name: "Commonly confused words", plain: "Choose between words that sound alike, such as there, their and they're, or to, too and two, in a sentence.", standards: [std("L.4.1.G")] },
+  "english.grammar.combine": { name: "Combining sentences", plain: "Join short sentences with the connective that says how the ideas are linked (because, although, until, so), without comma splices or run-on sentences.", standards: [std("L.7.1.B"), std("L.5.3.A"), std("L.6.3.A"), std("L.3.1.H", "foundation")] },
+  "english.grammar.modifier": { name: "Misplaced modifiers", plain: "Spot a describing phrase that sits next to the wrong word (\u201cBarking at the mail cart, Kenji walked his dog\u201d) and choose the clear rewrite.", standards: [std("L.7.1.C")] },
+  "english.grammar.pronoun-ref": { name: "Clear pronouns", plain: "Find pronouns such as he, she or it that could point to two people or things, and choose a rewrite that makes clear who is meant.", standards: [std("L.6.1.D")] },
+  "english.style.concise": { name: "Concise wording", plain: "Cut words that repeat an idea (\u201c3 p.m. in the afternoon\u201d) and pick the shortest version that still keeps every fact.", standards: [std("L.7.3.A"), std("L.5.3.A")] },
+  "english.vocab.connotation": { name: "Connotation", plain: "Choose between words with the same meaning but a different feeling (aroma, smell, stench) to fit what the writer wants to say.", standards: [std("L.6.5.C"), std("L.7.5.C"), std("L.8.5.C")] },
+  "english.vocab.figurative": { name: "Figurative language", plain: "Name and explain similes, metaphors, personification, hyperbole, idioms, verbal irony and puns in context.", standards: [std("L.6.5.A"), std("L.8.5.A"), std("L.4.5.A", "foundation"), std("L.5.5.A", "foundation")] },
+  "english.style.voice": { name: "Active and passive voice", plain: "Choose active or passive voice to match what the writer wants to put first, and fix sentences that switch between them for no reason.", standards: [std("L.8.1.B"), std("L.8.1.D"), std("L.8.3.A")] },
+  "english.argue.claim-evidence": { name: "Claims and evidence", plain: "Sort the sentences of a short article into claim, evidence, reasoning and sentences that don't support the claim.", standards: [std("RI.6.8")] },
+  "english.argue.evaluate": { name: "Evaluating evidence", plain: "Judge whether evidence is relevant and enough: pick the strongest evidence, spot the sentence that doesn't support a claim, and decide whether a small sample can speak for everyone.", standards: [std("RI.7.8"), std("RI.8.8")] },
 
   // Computer science (Toggle's Garden Path)
   "cs.seq.build": { name: "Building a sequence", plain: "Put step-by-step move instructions in order so a character reaches a goal.", standards: [std("1A-AP-10"), std("1A-AP-08", "foundation")] },
@@ -374,23 +403,25 @@ export const SUBJECTS: readonly SubjectInfo[] = [
     name: "English",
     skillPrefix: "english.",
     updated: "2026-11-24",
-    title: "English games for kids: rhymes, phonics and vocabulary",
-    description: "Story-based English games from rhymes (ages 3–5) through phonics and reading (6–8) to word parts, context clues and apostrophes (9–11), and how to help at home.",
+    title: "English games for ages 3–14: rhymes, phonics, vocabulary and editing",
+    description: "Story-based English games from rhymes (3–5) and phonics (6–8) to word parts and context clues (9–11) and editing and argument skills (12–14), and how to help at home.",
     intro:
       "English at BrainZippy starts before reading, with the sounds of spoken words, and grows with your child. Rhyme games are listening games for children who don't know letters yet. Phonics games then link sounds to letters, and older children learn to work out new words from their parts and from the sentences around them.",
-    now: "For the youngest, every word is spoken and shown as a picture. Reading games never read the target word aloud before your child answers. Games for 9–11 are text-led, with a speaker button that reads the text on demand. Each game adjusts to your child round by round.",
-    next: "Planned next: a writing-skills world for ages 12–14 (combining sentences, word choice and figurative language). We add a game only when it is finished and tested.",
+    now: "For the youngest, every word is spoken and shown as a picture. Reading games never read the target word aloud before your child answers. Games for 9–14 are text-led, with a speaker button that reads the text on demand. Each game adjusts to your child round by round.",
+    next: "Planned next: more practice for each age band, so a child can learn the same skill in more than one game. We add a game only when it is finished and tested.",
     byAge: [
       { ages: "3–5", status: "now", body: "Hearing rhymes: whether two words rhyme, picking a rhyme, spotting the odd one out and building rhyme chains." },
       { ages: "6–8", status: "now", body: "Phonics and reading: word families, short vowels, sh/ch/th, blends, final -e, vowel teams, longer words and short sentences." },
       { ages: "9–11", status: "now", body: "Vocabulary and grammar: prefixes, suffixes and Greek and Latin roots, context clues, word classes, apostrophes and commonly confused words." },
-      { ages: "12–14", status: "planned", body: "Writing skills: combining sentences, clear pronouns, word choice and figurative language." },
+      { ages: "12–14", status: "now", body: "Editing and argument: combining sentences, misplaced modifiers, clear pronouns, concise wording, connotation, figurative language, active and passive voice, and judging claims and evidence." },
     ],
     strands: [
       { name: "Sounds in words", skills: "english.phon.", body: "Hearing whether two words rhyme, picking a rhyme among words that sound a bit alike, spotting the word that doesn't rhyme, and building a chain of rhymes. Rhyme comes first because children can hear it before they know any letters." },
       { name: "Phonics and reading", skills: "english.phonics.", body: "Reading printed words and sending them to the matching picture, and spelling words from letter tiles, from three-letter words to vowel teams and two-syllable words." },
-      { name: "Vocabulary", skills: "english.vocab.", body: "Working out what a new word means from its parts (un-, -less, tele, port) and from clues in the sentences around it." },
-      { name: "Grammar and usage", skills: "english.grammar.", body: "Telling nouns, verbs, adjectives and adverbs apart, placing apostrophes, and choosing between words that sound alike, always in a sentence." },
+      { name: "Vocabulary", skills: "english.vocab.", body: "Working out what a new word means from its parts (un-, -less, tele, port) and from clues in the sentences around it, and later choosing words by the feeling they carry and reading figurative language such as irony and puns." },
+      { name: "Grammar and usage", skills: "english.grammar.", body: "Telling nouns, verbs, adjectives and adverbs apart, placing apostrophes, choosing between words that sound alike, combining sentences, and fixing misplaced modifiers and unclear pronouns, always in a sentence." },
+      { name: "Style", skills: "english.style.", body: "Saying it clearly: cutting words that repeat an idea, and choosing active or passive voice for what the writer wants to put first." },
+      { name: "Claims and evidence", skills: "english.argue.", body: "Reading short fictional articles to tell a claim from its evidence and reasoning, and judging whether the evidence is relevant and enough." },
     ],
     atHome: [
       "Read rhyming books aloud and pause before the rhyming word so your child can say it.",
@@ -398,8 +429,8 @@ export const SUBJECTS: readonly SubjectInfo[] = [
       "Clap the beats in names and words: “Ba-na-na” has three claps.",
     ],
     evidence: {
-      text: "In a long-term study, preschoolers' skill at hearing rhyme and first sounds predicted their reading and spelling years later, and practice in sorting words by sound helped most when it was combined with letters (Bradley & Bryant, 1983). Rhyme is a first step. Reading itself needs children to work with the individual sounds in words and link them to letters, which is where our planned games go next.",
-      refs: ["bradley1983"],
+      text: "In a long-term study, preschoolers' skill at hearing rhyme and first sounds predicted their reading and spelling years later, and practice in sorting words by sound helped most when it was combined with letters (Bradley & Bryant, 1983). Rhyme is a first step: reading itself needs children to work with the individual sounds in words and link them to letters, which is what our phonics games for 6–8 practise. For ages 12–14, a research review of adolescent writing instruction found that teaching students to combine sentences improved their writing, while traditional grammar lessons did not (Graham & Perin, 2007), so our editing game asks which version says what the writer means instead of asking for grammar labels. BrainZippy itself has not been studied.",
+      refs: ["bradley1983", "grahamperin2007"],
     },
   },
   {
