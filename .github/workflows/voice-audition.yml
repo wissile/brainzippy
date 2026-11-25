@@ -1,0 +1,45 @@
+# Voice audition (D-039): renders the same lines with each TTS service whose key is a repository secret, so the
+# owner can choose voices by ear. Run from the Actions tab ("Voice audition" → Run workflow) or `gh workflow run`.
+# Results are pushed to the branch `voice-audition` (audition/<provider>/sampler.mp3 + voices.json). The repository
+# is public, so delete that branch after choosing. Only fixed lines from our own scripts are sent; no child data.
+name: Voice audition
+
+on:
+  workflow_dispatch:
+    inputs:
+      providers:
+        description: "Comma-separated: elevenlabs,azure,google (only those with secrets are used)"
+        required: false
+        default: "elevenlabs,azure,google"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: voice-audition
+  cancel-in-progress: false
+
+jobs:
+  audition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check ffmpeg
+        run: ffmpeg -version | head -1 || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+      - name: Render auditions
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
+          AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
+          GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
+        run: python3 scripts/voice_audition.py --out audition --only "${{ inputs.providers }}"
+      - name: Push results to branch voice-audition
+        run: |
+          git config user.name "brainzippy-bot"
+          git config user.email "hello@brainzippy.com"
+          git checkout --orphan voice-audition
+          git rm -rf --cached . > /dev/null
+          git add audition
+          git commit -m "Voice audition $(date -u +%Y-%m-%dT%H:%MZ) (${{ inputs.providers }})"
+          git push -f origin voice-audition
