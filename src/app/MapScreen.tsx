@@ -13,9 +13,11 @@ import { loadState } from "../services/storage";
 import { AudioButtons, SpeechBubble } from "../ui/controls";
 import { IconLock } from "../ui/icons";
 import { useApp } from "./AppContext";
-import { pathsEnabled, visiblePaths } from "../paths/flags";
-import { PathPicker, PathView } from "../paths/PathScreens";
-import { currentPath, setPathPlay } from "../paths/state";
+import { pathsEnabled } from "../paths/flags";
+import { boatAt, setPathPlay } from "../paths/state";
+import { AgeBadge } from "../paths/islands/AgeBadge";
+import { JourneyIsland } from "../paths/islands/JourneyIsland";
+import { OceanMap } from "../paths/islands/OceanMap";
 import "../daily/daily.css";
 
 /**
@@ -32,10 +34,14 @@ export function MapScreen({ view = "today" }: { view?: MapView }) {
   const { navigate } = useApp();
   // learning paths (D-034) exist only while at least one is visible (live, or the dev override)
   const hidden = (view === "path" || view === "paths") && !pathsEnabled();
+  // D-041: the map opens on the island the child's boat is at (a journey island, or Monster Island = today)
+  const toIsland = view === "today" && !status.locked && pathsEnabled() && boatAt() !== "home";
   useEffect(() => {
     if (hidden) navigate("/map", { replace: true });
-  }, [hidden, navigate]);
+    else if (toIsland) navigate("/path", { replace: true });
+  }, [hidden, toIsland, navigate]);
   if (status.locked) return <EndOfDay key={day} />;
+  if (toIsland) return null;
   return <Island key={day} status={status} view={hidden ? "today" : view} />;
 }
 
@@ -118,8 +124,8 @@ function Island({ status, view }: { status: DailyStatus; view: MapView }) {
   const firstEver = st.progress.roundsCompleted === 0 && done === 0;
   const goingRef = useRef(false);
   const showPaths = pathsEnabled();
-  const myPath = showPaths ? currentPath(visiblePaths()) : null;
   const onPathView = view === "path" || view === "paths";
+  const [, setAgeTick] = useState(0); // re-render after a grown-up changes the age group
   // rounds started from Today or Explore return here, not to the path view
   useEffect(() => {
     if (!onPathView) setPathPlay(null);
@@ -162,6 +168,12 @@ function Island({ status, view }: { status: DailyStatus; view: MapView }) {
 
   return (
     <main className={`map-screen daily-map view-${view}`} data-testid="map" data-day={status.day}>
+      {onPathView ? (
+        <svg className="sea-waves" aria-hidden="true">
+          <defs><pattern id="sea-waves" width="140" height="80" patternUnits="userSpaceOnUse"><path d="M10 22 q11 -9 22 0 t22 0" fill="none" stroke="#a9dcf4" strokeWidth="3" strokeLinecap="round" /><path d="M80 62 q11 -9 22 0 t22 0" fill="none" stroke="#a9dcf4" strokeWidth="3" strokeLinecap="round" /></pattern></defs>
+          <rect width="100%" height="100%" fill="url(#sea-waves)" />
+        </svg>
+      ) : (
       <svg className="island" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <defs><linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#7FD3F7" /><stop offset="1" stopColor="#4FB3E8" /></linearGradient></defs>
         <rect width="1600" height="900" fill="url(#sea)" />
@@ -170,12 +182,14 @@ function Island({ status, view }: { status: DailyStatus; view: MapView }) {
         <path d="M140 740 C90 560 200 330 440 260 C650 175 970 160 1200 250 C1430 330 1530 530 1460 690 C1390 830 1090 845 800 835 C510 825 210 840 140 740 Z" fill="#8FD88A" />
         <g>{[[600, 700], [1050, 760], [560, 260], [1300, 330]].map(([x, y]) => <g key={x}><rect x={x! - 8} y={y! - 10} width="16" height="60" rx="6" fill="#9A6234" /><circle cx={x} cy={y! - 30} r="46" fill="#4CB35E" /></g>)}</g>
       </svg>
+      )}
 
       <div className="map-top daily-top">
         {/* The map is the child's home; this corner is the way in for grown-ups (the page itself is parent-gated). */}
         <button type="button" className="icon-btn" data-testid="map-grown-ups" aria-label="For grown-ups" onClick={() => navigate("/grown-ups")}>
           <IconLock />
         </button>
+        <AgeBadge onChange={() => setAgeTick((t) => t + 1)} />
         <div className="map-hello">
           <span className="mini-monster" aria-hidden="true"><Monster config={monster} size={52} label="" /></span>
           <span className="map-hello-name">{p.kidName ? `Hi, ${p.kidName}!` : "Monster Island"}</span>
@@ -195,18 +209,15 @@ function Island({ status, view }: { status: DailyStatus; view: MapView }) {
       </div>
 
       <nav className={`view-tabs ${showPaths ? "with-path" : ""}`} aria-label="Choose a view">
-        <button type="button" className={view === "today" ? "on" : ""} aria-pressed={view === "today"} data-testid="view-today" aria-label="Today's adventure" onClick={() => view !== "today" && navigate("/map")}>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19 C8 19 6 12 11 12 C16 12 14 5 20 5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="1 4.5" /><circle cx="4" cy="19" r="2.6" fill="currentColor" /><circle cx="20" cy="5" r="2.6" fill="currentColor" /></svg>
-          <span>Today</span>
-        </button>
-        {showPaths && (
-          <button type="button" className={onPathView ? "on" : ""} aria-pressed={onPathView} data-testid="view-path" aria-label={myPath ? `My path: ${myPath.title}` : "Choose your adventure"} onClick={() => !onPathView && navigate(myPath ? "/path" : "/paths")}>
-            {myPath ? (
-              <span className="tab-host" aria-hidden="true"><Critter id={myPath.host} color={myPath.library.theme.main} /></span>
-            ) : (
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21 V4" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /><path d="M6 4 H18 L15 8 L18 12 H6 Z" fill="currentColor" /></svg>
-            )}
-            <span>My path</span>
+        {showPaths ? (
+          <button type="button" className={view !== "explore" ? "on" : ""} aria-pressed={view !== "explore"} data-testid="view-islands" aria-label="Islands: choose where to sail" onClick={() => view !== "paths" && navigate("/paths")}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18 q3 -2.5 6 0 t6 0 t6 0" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" /><path d="M6 15 C6 9 10 6 14 6 C17 6 19 9 19 15 Z" fill="currentColor" /><path d="M12 6 V2.5 M12 3 L16 4.5 L12 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <span>Islands</span>
+          </button>
+        ) : (
+          <button type="button" className={view === "today" ? "on" : ""} aria-pressed={view === "today"} data-testid="view-today" aria-label="Today's adventure" onClick={() => view !== "today" && navigate("/map")}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19 C8 19 6 12 11 12 C16 12 14 5 20 5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="1 4.5" /><circle cx="4" cy="19" r="2.6" fill="currentColor" /><circle cx="20" cy="5" r="2.6" fill="currentColor" /></svg>
+            <span>Today</span>
           </button>
         )}
         <button type="button" className={view === "explore" ? "on" : ""} aria-pressed={view === "explore"} data-testid="view-explore" aria-label="Explore all adventures" onClick={() => view !== "explore" && navigate("/explore")}>
@@ -221,9 +232,9 @@ function Island({ status, view }: { status: DailyStatus; view: MapView }) {
       {view === "explore" ? (
         <Explore band={bandOf(st.ageBand)} />
       ) : view === "paths" ? (
-        <PathPicker />
+        <OceanMap />
       ) : view === "path" ? (
-        <PathView />
+        <JourneyIsland todayLeft={Math.max(0, limit - done)} />
       ) : (
         <div className={`map-stops trail ${stops.length > (portrait ? 5 : 7) ? "crowded" : ""}`} data-testid="trail" data-stops={stops.length}>
           <svg className="trail-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">

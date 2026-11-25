@@ -112,3 +112,21 @@ export function isPathPlay(worldId: string): boolean {
   }
   return playing === worldId;
 }
+
+// ---------------------------------------------------------------- ocean map (D-041): where the boat is
+
+/** "home" (Monster Island, today's adventure) or the id of a visible path's island. Unknown/hidden = home. */
+export function boatAt(paths: readonly LearningPath[] = visiblePaths()): string {
+  const at = getPaths().at;
+  return at && paths.some((p) => p.id === at) ? at : "home";
+}
+
+/** Move the boat (after a trip). Sailing to a path's island also makes it the child's path. */
+export function setBoatAt(at: string): void {
+  const st = loadState();
+  const seen = st.paths.seen ?? [];
+  saveState({ paths: { ...st.paths, at, seen: seen.includes(at) ? seen : [...seen, at].slice(-60) } });
+}
+
+/** Has the child sailed to this island before? (first trips play the full ride) */
+export const hasSailedTo = (at: string): boolean => (getPaths().seen ?? []).includes(at);

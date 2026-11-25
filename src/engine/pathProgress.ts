@@ -112,6 +112,10 @@ export interface PathsState {
   run: PathRun | null;
   /** O1: paths that already got an offer on `day`. */
   offered: { day: string; p: string[] } | null;
+  /** D-041 ocean map: where the child's boat is ("home" = Monster Island, or a path id); the app opens there. */
+  at?: string | null;
+  /** D-041: islands already sailed to (the first trip to each plays the full boat ride, later ones a short one). */
+  seen?: string[];
 }
 export const emptyPathsState = (): PathsState => ({ v: 1, cur: null, by: {}, run: null, offered: null });
 export const freshProgress = (w: string): PathProgress => ({ w, easy: 0, hard: 0, n: 0, dn: null, warm: null });
@@ -396,5 +400,7 @@ export function parsePathsState(input: unknown): PathsState {
   if (f && typeof f === "object" && typeof f.day === "string" && DAY.test(f.day) && Array.isArray(f.p)) {
     out.offered = { day: f.day, p: (f.p as unknown[]).filter((x): x is string => typeof x === "string" && ID.test(x)).slice(0, MAX_PATHS) };
   }
+  if (typeof o.at === "string" && ID.test(o.at)) out.at = o.at;
+  if (Array.isArray(o.seen)) out.seen = (o.seen as unknown[]).filter((x): x is string => typeof x === "string" && ID.test(x)).slice(0, MAX_PATHS + 1);
   return out;
 }
