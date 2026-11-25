@@ -102,7 +102,8 @@ test("pick a path, hear it, sail there, play from it, come back to the island", 
   await expect(view).toHaveAttribute("data-world", "counting-adventure"); // age band 3–5 → age 4 → first maths world for 4
   await expect(view).toHaveAttribute("data-level", "0");
   await expect(page.locator('.journey-stop[aria-current="step"]')).toHaveAttribute("data-world", "counting-adventure");
-  await expect(page.locator(".journey-stop").last()).toHaveAttribute("data-state", "later");
+  await expect(page.locator(".journey-stop")).toHaveCount(5); // ages 3–5: five stops; 10 rounds left today, so all glow
+  await expect(page.locator(".journey-stop").last()).toHaveAttribute("data-state", "today");
   await page.waitForTimeout(600);
   await page.screenshot({ path: `${SHOTS}/${info.project.name}-02-island.png` });
   expect((await stored(page)).paths).toMatchObject({ v: 1, cur: "math", at: "math", by: { math: { w: "counting-adventure", easy: 0, hard: 0 } } });

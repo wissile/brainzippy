@@ -17,7 +17,7 @@
 }
 .ocean-island > img { display: block; width: 100%; height: 100%; pointer-events: none; user-select: none; }
 .ocean-island .ocean-fog { position: absolute; left: -6%; top: -8%; width: 112%; height: 116%; }
-.ocean-island.dim { opacity: 0.45; filter: saturate(0.6); }
+.ocean-island.dim > img { opacity: 0.45; filter: saturate(0.6); } /* only the art dims: plaques keep their contrast */
 .ocean-island.on { transform: translateY(-6px) scale(1.04); }
 .ocean-island:hover:not(.dim) { transform: translateY(-3px); }
 .ocean-island.on:hover { transform: translateY(-6px) scale(1.04); }
@@ -56,6 +56,8 @@
 .ocean-card.side-right { right: 24px; top: 50%; translate: 0 -50%; }
 .ocean-card.side-left { left: 24px; top: 50%; translate: 0 -50%; }
 .ocean-card.side-bottom { left: 50%; bottom: 12px; translate: -50% 0; }
+.ocean-card.side-top { left: 50%; top: 8px; translate: -50% 0; }
+.ocean-scrim { position: absolute; inset: 0; z-index: 4; background: rgba(43, 33, 64, 0.18); animation: isl-fade 0.2s ease-out both; }
 .ocean-card-head { display: flex; align-items: center; gap: 14px; }
 .ocean-card-host { flex: none; width: 96px; height: 96px; }
 .ocean-card-host svg { width: 100%; height: 100%; }
@@ -81,7 +83,7 @@
   position: absolute; z-index: 3; left: 14px; top: -2px; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 28px);
   padding: 4px 18px 4px 4px; background: rgba(255, 255, 255, 0.95); border: 4px solid var(--ink); border-radius: var(--r-pill); box-shadow: 0 4px 0 rgba(43, 33, 64, 0.2);
 }
-.journey-hear { flex: none; width: 56px; height: 56px; padding: 0; border-radius: 50%; border: 3px solid var(--ink); background: #f4f1fa; cursor: pointer; overflow: hidden; }
+.journey-hear { flex: none; width: 64px; height: 64px; padding: 0; border-radius: 50%; border: 3px solid var(--ink); background: #f4f1fa; cursor: pointer; overflow: hidden; }
 .journey-hear svg { width: 100%; height: 100%; }
 .journey-hear:focus-visible { outline: 4px solid var(--zuzu); outline-offset: 2px; }
 .journey-plaque-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.05; }
@@ -95,7 +97,7 @@
 .journey-trail { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .journey-trail polyline { fill: none; stroke: #fff6d8; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 0 9.5; vector-effect: none; }
 .journey-stops { list-style: none; margin: 0; padding: 0; }
-.journey-stop { position: absolute; width: var(--stop); height: var(--stop); translate: -50% -50%; }
+.journey-stop { position: absolute; width: var(--stop); height: var(--stop); margin: calc(var(--stop) / -2) 0 0 calc(var(--stop) / -2); }
 .journey-stop > button {
   width: 100%; height: 100%; padding: 0; border-radius: 50%; border: 5px solid var(--ink); background: #fff; cursor: pointer;
   display: grid; place-items: center; box-shadow: 0 5px 0 var(--ink); transition: transform var(--t-fast) ease;
@@ -114,7 +116,8 @@
 .journey-badge.star { background: #5b3fc4; color: var(--sparkle); }
 .journey-monster { position: absolute; z-index: 2; translate: -50% calc(-100% - var(--stop) / 2 + 12px); pointer-events: none; animation: isl-bob 2.2s ease-in-out infinite; }
 .journey-monster svg { display: block; width: 92px; height: auto; }
-.journey-person { position: absolute; z-index: 1; translate: -50% -100%; width: 104px; padding: 0; border: 0; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.journey-person-anchor { position: absolute; z-index: 1; width: 0; height: 0; }
+.journey-person { position: absolute; left: -52px; bottom: 0; width: 104px; padding: 0; border: 0; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .journey-person-art { width: 92px; height: 92px; }
 .journey-person-art svg { width: 100%; height: 100%; }
 .journey-person-name { padding: 0 10px; border-radius: var(--r-pill); background: #fff; border: 3px solid var(--ink); font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; }
@@ -123,7 +126,7 @@
 
 /* ---------- age badge (grown-ups) ---------- */
 .age-badge {
-  flex: none; min-height: 48px; padding: 0 14px; margin-left: 8px; border-radius: var(--r-pill); border: 4px solid var(--ink); background: rgba(255, 255, 255, 0.92);
+  flex: none; min-height: 48px; min-width: 48px; padding: 0 14px; margin-left: 8px; border-radius: var(--r-pill); border: 4px solid var(--ink); background: rgba(255, 255, 255, 0.92);
   font-family: var(--font-display); font-weight: 800; font-size: 1rem; color: var(--ink); cursor: pointer; white-space: nowrap;
 }
 .age-badge:focus-visible { outline: 4px solid var(--zuzu); outline-offset: 2px; }
@@ -149,9 +152,20 @@
   .ocean-card-journey { font-size: 1rem; }
   .ocean-card-blurb { font-size: 0.95rem; padding: 8px 12px; }
   .journey-plaque { padding-right: 12px; }
-  .journey-hear { width: 46px; height: 46px; }
+  .journey-hear { width: 56px; height: 56px; }
   .journey-plaque h2 { font-size: 1.1rem; }
   .age-badge { min-height: 44px; padding: 0 10px; font-size: 0.9rem; border-width: 3px; margin-left: 6px; }
+}
+/* narrow phones: the badge shows just the ages ("6–8") so the top bar fits 390 px with every chip */
+@media (max-width: 480px) {
+  .age-badge { padding: 0 8px; margin-left: 4px; }
+  .age-badge-word { display: none; }
+}
+/* very narrow phones: tighter top-bar spacing so lock, age, monster, today, days and sound all fit */
+@media (max-width: 420px) {
+  .map-top.daily-top { padding-left: 8px; padding-right: 8px; }
+  .daily-top .daily-chips { gap: 4px; margin-right: 4px; }
+  .age-badge { margin-left: 2px; padding: 0 6px; }
 }
 @media (max-height: 520px) {
   .ocean, .journey { top: calc(max(10px, env(safe-area-inset-top)) + 76px); }
@@ -168,14 +182,15 @@
   .ocean-card .ocean-btn.primary { font-size: 1.3rem; }
   /* short screens: the plaque shrinks to the host's face (the title stays for screen readers and is spoken) */
   .journey-plaque { top: 4px; padding: 3px; }
-  .journey-hear { width: 48px; height: 48px; }
+  .journey-hear { width: 56px; height: 56px; }
   .journey-plaque-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .boat-bob, .journey-monster, .journey-stop.here > button, .ocean.is-moving .boat-splash, .journey, .ocean-card { animation: none; }
+  .boat-bob, .journey-monster, .journey-stop.here > button, .ocean.is-moving .boat-splash, .journey, .ocean-card, .ocean-scrim { animation: none; }
   .ocean-island { transition: none; }
 }
 
+@keyframes isl-fade { from { opacity: 0; } }
 @keyframes isl-bob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-5px) rotate(2deg); } }
 @keyframes isl-splash { from { opacity: 0.3; } to { opacity: 1; } }
 @keyframes isl-card-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }

@@ -48,7 +48,7 @@ function Island({ path, todayLeft }: { path: LearningPath; todayLeft: number }) 
   const wrap = useRef<HTMLDivElement>(null);
   const size = useBoxSize(wrap);
   const minGap = Math.min(...pts.slice(1).map((p, i) => Math.hypot(p.x - pts[i]!.x, (p.y - pts[i]!.y) / ISLAND_ASPECT)), 0.2);
-  const want = n <= 5 ? 64 : 56;
+  const want = n <= 7 ? 64 : 56; // 64 px up to age 8 (under-7s included), 56 px for 9+
   // ≥ 960 px: scripts/gen_islands.py checks the monster and the people against the island at that size (2 px per unit)
   const minW = Math.max(960, Math.ceil(want / 0.86 / minGap));
   const stageW = size.w ? Math.max(minW, Math.min(size.w, size.h * ISLAND_ASPECT)) : 0;
@@ -78,10 +78,18 @@ function Island({ path, todayLeft }: { path: LearningPath; todayLeft: number }) 
     const el = wrap.current;
     if (!el) return;
     const stop = () => (userMoved.current = true);
+    // keyboard focus: always bring the focused stop or character fully into view (WCAG 2.4.11)
+    const onFocus = (e: FocusEvent) => {
+      userMoved.current = true;
+      const t = e.target as HTMLElement;
+      const b = t.getBoundingClientRect(), w = el.getBoundingClientRect();
+      if (b.left < w.left || b.right > w.right) el.scrollLeft += b.left + b.width / 2 - (w.left + w.width / 2);
+      if (b.top < w.top || b.bottom > w.bottom) el.scrollTop += b.top + b.height / 2 - (w.top + w.height / 2);
+    };
     el.addEventListener("pointerdown", stop);
     el.addEventListener("wheel", stop, { passive: true });
-    el.addEventListener("keydown", stop);
-    return () => { el.removeEventListener("pointerdown", stop); el.removeEventListener("wheel", stop); el.removeEventListener("keydown", stop); };
+    el.addEventListener("focusin", onFocus);
+    return () => { el.removeEventListener("pointerdown", stop); el.removeEventListener("wheel", stop); el.removeEventListener("focusin", onFocus); };
   }, []);
 
   const moved = useRef(false);
@@ -105,7 +113,7 @@ function Island({ path, todayLeft }: { path: LearningPath; todayLeft: number }) 
     moved.current = true;
     audio.play("whoosh");
     setActiveStop(null);
-    setPathPlay(null); // a stop already done plays as a free round; "back" returns here via /map
+    setPathPlay(null); // replays that game at its stored level (the game's own level, not the stop's); "back" returns here via /map
     navigate(`/play/${worldId}`);
   };
   const talk = (who: string, line: string, vars?: Record<string, string>) => {
@@ -151,8 +159,8 @@ function Island({ path, todayLeft }: { path: LearningPath; todayLeft: number }) 
                     type="button"
                     data-testid={s.state === "here" ? "path-play" : `path-stop-${i}`}
                     data-index={i}
-                    aria-label={s.state === "here" ? `Play ${s.world.title}, level ${s.level + 1}` : s.state === "done" ? `${label}, done. Play again` : `${label}, ${s.state === "today" ? "coming up today" : "later"}`}
-                    onClick={() => (s.state === "here" ? play() : s.state === "done" ? replay(s.world.id) : speak("island.stop.wait"))}
+                    aria-label={s.state === "here" ? `Play ${s.world.title}, level ${s.level + 1}` : s.state === "done" ? `Stop ${i + 1}: ${s.world.title}, done. Play this game again` : `${label}, ${s.state === "today" ? "coming up today" : "another day"}`}
+                    onClick={() => (s.state === "here" ? play() : s.state === "done" ? replay(s.world.id) : speak(s.state === "today" ? "island.stop.wait" : "island.stop.later"))}
                   >
                     <span className="journey-stop-critter" aria-hidden="true"><Critter id={hostOf(s.world)} color={path.library.theme.main} /></span>
                   </button>
@@ -175,15 +183,20 @@ function Island({ path, todayLeft }: { path: LearningPath; todayLeft: number }) 
               <Monster config={monster} state="greeting" size={92} label="" />
             </span>
           )}
-          <button type="button" className={`journey-person ${hop === path.host ? "hop" : ""}`} style={{ left: `${hostSpot.x * 100}%`, top: `${hostSpot.y * 100}%` }} data-testid="journey-host" aria-label={`Talk to ${path.hostName}`} onClick={() => talk(path.host, `lib.${path.id}.pitch`)}>
-            <span className="journey-person-art" aria-hidden="true"><Critter id={path.host} color={path.library.theme.main} /></span>
-            <span className="journey-person-name" aria-hidden="true">{path.hostName}</span>
-          </button>
-          {friendId && (
-            <button type="button" className={`journey-person ${hop === friendId ? "hop" : ""}`} style={{ left: `${friendSpot.x * 100}%`, top: `${friendSpot.y * 100}%` }} data-testid="journey-friend" aria-label={`Talk to ${friendName}`} onClick={() => talk(friendId, "island.friend", { name: friendName })}>
-              <span className="journey-person-art" aria-hidden="true"><Critter id={friendId} /></span>
-              <span className="journey-person-name" aria-hidden="true">{friendName}</span>
+          {/* zero-size anchors at the spot: the button's real box is where it is drawn, so focus scrolls it fully into view */}
+          <span className="journey-person-anchor" style={{ left: `${hostSpot.x * 100}%`, top: `${hostSpot.y * 100}%` }}>
+            <button type="button" className={`journey-person ${hop === path.host ? "hop" : ""}`} data-testid="journey-host" aria-label={`Talk to ${path.hostName}`} onClick={() => talk(path.host, `lib.${path.id}.pitch`)}>
+              <span className="journey-person-art" aria-hidden="true"><Critter id={path.host} color={path.library.theme.main} /></span>
+              <span className="journey-person-name" aria-hidden="true">{path.hostName}</span>
             </button>
+          </span>
+          {friendId && (
+            <span className="journey-person-anchor" style={{ left: `${friendSpot.x * 100}%`, top: `${friendSpot.y * 100}%` }}>
+              <button type="button" className={`journey-person ${hop === friendId ? "hop" : ""}`} data-testid="journey-friend" aria-label={`Talk to ${friendName}`} onClick={() => talk(friendId, "island.friend", { name: friendName })}>
+                <span className="journey-person-art" aria-hidden="true"><Critter id={friendId} /></span>
+                <span className="journey-person-name" aria-hidden="true">{friendName}</span>
+              </button>
+            </span>
           )}
         </div>
       </div>

@@ -104,8 +104,10 @@ test("on the island: the glowing stop plays; others ask to wait; the host and a 
   await expect(page.locator(".journey-stop.done")).toHaveCount(0);
   await expect(page.locator(".journey-stop.today")).toHaveCount(4); // 5 rounds left today = this stop + 4
   await expect(page.locator(".journey-stop.later")).toHaveCount(2);
-  await press(page, '[data-testid="path-stop-6"]');
+  await press(page, '[data-testid="path-stop-1"]');
   await expect(caption(page)).toHaveText("Play the glowing stop first!");
+  await press(page, '[data-testid="path-stop-6"]');
+  await expect(caption(page)).toHaveText("That stop is for another day. Play the glowing stop!");
   await press(page, '[data-testid="journey-host"]');
   await expect(caption(page)).toHaveText("Play with sounds and words with Sarah.");
   await press(page, '[data-testid="journey-friend"]');
@@ -158,14 +160,14 @@ test("age badge: grown-ups only; a new age changes the stops on the island", asy
   await page.emulateMedia({ reducedMotion: "reduce" });
   await start(page);
   await sailToWordWoods(page);
-  await expect(page.getByTestId("age-badge")).toHaveText("Age 6–8");
+  await expect(page.getByTestId("age-badge")).toHaveText(/6–8$/);
   await press(page, '[data-testid="age-badge"]');
   await expect(page.getByTestId("age-dialog")).toBeVisible();
   await expect(page.getByTestId("pa-gate-answer")).toBeVisible(); // the parent gate comes first
   await passGate(page);
   await press(page, '[data-testid="age-choice-ages-12-14"]');
   await expect(page.getByTestId("age-dialog")).toHaveCount(0);
-  await expect(page.getByTestId("age-badge")).toHaveText("Age 12–14");
+  await expect(page.getByTestId("age-badge")).toHaveText(/12–14$/);
   expect((await stored(page)).ageBand).toBe("ages-12-14");
   await expect(page.locator(".journey-stop")).toHaveCount(8);
   await press(page, '[data-testid="age-badge"]');

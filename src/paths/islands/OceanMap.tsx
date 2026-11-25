@@ -60,11 +60,17 @@ export function OceanMap() {
   useSpeakOnMount(() => [{ id: "ocean.hello" }], () => moved.current);
 
   const item = items.find((i) => i.id === sel) ?? null;
+  // each new choice (or closing, sailing, leaving) cancels the lines still queued for the previous one
+  const sayRun = useRef(0);
+  useEffect(() => () => void sayRun.current++, []);
   const say = (lines: { id: string; vars?: Record<string, string> }[]) => {
+    const run = ++sayRun.current;
     void (async () => {
       for (const [k, l] of lines.entries()) {
+        if (run !== sayRun.current) return;
         if (!VOICE_LINES[l.id]) continue;
-        await audio.speak(l.id, l.vars, { interrupt: k === 0 });
+        await audio.speak(l.id, l.vars, { interrupt: true });
+        if (k === lines.length - 1) return;
       }
     })();
   };
@@ -80,9 +86,18 @@ export function OceanMap() {
     else if (it) say([{ id: it.path.line, vars: { host: it.path.hostName } }, { id: pitchLine(it.id) }]);
   };
   const close = () => {
+    sayRun.current++;
     setSel(null);
     const back = lastIsland.current;
     window.setTimeout(() => document.querySelector<HTMLElement>(`[data-island="${back}"]`)?.focus({ preventScroll: true }), 0);
+  };
+
+  // a tap on the scrim: on the visible part of another island = choose that island; on open water = close the card
+  const scrimTap = (e: React.MouseEvent) => {
+    const under = document.elementsFromPoint(e.clientX, e.clientY).map((el) => el.closest<HTMLElement>("[data-island]")).find((el) => el && !el.classList.contains("ocean-card"));
+    const id = under?.dataset.island;
+    if (id && id !== sel) choose(id);
+    else close();
   };
 
   const arrive = (to: string) => {
@@ -102,6 +117,7 @@ export function OceanMap() {
   const sail = () => {
     if (!sel || phase.at !== "idle") return;
     const to = sel;
+    sayRun.current++;
     setSel(null);
     audio.play("whoosh");
     if (reduce || to === at) {
@@ -110,6 +126,8 @@ export function OceanMap() {
     }
     const ms = hasSailedTo(to) ? 1200 : 2400;
     setPhase({ at: "sail", to, d: sailPath(dock(at), dock(to)), dist: 0, ms });
+    // keyboard and screen-reader users: focus moves to Skip and the trip is announced
+    window.setTimeout(() => document.querySelector<HTMLElement>('[data-testid="ocean-skip"]')?.focus({ preventScroll: true }), 0);
     const t1 = window.setTimeout(() => setPhase((p) => (p.at === "sail" ? { ...p, dist: 100 } : p)), 40);
     const t2 = window.setTimeout(() => setPhase((p) => (p.at === "sail" ? { ...p, at: "zoom" } : p)), ms + 120);
     const t3 = window.setTimeout(() => arrive(to), ms + 120 + 750);
@@ -146,7 +164,11 @@ export function OceanMap() {
   const boatStyle = { width: boatW, height: boatW * 0.83 };
   const docked = dock(at);
   const selBox = sel ? px(boxOf(sel)) : null;
-  const cardSide = portrait ? "bottom" : selBox && off.x + selBox.left + selBox.width / 2 < size.w / 2 ? "right" : "left";
+  // the card sits on the side away from the chosen island (top or bottom in portrait); a scrim over the rest of the
+  // ocean closes it on a tap, so no tap meant for another island can land on Sail
+  const selMid = selBox ? { x: off.x + selBox.left + selBox.width / 2, y: off.y + selBox.top + selBox.height / 2 - (wrap.current?.scrollTop ?? 0) } : null;
+  const cardSide = portrait ? (selMid && selMid.y > size.h / 2 ? "top" : "bottom") : selMid && selMid.x < size.w / 2 ? "right" : "left";
+  const targetName = phase.at !== "idle" ? (phase.to === HOME ? "Monster Island" : items.find((i) => i.id === phase.to)?.path.library.kidTitle ?? "") : "";
   const here = (id: string) => at === id;
 
   return (
@@ -213,6 +235,7 @@ export function OceanMap() {
         </div>
       </div>
 
+      {(item || sel === HOME) && <div className="ocean-scrim" aria-hidden="true" data-testid="ocean-scrim" onClick={scrimTap} />}
       {item || sel === HOME ? (
         <div className={`ocean-card side-${cardSide}`} role="dialog" aria-labelledby="ocean-card-title" data-testid="ocean-card" data-island={sel}>
           {sel === HOME ? (
@@ -252,8 +275,9 @@ export function OceanMap() {
       ) : null}
 
       {moving && (
-        <button type="button" className="ocean-skip ocean-btn" data-testid="ocean-skip" onClick={skip}>Skip</button>
+        <button type="button" className="ocean-skip ocean-btn" data-testid="ocean-skip" aria-label={`Skip the boat trip to ${targetName}`} onClick={skip}>Skip</button>
       )}
+      <p className="sr-only" role="status" aria-live="polite" data-testid="ocean-status">{moving ? `Sailing to ${targetName}` : ""}</p>
     </section>
   );
 }

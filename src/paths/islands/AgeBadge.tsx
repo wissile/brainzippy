@@ -27,7 +27,7 @@ export function AgeBadge({ onChange }: { onChange?: () => void }) {
         aria-haspopup="dialog"
         onClick={() => setOpen(true)}
       >
-        {band ? `Age ${band.label}` : "Age"}
+        <span className="age-badge-word">Age </span>{band ? band.label : ""}
       </button>
       {/* a portal: the top bar is its own stacking layer, under the island views */}
       {open && createPortal(<AgeDialog current={band?.id ?? null} onClose={close} onSaved={() => { close(); onChange?.(); }} />, document.body)}
@@ -39,9 +39,13 @@ function AgeDialog({ current, onClose, onSaved }: { current: string | null; onCl
   const { passed, pass } = useParentGate();
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    box.current?.querySelector<HTMLElement>("input, button[aria-pressed='true'], button")?.focus();
+    const b = box.current;
+    (b?.querySelector<HTMLElement>("input") ?? b?.querySelector<HTMLElement>("button[aria-pressed='true']") ?? b?.querySelector<HTMLElement>("button"))?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        e.stopImmediatePropagation(); // only the dialog closes, not a card behind it
+        onClose();
+      }
       if (e.key !== "Tab" || !box.current) return;
       const f = [...box.current.querySelectorAll<HTMLElement>("button, input")].filter((el) => !el.hasAttribute("disabled"));
       if (!f.length) return;
@@ -49,9 +53,17 @@ function AgeDialog({ current, onClose, onSaved }: { current: string | null; onCl
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [passed]); // eslint-disable-line react-hooks/exhaustive-deps
+  // the app behind is inert while the dialog is open (like the path offer)
+  useEffect(() => {
+    const root = document.getElementById("root");
+    root?.setAttribute("inert", "");
+    return () => {
+      root?.removeAttribute("inert");
+    };
+  }, []);
   return (
     <div className="age-dialog-backdrop" data-testid="age-dialog" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="age-dialog" role="dialog" aria-modal="true" aria-labelledby={passed ? "age-dialog-title" : "pa-gate-title"} ref={box}>
