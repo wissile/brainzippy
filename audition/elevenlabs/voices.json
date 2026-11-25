@@ -1,0 +1,98 @@
+{
+  "provider": "elevenlabs",
+  "test_sentence": "Hi! I'm so happy you're here. Let's read the word together, one sound at a time. You did it!",
+  "cast": [
+    {
+      "n": 1,
+      "voice": "cgSgspJ2msm6clMCkdW9",
+      "about": "Jessica - Playful, Bright, Warm (young, female, american, cute)",
+      "file": "cast-01-cgSgspJ2msm6clMCkdW9.mp3"
+    },
+    {
+      "n": 2,
+      "voice": "hpp4J3VqNfWAUOO0d1Us",
+      "about": "Bella - Professional, Bright, Warm (middle_aged, female, american, professional)",
+      "file": "cast-02-hpp4J3VqNfWAUOO0d1Us.mp3"
+    },
+    {
+      "n": 3,
+      "voice": "FGY2WhTYpPnrIDTdsKH5",
+      "about": "Laura - Enthusiast, Quirky Attitude (young, female, american, sassy)",
+      "file": "cast-03-FGY2WhTYpPnrIDTdsKH5.mp3"
+    },
+    {
+      "n": 4,
+      "voice": "EXAVITQu4vr4xnSDxMaL",
+      "about": "Sarah - Mature, Reassuring, Confident (young, female, american, professional)",
+      "file": "cast-04-EXAVITQu4vr4xnSDxMaL.mp3"
+    },
+    {
+      "n": 5,
+      "voice": "pFZP5JQG7iQjIQuC4Bku",
+      "about": "Lily - Velvety Actress (middle_aged, female, british, confident)",
+      "file": "cast-05-pFZP5JQG7iQjIQuC4Bku.mp3"
+    },
+    {
+      "n": 6,
+      "voice": "JBFqnCBsd6RMkjVDRZzb",
+      "about": "George - Warm, Captivating Storyteller (middle_aged, male, british, mature)",
+      "file": "cast-06-JBFqnCBsd6RMkjVDRZzb.mp3"
+    },
+    {
+      "n": 7,
+      "voice": "TX3LPaxmHKxFdv7VOQHJ",
+      "about": "Liam - Energetic, Social Media Creator (young, male, american, confident)",
+      "file": "cast-07-TX3LPaxmHKxFdv7VOQHJ.mp3"
+    },
+    {
+      "n": 8,
+      "voice": "pqHfZKP75CvOlQylNhV4",
+      "about": "Bill - Wise, Mature, Balanced (old, male, american, crisp)",
+      "file": "cast-08-pqHfZKP75CvOlQylNhV4.mp3"
+    }
+  ],
+  "dialogue": [
+    {
+      "beat": 1,
+      "speaker": "bobbo",
+      "voice": "JBFqnCBsd6RMkjVDRZzb",
+      "text": "Oh! Oh! Somebody new is here! Hi, hi, hi!"
+    },
+    {
+      "beat": 2,
+      "speaker": "zuzu",
+      "voice": "cgSgspJ2msm6clMCkdW9",
+      "text": "Ta-da! Welcome to BrainZippy, the silliest place to learn!"
+    },
+    {
+      "beat": 3,
+      "speaker": "gloop",
+      "voice": "hpp4J3VqNfWAUOO0d1Us",
+      "text": "Hello! I'm Gloop. Watch me squish into a circle. Boing!"
+    },
+    {
+      "beat": 4,
+      "speaker": "bobbo",
+      "voice": "JBFqnCBsd6RMkjVDRZzb",
+      "text": "And I'm Bobbo! My wings are tiny, but my hugs are big!"
+    },
+    {
+      "beat": 5,
+      "speaker": "zuzu",
+      "voice": "cgSgspJ2msm6clMCkdW9",
+      "text": "I'm Zuzu! When something goes wobbly, we just try again."
+    },
+    {
+      "beat": 6,
+      "speaker": "gloop",
+      "voice": "hpp4J3VqNfWAUOO0d1Us",
+      "text": "Trying is the fun part! Will you play with us?"
+    },
+    {
+      "beat": 7,
+      "speaker": "bobbo",
+      "voice": "JBFqnCBsd6RMkjVDRZzb",
+      "text": "Yay! Come on, let's go!"
+    }
+  ]
+}
