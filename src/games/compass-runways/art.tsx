@@ -44,7 +44,7 @@ export function AirfieldBackground() {
     [420, 700, 420, 340, "#B7DC90", -3], [840, 720, 420, 320, "#93C872", 6], [1240, 700, 400, 340, "#ADD887", -6],
   ];
   return (
-    <svg className="bg-svg cr-bg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <svg className="scene-bg bg cr-bg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <rect width="1600" height="1000" fill="#A6D683" />
       {patches.map(([x, y, w, h, c, r], i) => (
         <rect key={i} x={x} y={y} width={w} height={h} rx="18" fill={c} transform={`rotate(${r} ${x + w / 2} ${y + h / 2})`} />
@@ -109,7 +109,7 @@ export function CompassRose({ labels = "thirty", glowHeadings = [], northGlow = 
       {northGlow && (
         <g className="cr-north-glow">
           <circle cx="0" cy={-(ROSE_R - 100)} r="44" fill="none" stroke={CR.gold} strokeWidth="10" />
-          <text x="0" y={-(ROSE_R + 30)} textAnchor="middle" fontSize="30" fontWeight="800" fill={CR.ink} stroke="#fff" strokeWidth="7" paintOrder="stroke">360 = 0</text>
+          <text x="0" y={-(ROSE_R - 170)} textAnchor="middle" fontSize="30" fontWeight="800" fill={CR.ink} stroke="#fff" strokeWidth="7" paintOrder="stroke">360 = 0</text>
         </g>
       )}
     </g>
@@ -385,7 +385,7 @@ export function CompassObject({ kind }: { kind: string }) {
 /** Sticker: the Compass Rose Pin — a round pin with a compass rose, a runway and Ziggy's little orange windsock. */
 export function CompassRosePin() {
   return (
-    <svg viewBox="0 0 240 240" className="cr-pin" role="img" aria-label="Compass Rose Pin sticker">
+    <svg viewBox="0 0 240 240" className="sticker-art cr-pin" role="img" aria-label="Compass Rose Pin sticker: a round gold pin with a compass rose, a runway and a little orange windsock">
       <circle cx="120" cy="124" r="104" fill={INK} opacity="0.2" />
       <circle cx="120" cy="116" r="104" fill={CR.gold} stroke={INK} strokeWidth="7" />
       <circle cx="120" cy="116" r="86" fill={CR.sky} stroke={INK} strokeWidth="5" />
