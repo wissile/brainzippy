@@ -236,8 +236,8 @@ const POSES: Record<Signal, { l: ArmPose; r: ArmPose }> = {
   left: { l: { upper: 90, fore: 0 }, r: { upper: -90, fore: -90, wave: -45 } },
   right: { l: { upper: 90, fore: 90, wave: 45 }, r: { upper: -90, fore: 0 } },
   ahead: { l: { upper: 90, fore: 90, wave: 45 }, r: { upper: -90, fore: -90, wave: -45 } },
-  stop: { l: { upper: 185, fore: 30 }, r: { upper: 175, fore: -30 } },
-  slow: { l: { upper: 45, fore: 40, wave: 30 }, r: { upper: -45, fore: -40, wave: -30 } },
+  stop: { l: { upper: 172, fore: 43 }, r: { upper: -172, fore: -43 } },
+  slow: { l: { upper: 28, fore: 30, wave: 35 }, r: { upper: -28, fore: -30, wave: -35 } },
 };
 
 function Arm({ x, pose, still }: { x: number; pose: ArmPose; still: boolean }) {
@@ -245,12 +245,12 @@ function Arm({ x, pose, still }: { x: number; pose: ArmPose; still: boolean }) {
     <g transform={`translate(${x} 74) rotate(${pose.upper})`}>
       <line x1="0" y1="0" x2="0" y2="24" stroke={INK} strokeWidth="13" strokeLinecap="round" />
       <line x1="0" y1="0" x2="0" y2="24" stroke={BA.vest} strokeWidth="7" strokeLinecap="round" />
-      <g transform="translate(0 24)">
-        <g className={`ba-fore ${pose.wave && !still ? "is-waving" : ""}`} style={{ "--a": `${pose.fore}deg`, "--b": `${pose.fore + (pose.wave ?? 0)}deg` } as React.CSSProperties}>
+      <g transform={`translate(0 24) rotate(${pose.fore})`}>
+        <g className={`ba-fore ${pose.wave && !still ? "is-waving" : ""}`} style={{ "--w": `${pose.wave ?? 0}deg` } as React.CSSProperties}>
           <line x1="0" y1="0" x2="0" y2="20" stroke={INK} strokeWidth="12" strokeLinecap="round" />
           <line x1="0" y1="0" x2="0" y2="20" stroke="#E9B98F" strokeWidth="6.5" strokeLinecap="round" />
-          <rect x="-6" y="20" width="12" height="34" rx="6" fill={BA.wand} stroke={INK} strokeWidth="3.5" />
-          <rect x="-2.5" y="24" width="5" height="24" rx="2.5" fill={BA.wandGlow} />
+          <rect x="-6" y="20" width="12" height="44" rx="6" fill={BA.wand} stroke={INK} strokeWidth="3.5" />
+          <rect x="-2.5" y="25" width="5" height="32" rx="2.5" fill={BA.wandGlow} />
         </g>
       </g>
     </g>
@@ -261,7 +261,7 @@ function Arm({ x, pose, still }: { x: number; pose: ArmPose; still: boolean }) {
 export function Marshaller({ signal, still = false, className = "" }: { signal: Signal | null; still?: boolean; className?: string }) {
   const pose = signal ? POSES[signal] : { l: { upper: 10, fore: 0 }, r: { upper: -10, fore: 0 } };
   return (
-    <svg viewBox="-14 -6 228 206" className={`ba-marshaller ${className}`} aria-hidden="true" overflow="visible" data-signal={signal ?? "none"}>
+    <svg viewBox="-24 -14 248 214" className={`ba-marshaller ${className}`} aria-hidden="true" overflow="visible" data-signal={signal ?? "none"}>
       <ellipse cx="100" cy="192" rx="40" ry="7" fill={INK} opacity="0.18" />
       {/* legs */}
       <rect x="80" y="140" width="15" height="48" rx="7" fill="#4A4F63" stroke={INK} strokeWidth="4" />
@@ -272,8 +272,6 @@ export function Marshaller({ signal, still = false, className = "" }: { signal: 
       <path d="M66 82 Q66 66 82 66 L118 66 Q134 66 134 82 L134 140 Q134 150 124 150 L76 150 Q66 150 66 140 Z" fill={BA.vest} stroke={INK} strokeWidth="5" strokeLinejoin="round" />
       <path d="M68 108 H132 M68 124 H132" stroke="#E8EEF6" strokeWidth="6" />
       <path d="M92 66 L100 92 L108 66" fill="#fff" stroke={INK} strokeWidth="3.5" strokeLinejoin="round" />
-      <Arm x={70} pose={pose.l} still={still} />
-      <Arm x={130} pose={pose.r} still={still} />
       {/* head */}
       <circle cx="100" cy="40" r="26" fill="#E9B98F" stroke={INK} strokeWidth="5" />
       <path d="M76 34 Q80 12 100 12 Q120 12 124 34 Q112 24 100 24 Q88 24 76 34 Z" fill="#5A3B2A" />
@@ -286,6 +284,9 @@ export function Marshaller({ signal, still = false, className = "" }: { signal: 
       <path d="M92 52 Q100 58 108 52" fill="none" stroke={INK} strokeWidth="3.5" strokeLinecap="round" />
       <circle cx="84" cy="50" r="4" fill="#FF8FB1" opacity="0.6" />
       <circle cx="116" cy="50" r="4" fill="#FF8FB1" opacity="0.6" />
+      {/* arms last: raised wands (stop) stay visible above the head */}
+      <Arm x={70} pose={pose.l} still={still} />
+      <Arm x={130} pose={pose.r} still={still} />
     </svg>
   );
 }
@@ -377,22 +378,31 @@ export function AirportBackground() {
 
 // ---------------------------------------------------------------- sticker
 
-/** "Ground Crew" sticker: a round badge with a little plane taking off over two crossed marshalling wands. */
+/** "Ground Crew" sticker: a round badge, a little plane climbing away over two crossed marshalling wands; name on the rim. */
 export function GroundCrewSticker() {
   return (
     <svg viewBox="0 0 240 240" className="sticker-art" role="img" aria-label="Ground Crew sticker: a little plane taking off over two crossed orange wands">
-      <circle cx="120" cy="120" r="112" fill="#4FB3E8" stroke={INK} strokeWidth="6" />
-      <circle cx="120" cy="120" r="92" fill="#DDF3FF" stroke={INK} strokeWidth="4" />
-      <path d="M32 150 Q120 128 208 150 L200 178 Q120 220 40 178 Z" fill={BA.tarmac} />
-      <path d="M60 168 H90 M110 168 H140 M160 168 H184" stroke="#fff" strokeWidth="5" strokeLinecap="round" />
-      <g transform="translate(120 160)">
-        <g transform="rotate(-38)"><rect x="-6" y="-58" width="12" height="62" rx="6" fill={BA.wand} stroke={INK} strokeWidth="4" /></g>
-        <g transform="rotate(38)"><rect x="-6" y="-58" width="12" height="62" rx="6" fill={BA.wand} stroke={INK} strokeWidth="4" /></g>
+      <circle cx="120" cy="120" r="114" fill="#2F6BC4" stroke={INK} strokeWidth="6" />
+      <circle cx="120" cy="120" r="88" fill="#DDF3FF" stroke={INK} strokeWidth="4" />
+      <path d="M33 140 Q120 118 207 140 A88 88 0 0 1 33 140 Z" fill="#A6E39A" />
+      <path d="M54 168 Q120 150 186 168 L178 186 Q120 204 62 186 Z" fill={BA.tarmac} />
+      <path d="M78 176 H98 M112 172 H130 M144 174 H162" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
+      {/* crossed wands (an X, glowing tips up) */}
+      <g transform="translate(120 146)">
+        {[-34, 34].map((a) => (
+          <g key={a} transform={`rotate(${a})`}>
+            <rect x="-7" y="-50" width="14" height="78" rx="7" fill={BA.wand} stroke={INK} strokeWidth="4" />
+            <rect x="-3" y="-44" width="6" height="40" rx="3" fill={BA.wandGlow} />
+            <rect x="-8" y="14" width="16" height="16" rx="4" fill="#4A4F63" stroke={INK} strokeWidth="3" />
+          </g>
+        ))}
       </g>
-      <g transform="translate(70 40) rotate(-14) scale(0.48)"><Plane colour="yellow" tag="star" /></g>
-      <path d="M58 104 Q40 108 30 116 M62 116 Q46 122 38 130" stroke="#fff" strokeWidth="5" strokeLinecap="round" fill="none" />
-      <path id="ba-arc" d="M44 176 A84 84 0 0 0 196 176" fill="none" />
-      <text className="ba-sticker-text" fill="#fff" stroke={INK} strokeWidth="5" paintOrder="stroke"><textPath href="#ba-arc" startOffset="50%" textAnchor="middle">GROUND CREW</textPath></text>
+      {/* the plane climbing away, with speed lines */}
+      <g transform="translate(86 46) rotate(-16) scale(0.46)"><Plane colour="yellow" tag="star" /></g>
+      <path d="M66 86 Q52 90 42 96 M70 98 Q58 104 50 110" stroke="#fff" strokeWidth="5" strokeLinecap="round" fill="none" />
+      <circle cx="74" cy="56" r="12" fill="#FFE27A" stroke={INK} strokeWidth="3" />
+      <path id="ba-arc" d="M14.7 132 A106 106 0 0 0 225.3 132" fill="none" />
+      <text className="ba-sticker-text" fill="#fff"><textPath href="#ba-arc" startOffset="50%" textAnchor="middle">GROUND CREW</textPath></text>
     </svg>
   );
 }

@@ -91,7 +91,6 @@ export function RunwayLightsBoard({ st, act, alongIndex, busy }: BoardProps) {
   return (
     <div ref={rootRef} className={`ba-board mode-lights ${celebrate ? "is-celebrating" : ""} ${wrong ? "is-wrong" : ""} ${reducedMotion ? "still" : ""}`} data-testid="ba-board" data-mode="lights" data-kind={seq ? "sequence" : "choice"}>
       <div className="ba-runway" role="group" aria-label={`Runway lights: ${runway.map((v, i) => (v === BLANK ? (shown[gaps.indexOf(i)] ? nameOf(colourOf(byId(shown[gaps.indexOf(i)]!.replace("ghost:", "")))) : "empty socket") : nameOf(COLOURS[v]!))).join(", ")}`} style={{ "--n": n } as React.CSSProperties}>
-        <div className="ba-runway-strip" aria-hidden="true" />
         <div className="ba-lamps">
           {runway.map((v, i) => {
             if (v !== BLANK) {

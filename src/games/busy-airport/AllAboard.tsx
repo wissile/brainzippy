@@ -22,7 +22,7 @@ export function AllAboardBoard({ st, alongIndex, busy }: BoardProps) {
   const { reducedMotion, speaking, canAct, celebrate, wrong, locked } = useCommon(st);
   const rootRef = useRef<HTMLDivElement>(null);
   const [loungeRef, lounge] = useSize<HTMLDivElement>();
-  const grid = gridFor(pool, lounge.w - 16 - (mode === "make" ? 84 : 0), lounge.h - 16, 112, 8);
+  const grid = gridFor(pool, lounge.w - 16 - (mode === "make" ? 84 : 0), lounge.h - 16, 150, 8);
   const [boarded, setBoarded] = useState<number[]>([]);
   const [pop, setPop] = useState(-1);
   const modelOn = typeof st.model === "number";

@@ -273,12 +273,18 @@ describe("Busy Airport: voice, hints and the feedback ladder", () => {
   });
 
   it("sequence lights accept either of two same-colour bulbs (interchangeable by colour)", () => {
-    const ex = all.find((e) => e.answer.kind === "sequence" && modeOf(e) === "lights" && new Set(e.answer.order.map((id) => (e.answer as { pieces: { id: string; text?: string }[] }).pieces.find((p) => p.id === id)!.text)).size < e.answer.order.length)!;
-    expect(ex).toBeDefined();
-    if (ex.answer.kind !== "sequence") throw new Error("sequence");
-    const reversed = [...ex.answer.order].reverse();
-    const texts = (ids: readonly string[]) => ids.map((id) => (ex.answer as { pieces: { id: string; text?: string }[] }).pieces.find((p) => p.id === id)!.text);
-    if (JSON.stringify(texts(reversed)) === JSON.stringify(texts(ex.answer.order))) expect(validateAnswer(ex.answer, reversed).correct).toBe(true);
+    let checked = 0;
+    for (const ex of byMode("lights")) {
+      const a = ex.answer;
+      if (a.kind !== "sequence") continue;
+      const text = (id: string) => a.pieces.find((p) => p.id === id)!.text;
+      const [x, y] = a.order;
+      if (a.order.length < 2 || text(x!) !== text(y!)) continue;
+      const swapped = [y!, x!, ...a.order.slice(2)];
+      expect(validateAnswer(a, swapped).correct, ex.id).toBe(true);
+      checked++;
+    }
+    expect(checked).toBeGreaterThan(0);
   });
 
   it("gridFor never goes below the 64 px tap target", () => {

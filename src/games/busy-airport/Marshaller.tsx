@@ -141,7 +141,7 @@ export function MarshallerBoard({ st, act, alongIndex, busy }: BoardProps) {
               <button
                 key={s}
                 type="button"
-                className={`ba-steer-btn is-${s} ${out ? "is-out" : ""} ${right ? "is-right" : ""} ${isWrong ? "is-wrong" : ""} ${isModel ? "is-model" : ""} ${used ? "is-used" : ""}`}
+                className={`ba-steer-btn sig-${s} ${out ? "is-out" : ""} ${right ? "is-right" : ""} ${isWrong ? "is-wrong" : ""} ${isModel ? "is-model" : ""} ${used ? "is-used" : ""}`}
                 data-testid={two ? "steer" : "choice"}
                 data-value={s}
                 aria-disabled={(two ? !act2 || used || plan.length >= 2 : !canAct) || out}
