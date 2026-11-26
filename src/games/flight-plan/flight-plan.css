@@ -174,6 +174,10 @@
 .fp-metar-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .fp-metar-title { font-weight: 800; font-size: 0.95rem; letter-spacing: 0.03em; color: #cfe3f5; }
 .fp-metar-title em { font-style: normal; font-weight: 700; opacity: 0.8; }
+/* decode: the leading groups that aren't matched (METAR, station, time) sit under the title, beside the read-aloud button */
+.fp-metar-heading { display: flex; flex-direction: column; min-width: 0; }
+.fp-metar-lead { display: flex; flex-wrap: wrap; gap: 0 8px; font-family: var(--mono); font-weight: 700; font-size: 15px; }
+.fp-metar-lead .fp-group { padding: 0; }
 .fp-hear { flex: none; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 50%; border: 3px solid #fff; background: #2f5d8f; color: #fff !important; }
 .fp-hear svg { width: 26px; height: 26px; }
 .fp-hear.is-saying { box-shadow: 0 0 0 4px #ffd43b; }
@@ -352,6 +356,90 @@
   /* the board itself already shows these models (pairs filled in; rows marked OK / problem) */
   .mode-decode .fp-model, .mode-brief .fp-model { display: none; }
   .fp-model { padding: 4px 8px; }
+}
+
+/* ---------- fit without scrolling (QA review: every answer on screen and never covered, at every viewport) ----------
+   The board never scrolls: controls keep their natural size and the pictures (tunnel, graph, chart) scale to the
+   space that is left. e2e: unreachableControls() in e2e/flight-plan.spec.ts checks every control in every state. */
+.fp-layout { overflow: hidden; }
+.fp-model-title { font-size: 0.8rem; }
+/* portrait: one column, controls first in size, picture takes the rest */
+@container fp-stage (aspect-ratio <= 1.1) {
+  .fp-layout { display: flex; flex-direction: column; }
+  .fp-scene { flex: none; }
+  .fp-panel { flex: none; align-self: stretch; max-height: none; }
+  .game-tunnel .fp-scene, .game-leg .fp-scene { flex: 1 1 0; min-height: 90px; container: fp-scene / size; overflow: hidden; justify-content: center; }
+  .game-tunnel .fp-scene { --th: calc(100cqh - 6px); }
+  .game-tunnel .fp-scene:has(.fp-graph) { --th: calc(63cqh - 16px); --gh: calc(37cqh - 28px); }
+  .game-leg .fp-scene { --chh: calc(100cqh - 70px); }
+  /* with the worked model on, the eliminated choices fold away (they are already ruled out) */
+  .fp-panel:has(.fp-model) .fp-opt.is-out { display: none; }
+}
+/* narrow portrait phones: the meaning tiles and the report header get a little tighter */
+@container fp-stage (max-width: 560px) {
+  .fp-tiles { gap: 4px; }
+  .fp-tile { min-height: 44px; padding: 2px 6px; font-size: 14px; line-height: 1.15; gap: 4px; }
+  .fp-metar-title { font-size: 0.74rem; }
+  .fp-metar-code { margin-top: 0; }
+  .fp-hear { width: 44px; height: 44px; }
+  .mode-decode .fp-tab { display: none; } /* the report's title already names it; the meaning tiles need the room */
+  .fp-metar-code { font-size: 15px; gap: 4px 6px; }
+  .fp-group.is-item { padding: 2px 6px; gap: 4px; }
+}
+@media (orientation: portrait) and (max-width: 600px) {
+  .game.play-screen:has(.fp-stage) .mascot-slot .critter { height: 5.5vh; max-height: 5.5vh; }
+}
+/* short landscape (phones on their side): a narrow picture column, compact controls, ruled-out choices fold away */
+@container fp-stage (aspect-ratio > 1.1) and (max-height: 380px) {
+  .fp-layout { gap: 6px; }
+  .fp-panel { padding: 5px; gap: 5px; }
+  .fp-opt.is-out { display: none; }
+  .fp-opt { min-height: 44px; padding: 2px 10px; font-size: 15px; line-height: 1.2; }
+  .fp-options { gap: 5px; }
+  .fp-check { min-height: 46px; }
+  .fp-model { padding: 3px 8px; border-width: 2px; }
+  .fp-model-title { font-size: 0.72rem; margin-bottom: 1px; }
+  .fp-model li { font-size: 14px; line-height: 1.2; }
+  .fp-model ol { gap: 1px; }
+  .fp-note, .fp-method { font-size: 14px; padding: 3px 8px; line-height: 1.2; }
+  /* the board already shows these models (pairs filled in; rows marked OK / problem) */
+  .mode-decode .fp-model, .mode-brief .fp-model { display: none; }
+
+  /* tunnel: the picture column is as wide as the tunnel; the readout repeats the tunnel, so it goes */
+  .game-tunnel .fp-layout { --th: 56cqh; --gh: calc(44cqh - 40px); grid-template-columns: minmax(0, calc(var(--th) * 400 / 240 + 2px)) minmax(0, 1fr); }
+  .game-tunnel .fp-scene { gap: 6px; }
+  .fp-graph-cap { display: none; }
+  .fp-readout { display: none; }
+  .fp-slider { flex-direction: row; align-items: center; gap: 6px; padding: 1px 6px; }
+  .fp-slider-label { flex: none; width: 66px; flex-direction: column; justify-content: center; font-size: 13px; line-height: 1.15; }
+  .fp-slider-row { flex: 1; min-width: 0; gap: 4px; }
+  .fp-step { width: 44px; height: 44px; }
+  .fp-range { height: 44px; }
+
+  /* leg timer: chart column sized by the chart; keypad in two rows */
+  .game-leg .fp-layout { --chh: calc(100cqh - 100px); grid-template-columns: minmax(0, calc(var(--chh) * 400 / 260 + 6px)) minmax(0, 1fr); }
+  .game-leg .fp-scene { gap: 6px; }
+  .fp-legcard { gap: 4px; }
+  .fp-legcard > div { padding: 1px 8px; }
+  .fp-legcard dt { font-size: 0.68rem; }
+  .fp-legcard dd { font-size: 0.95rem; }
+  .fp-keypad { align-self: stretch; grid-template-columns: repeat(6, minmax(44px, 1fr)); gap: 5px; }
+  .fp-key { height: 44px; }
+  .fp-display { min-height: 44px; padding: 0 14px; }
+
+  /* weather: more room for the meaning tiles */
+  .mode-decode .fp-layout { grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr); }
+  .fp-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+  .fp-tile { min-height: 44px; padding: 2px 8px; font-size: 14px; line-height: 1.15; }
+
+  /* checklist: step cards in two columns, slots one line tighter */
+  .mode-order .fp-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .fp-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+  .fp-card-step { min-height: 44px; padding: 2px 8px; font-size: 14px; line-height: 1.15; }
+  .fp-clipboard { padding: 12px 8px 5px; }
+  .fp-clip-title { font-size: 0.78rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fp-slots { gap: 3px; }
+  .fp-slot-btn { min-height: 44px; font-size: 14px; line-height: 1.15; padding: 1px 8px; }
 }
 
 /* ---------- reduced motion ---------- */

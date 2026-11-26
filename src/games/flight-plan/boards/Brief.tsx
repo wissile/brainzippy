@@ -51,7 +51,12 @@ export function BriefBoard({ st, act, alongIndex, busy }: BoardProps) {
                   {r.key === "pilot" && <p>{scene.text}</p>}
                   {r.key === "plane" && <p>{PLANE_NOTES[p(ex, "pb") ? "bad" : "ok"][p(ex, "pn")] ?? PLANE_NOTES.ok[0]}</p>}
                 </div>
-                {marked(i) && <span className="fp-row-mark" aria-label={r.ok ? "OK" : "Problem"}>{r.ok ? "✓" : "✗"}</span>}
+                {marked(i) && (
+                  <span className="fp-row-mark" data-testid="fp-row-mark">
+                    <span aria-hidden="true">{r.ok ? "✓" : "✗"}</span>
+                    <span className="sr-only">{r.ok ? "OK" : "Problem"}</span>
+                  </span>
+                )}
               </div>
             ))}
             {p(ex, "pr") === 1 && <p className="fp-pressure">Bobbo: “Please, we can't be late for the festival!”</p>}
