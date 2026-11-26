@@ -307,7 +307,7 @@ describe("app glue: storage, rounds, plan", () => {
     expect(ensurePlan("2026-11-23")).toBe(withPath); // stable until something changes
   });
   it("without a visible path the plan is exactly the planner's", () => {
-    pickPath(pilot()); // chosen while visible…
+    pickPath(visiblePaths().find((p) => p.id === "cs")!); // a path that is not live, chosen while the dev override showed it…
     withOverride(false); // …but no path is visible now
     expect(pathFocus()).toBeNull();
     const plan = ensurePlan("2026-11-23");

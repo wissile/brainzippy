@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { audio } from "../audio/AudioEngine";
 import { useApp } from "../app/AppContext";
 import type { MascotState, SfxId } from "../engine/types";
@@ -116,6 +116,26 @@ export function HelperOverlay({
 }) {
   const { caption, speaking } = useApp();
   const [leaving, setLeaving] = useState(false);
+  // The helper sits fixed in the top-right corner; on wide screens a long prompt pill reaches under its bubble.
+  // When they would overlap, the helper steps down to just below the prompt pill (every game, every viewport).
+  const box = useRef<HTMLDivElement>(null);
+  const [below, setBelow] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    if (captionInPrompt) return;
+    const place = () => {
+      const el = box.current;
+      const pill = document.querySelector<HTMLElement>(".prompt-pill");
+      if (!el || !pill || getComputedStyle(el).position !== "fixed") return setBelow(null);
+      const p = pill.getBoundingClientRect();
+      const h = el.getBoundingClientRect();
+      if (!(h.left < p.right && p.left < h.right)) return setBelow(null); // side by side: the corner is free
+      // once moved, stay below the pill (keep following its height); otherwise move only when they really overlap
+      setBelow((old) => (old !== null || (h.top < p.bottom && p.top < h.bottom) ? Math.round(p.bottom + 10) : null));
+    };
+    place();
+    window.addEventListener("resize", place);
+    return () => window.removeEventListener("resize", place);
+  }, [caption, captionInPrompt]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     let alive = true;
     audio.play("whoosh");
@@ -131,7 +151,7 @@ export function HelperOverlay({
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <div className={`helper ${captionInPrompt ? "inline" : ""} ${leaving ? "leaving" : ""}`} data-testid="helper" aria-label={`${name} explains`}>
+    <div ref={box} className={`helper ${captionInPrompt ? "inline" : ""} ${leaving ? "leaving" : ""}`} style={below !== null ? { top: below } : undefined} data-testid="helper" aria-label={`${name} explains`}>
       {!captionInPrompt && <SpeechBubble text={caption} tail="right" className="helper-bubble" />}
       <div className="helper-char">
         <Character state={speaking ? "encouraging" : "greeting"} talking={speaking} size="100%" />

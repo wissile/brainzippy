@@ -66,7 +66,7 @@ async function tabTo(page: Page, testid: string, max = 60) {
   throw new Error(`Tab never reached ${testid}`);
 }
 
-test("only live paths show without the dev override: English is live (ages 3–14), Pilot is next (in fog)", async ({ page }) => {
+test("only live paths show without the dev override: English and Pilot are live (ages 3–14), Maths is next (in fog)", async ({ page }) => {
   await start(page);
   await page.goto("/map");
   await expect(page.getByTestId("trail")).toBeVisible(); // a new child's boat is at home: today's trail
@@ -75,8 +75,9 @@ test("only live paths show without the dev override: English is live (ages 3–1
   await page.goto("/paths");
   await expect(page.getByTestId("path-picker")).toBeVisible();
   await expect(page.getByTestId("path-card-english")).toHaveAttribute("aria-label", /Learn English with Sarah/);
-  await expect(page.getByTestId("path-card-pilot")).toHaveAttribute("aria-label", "Sky School: coming soon");
-  for (const id of ["math", "cs", "money", "sci"]) await expect(page.getByTestId(`path-card-${id}`)).toHaveCount(0);
+  await expect(page.getByTestId("path-card-pilot")).toHaveAttribute("aria-label", /^Sky School: Learn to fly with Ziggy/);
+  await expect(page.getByTestId("path-card-math")).toHaveAttribute("aria-label", "Number Hill: coming soon");
+  for (const id of ["cs", "money", "sci"]) await expect(page.getByTestId(`path-card-${id}`)).toHaveCount(0);
 });
 
 test("pick a path, hear it, sail there, play from it, come back to the island", async ({ page }, info) => {
