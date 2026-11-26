@@ -85,7 +85,7 @@ test("pick a path, hear it, sail there, play from it, come back to the island", 
   await expect(page.getByTestId("path-picker")).toBeVisible();
   await expect(page.getByTestId("view-islands")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("path-go")).toHaveCount(0); // nothing chosen yet
-  await expect(page.getByTestId("path-card-pilot")).toHaveAttribute("aria-label", /Learn to fly with Zephy/);
+  await expect(page.getByTestId("path-card-pilot")).toHaveAttribute("aria-label", /Learn to fly with Ziggy/);
   await page.waitForTimeout(600);
   await page.screenshot({ path: `${SHOTS}/${info.project.name}-01-ocean.png` });
 
@@ -236,7 +236,7 @@ test("keyboard only: choose a path, sail, start it and open the game", async ({ 
   await expect(page.getByTestId("path-go")).toBeFocused(); // the card takes focus
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/path$/);
-  await expect(page.getByTestId("path-title")).toHaveText("Learn to fly with Zephy");
+  await expect(page.getByTestId("path-title")).toHaveText("Learn to fly with Ziggy");
   await tabTo(page, "path-play");
   await expect(page.getByTestId("path-play")).toHaveAttribute("aria-label", /^Play Zephy's Sky Hoops, level \d+$/);
   await page.keyboard.press(" ");

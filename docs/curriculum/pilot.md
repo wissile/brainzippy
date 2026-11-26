@@ -1,6 +1,6 @@
 # Pilot ground school library (`pilot`)
 
-Ages 6–adult. **Host:** Zephy (new; a round albatross chick with oversized wings, aviator goggles and a red scarf, see `CHARACTERS.md`). Cameos: Bobbo (can't fly, loves planes), Gloop (angles), Rumble (weather naps).
+Ages 3–adult. **Journey host:** Ziggy (D-042: unflappable capybara pilot with a sky-blue headset; hosts the Pilot journey and its new worlds). **Sky Hoops host:** Zephy ( a round albatross chick with oversized wings, aviator goggles and a red scarf, see `CHARACTERS.md`). Cameos: Bobbo (can't fly, loves planes), Gloop (angles), Rumble (weather naps).
 
 > **Educational only.** BrainZippy pilot content is general aviation education. It is **not** FAA-approved ground training. It does not replace a certificated flight or ground instructor (CFI/AGI/IGI), does not count toward any certificate, rating, logbook entry or knowledge-test endorsement, and its maps are **not for navigation**. This notice appears on the library page and the parent page; band T content shows it at the start of each world.
 

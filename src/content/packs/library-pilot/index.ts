@@ -16,10 +16,10 @@ const pack: ContentPack = {
       id: "pilot",
       title: "Pilot ground school",
       kidTitle: "Sky School",
-      host: "zephy",
+      host: "ziggy", // D-042: Ziggy hosts the Pilot journey; Zephy still hosts Sky Hoops
       theme: { main: "#E5484D", soft: "#FDE8E9", deep: "#A1181D" },
       ages: [6, 14],
-      pitch: "Learn how planes fly with Zephy.",
+      pitch: "Learn how planes fly with Ziggy.",
       description: "How planes fly, weather, maps and checklists, aligned with the FAA Private Pilot knowledge areas. Educational only: not FAA-approved training and not for navigation.",
       status: "live",
       order: 11,

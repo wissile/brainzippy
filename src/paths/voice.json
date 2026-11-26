@@ -3,7 +3,7 @@
  "lines": {
   "path.math.title": {"text": "Count and build with {host}!", "vary": {"host": ["Bobbo"]}},
   "path.english.title": {"text": "Learn English with {host}!", "vary": {"host": ["Sarah"]}},
-  "path.pilot.title": {"text": "Learn to fly with {host}!", "vary": {"host": ["Zephy"]}},
+  "path.pilot.title": {"text": "Learn to fly with {host}!", "vary": {"host": ["Ziggy"]}},
   "path.cs.title": {"text": "Learn to code with {host}!", "vary": {"host": ["Toggle"]}},
   "path.cyber.title": {"text": "Stay safe online with {host}!", "vary": {"host": ["Fenn"]}},
   "path.engr.title": {"text": "Build like an engineer with {host}!", "vary": {"host": ["Brix"]}},

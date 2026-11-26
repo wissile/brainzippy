@@ -8,6 +8,7 @@ import { Fenn } from "../characters/library/Fenn";
 import type { HostProps } from "../characters/library/kit";
 import { Ripple } from "../characters/library/Ripple";
 import { Sarah } from "../characters/library/Sarah";
+import { Ziggy } from "../characters/library/Ziggy";
 import { Snug } from "../characters/library/Snug";
 import { Toggle } from "../characters/library/Toggle";
 import { Yonder } from "../characters/library/Yonder";
@@ -20,10 +21,10 @@ import { SKILLS } from "./content/curriculum";
 import { PlayIcon } from "./layout";
 
 /** The Critter Crew plus the library hosts (src/characters/library), all original BrainZippy characters. */
-export const CRITTERS = ["bobbo", "gloop", "puff", "rumble", "zuzu", "hoot", "toggle", "zephy", "budge", "fenn", "dabble", "yonder", "snug", "brix", "ripple", "sarah"] as const;
+export const CRITTERS = ["bobbo", "gloop", "puff", "rumble", "zuzu", "hoot", "toggle", "zephy", "budge", "fenn", "dabble", "yonder", "snug", "brix", "ripple", "sarah", "ziggy"] as const;
 export type CritterId = (typeof CRITTERS)[number];
 export const isCritterId = (id: string): id is CritterId => (CRITTERS as readonly string[]).includes(id);
-const HOSTS: Partial<Record<CritterId, (p: HostProps) => React.ReactElement>> = { toggle: Toggle, zephy: Zephy, budge: Budge, fenn: Fenn, dabble: Dabble, yonder: Yonder, snug: Snug, brix: Brix, ripple: Ripple, sarah: Sarah };
+const HOSTS: Partial<Record<CritterId, (p: HostProps) => React.ReactElement>> = { toggle: Toggle, zephy: Zephy, budge: Budge, fenn: Fenn, dabble: Dabble, yonder: Yonder, snug: Snug, brix: Brix, ripple: Ripple, sarah: Sarah, ziggy: Ziggy };
 
 /** Original character art, rendered to static inline SVG (decorative: hidden from assistive tech). */
 export function Critter({ c, size = 120, className = "" }: { c: CritterId; size?: number; className?: string }) {

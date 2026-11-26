@@ -33,7 +33,7 @@ describe("path data in the packs", () => {
       expect(p.title).toMatch(new RegExp(`with ${p.hostName}$`));
       expect(p.host).toBe(p.library.host); // swapping Library.host swaps the path's host
     }
-    expect(paths.find((p) => p.id === "pilot")!.title).toBe("Learn to fly with Zephy");
+    expect(paths.find((p) => p.id === "pilot")!.title).toBe("Learn to fly with Ziggy");
     expect(paths.find((p) => p.id === "math")!.title).toBe("Count and build with Bobbo");
   });
   it("every title has a voice line that says it, pre-rendered for the CURRENT host (re-render after a host swap)", () => {
