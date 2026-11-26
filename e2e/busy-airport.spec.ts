@@ -110,11 +110,12 @@ async function solve(page: Page, how: How) {
   } else if (mode === "lights") {
     const want = await lightPlan(page);
     const single = (await board(page).getAttribute("data-kind")) === "choice";
-    for (const colour of want) {
+    for (const [k, colour] of want.entries()) {
       const bulb = `[data-testid="${single ? "choice" : "bulb"}"][data-light="${colour}"]:not([aria-disabled="true"])`;
       if (how === "drag") await drag(page, page.locator(bulb).first(), page.locator('[data-testid="socket"]').first());
       else if (how === "tap") await press(page, bulb);
       else await keyPress(page, bulb);
+      if (!single) await expect(page.locator('[data-testid="socket"]:not([data-light=""])')).toHaveCount(k + 1);
     }
     if (single) return;
     await expect(page.locator('[data-testid="socket"]:not([data-light=""])')).toHaveCount(want.length);
@@ -133,7 +134,7 @@ async function solve(page: Page, how: How) {
   else await press(page, '[data-testid="done"]');
 }
 
-async function playRound(page: Page, how: How, onEach?: (i: number, mode: string) => Promise<void>) {
+async function playRound(page: Page, how: How, onEach?: (i: number, mode: string) => Promise<void>, outroShots?: string) {
   const modes: string[] = [];
   for (let i = 0; i < 8; i++) {
     const id = await ready(page);
@@ -143,6 +144,14 @@ async function playRound(page: Page, how: How, onEach?: (i: number, mode: string
     await solve(page, how);
     await nextExercise(page, id);
   }
+  if (outroShots) {
+    // the finale: the first holiday plane rolls out and takes off (one screenshot per beat, for review)
+    for (let b = 0; b < 3; b++) {
+      await page.locator(`[data-testid="outro"][data-beat="${b}"]`).waitFor({ timeout: 30_000 });
+      await page.waitForTimeout(1200);
+      await page.screenshot({ path: `${outroShots}/outro-${b}-1280x800.png` });
+    }
+  }
   await press(page, '[data-testid="outro-skip"]').catch(() => undefined);
   await expect(page.getByTestId("achievement")).toBeVisible({ timeout: 40_000 });
   return modes;
@@ -151,6 +160,7 @@ async function playRound(page: Page, how: How, onEach?: (i: number, mode: string
 test("a whole round by drag (tap on touch screens) from the tutorial: sticker and level up", async ({ page }, info) => {
   const errors = collectErrors(page);
   await open(page, 0);
+  if (info.project.name === "desktop") mkdirSync(REVIEW, { recursive: true });
   const modes = await playRound(page, "drag", async (i) => {
     if (i === 0) {
       // tutorial: two bags, two colour planes, and a hand that drags a bag to its plane
@@ -159,7 +169,7 @@ test("a whole round by drag (tap on touch screens) from the tutorial: sticker an
       await expect(page.getByTestId("drag-demo")).toBeAttached({ timeout: 10_000 });
       await expect(page.getByTestId("station-sign")).toHaveAttribute("data-game", "bag-drop");
     }
-  });
+  }, info.project.name === "desktop" ? REVIEW : undefined);
   expect(modes[0]).toBe("bags");
   // stepping up within the round brings in the next inner games (All Aboard, then Runway Lights)
   expect(new Set(modes).size).toBeGreaterThanOrEqual(2);
@@ -220,8 +230,13 @@ test("top levels: two marshaller signals in order and three runway lights, by dr
   expect([...errors, ...errors2]).toEqual([]);
 });
 
-test("first miss brings Hoot's hint, second miss models the answer on the board (bags and counting)", async ({ page }) => {
+test("first miss brings Hoot's hint, second miss models the answer on the board (bags and counting)", async ({ page }, info) => {
   const errors = collectErrors(page);
+  const shot = async (p: Page, name: string) => {
+    if (info.project.name !== "desktop") return;
+    mkdirSync(REVIEW, { recursive: true });
+    await p.screenshot({ path: `${REVIEW}/${name}-1280x800.png` });
+  };
   await open(page, 0);
   await ready(page);
   // miss 1: both bags on the wrong planes → Hoot explains; the bags roll back onto the belt
@@ -233,6 +248,7 @@ test("first miss brings Hoot's hint, second miss models the answer on the board 
   }
   await press(page, '[data-testid="done"]');
   await expect(page.getByTestId("helper")).toBeVisible({ timeout: 15_000 });
+  await shot(page, "hint-bags-helper");
   await ready(page);
   await expect(page.getByTestId("bag")).toHaveCount(2);
   await expect(page.getByTestId("loaded")).toHaveCount(0);
@@ -245,6 +261,7 @@ test("first miss brings Hoot's hint, second miss models the answer on the board 
   await expect(screen(page)).toHaveAttribute("data-phase", "answering", { timeout: 40_000 });
   await expect(page.getByTestId("done")).toHaveClass(/is-model/);
   await expect(page.locator('[data-testid="loaded"].is-model')).toHaveCount(2);
+  await shot(page, "model-bags");
   const id = (await screen(page).getAttribute("data-exercise"))!;
   await press(page, '[data-testid="done"]');
   await expect(page.getByTestId("done")).toHaveClass(/is-right/);
@@ -268,6 +285,7 @@ test("first miss brings Hoot's hint, second miss models the answer on the board 
   await press(p2, sel("choice", wrong[1]!));
   await expect(screen(p2)).toHaveAttribute("data-phase", "answering", { timeout: 40_000 });
   await expect(p2.locator(sel("choice", String(n)))).toHaveClass(/is-model/);
+  await shot(p2, "model-count");
   await press(p2, sel("choice", String(n)));
   await expect(p2.locator(sel("choice", String(n)))).toHaveClass(/is-right/);
   expect([...errors, ...errors2]).toEqual([]);

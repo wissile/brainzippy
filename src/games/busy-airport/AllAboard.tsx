@@ -3,7 +3,7 @@ import { audio } from "../../audio/AudioEngine";
 import type { BoardProps } from "../../game/boards";
 import { CREW_NAMES, JumboPlane, Passenger } from "./art";
 import { MAX_PASSENGERS, crewFor, modeOf } from "./generator";
-import { Ghost, boardedStore, focusSel, gridFor, useCommon, useDrag, usePublish, useSize } from "./shared";
+import { Ghost, boardedStore, gridFor, rescueFocus, useCommon, useDrag, usePublish, useSize } from "./shared";
 
 /**
  * All Aboard — Critter Crew passengers climb the steps into Ziggy's big plane. Its ten windows sit in two rows of
@@ -44,8 +44,8 @@ export function AllAboardBoard({ st, alongIndex, busy }: BoardProps) {
     audio.sayNumber(k);
     if (keyboard) {
       window.setTimeout(() => {
-        if (mode === "count" && k === n) focusSel(rootRef.current, '[data-testid="choice"]');
-        else focusSel(rootRef.current, '[data-testid="passenger"]:not([aria-disabled="true"])', '[data-testid="done"]');
+        if (mode === "count" && k === n) rescueFocus(rootRef.current, '[data-testid="choice"]');
+        else rescueFocus(rootRef.current, '[data-testid="passenger"]:not([aria-disabled="true"])', '[data-testid="done"]');
       }, 0);
     }
   };

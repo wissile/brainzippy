@@ -4,7 +4,7 @@ import type { AnswerOption } from "../../engine/types";
 import type { BoardProps } from "../../game/boards";
 import { EmptySocket, LAMP_SHAPE, Lamp } from "./art";
 import { BLANK, COLOURS, type Colour, runwayOf } from "./generator";
-import { Ghost, focusSel, gridFor, modelSlice, useAfterMiss, useCommon, useDrag, usePublish, useReadyCue, useSize } from "./shared";
+import { Ghost, gridFor, rescueFocus, modelSlice, useAfterMiss, useCommon, useDrag, usePublish, useReadyCue, useSize } from "./shared";
 
 /**
  * Runway Lights — the runway lights blink their repeating pattern, left to right, and some sockets are empty.
@@ -60,7 +60,7 @@ export function RunwayLightsBoard({ st, act, alongIndex, busy }: BoardProps) {
     busy?.();
     setFilled((f) => f.map((x, i) => (i === slot ? id : x)));
     audio.play("drop", { gain: 0.6 });
-    if (keyboard) window.setTimeout(() => focusSel(rootRef.current, '[data-testid="bulb"]:not([aria-disabled="true"])', '[data-testid="done"]'), 0);
+    if (keyboard) window.setTimeout(() => rescueFocus(rootRef.current, '[data-testid="bulb"]:not([aria-disabled="true"])', '[data-testid="done"]'), 0);
   };
   const undo = () => {
     if (!act2) return;

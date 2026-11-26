@@ -159,6 +159,16 @@ export function focusSel(root: HTMLElement | null, ...sels: string[]): boolean {
   return false;
 }
 
+/**
+ * Keyboard flow after the pressed control disappears (a boarded passenger, a placed bulb): put focus on the next
+ * sensible control, but only if focus was really lost — never steal it from wherever the child already moved.
+ */
+export function rescueFocus(root: HTMLElement | null, ...sels: string[]): boolean {
+  const a = document.activeElement as HTMLElement | null;
+  if (a && a !== document.body && a.isConnected) return false;
+  return focusSel(root, ...sels);
+}
+
 /** After a wrong answer: run `prune(parts)` once when the board is back in "answering". */
 export function useAfterMiss(st: BoardProps["st"], prune: (parts: Readonly<Record<string, boolean>>) => void) {
   const seen = useRef(0);

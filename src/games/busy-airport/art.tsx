@@ -209,7 +209,7 @@ export const LAMP_SHAPE: Record<Colour, string> = { red: "circle", blue: "square
 export function Lamp({ colour, lit = true }: { colour: Colour | string; lit?: boolean }) {
   const c = isColour(colour) ? colour : "red";
   return (
-    <svg viewBox="-30 -30 60 60" className="ba-lamp-art" aria-hidden="true" overflow="visible">
+    <svg viewBox="-24 -24 48 48" className="ba-lamp-art" aria-hidden="true" overflow="visible">
       {lit && <circle className="ba-halo" r="27" fill={FILL[c]} opacity="0.35" />}
       <rect x="-16" y="12" width="32" height="12" rx="4" fill={BA.tarmacDark} stroke={INK} strokeWidth="3" />
       <g fill={FILL[c]} stroke={INK} strokeWidth="3.5" style={{ color: FILL[c] }}>{LAMP[c](15)}</g>
@@ -219,7 +219,7 @@ export function Lamp({ colour, lit = true }: { colour: Colour | string; lit?: bo
 }
 export function EmptySocket() {
   return (
-    <svg viewBox="-30 -30 60 60" className="ba-lamp-art" aria-hidden="true">
+    <svg viewBox="-24 -24 48 48" className="ba-lamp-art" aria-hidden="true" overflow="visible">
       <rect x="-16" y="12" width="32" height="12" rx="4" fill={BA.tarmacDark} stroke={INK} strokeWidth="3" />
       <circle r="16" fill="rgba(255,255,255,0.18)" stroke="#fff" strokeWidth="3.5" strokeDasharray="6 5" />
       <text y="7" textAnchor="middle" className="ba-q" fill="#fff">?</text>

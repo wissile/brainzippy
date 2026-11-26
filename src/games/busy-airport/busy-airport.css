@@ -93,7 +93,7 @@
 }
 .ba-plane-pic { flex: 1 1 0; min-height: 0; width: 100%; display: grid; place-items: center; }
 .ba-plane-pic svg { width: 100%; height: 100%; max-width: 260px; }
-.ba-hold { flex: none; height: clamp(26px, 8cqh, 46px); display: flex; gap: 3px; justify-content: center; align-items: center; }
+.ba-hold { flex: none; height: clamp(28px, 11cqh, 64px); display: flex; gap: 3px; justify-content: center; align-items: center; }
 .ba-loaded { position: relative; height: 100%; aspect-ratio: 1; animation: ba-plop var(--t-med) var(--ease-bounce) both; }
 .ba-loaded svg { width: 100%; height: 100%; overflow: visible; }
 .ba-loaded.is-ok::after { width: 18px; height: 18px; font-size: 11px; right: -4px; top: -4px; border-width: 2px; }
@@ -183,7 +183,7 @@
 .ba-bulbbox { position: relative; min-height: 0; display: flex; align-items: center; justify-content: center; gap: 14px; }
 .ba-bulbs { display: grid; gap: 12px; justify-content: center; align-content: center; }
 .ba-bulb { background: rgba(43, 33, 64, 0.72); box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.2), 0 5px 0 rgba(43, 33, 64, 0.3); }
-.ba-bulb svg { width: 74%; height: 74%; }
+.ba-bulb svg { width: 66%; height: 66%; }
 
 /* ======================================================================= Marshaller */
 .mode-signal { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
