@@ -11,8 +11,8 @@ Spec: `docs/curriculum/pilot.md` §3 world 5 (Compass Rose Runways) and world 3 
 
 | Skill | Ages | Levels | Child can… |
 |---|---|---|---|
-| `pilot.wx.wind` | 7–12 | 0–2, 5–8 | read a windsock (limp / half / full; which way it streams); name the wind by where it comes **from**; choose the runway end that faces into the wind (2 then 4 ends); tell headwind / crosswind / tailwind |
-| `pilot.nav.headings` | 10–12 | 0–4, 7–8 | use headings 1–360 (north is 360); runway number = heading ÷ 10 rounded (01–36); opposite ends differ by 18; turn right (add) or left (take away), wrapping past 360 |
+| `pilot.wx.wind` | 7–12 | focus 0–2, 5–7; review in every level | read a windsock (limp / half / full; which way it streams); name the wind by where it comes **from**; choose the runway end that faces into the wind (2 then 4 ends); tell headwind / crosswind / tailwind |
+| `pilot.nav.headings` | 10–12 | focus 0–4; review in every level but 7 | use headings 1–360 (north is 360); runway number = heading ÷ 10 rounded (01–36); opposite ends differ by 18; turn right (add) or left (take away), wrapping past 360 |
 
 `pilot.wx.wind` is registered with ages 7–12 so the planned Windsock Weather Station (7–9) can teach it too. `pilot.nav.headings` lists `pilot.wx.wind` as its prerequisite (taught here too, so the planner never locks the world); `math.geom.angles` stays a **soft** prerequisite (docs only).
 
@@ -26,12 +26,13 @@ The board is always the airfield from above with a giant compass rose painted on
 |---|---|---|
 | **Windsock Reader** | strength: a side-view sock hangs limp, droops half full, or sticks straight out · direction: a big sock on the rose streams downwind; name where the wind comes FROM (N/E/S/W, 8 points, then degrees) | choice |
 | **Runway Painter** | paint: a runway lies at a heading, a landing arrow and a small plane show the direction; enter the number to paint at the touchdown end (steppers − / +, keypad, digit or arrow keys; it previews on the runway) · opposite: one end is painted, paint the other · rotate: the end is painted "14"; **drag round the rose** (snaps to 10°), use the turn buttons or arrow keys until it lines up | number (01–36, or a heading) |
-| **Heading Turns** | the plane flies heading H; "turn right 120°": turn the plane's nose (drag, snaps to 5°) or use −10 −1 +1 +10 / keypad / keys; a faint "was" plane stays at the old heading | number (001–360) |
+| **Heading Turns** | the plane flies heading H; "turn right 120°": turn the plane's nose (drag, snaps to 5°) or use −10 −1 +1 +10 / keypad / keys; a faint "was" plane stays at the old heading. The keypad and keyboard also accept an **unwrapped** answer ("420", or "−30" with the keypad's − key / the keyboard's minus) so the most common wrap mistake can be checked and diagnosed | number (001–360 correct; any typed value checkable) |
 | **Into the Wind** | windsock + wind streaks + "Wind from 240°" chip; tap the runway end to land on (each end is a labelled button on the map at its threshold); then headwind / crosswind / tailwind for a plane on final | choice |
 | **Tower Talk** | a radio card ("Sky School Tower") with a short call: "Wind 240 at 10" → which runway (sock hidden); "Cleared to land, runway 31" → which heading; "Fly heading 180, then turn left 90" → which runway is straight ahead; "Runway 27, wind 360 at 10" → what wind | choice |
 
 ## Conventions (decided here; unit-tested in `tests/unit/compass-runways.test.ts`)
-- **Headings** are whole degrees 1–360, clockwise from north. **North is 360, never 000** (a typed "000" becomes 360; steppers wrap 360 → 001).
+- **Headings** are whole degrees 1–360, clockwise from north. **North is 360, never 000** (a typed "000", or a lone "0"/"00" when Check is pressed, becomes 360; steppers wrap 360 → 001).
+- **Unwrapped headings can be entered, never accepted.** Typed headings may go above 360 (up to 999) or below zero (a leading minus, −1 to −999). Only 1–360 is ever correct; anything else is an ordinary miss that the first-miss line diagnoses (see Hints). Design choice (simplest child-friendly option): one extra **−** key fills the empty 12th cell of the heading keypad (toggles a leading minus; keyboard `-` does the same); the display and the "now" chip show the entry exactly as typed ("420", "−30") while the plane points where that value really points on the rose, so the child sees that 420 and 060 face the same way. Steppers and the dial always stay on the compass (they wrap), so nothing changes for children who never type. A lone "−" keeps Check disabled until a digit follows.
 - **Runway number** = landing heading ÷ 10, rounded to the nearest whole number, two digits **01–36**. 360 → 36; 355–004 → 36; 006 → 01; 354 → 35. There is no runway 00.
 - Headings ending in exactly **5** round half up in code (235 → 24, 005 → 01) but are **never generated** for painting: the rule is ambiguous at x5 and real airports choose a number by survey, not by a rounding rule.
 - The two ends of one runway differ by **18** (09/27, 18/36, 14/32).
@@ -41,16 +42,16 @@ The board is always the airfield from above with a giant compass rose painted on
 - Numbers are **spoken digit by digit**, the way a tower says them: "runway two seven", "wind two four zero at one zero". Real radio says "niner" for 9; we say "nine" to keep it simple (noted for review).
 
 ## Levels (0-based; the screen shows level + 1). maxLevel 8. No time pressure anywhere.
-Bands of 8 are generated in slot order; the engine then interleaves number and choice items (variety rule), so every round mixes inner games. New games unlock across levels: sock + paint (L0), turns (L3), wind (L5), tower (L7).
+Bands of 8 are generated in slot order; the engine then interleaves number and choice items (variety rule), so every round mixes inner games. New games unlock across levels: sock + paint (L0), turns (L3), wind (L5), tower (L7). No level holds more than four of one item kind, and every level except L7 (Tower Talk: every radio call is a choice) mixes number and choice items so the variety rule has something to alternate (unit-tested).
 
 | Lv | Focus (inner games) | Slots (index % 8) | Parameters |
 |---|---|---|---|
 | 0 | Windsock strength + from N/E/S/W · paint N/E/S/W runways (+ authored tutorial: wind from the east, pointing hand on East) | strength, card, from4, card, from4, strength, card, from4 | rose labels every 30°; cardinal headings 090/180/270/360 → 09/18/27/36 |
 | 1 | Runway number = heading ÷ 10 (tens) · rotate a runway to its number · wind from 8 points | ten, from8, ten, card, from8, ten, rotate, from8 | any multiple of 10; rotate starts 40–130° away; 4 options (right, opposite, ±45°) |
 | 2 | Round to the nearest ten · opposite end ±18 · wind in degrees | round, opp, rotate, fromDeg, round, opp, round, opp | rounding headings never end in 0 or 5; ¼ sit next to north (356–004 → 36); opposite covers +18, −18 and 18↔36; fromDeg multiples of 30, options right / opposite / ±30° |
-| 3 | Heading Turns: 90° turns from N/E/S/W | quarter ×5, opp, fromDeg, round | results include 360 ("not 000") |
-| 4 | Heading Turns: any turn, and past 360 both ways | wrap ×4, turn ×2, opp, rotate | turns 30/45/60/90/120/135/150 (180 in plain turns); wraps never land exactly on 360; right and left in every band |
-| 5 | Into the Wind: one runway (2 ends) | two ×5, fromDeg, wrap, round | wind within 30° of one end (multiples of 10) |
+| 3 | Heading Turns: 90° turns from any ten-degree heading · review | quarter ×4, fromDeg ×2, opp, rotate | quarter turns start on any multiple of 10 and never pass north, except the band's third, which lands exactly on 360 ("not 000": 270 + 90 or 090 − 90) |
+| 4 | Heading Turns: a plain turn first, then past 360 both ways | turn (slot 0, always first), wrap ×4, turn, fromDeg, rotate | plain turns 30–180 (multiples of 30) never wrap; the band's first wrap uses 30/60/90/120, later ones also 45/135/150; wraps never land exactly on 360; right and left in every band |
+| 5 | Into the Wind: one runway (2 ends) · review | two ×4, wrap, fromDeg, round, opp | wind within 30° of one end (multiples of 10) |
 | 6 | Into the Wind: two runways (4 ends) · headwind / crosswind / tailwind | four ×4, xwind ×3, turn | runways 50–130° apart; best end ≥ 30° clearer than the next; xwind offsets 0–20° / 80–100° / 160–180° |
 | 7 | Tower Talk: radio calls | twind ×2, tline ×2, tjoin ×2, tcomp, xwind | tower winds multiples of 10 at 10 knots; joins use 60/90/120/180° turns that line up with a runway at the airport |
 | 8 | Busy tower: everything mixed, hardest settings | tjoin, twind, wrap, round, tcomp, four, tline, fromDeg | as above |
@@ -66,7 +67,8 @@ R0 levels the child up after ≥ 50 % first-try answers; within a round difficul
 | Round | one off (diagnosed) | cutting off instead of rounding (236 → 23) |
 | Opposite | the same number (diagnosed) | both ends share a number |
 | Rotate | arrow pointed the opposite way; the number read as degrees (14°) | runway numbers are "just names" |
-| Turns | turning the other way (diagnosed) | left/right ↔ add/take away; no input above 360 exists, so wrap errors surface as a stuck child, which the round-start explanation for wrap items addresses |
+| Turns | turning the other way (diagnosed) | left/right ↔ add/take away |
+| Turns past north | the unwrapped sum, e.g. "420" for 300 + 120, "−30" for 030 left 60 (diagnosed) | headings keep counting past 360 / below 0; any other value off the compass gets the wrap strategy for its side of north |
 | Into the Wind | the downwind end (always offered); a side-on end | land with the wind; wind named by where it goes |
 | Head/cross/tail | the other two | comparing the wind with the plane's position instead of its heading |
 | Tower: line-up heading | the opposite end's heading; the runway number read as degrees ("031°") | runway numbers are just names; 360 and 0 differ |
@@ -74,17 +76,17 @@ R0 levels the child up after ≥ 50 % first-try answers; within a round difficul
 
 ## Hints (never punished; retries unlimited)
 - **Round start:** Gloop explains the idea of the first item (e.g. "A windsock is like a tail. It points away from where the wind comes from.").
-- **First miss:** Gloop's line is diagnosed from the miss (`hints.ts`, table above) and teaches the strategy, never the answer. The board adds a strategy visual: **a leaf blows from the wind's source** (windsock, into-the-wind, tower wind items); the two nearest tens glow on the rose (rounding); the heading tick glows (paint); a 180° arc joins the two ends (opposite); a short arc shows the turn's **direction** and **"360 = 0"** glows when the turn passes north (turns); an angle arc between runway and wind (head/crosswind); the radio call splits into two steps (tower). Wrong choice options grey out.
+- **First miss:** Gloop's line is diagnosed from the miss (`hints.ts`, table above) and teaches the strategy, never the answer. Turns: the exact unwrapped sum gets `cr.hint.over360` ("You added the turn carefully! Past three hundred sixty, take three hundred sixty away.") or `cr.hint.under0` ("You took the turn away carefully! Below zero, add three hundred sixty to come round."); other values above 360 / below 1 get `cr.help.wrap` / `cr.help.wrapLeft`; the wrong direction gets `cr.hint.turnWay`. The board adds a strategy visual: **a leaf blows from the wind's source** (windsock, into-the-wind, tower wind items); the two nearest tens glow on the rose (rounding); the heading tick glows (paint); a 180° arc joins the two ends (opposite); a short arc shows the turn's **direction** and **"360 = 0"** glows when the turn passes north (turns); an angle arc between runway and wind (head/crosswind); the radio call splits into two steps (tower). Wrong choice options grey out.
 - **Second miss (model):** the worked steps appear in the deck ("300 + 120 = 420 → 420 − 360 = 60 → heading 060°"), the full gold turn arc is drawn, a ghost runway shows the target (rotate), the right option / runway end glows and a ghost plane lands on it. The number entry is set to the answer and only Check is live (errorless).
 
 ## Accessibility
-- Playable muted (every line captioned; the wind is also stated in text and in the board's `aria-label`), by keyboard (digits, ↑ → +, ↓ ← −, Shift for ±1 on headings, PageUp/PageDown ±10, Backspace, Enter = Check; choice buttons are focusable `<button>`s) and **without drag** (steppers and keypad do everything the dial does).
-- Targets: answers and runway-end buttons ≥ 56 px, steppers 52 px, keypad keys ≥ 44 px. On short landscape phones the keypad hides (container query) and steppers + dial + keyboard remain.
+- Playable muted (every line captioned; the wind is also stated in text and in the board's `aria-label`), by keyboard (digits, `-` for a minus sign on headings, ↑ → +, ↓ ← −, Shift for ±1 on headings, PageUp/PageDown ±10, Backspace, Enter = Check; choice buttons are focusable `<button>`s) and **without drag** (steppers and keypad do everything the dial does).
+- Targets: answers and runway-end buttons ≥ 56 px, steppers 52 px, keypad keys ≥ 44 px (heading keypad: 0–9, −, ⌫ in a 6 × 2 grid). On short landscape phones the keypad hides (container query) and steppers + dial + keyboard remain.
 - Reduced motion: no leaf flight (leaf held mid-path), no streak or flutter loops, no glides or spins; dial changes jump.
 - An `aria-live` line announces dial and number changes ("Heading 240", "Painted 27").
 
 ## Voice
-77 line ids, **267 clips** (prefix `cr.`; speakers: ziggy, gloop, narrator). Variable lines: `cr.prompt.opp`, `cr.prompt.rotate`, `cr.tower.line` (36 runway numbers each), `cr.tower.wind`, `cr.tower.comp` (36 ten-degree winds each), `cr.prompt.turn` (2 directions × 8 turn sizes). Numbers spoken digit by digit. Not rendered yet (main agent renders with Kokoro; the clip-coverage test fails until then).
+79 line ids, **269 clips** (prefix `cr.`; speakers: ziggy, gloop, narrator). Variable lines: `cr.prompt.opp`, `cr.prompt.rotate`, `cr.tower.line` (36 runway numbers each), `cr.tower.wind`, `cr.tower.comp` (36 ten-degree winds each), `cr.prompt.turn` (2 directions × 8 turn sizes). Numbers spoken digit by digit. `cr.hint.over360` and `cr.hint.under0` are new and not rendered yet (the main agent renders with Kokoro; the clip-coverage test fails for those two until then).
 
 ## Accuracy and review flags (instructor review required before wider release)
 Sources: FAA *Pilot's Handbook of Aeronautical Knowledge* (FAA-H-8083-25C), chapters "Airport Operations" (runway numbering, wind direction indicators, landing into the wind) and "Navigation"; FAA *Aeronautical Information Manual* ch. 2 (airport marking aids: runway designators) — re-check current editions.
@@ -94,7 +96,7 @@ Sources: FAA *Pilot's Handbook of Aeronautical Knowledge* (FAA-H-8083-25C), chap
 - **Into the wind:** landing into the wind lowers groundspeed and shortens the landing roll ("a slower, shorter landing" in praise). Runway choice in reality also depends on noise rules, length, preferential runways and the tower's instruction; the world simplifies to wind only. Flag.
 - **Headwind/crosswind/tailwind** are qualitative only (no components, no limits).
 - **Phraseology:** calls are simplified and not real ATC phraseology (no call signs, no "niner", "wind two four zero at one zero" only). Flag.
-- **Not for navigation:** fictional airport and layout; no real airport diagram is shown.
+- **Not for navigation:** fictional airport and layout; no real airport diagram is shown. Every top-down map (play board and story) carries a small "Fictional airport · Not for navigation" watermark in its bottom-left corner (`FieldDecor` in `art.tsx`; pilot.md §6).
 
 ## Simplifications (say so to grown-ups)
 Wind and runways only (no traffic, no noise rules), magnetic variation left out, qualitative crosswind, simplified tower calls, a flat top-down airfield.

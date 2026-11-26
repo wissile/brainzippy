@@ -11,7 +11,7 @@ import { explainFor, hintFor, praiseFor } from "../../src/games/compass-runways/
 import {
   ALL_RUNWAYS, KINDS, MODE_OF, TEN_HEADINGS, type Kind, type Scenario, airportEnds, angleDiff, answerFor, bestEnd, blank, decode, encode,
   entryOf, fmtHeading, fmtRunway, headingFromVector, isNumberKind, norm, reciprocal, runwayHeading, runwayNumber, sayHeading, sayRunway,
-  sockPoints, stepValue, turnHeading, typedValue, windKind, working, wraps,
+  sockPoints, stepValue, turnHeading, typedValue, windKind, working, wraps, checkedValue, fmtEntry, offCompass,
 } from "../../src/games/compass-runways/logic";
 import { crBetween, crIntro, crOutro } from "../../src/games/compass-runways/story";
 import voice from "../../src/games/compass-runways/voice.json";
@@ -165,11 +165,36 @@ describe("number entry", () => {
     expect(typedValue("runway", "09")).toBe(9);
     expect(typedValue("runway", "37")).toBeNull();
     expect(typedValue("runway", "00")).toBeNull();
+    expect(typedValue("runway", "-9")).toBeNull();
     expect(typedValue("heading", "240")).toBe(240);
     expect(typedValue("heading", "000")).toBe(360);
-    expect(typedValue("heading", "0")).toBeNull();
-    expect(typedValue("heading", "420")).toBeNull();
+    expect(typedValue("heading", "0")).toBeNull(); // pending while typing "045" (the dial doesn't swing to north)
     expect(typedValue("heading", "45")).toBe(45);
+    expect(typedValue("heading", "1000")).toBeNull();
+  });
+  it("unwrapped headings can be typed (and checked as misses): 420, −30; a lone minus is pending", () => {
+    expect(typedValue("heading", "420")).toBe(420);
+    expect(typedValue("heading", "999")).toBe(999);
+    expect(typedValue("heading", "-30")).toBe(-30);
+    expect(typedValue("heading", "-")).toBeNull();
+    expect(typedValue("heading", "-0")).toBeNull();
+    expect(typedValue("heading", "-1000")).toBeNull();
+    expect(offCompass(420)).toBe(true);
+    expect(offCompass(-30)).toBe(true);
+    expect(offCompass(360)).toBe(false);
+    expect(offCompass(1)).toBe(false);
+    expect(fmtEntry("heading", 420)).toBe("420");
+    expect(fmtEntry("heading", -30)).toBe("−30");
+    expect(fmtEntry("heading", 60)).toBe("060");
+    expect(fmtEntry("runway", 9)).toBe("09");
+    // Check resolves an all-zero heading to north; everything else as typed
+    expect(checkedValue("heading", "0")).toBe(360);
+    expect(checkedValue("heading", "00")).toBe(360);
+    expect(checkedValue("heading", "-30")).toBe(-30);
+    expect(checkedValue("heading", "-")).toBeNull();
+    expect(checkedValue("runway", "0")).toBeNull();
+    expect(stepValue("heading", 420, 10)).toBe(70); // steppers bring an unwrapped value back onto the compass
+    expect(stepValue("heading", -30, 1)).toBe(331);
   });
 });
 
@@ -236,10 +261,43 @@ describe("generator", () => {
       if (s.kind === "turn") expect(wraps(s.h, s.dir, s.d)).toBe(false);
     }
     expect(new Set(turns.filter((s) => s.kind === "wrap").map((s) => s.dir)).size).toBe(2);
+    // quarter turns (level 3): 90° from any ten-degree heading, never past north except landing exactly on it
+    const quarters = turns.filter((s) => s.kind === "quarter");
+    for (const s of quarters) {
+      expect(s.d).toBe(90);
+      expect(s.h % 10).toBe(0);
+      if (wraps(s.h, s.dir, s.d)) expect(turnHeading(s.h, s.dir, s.d)).toBe(360);
+    }
+    expect(quarters.some((s) => s.h % 90 !== 0)).toBe(true);
+    expect(new Set(quarters.map((s) => s.h)).size).toBeGreaterThan(12);
+    // every level-3 band lands one quarter turn on north
+    for (const seed of SEEDS) {
+      const q = generateBand(compassRunways, 3, seed, 8).map(decode).filter((s) => s.kind === "quarter");
+      expect(q.some((s) => turnHeading(s.h, s.dir, s.d) === 360), `seed ${seed}`).toBe(true);
+    }
     expect(turns.some((s) => s.kind === "quarter" && turnHeading(s.h, s.dir, s.d) === 360)).toBe(true);
     // a band at level 4 holds right and left turns past north
     const band = generateBand(compassRunways, 4, 9, 8).map(decode).filter((s) => s.kind === "wrap");
     expect(new Set(band.map((s) => s.dir)).size).toBe(2);
+  });
+  it("the turns ladder climbs gently: L3 never wraps; L4 opens with a plain turn, and its first wrap uses 30/60/90/120", () => {
+    for (const seed of SEEDS) {
+      const l4 = generateBand(compassRunways, 4, seed, 8).map(decode);
+      expect(l4[0]!.kind).toBe("turn");
+      expect(wraps(l4[0]!.h, l4[0]!.dir, l4[0]!.d)).toBe(false);
+      expect([30, 60, 90, 120]).toContain(l4.find((s) => s.kind === "wrap")!.d);
+      expect(generateBand(compassRunways, 3, seed, 8).map(decode).some((s) => s.kind === "wrap")).toBe(false);
+    }
+  });
+  it("variety: no level is more than half one item kind, and each band mixes choice and number items (Tower Talk is all radio choices)", () => {
+    for (let level = 0; level <= CR_MAX_LEVEL; level++) {
+      const counts = new Map<Kind, number>();
+      for (const k of LEVELS[level]!.slots) counts.set(k, (counts.get(k) ?? 0) + 1);
+      expect(Math.max(...counts.values()), `level ${level}`).toBeLessThanOrEqual(4);
+      const kinds = new Set(LEVELS[level]!.slots.map((k) => (isNumberKind(k) ? "number" : "choice")));
+      if (level !== 7) expect(kinds.size, `level ${level}`).toBe(2);
+      expect(new Set(LEVELS[level]!.slots).size, `level ${level}`).toBeGreaterThanOrEqual(3);
+    }
   });
   it("wind items: one clearly best end (≥ 30° margin); the downwind end is always a distractor", () => {
     for (const s of ALL.map(decode).filter((x) => ["two", "four", "twind"].includes(x.kind))) {
@@ -309,6 +367,7 @@ describe("validation, hints and the model", () => {
     const turn = find(4, "wrap");
     const t = decode(turn);
     expect(hintFor(miss(turn, turnHeading(t.h, t.dir === 1 ? -1 : 1, t.d)))).toBe("cr.hint.turnWay");
+    expect(hintFor(miss(turn, norm((answerFor(t) as number) + 10)))).toBe(t.dir === 1 ? "cr.help.wrap" : "cr.help.wrapLeft");
     const two = find(5, "two");
     const ts = decode(two);
     expect(hintFor(miss(two, `rw${fmtRunway(reciprocal(bestEnd(airportEnds(ts), ts.w)))}`))).toBe("cr.hint.tail");
@@ -317,6 +376,36 @@ describe("validation, hints and the model", () => {
     const line = find(7, "tline");
     expect(hintFor(miss(line, `h${fmtHeading(runwayHeading(reciprocal(decode(line).n)))}`))).toBe("cr.hint.lineRecip");
     expect(explainFor(crTutorial)).toBe("cr.help.from");
+  });
+  it("an unwrapped turn (past 360, or below zero) is a miss whose first hint teaches the wrap", () => {
+    const sc = (o: Partial<Scenario>): Scenario => ({ ...blank("wrap", 4), ...o });
+    const stateFor = (s: Scenario, value: number) => {
+      const ex = { ...crTutorial, id: "cr-wrap-test", params: encode(s), answer: { kind: "number" as const, value: answerFor(s) as number } };
+      return exerciseReducer(initExercise(ex), { type: "SUBMIT", value });
+    };
+    // 300 + 120 typed as 420: the adding was right, now take 360 away
+    const right = sc({ h: 300, d: 120, dir: 1 });
+    let st = stateFor(right, 420);
+    expect(st.feedback?.correct).toBe(false);
+    expect(st.hintStage).toBe(1);
+    expect(st.lastAnswer).toBe(420);
+    expect(hintFor(st)).toBe("cr.hint.over360");
+    // 30 left 60 typed as −30: the taking away was right, now add 360
+    const left = sc({ h: 30, d: 60, dir: -1 });
+    st = stateFor(left, -30);
+    expect(st.feedback?.correct).toBe(false);
+    expect(hintFor(st)).toBe("cr.hint.under0");
+    // other values off the compass still get the wrap strategy for their side of north
+    expect(hintFor(stateFor(right, 400))).toBe("cr.help.wrap");
+    expect(hintFor(stateFor(left, -40))).toBe("cr.help.wrapLeft");
+    // a quarter turn from north typed without wrapping (360 + 90 = 450) is diagnosed the same way
+    expect(hintFor(stateFor({ ...blank("quarter", 3), h: 360, d: 90, dir: 1 }, 450))).toBe("cr.hint.over360");
+    // only 1–360 can be right
+    expect(validateAnswer({ kind: "number", value: 60 }, 420).correct).toBe(false);
+    expect(validateAnswer({ kind: "number", value: 330 }, -30).correct).toBe(false);
+    for (const id of ["cr.hint.over360", "cr.hint.under0", "cr.help.wrap", "cr.help.wrapLeft"]) expect(lines[id], id).toBeDefined();
+    expect(lines["cr.hint.over360"]!.text).toMatch(/take three hundred sixty away/);
+    expect(lines["cr.hint.under0"]!.text).toMatch(/add three hundred sixty/);
   });
   it("the modelled working ends at the right answer for every kind", () => {
     const sc = (kind: Kind, o: Partial<Scenario>): Scenario => ({ ...blank(kind, 0), ...o });

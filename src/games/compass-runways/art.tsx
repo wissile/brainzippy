@@ -315,6 +315,12 @@ export function FieldDecor() {
       <rect x="-490" y="-490" width="150" height="130" rx="10" fill="#C9CED8" stroke={CR.ink} strokeWidth="4" />
       <circle cx="-415" cy="-425" r="34" fill="#E9EDF3" stroke={CR.ink} strokeWidth="5" />
       <circle cx="-415" cy="-425" r="18" fill={CR.sky} stroke={CR.ink} strokeWidth="4" />
+      {/* map watermark (docs/curriculum/pilot.md §6): every map is fictional and not for navigation */}
+      <text x="-454" y="438" className="cr-fictional" data-testid="cr-fictional" fontSize="25" fontWeight="800" fill={CR.ink} opacity="0.8"
+        stroke="rgba(255,255,255,0.8)" strokeWidth="6" paintOrder="stroke">
+        <tspan x="-454">Fictional airport</tspan>
+        <tspan x="-454" dy="30">Not for navigation</tspan>
+      </text>
     </g>
   );
 }

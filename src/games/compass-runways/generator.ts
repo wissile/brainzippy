@@ -35,9 +35,9 @@ export const LEVELS: readonly LevelSpec[] = [
   { label: "Windsock: calm or windy, and wind from N/E/S/W · paint N/E/S/W runways (09, 18, 27, 36)", games: ["sock", "paint"], slots: ["strength", "card", "from4", "card", "from4", "strength", "card", "from4"] },
   { label: "Runway number = heading ÷ 10 (tens) · rotate a runway to its number · wind from 8 points", games: ["paint", "sock"], slots: ["ten", "from8", "ten", "card", "from8", "ten", "rotate", "from8"] },
   { label: "Round to the nearest ten · the other end differs by 18 · wind in degrees", games: ["paint", "sock"], slots: ["round", "opp", "rotate", "fromDeg", "round", "opp", "round", "opp"] },
-  { label: "Heading Turns: 90° turns from N/E/S/W (360, not 000)", games: ["turn", "paint", "sock"], slots: ["quarter", "opp", "quarter", "fromDeg", "quarter", "round", "quarter", "quarter"] },
-  { label: "Heading Turns: any turn, and turns past 360 (right and left)", games: ["turn", "paint"], slots: ["wrap", "turn", "wrap", "opp", "wrap", "turn", "rotate", "wrap"] },
-  { label: "Into the Wind: one runway, choose the end that faces the wind", games: ["wind", "sock", "turn", "paint"], slots: ["two", "fromDeg", "two", "wrap", "two", "round", "two", "two"] },
+  { label: "Heading Turns: 90° turns from any ten-degree heading (360, not 000) · review paint and wind", games: ["turn", "sock", "paint"], slots: ["quarter", "fromDeg", "quarter", "opp", "quarter", "fromDeg", "rotate", "quarter"] },
+  { label: "Heading Turns: any turn first, then turns past 360 (right and left) · review rotate and wind", games: ["turn", "paint", "sock"], slots: ["turn", "wrap", "wrap", "fromDeg", "turn", "wrap", "rotate", "wrap"] },
+  { label: "Into the Wind: one runway, choose the end that faces the wind · review turns, paint and wind", games: ["wind", "turn", "sock", "paint"], slots: ["two", "wrap", "two", "fromDeg", "two", "round", "opp", "two"] },
   { label: "Into the Wind: two runways (4 ends) · headwind, crosswind or tailwind", games: ["wind", "turn"], slots: ["four", "xwind", "four", "xwind", "turn", "four", "xwind", "four"] },
   { label: "Tower Talk: radio calls that combine wind, runway numbers and turns", games: ["tower", "wind"], slots: ["twind", "tline", "tjoin", "xwind", "twind", "tcomp", "tline", "tjoin"] },
   { label: "Busy tower: every inner game mixed, hardest settings", games: ["tower", "wind", "turn", "paint", "sock"], slots: ["tjoin", "twind", "wrap", "round", "tcomp", "four", "tline", "fromDeg"] },
@@ -48,6 +48,11 @@ export const CR_MAX_LEVEL = LEVELS.length - 1;
 export const TURN_DEGS = [30, 45, 60, 90, 120, 135, 150, 180] as const;
 const TURN_PLAIN = [30, 60, 90, 120, 150, 180] as const;
 const WRAP_DEGS = [30, 45, 60, 90, 120, 135, 150] as const;
+const WRAP_FIRST = [30, 60, 90, 120] as const;
+/** Quarter-turn start headings (any multiple of 10) that keep a 90° turn on the compass: right ends ≤ 360, left ends ≥ 10. */
+const TENS = Array.from({ length: 36 }, (_, i) => (i + 1) * 10);
+const QUARTER_RIGHT = TENS.filter((h) => h + 90 < 360);
+const QUARTER_LEFT = TENS.filter((h) => h - 90 > 0);
 /** Fixed turn directions per slot so every band has right and left turns. */
 const DIRS: readonly Dir[] = [1, -1, -1, 1, 1, -1, 1, -1];
 /** Tower calls always say "at one zero" (10 knots), so the voice stays one clip per wind. */
@@ -73,7 +78,7 @@ const TEN_NON_CARD = Array.from({ length: 36 }, (_, i) => (i + 1) * 10).filter((
 
 export function pickScenario(kind: Kind, lv: number, rng: Rng, band: GeneratorBand | undefined, k: number): Scenario {
   const s = blank(kind, lv);
-  const dealK = <T,>(items: readonly T[], key = kind) => deal(band, `${key}-${lv}`, items, k);
+  const dealK = <T,>(items: readonly T[], key: string = kind) => deal(band, `${key}-${lv}`, items, k);
   switch (kind) {
     case "strength": {
       s.s = dealK<Strength>([0, 1, 2, 2, 1, 0]);
@@ -118,9 +123,12 @@ export function pickScenario(kind: Kind, lv: number, rng: Rng, band: GeneratorBa
       return s;
     }
     case "quarter": {
-      s.h = dealK([90, 180, 270, 360]);
+      // 90° turns from any ten-degree heading that stay on the compass (no wrap past north yet: that's level 4).
+      // The third quarter turn of a band lands exactly on north, so "360, not 000" comes up every band.
       s.d = 90;
       s.dir = DIRS[k % DIRS.length]!;
+      if (k % 4 === 2) s.h = s.dir === 1 ? 270 : 90;
+      else s.h = dealK(s.dir === 1 ? QUARTER_RIGHT : QUARTER_LEFT, `${kind}${s.dir}`);
       return s;
     }
     case "turn": {
@@ -136,8 +144,10 @@ export function pickScenario(kind: Kind, lv: number, rng: Rng, band: GeneratorBa
     }
     case "wrap": {
       s.dir = DIRS[(k + lv) % DIRS.length]!;
+      // a band's first wrap at level 4 uses friendlier turn sizes (multiples of 30, up to 120) before 45° / 135° ones
+      const sizes = lv === 4 && k === 0 ? WRAP_FIRST : WRAP_DEGS;
       for (let t = 0; t < 50; t++) {
-        s.d = rng.pick(WRAP_DEGS);
+        s.d = rng.pick(sizes);
         // right: start between 220 and 350; left: start between 10 and 140
         s.h = s.dir === 1 ? rng.int(22, 35) * 10 : rng.int(1, 14) * 10;
         if (wraps(s.h, s.dir, s.d) && turnHeading(s.h, s.dir, s.d) !== 360) return s;

@@ -230,16 +230,36 @@ export function stepValue(entry: "runway" | "heading", v: number | null, by: num
   return norm(v + by);
 }
 /**
- * Typed digits → value. Runway: up to 2 digits, 1–36. Heading: up to 3 digits, 1–360; "0"/"000" means north → 360.
- * Returns null while the digits are not a valid value yet.
+ * Typed digits → the value the board previews. Runway: up to 2 digits, 1–36. Heading: up to 3 digits with an optional
+ * leading minus; "000" means north → 360. Headings are NOT limited to 1–360 here: an unwrapped turn ("420" for
+ * 300 + 120, "−30" for 30 left 60) is a real, common answer, so it can be entered and checked — it is a miss, and the
+ * first-miss line teaches the wrap (hints.ts). Only 1–360 can ever be correct. Returns null while the digits are not
+ * a value yet ("", "-", "0", "00", "-0"): a lone 0 stays pending so typing "045" doesn't swing the dial to north first.
  */
 export function typedValue(entry: "runway" | "heading", digits: string): number | null {
-  if (!/^\d+$/.test(digits)) return null;
-  const v = Number(digits);
-  if (entry === "runway") return digits.length <= 2 && v >= 1 && v <= 36 ? v : null;
-  if (digits.length > 3) return null;
-  if (v === 0) return digits.length === 3 ? 360 : null;
-  return v <= 360 ? v : null;
+  if (entry === "runway") {
+    if (!/^\d{1,2}$/.test(digits)) return null;
+    const v = Number(digits);
+    return v >= 1 && v <= 36 ? v : null;
+  }
+  const m = /^(-?)(\d{1,3})$/.exec(digits);
+  if (!m) return null;
+  const v = Number(m[2]);
+  if (v === 0) return m[1] === "" && m[2]!.length === 3 ? 360 : null;
+  return m[1] ? -v : v;
+}
+/** The value Check submits for typed digits: as `typedValue`, except a heading of all zeros ("0", "00") is north, 360. */
+export function checkedValue(entry: "runway" | "heading", digits: string): number | null {
+  if (entry === "heading" && /^0{1,3}$/.test(digits)) return 360;
+  return typedValue(entry, digits);
+}
+/** Is a heading value outside 1–360 (an unwrapped turn)? */
+export const offCompass = (v: number): boolean => v < 1 || v > 360;
+/** A number-entry value for display: runway "09"; heading "060"; an unwrapped heading as typed ("420", "−30"). */
+export function fmtEntry(entry: "runway" | "heading", v: number): string {
+  if (entry === "runway") return fmtRunway(v);
+  if (offCompass(v)) return v < 0 ? `−${Math.abs(v)}` : String(v);
+  return fmtHeading(v);
 }
 
 /** Heading the board's dial points at for a pointer position (dx right, dy down from the rose centre), snapped. */

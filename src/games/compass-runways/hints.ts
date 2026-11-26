@@ -2,7 +2,7 @@ import type { Exercise } from "../../engine/types";
 import type { ExerciseState } from "../../engine/session";
 import {
   type Kind, type Scenario, answerFor, bestEnd, airportEnds, decode, degId, hdgId, pointOf, reciprocal, runwayHeading, runwayNumber, rwId,
-  sockPoints, turnHeading, type Dir,
+  offCompass, sockPoints, turnHeading, type Dir,
 } from "./logic";
 
 /**
@@ -74,7 +74,13 @@ export function hintFor(st: Pick<ExerciseState, "exercise" | "lastAnswer">): str
     case "quarter":
     case "turn":
     case "wrap": {
-      if (asNum(v) === turnHeading(s.h, (-s.dir) as Dir, s.d)) return "cr.hint.turnWay";
+      const n = asNum(v);
+      // off the compass (above 360 or below 1): the turn was worked out but not wrapped round north
+      if (n !== null && offCompass(n)) {
+        if (n === s.h + s.dir * s.d) return n > 360 ? "cr.hint.over360" : "cr.hint.under0";
+        return n > 360 ? "cr.help.wrap" : "cr.help.wrapLeft";
+      }
+      if (n === turnHeading(s.h, (-s.dir) as Dir, s.d)) return "cr.hint.turnWay";
       if (s.kind === "wrap") return s.dir === 1 ? "cr.help.wrap" : "cr.help.wrapLeft";
       return "cr.help.turn";
     }
