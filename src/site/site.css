@@ -174,6 +174,16 @@ abbr[title] { text-decoration: underline dotted; cursor: help; }
   .footer-grid { grid-template-columns: 1fr; }
   .game-card .critter-art { width: 56px; }
 }
+/* short landscape phones (e.g. 863 × 360): the hero's big Play button stays on the first screen */
+@media (max-height: 500px) and (orientation: landscape) {
+  .header-row { padding-block: 0.35rem 0.1rem; }
+  .site-nav ul { padding-bottom: 0.2rem; }
+  .hero { padding: 0.5rem 0 0.8rem; }
+  .hero h1 { font-size: 1.85rem; margin-bottom: 0.25em; }
+  .hero .lead { font-size: 1rem; margin: 0 0 0.3rem; }
+  .hero .play-big { min-height: 72px; font-size: 1.7rem; margin: 0.25rem 0 0.6rem; }
+  .hero-art .critter-art svg { max-height: 150px; width: auto; }
+}
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
