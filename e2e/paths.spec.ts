@@ -239,9 +239,9 @@ test("keyboard only: choose a path, sail, start it and open the game", async ({ 
   await expect(page).toHaveURL(/\/path$/);
   await expect(page.getByTestId("path-title")).toHaveText("Learn to fly with Ziggy");
   await tabTo(page, "path-play");
-  await expect(page.getByTestId("path-play")).toHaveAttribute("aria-label", /^Play Zephy's Sky Hoops, level \d+$/);
+  await expect(page.getByTestId("path-play")).toHaveAttribute("aria-label", /^Play Ziggy's Busy Airport, level \d+$/); // ages 3–5 start the pilot journey at Busy Airport
   await page.keyboard.press(" ");
-  await expect(page).toHaveURL(/\/play\/sky-hoops$/);
+  await expect(page).toHaveURL(/\/play\/busy-airport$/);
 });
 
 for (const vp of [{ width: 390, height: 844 }, { width: 915, height: 412 }, { width: 1024, height: 1366 }, { width: 1280, height: 800 }]) {
