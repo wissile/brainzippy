@@ -50,6 +50,7 @@ export const EXERCISE_PREFIX: Record<string, string> = {
   "reef-rescue": "rr", "sky-hoops": "sh", "rocket-lab": "rl", "feelings-garden": "fg", "balance-island": "bi",
   "pattern-parade": "pp", "shape-squish": "ss", "sleepy-trail": "st", "paper-boat-post": "pb", "wordroot-grove": "wg", "lantern-press": "lp",
   "compass-runways": "cr",
+  "busy-airport": "ba",
 };
 
 /**

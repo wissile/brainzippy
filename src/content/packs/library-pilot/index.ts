@@ -18,7 +18,7 @@ const pack: ContentPack = {
       kidTitle: "Sky School",
       host: "ziggy", // D-042: Ziggy hosts the Pilot journey; Zephy still hosts Sky Hoops
       theme: { main: "#E5484D", soft: "#FDE8E9", deep: "#A1181D" },
-      ages: [6, 14],
+      ages: [3, 14], // D-042: Ziggy's Busy Airport starts the journey at 3
       pitch: "Learn how planes fly with Ziggy.",
       description: "How planes fly, weather, maps and checklists, aligned with the FAA Private Pilot knowledge areas. Educational only: not FAA-approved training and not for navigation.",
       status: "live",
