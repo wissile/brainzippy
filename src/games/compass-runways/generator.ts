@@ -407,9 +407,21 @@ function tagOf(s: Scenario): string {
   }
 }
 
+/**
+ * The band's slot order: slot 0 (the level's focus game) stays first; the other seven rotate by the band seed. A child
+ * who answers everything first try steps up every two items and so only meets the first items of each band; rotating
+ * means different rounds surface different inner games (rotate, opposite end, …) instead of always the same two.
+ */
+export function bandSlots(lv: number, band: GeneratorBand | undefined): Kind[] {
+  const slots = LEVELS[Math.max(0, Math.min(CR_MAX_LEVEL, lv))]!.slots;
+  const rest = slots.slice(1);
+  const off = (band?.seed ?? 0) % rest.length;
+  return [slots[0]!, ...rest.slice(off), ...rest.slice(0, off)];
+}
+
 export const generateCompassRunways: ExerciseGenerator = (level, rng, index, band) => {
   const lv = Math.max(0, Math.min(CR_MAX_LEVEL, level));
-  const slots = LEVELS[lv]!.slots;
+  const slots = bandSlots(lv, band);
   const i = index % slots.length;
   const kind = slots[i]!;
   const k = nth(slots, i, kind) + Math.floor(index / slots.length) * slots.filter((x) => x === kind).length;

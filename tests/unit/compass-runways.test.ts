@@ -385,3 +385,19 @@ describe("registry", () => {
     expect(w.parentDescription).toMatch(/not flight training/);
   });
 });
+
+describe("band order", () => {
+  it("slot 0 (the level's focus game) stays first; the rest rotate by band seed but keep the level's mix", async () => {
+    const { bandSlots } = await import("../../src/games/compass-runways/generator");
+    for (let level = 0; level <= CR_MAX_LEVEL; level++) {
+      const orders = new Set<string>();
+      for (const seed of SEEDS) {
+        const o = bandSlots(level, { seed });
+        expect(o[0]).toBe(LEVELS[level]!.slots[0]);
+        expect([...o].sort()).toEqual([...LEVELS[level]!.slots].sort());
+        orders.add(o.join());
+      }
+      expect(orders.size, `level ${level}`).toBeGreaterThan(1);
+    }
+  });
+});

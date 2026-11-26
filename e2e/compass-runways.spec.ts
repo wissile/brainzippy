@@ -324,26 +324,27 @@ test("every inner game plays by tap and keyboard (windsock, painter, rotate, tur
 test("rotate the runway by dragging around the compass rose", async ({ page }, info) => {
   test.skip(info.project.name !== "desktop", "mouse drag (touch uses the same pointer handlers; tap/keyboard paths are covered elsewhere)");
   test.setTimeout(240_000);
-  // rotate items sit in levels 1, 2 and 4: play correctly until one is on screen
-  for (const level of [2, 1, 4]) {
-    await reset(page, level);
-    await enter(page);
-    for (let i = 0; i < 8; i++) {
-      if ((await screen(page).count()) === 0) break;
-      const id = await exId(page);
-      const s = await sceneOf(page);
-      if (s.kind === "rotate") {
-        const target = norm(s.n * 10);
-        await dragDial(page, target);
-        await page.screenshot({ path: `${REVIEW}/desktop-11-rotate-drag.png` });
-        await press(page, '[data-testid="done"]');
-        await expect(board(page)).toHaveClass(/is-solved/, { timeout: 20_000 });
-        return;
-      }
-      await answer(page, rightFor(s), "tap");
+  // level 1 holds one rotate item. Missing each other item once keeps the difficulty in this band (no step-up after
+  // a miss), so the whole band is served and the rotate item comes up within the round.
+  await reset(page, 1);
+  await enter(page);
+  for (let i = 0; i < 8; i++) {
+    const id = await exId(page);
+    const s = await sceneOf(page);
+    if (s.kind === "rotate") {
+      await dragDial(page, norm(s.n * 10));
+      await page.screenshot({ path: `${REVIEW}/desktop-11-rotate-drag.png` });
+      await press(page, '[data-testid="done"]');
       await expect(board(page)).toHaveClass(/is-solved/, { timeout: 20_000 });
-      await nextExercise(page, id);
+      return;
     }
+    const r = rightFor(s);
+    const wrong = "num" in r ? wrongFor(s) : { choice: (await page.locator('[data-testid="choice"]').evaluateAll((els, right) => els.map((e) => e.getAttribute("data-value")).find((v) => v !== right), r.choice))! };
+    await answer(page, wrong, "tap");
+    await answering(page);
+    await answer(page, r, "tap");
+    await expect(board(page)).toHaveClass(/is-solved/, { timeout: 20_000 });
+    await nextExercise(page, id);
   }
   throw new Error("no rotate item reached");
 });
