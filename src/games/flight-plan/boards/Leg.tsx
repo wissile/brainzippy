@@ -90,7 +90,7 @@ export function LegBoard({ st, act, alongIndex, busy }: BoardProps) {
             <span className="fp-display-unit">min</span>
           </div>
           {showDir && <p className="fp-note" data-testid="fp-direction">{reason === "too-high" ? "That's too long for this leg." : "That's too short for this leg."}</p>}
-          <div className="fp-keypad" role="group" aria-label="Keypad" data-fp-idle="true">
+          <div className={`fp-keypad ${modelValue !== null ? "is-model-on" : ""}`} role="group" aria-label="Keypad" data-fp-idle="true">
             {["1", "2", "3", "4", "5", "6", "7", "8", "9", "back", "0"].map((k) => (
               <button
                 key={k}

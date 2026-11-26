@@ -171,10 +171,11 @@ test("a whole round by slide, tap and keyboard: notice, tutorial hand, briefing 
   const shot = (name: string) => page.screenshot({ path: `${REVIEW}/${info.project.name}-${name}.png` });
   await setState(page, 0);
   await page.goto("/play/flight-plan");
-  await press(page, '[data-testid="story-begin"]');
-  await expect(page.getByTestId("fp-notice")).toContainText("Educational only");
-  await page.waitForTimeout(700);
+  // the educational-only notice is on the first beat, visible before anything is tapped
+  await expect(page.getByTestId("fp-notice")).toContainText("Educational only", { timeout: 20_000 });
+  await page.waitForTimeout(500);
   await shot("01-story");
+  await press(page, '[data-testid="story-begin"]');
   await press(page, '[data-testid="story-skip"]');
 
   expect(await screen(page).getAttribute("data-exercise")).toBe("fp-tutorial-find");
@@ -285,9 +286,9 @@ test("misses on matching, ordering and choosing: right parts stay, the model com
   await expect(page.locator(".fp-group.is-ok")).toHaveCount(1); // the right pair stays (gold); the others come back
   await swap();
   await press(page, '[data-testid="done"]');
-  await expect(page.getByTestId("model-steps")).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator(".fp-tile.is-model")).toHaveCount(1, { timeout: 20_000 }); // all pairs but the last filled in; the last tile glows
   await answering(page);
-  await expect(page.locator(".fp-tile.is-model")).toHaveCount(1);
+  if (info.project.name === "desktop") await expect(page.getByTestId("model-steps")).toBeVisible(); // phones: the filled-in board is the model
   await page.screenshot({ path: `${REVIEW}/${info.project.name}-09-model-decode.png` });
   await press(page, sel(last.id));
   await press(page, `[data-testid="target"][data-value="${a.pairs[last.id]}"]`);

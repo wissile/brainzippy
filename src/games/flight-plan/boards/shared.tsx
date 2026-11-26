@@ -80,10 +80,16 @@ export function Options({ st, act, busy, options, label = "Choose" }: Pick<Board
 export function ModelSteps({ ex, st, alongIndex, title = "How a pilot works it out" }: { ex: Exercise; st: ExerciseState; alongIndex: number; title?: string }) {
   const f = flags(st);
   const steps = modelSteps(ex);
-  if (st.hintStage < 2 || steps.length === 0) return null;
+  const ref = useRef<HTMLDivElement>(null);
+  const on = st.hintStage >= 2 && steps.length > 0;
+  // on small screens the board may scroll: bring the worked steps into view when they appear
+  useEffect(() => {
+    if (on) ref.current?.scrollIntoView({ block: "nearest" });
+  }, [on]);
+  if (!on) return null;
   const upTo = alongIndex >= 0 ? alongIndex : f.canAct || f.solved ? steps.length - 1 : -1;
   return (
-    <div className="fp-model" data-testid="model-steps" aria-live="polite">
+    <div className="fp-model" data-testid="model-steps" aria-live="polite" ref={ref}>
       <p className="fp-model-title">{title}</p>
       <ol>
         {steps.map((s, i) => (

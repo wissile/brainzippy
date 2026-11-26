@@ -200,12 +200,12 @@ const LABEL_AT: readonly (readonly [number, number, "start" | "middle" | "end"])
 function PlaceSymbol({ i }: { i: number }) {
   const [x, y] = PLACE_XY[i]!;
   switch (i) {
-    case 0: // airfield: a magenta disc with a white runway (original symbol; not a real chart symbol)
+    case 0: // airfield: a little runway with a magenta outline and centre dashes (original symbol; not a real chart symbol)
     case 5:
       return (
-        <g transform={`translate(${x} ${y})`}>
-          <circle r="10" fill="#B43A6B" stroke={INK} strokeWidth="2" />
-          <rect x="-7.5" y="-2.5" width="15" height="5" rx="1.5" fill="#FFFFFF" transform="rotate(-30)" />
+        <g transform={`translate(${x} ${y}) rotate(-25)`}>
+          <rect x="-13" y="-4.5" width="26" height="9" rx="2" fill="#6F7A8C" stroke="#B43A6B" strokeWidth="2.5" />
+          <path d="M-8 0 H-3 M2 0 H7" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
         </g>
       );
     case 1: // lighthouse

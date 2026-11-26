@@ -165,6 +165,9 @@
 .fp-key.is-done { background: linear-gradient(var(--go-top), var(--go-bottom)); font-family: var(--font-display) !important; font-size: 1.15rem !important; }
 .fp-key.is-done[aria-disabled="true"] { background: #e6e1d6; }
 .fp-key.is-model { opacity: 1; animation: fp-model 1.4s ease-in-out infinite; }
+/* worked model: the digits are filled in, so only Done stays (frees room for the steps) */
+.fp-keypad.is-model-on { grid-template-columns: minmax(140px, 200px); justify-content: center; }
+.fp-keypad.is-model-on .fp-key:not(.is-done) { display: none; }
 
 /* ---------- weather ---------- */
 .fp-metar { padding: 8px 10px; border-radius: 14px; background: var(--navy); border: 3px solid var(--ink); color: #fff; }
@@ -346,6 +349,9 @@
   .fp-row-body .fp-metar-code { font-size: 14.5px; }
   .fp-model li { font-size: 15px; }
   .fp-method, .fp-note { font-size: 15px; padding: 4px 8px; }
+  /* the board itself already shows these models (pairs filled in; rows marked OK / problem) */
+  .mode-decode .fp-model, .mode-brief .fp-model { display: none; }
+  .fp-model { padding: 4px 8px; }
 }
 
 /* ---------- reduced motion ---------- */
