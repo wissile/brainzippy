@@ -9,9 +9,10 @@ import type { ContentPack } from "../../types";
  *
  * Topics and skills are new ids (none existed in library-pilot). Prerequisites stay inside this world or point at
  * a registered skill whose age range ends below 12 (pilot.flight.four-forces, taught by Sky Hoops, so it is assumed
- * by age and never locks the world). Soft prerequisites, documented only: pilot.nav.pilotage / nav.headings for
- * time-speed-distance, pilot.wx.fronts / wx.wind for METARs (not registered yet; registering them here would lock
- * the world in the daily planner).
+ * by age and never locks the world). Soft prerequisites, documented only: pilot.nav.headings and pilot.wx.wind are
+ * registered by compass-runways (ages up to 12), but listing them here would make this world wait for Compass in the
+ * daily planner for children whose band starts below 12, so nav.tsd and wx.metar keep `prerequisites: []`;
+ * pilot.nav.pilotage and pilot.wx.fronts are not registered yet.
  */
 const pack: ContentPack = {
   id: "flight-plan",
@@ -71,7 +72,7 @@ const pack: ContentPack = {
       topic: "pilot.adm",
       skills: ["pilot.aero.aoa", "pilot.nav.tsd", "pilot.wx.metar", "pilot.reg.preflight", "pilot.adm.risk"],
       ages: [12, 14],
-      maxLevel: 7,
+      maxLevel: 9,
       title: "Ziggy's Flight Plan",
       gameType: "flight-planning game",
       blurb: "Plan Ziggy's flight to the island festival: the wing, the route, the weather, the checklist and the final call.",

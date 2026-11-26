@@ -266,11 +266,11 @@ test("misses on matching, ordering and choosing: right parts stay, the model com
   test.setTimeout(240_000);
   const errors = collectErrors(page);
   // weather decode (match)
-  const dec = await startAt(page, 3, "decode");
+  const dec = await startAt(page, 4, "decode");
   if (dec.answer.kind !== "match") throw new Error("match");
   const a = dec.answer;
   const last = a.items[a.items.length - 1]!;
-  const rest = a.items.slice(0, -1); // level 3: three groups, so two to swap
+  const rest = a.items.slice(0, -1); // level 4: three groups, so two to swap
   const swap = async () => {
     for (const [i, it] of rest.entries()) {
       await press(page, sel(it.id));
@@ -295,8 +295,8 @@ test("misses on matching, ordering and choosing: right parts stay, the model com
   await press(page, '[data-testid="done"]');
   await nextExercise(page, dec.id);
 
-  // checklist order (sequence with a skip card at level 6)
-  const ord = await startAt(page, 6, "order");
+  // checklist order (sequence with a skip card at level 9)
+  const ord = await startAt(page, 9, "order");
   if (ord.answer.kind !== "sequence") throw new Error("sequence");
   const skip = ord.answer.pieces.find((pc) => pc.id.startsWith("k"))!;
   const wrongOrder = [skip.id, ...ord.answer.order.slice(0, -1)].reverse();
@@ -339,15 +339,15 @@ test("every inner game plays by tap and keyboard (and drag on desktop)", async (
     { level: 1, mode: "speed", way: "tap" },
     { level: 1, mode: "engine", way: "keyboard" },
     { level: 3, mode: "recover", way: "tap" },
-    { level: 4, mode: "flaps", way: desktop ? "drag" : "keyboard" },
+    { level: 6, mode: "flaps", way: desktop ? "drag" : "keyboard" },
     { level: 2, mode: "time", way: "keyboard" },
     { level: 7, mode: "time", way: "tap" },
     { level: 2, mode: "decode", way: "keyboard" },
-    { level: 7, mode: "decode", way: desktop ? "drag" : "tap" },
+    { level: 9, mode: "decode", way: desktop ? "drag" : "tap" },
     { level: 6, mode: "call", way: "tap" },
     { level: 5, mode: "order", way: "keyboard" },
-    { level: 7, mode: "order", way: desktop ? "drag" : "tap" },
-    { level: 4, mode: "missed", way: "tap" },
+    { level: 9, mode: "order", way: desktop ? "drag" : "tap" },
+    { level: 6, mode: "missed", way: "tap" },
     { level: 5, mode: "imsafe", way: "keyboard" },
     { level: 5, mode: "brief", way: "tap" },
     { level: 0, mode: "brief", way: "keyboard" },
@@ -368,8 +368,8 @@ test("the planning room fits every viewport for every inner game", async ({ page
   test.skip(info.project.name !== "desktop", "viewport sweep runs once (it resizes through all four sizes)");
   test.setTimeout(300_000);
   const cases: { level: number; mode: Mode }[] = [
-    { level: 0, mode: "find" }, { level: 0, mode: "time" }, { level: 1, mode: "speed" }, { level: 7, mode: "decode" }, { level: 7, mode: "call" },
-    { level: 7, mode: "order" }, { level: 4, mode: "missed" }, { level: 6, mode: "imsafe" }, { level: 7, mode: "brief" }, { level: 7, mode: "time" },
+    { level: 0, mode: "find" }, { level: 0, mode: "time" }, { level: 1, mode: "speed" }, { level: 9, mode: "decode" }, { level: 9, mode: "call" },
+    { level: 9, mode: "order" }, { level: 6, mode: "missed" }, { level: 6, mode: "imsafe" }, { level: 9, mode: "brief" }, { level: 6, mode: "time" },
   ];
   for (const vp of VIEWPORTS) {
     await page.setViewportSize(vp);

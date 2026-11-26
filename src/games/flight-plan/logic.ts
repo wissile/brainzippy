@@ -227,10 +227,14 @@ export function cardFails(m: Metar, useGust: boolean): WxFail[] {
 }
 
 // ------------------------------------------------------------------------------------------------ checklists
-/** Planning-to-take-off steps, in their one sensible order (each step needs the one before it). */
+/**
+ * Planning-to-take-off steps, in their one sensible order (each step needs the one before it). The route step says it
+ * uses the forecast winds, so the weather briefing has to come first (learning review: "weather" and "route" alone
+ * could sensibly be done either way round).
+ */
 export const STEPS = [
   "Get the weather briefing",
-  "Plan the route and leg times",
+  "Plan the route and leg times with the forecast winds",
   "Work out the fuel needed, plus a reserve",
   "Walk around and inspect the plane",
   "Brief Bobbo: seat belt, door, quiet for take-off",

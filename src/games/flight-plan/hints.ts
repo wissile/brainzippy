@@ -95,7 +95,7 @@ export function modelSteps(ex: Pick<Exercise, "params" | "answer">): string[] {
       return [
         "Lift climbs as the angle grows.",
         `It peaks at ${crit}°: the critical angle.`,
-        `Past ${crit}° the smoke breaks away: stalled.${mode === "flaps" ? " Flaps give more lift but stall at a smaller angle." : ""}`,
+        `Past ${crit}° the smoke breaks away: stalled.${mode === "flaps" ? " Flaps give more lift, so the plane can fly slower before it stalls, but the wing stalls at a smaller angle." : ""}`,
       ];
     case "lift":
       return p(ex, "v") === 0
@@ -108,7 +108,7 @@ export function modelSteps(ex: Pick<Exercise, "params" | "answer">): string[] {
     case "engine":
       return ["This model has no engine, and it still stalled.", "A stall = the wing passes its critical angle and the smooth airflow breaks away."];
     case "recover":
-      return ["Lower the nose: a smaller angle of attack.", `Below ${crit}° the smoke flows smoothly again.`];
+      return ["First, lower the nose: a smaller angle of attack.", `Below ${crit}° the smoke flows smoothly again.`, "Then add power smoothly to climb away."];
     case "time": {
       const d = p(ex, "d"), tas = p(ex, "tas"), wind = p(ex, "wind"), d2 = p(ex, "d2");
       const gs = groundspeed(tas, wind);

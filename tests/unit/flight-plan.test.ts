@@ -8,7 +8,7 @@ import { correctValue, lintExercise, validateAnswer } from "../../src/engine/val
 import { getLibrary, getSkill, getWorld } from "../../src/content";
 import { renderLine } from "../../src/audio/voiceLines";
 import { flightPlan, fpTutorial } from "../../src/games/flight-plan/definition";
-import { BAND, FP_MAX_LEVEL, LEVELS, MODE_SKILL, generateFlightPlan, makeMetar, metarOf, metarParams, roundDistances } from "../../src/games/flight-plan/generator";
+import { BAND, FP_MAX_LEVEL, LEVELS, MODE_SKILL, type Slot, generateFlightPlan, makeMetar, metarOf, metarParams, roundDistances } from "../../src/games/flight-plan/generator";
 import { explainFor, hintFor, modelSteps, praiseFor } from "../../src/games/flight-plan/hints";
 import {
   AOA_MAX, BASES, CARD, CRITS, DEWS, FLAP_DROP, GAME_OF, GUSTS, type GroupKind, MODES, PILOT_SCENES, SPEED_MAX, SPEED_MIN, STALL_TOLERANCE, STEPS, TEMPS, TIMES,
@@ -94,6 +94,16 @@ describe("generator: determinism and lint over every level × 50 seeds", () => {
   });
 });
 
+describe("objectives (grown-up/site text, never shown or read to the learner) never carry the item's answer", () => {
+  it("answer-dependent modes share one objective; stall-angle objectives never name the angle", () => {
+    for (const mode of ["find", "flaps", "call", "missed", "imsafe", "brief"]) {
+      const objs = new Set(ofMode(mode).map((e) => e.objective));
+      expect([...objs], mode).toHaveLength(1);
+    }
+    for (const ex of [...ofMode("find"), ...ofMode("flaps"), fpTutorial]) expect(ex.objective, ex.id).not.toContain(`${ex.params!.crit}°`);
+  });
+});
+
 describe("rounds: mixed inner games, ending with the go / no-go briefing (R5a)", () => {
   it("at every level and pace, the last item is the briefing and earlier items never are", () => {
     const cfg = flightPlan.progression;
@@ -125,8 +135,30 @@ describe("rounds: mixed inner games, ending with the go / no-go briefing (R5a)",
     expect(firstLevel((m) => GAME_OF[m as keyof typeof GAME_OF] === "tunnel")).toBe(0);
     expect(firstLevel((m) => m === "time")).toBe(0);
     expect(firstLevel((m) => GAME_OF[m as keyof typeof GAME_OF] === "wx")).toBe(2);
-    expect(firstLevel((m) => m === "order")).toBe(3);
-    expect(firstLevel((m) => m === "imsafe")).toBe(4);
+    expect(firstLevel((m) => m === "order")).toBe(4);
+    expect(firstLevel((m) => m === "imsafe")).toBe(5);
+  });
+  it("from level 3 on, each level adds at most three new ideas (the rest of the band is review)", () => {
+    const ideas = (sl: Slot): string[] => {
+      switch (sl.mode) {
+        case "lift": return [`lift:${sl.v}`];
+        case "speed": return sl.v === "any" ? ["speed:fast", "speed:slow"] : [`speed:${sl.v}`];
+        case "time": return [`time:${sl.kind}`];
+        case "decode": return [...sl.groups.map((g) => `group:${g}`), ...(sl.gust ? ["gust"] : [])];
+        case "call": return ["call", ...sl.fails.map((f) => (f === "gust" ? "gust" : `card:${f}`)), ...(sl.trap ? ["trap"] : []), ...(sl.layers2 ? ["group:cloud2"] : [])];
+        case "order": return ["order", ...(sl.skip ? ["skip"] : [])];
+        case "imsafe": return ["imsafe", ...(sl.push ? ["push"] : [])];
+        case "brief": return ["brief", ...sl.factors.map((f) => `factor:${f}`), ...(sl.pressure ? ["pressure"] : [])];
+        default: return [sl.mode];
+      }
+    };
+    const seen = new Set<string>();
+    LEVELS.forEach((l, lv) => {
+      const fresh = new Set(l.slots.flatMap(ideas).filter((x) => !seen.has(x)));
+      if (lv >= 3) expect([...fresh].length, `L${lv}: ${[...fresh].join(", ")}`).toBeLessThanOrEqual(3);
+      if (lv >= 3) expect(fresh.size, `L${lv} adds something`).toBeGreaterThan(0);
+      for (const x of fresh) seen.add(x);
+    });
   });
 });
 
@@ -301,6 +333,11 @@ describe("checklist, IMSAFE and the briefing", () => {
       expect(ex.answer.pieces.some((pc) => pc.id.startsWith("k"))).toBe(ex.params!.skip! >= 0);
     }
   });
+  it("the route step says it needs the forecast winds, so the weather briefing has to come first", () => {
+    expect(STEPS[0]).toMatch(/weather briefing/i);
+    expect(STEPS[1]).toMatch(/route/i);
+    expect(STEPS[1]).toMatch(/forecast winds/i);
+  });
   it("IMSAFE items: the right option matches the scenario; 'push through' is never right", () => {
     for (const ex of ofMode("imsafe")) {
       if (ex.answer.kind !== "choice") throw new Error("choice");
@@ -374,6 +411,32 @@ describe("hints, praise and models", () => {
     expect(hintFor(exerciseReducer(initExercise(imsafe), { type: "SUBMIT", value: "push" }))).toBe("fp.hint.push");
     const brief = ofMode("brief").find((e) => e.answer.kind === "choice" && e.answer.options.some((o) => o.id === "pressure"))!;
     expect(hintFor(exerciseReducer(initExercise(brief), { type: "SUBMIT", value: "pressure" }))).toBe("fp.hint.pressure");
+  });
+});
+
+describe("learning-review wording: flaps and stall recovery", () => {
+  it("flaps lower the stall speed (fly slower before it stalls) while the stall angle gets smaller; never 'stalls sooner'", () => {
+    const help = lines["fp.help.flaps"]!.text;
+    expect(help).toMatch(/fly slower before it stalls/);
+    expect(help).toMatch(/smaller angle/);
+    expect(help).not.toMatch(/sooner/i);
+    const flaps = ofMode("flaps")[0]!;
+    const model = modelSteps(flaps).join(" ");
+    expect(model).toMatch(/fly slower/);
+    expect(model).not.toMatch(/sooner/i);
+  });
+  it("recovery: lower the nose first, then add power smoothly (the 'add power and keep the nose up' option stays wrong)", () => {
+    for (const ex of ofMode("recover")) {
+      const steps = modelSteps(ex);
+      const lower = steps.findIndex((x) => /lower the nose/i.test(x));
+      const power = steps.findIndex((x) => /add power smoothly/i.test(x));
+      expect(lower, ex.id).toBe(0);
+      expect(power, ex.id).toBeGreaterThan(lower);
+      if (ex.answer.kind !== "choice") throw new Error("choice");
+      expect(ex.answer.correct).toBe("lower");
+    }
+    expect(lines["fp.praise.recover"]!.text).toMatch(/nose first, then add power smoothly/);
+    expect(lines["fp.hint.power"]!.text).toMatch(/Power helps later/);
   });
 });
 

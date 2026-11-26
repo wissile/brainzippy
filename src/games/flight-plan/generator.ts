@@ -12,18 +12,20 @@ import {
  * Pedagogy, sources and the full level table: docs/worlds/flight-plan.md. Spec: docs/curriculum/pilot.md §3 (worlds 4, 6, 8, 10).
  *
  * A round is one flight plan: 7 planning items from up to four inner games, then the go/no-go briefing, which is a
- * `closer` (engine R5a) so it always ends the round. Inner games unlock across levels:
+ * `closer` (engine R5a) so it always ends the round. Inner games unlock across levels, and from level 3 on each level
+ * adds at most three new ideas (learning review); the rest of the band is review:
  *
- *   Lv  inner games in the band (index 0–6)                                   briefing factors (index 7, closer)
+ *   Lv  new ideas (index 0–6)                                                          briefing factors (index 7, closer)
  *   0   tunnel: find the stall (live graph) · lift vs speed/angle · leg: 60/120 kt         route fuel · plane
- *   1   tunnel: find · stalls at any speed · a stall isn't the engine · leg: any speed     route fuel · plane
+ *   1   stalls at any speed · slow isn't stalled · a stall isn't the engine · any speed    route fuel · plane
  *   2   + weather: decode wind + visibility · fly/wait (vis, wind) · find (graph on hint)  + weather
- *   3   + checklist order (4 steps) · decode + cloud · ceiling on the card · head/tailwind · recover
- *   4   + IMSAFE · missed planning item · decode + time (Zulu) · flaps                     route · weather · pilot
- *   5   + rounding to the nearest minute · temp/dew point · "a scattered layer isn't a ceiling" · 5 steps
- *                                                                                          all four + "Bobbo can't be late"
- *   6   + gusts (decode + card) · a "skip it" step to leave out · rounding with wind · flaps (graph on hint)
- *   7   + two cloud layers · two-leg total · everything mixed
+ *   3   head/tailwind · stall recovery (lower the nose, then power)
+ *   4   cloud group + ceiling on the card · checklist order (4 steps)
+ *   5   IMSAFE · Zulu time (2 misconception tiles)                                         route · weather · pilot
+ *   6   flaps · missed planning item · two-leg total
+ *   7   nearest minute · temperature/dew point · two cloud layers                          all four
+ *   8   "a scattered layer isn't a ceiling" · IMSAFE "push through" · pressure             all four + "Bobbo can't be late"
+ *   9   gusts (decode + card) · 5 steps with a "skip it" card · mixed: rounding with wind, flaps (graph on hint)
  *
  * Distractors target named misconceptions (wind "to", km, ×100 cloud bases, local time, high/low temperatures,
  * "can't stall when fast", "a stall is the engine stopping", "pull up to recover", adding speed and distance,
@@ -61,6 +63,9 @@ export type Slot =
 export interface LevelSpec { label: string; slots: readonly Slot[] }
 const W2: GroupKind[] = ["wind", "vis"];
 const W3: GroupKind[] = ["wind", "vis", "cloud"];
+const W4T: GroupKind[] = ["time", "wind", "vis", "cloud"];
+const W4D: GroupKind[] = ["wind", "vis", "cloud", "temp"];
+const W5D: GroupKind[] = ["wind", "vis", "cloud", "cloud2", "temp"];
 export const LEVELS: readonly LevelSpec[] = [
   {
     label: "Wind tunnel and leg timer: find the stall; minutes at 60 or 120 knots",
@@ -84,38 +89,52 @@ export const LEVELS: readonly LevelSpec[] = [
     ],
   },
   {
-    label: "Checklist order opens; cloud groups and the ceiling; head- and tailwinds; stall recovery",
+    label: "Head- and tailwinds; stall recovery",
     slots: [
-      { mode: "decode", groups: W3, distractors: 1 }, { mode: "time", kind: "wind" }, { mode: "order", n: 4, skip: false }, { mode: "call", fails: ["ceiling", "vis", "wind"] },
-      { mode: "recover" }, { mode: "time", kind: "wind" }, { mode: "decode", groups: W3, distractors: 2 }, { mode: "brief", factors: ["route", "wx", "plane"], pressure: false },
+      { mode: "decode", groups: W2, distractors: 1 }, { mode: "time", kind: "wind" }, { mode: "recover" }, { mode: "call", fails: ["vis", "wind"] },
+      { mode: "speed", v: "any" }, { mode: "time", kind: "wind" }, { mode: "find", graph: false }, { mode: "brief", factors: ["route", "wx", "plane"], pressure: false },
     ],
   },
   {
-    label: "IMSAFE and the missed planning item; Zulu time; flaps",
+    label: "Cloud groups and the ceiling; checklist order opens",
     slots: [
-      { mode: "order", n: 4, skip: false }, { mode: "decode", groups: ["time", "wind", "vis", "cloud"], distractors: 2 }, { mode: "time", kind: "wind" }, { mode: "imsafe", push: false },
+      { mode: "decode", groups: W3, distractors: 1 }, { mode: "time", kind: "wind" }, { mode: "order", n: 4, skip: false }, { mode: "call", fails: ["ceiling", "vis", "wind"] },
+      { mode: "recover" }, { mode: "decode", groups: W3, distractors: 1 }, { mode: "time", kind: "mixed" }, { mode: "brief", factors: ["route", "wx", "plane"], pressure: false },
+    ],
+  },
+  {
+    label: "IMSAFE; Zulu time",
+    slots: [
+      { mode: "imsafe", push: false }, { mode: "decode", groups: W4T, distractors: 2 }, { mode: "time", kind: "wind" }, { mode: "order", n: 4, skip: false },
+      { mode: "call", fails: ["ceiling", "vis", "wind"] }, { mode: "speed", v: "any" }, { mode: "imsafe", push: false }, { mode: "brief", factors: ["route", "wx", "pilot"], pressure: false },
+    ],
+  },
+  {
+    label: "Flaps; the missed planning item; two-leg totals",
+    slots: [
+      { mode: "order", n: 4, skip: false }, { mode: "decode", groups: W4T, distractors: 2 }, { mode: "time", kind: "total" }, { mode: "imsafe", push: false },
       { mode: "flaps", graph: true }, { mode: "call", fails: ["ceiling", "vis", "wind"] }, { mode: "missed" }, { mode: "brief", factors: ["route", "wx", "pilot"], pressure: false },
     ],
   },
   {
-    label: "Nearest minute; temperature and dew point; a scattered layer isn't a ceiling; five steps",
+    label: "Nearest minute; temperature and dew point; two cloud layers",
     slots: [
-      { mode: "imsafe", push: true }, { mode: "time", kind: "round" }, { mode: "decode", groups: ["wind", "vis", "cloud", "temp"], distractors: 2 }, { mode: "order", n: 5, skip: false },
-      { mode: "find", graph: false }, { mode: "call", fails: ["ceiling", "vis", "wind"], trap: true }, { mode: "missed" }, { mode: "brief", factors: ["route", "wx", "pilot", "plane"], pressure: true },
+      { mode: "decode", groups: W4D, distractors: 2 }, { mode: "time", kind: "round" }, { mode: "missed" }, { mode: "call", fails: ["ceiling", "vis", "wind"], layers2: true },
+      { mode: "find", graph: false }, { mode: "decode", groups: W5D, distractors: 2 }, { mode: "time", kind: "round" }, { mode: "brief", factors: ["route", "wx", "pilot", "plane"], pressure: false },
     ],
   },
   {
-    label: "Gusts; leave out the step that skips safety; rounding with wind",
+    label: "Traps and pressure: a scattered layer isn't a ceiling; \"push through\"; \"Bobbo can't be late\"",
     slots: [
-      { mode: "decode", groups: ["wind", "vis", "cloud", "temp"], distractors: 2, gust: true }, { mode: "time", kind: "roundWind" }, { mode: "flaps", graph: false }, { mode: "imsafe", push: true },
-      { mode: "call", fails: ["ceiling", "vis", "wind", "gust"], gust: true }, { mode: "order", n: 5, skip: true }, { mode: "time", kind: "wind" }, { mode: "brief", factors: ["route", "wx", "pilot", "plane"], pressure: true },
+      { mode: "imsafe", push: true }, { mode: "time", kind: "round" }, { mode: "decode", groups: W4D, distractors: 2 }, { mode: "order", n: 4, skip: false },
+      { mode: "call", fails: ["ceiling", "vis", "wind"], trap: true }, { mode: "flaps", graph: true }, { mode: "missed" }, { mode: "brief", factors: ["route", "wx", "pilot", "plane"], pressure: true },
     ],
   },
   {
-    label: "Full plan: two cloud layers, two-leg totals, everything mixed",
+    label: "Gusts; five steps and a card that skips safety; rounding with wind; everything mixed",
     slots: [
-      { mode: "decode", groups: ["wind", "vis", "cloud", "cloud2", "temp"], distractors: 2, gust: true }, { mode: "time", kind: "total" }, { mode: "recover" }, { mode: "order", n: 5, skip: true },
-      { mode: "call", fails: ["ceiling", "vis", "wind", "gust"], trap: true, gust: true, layers2: true }, { mode: "imsafe", push: true }, { mode: "missed" },
+      { mode: "decode", groups: W5D, distractors: 2, gust: true }, { mode: "time", kind: "roundWind" }, { mode: "flaps", graph: false }, { mode: "imsafe", push: true },
+      { mode: "call", fails: ["ceiling", "vis", "wind", "gust"], trap: true, gust: true, layers2: true }, { mode: "order", n: 5, skip: true }, { mode: "time", kind: "total" },
       { mode: "brief", factors: ["route", "wx", "pilot", "plane"], pressure: true },
     ],
   },
@@ -142,7 +161,8 @@ export function tunnelFind(level: number, rng: Rng, opts: { flaps: boolean; grap
   return {
     id: opts.id,
     skillId: SKILL.aoa,
-    objective: opts.flaps ? `Find the fictional wing's stall angle with flaps down (${crit}°, ±1°)` : `Find the fictional wing's critical angle of attack (${crit}°, ±1°)`,
+    // objectives are for grown-ups and the site, never shown or read to the learner; still, they never carry the answer
+    objective: opts.flaps ? "Find a fictional wing's stall angle with flaps down, to within 1°" : "Find a fictional wing's critical angle of attack, to within 1°",
     ages: FP_AGES,
     interaction: "choose",
     objectKind: "tunnel",
@@ -213,7 +233,7 @@ function tunnelChoice(level: number, rng: Rng, slot: Extract<Slot, { mode: "lift
       const aoa = wing.crit + rng.int(3, 5);
       return {
         ...base, id,
-        objective: "To recover from a stall, first lower the nose (reduce the angle of attack)",
+        objective: "To recover from a stall, first lower the nose (reduce the angle of attack), then add power smoothly",
         answer: { kind: "choice", correct: "lower", options: shuffle([opt("lower", "Lower the nose: make the angle smaller"), opt("pull", "Pull the nose up even more"), opt("power", "Add power and keep the nose up")]) },
         params: { m: m("recover"), crit: wing.crit, clean: wing.crit, flaps: 0, w: wing.w, spd: 100, aoa, graph: 1, lv: level },
         prompt: { line: "fp.prompt.recover", text: `The ${name.toLowerCase()} stalled at ${aoa}°. What brings the smooth airflow back?` },
@@ -422,7 +442,7 @@ function callItem(level: number, rng: Rng, slot: Extract<Slot, { mode: "call" }>
   return {
     id,
     skillId: SKILL.metar,
-    objective: fail ? `Compare the METAR with the practice card: the ${fail} is outside it, so wait` : "Compare the METAR with the practice card: everything is inside it, so fly",
+    objective: "Compare a METAR with the practice card, line by line, and decide fly or wait",
     ages: FP_AGES,
     interaction: "choose",
     objectKind: "metar",
@@ -469,7 +489,7 @@ function missedItem(level: number, rng: Rng, id: string, seed: number): Item {
   return {
     id,
     skillId: SKILL.preflight,
-    objective: `Spot the missing planning item: ${PLAN_TITLE[miss].toLowerCase()}`,
+    objective: "Spot which planning item is missing from Ziggy's notes",
     ages: FP_AGES,
     interaction: "choose",
     objectKind: "checklist",
@@ -490,7 +510,7 @@ function imsafeItem(level: number, rng: Rng, slot: Extract<Slot, { mode: "imsafe
   return {
     id,
     skillId: SKILL.risk,
-    objective: why === "ready" ? "Use IMSAFE to decide the pilot is fit to fly" : `Use IMSAFE to spot that the pilot is not fit to fly (${why})`,
+    objective: "Use IMSAFE to decide whether the pilot is fit to fly",
     ages: FP_AGES,
     interaction: "choose",
     objectKind: "pilot",
@@ -531,7 +551,7 @@ function briefItem(level: number, rng: Rng, slot: Extract<Slot, { mode: "brief" 
   return {
     id,
     skillId: SKILL.risk,
-    objective: correct === "go" ? "Check every factor of the briefing; all are fine, so it's a go" : `Check every factor; the ${fail} factor says ${correct === "wait" ? "wait" : "no-go until it's sorted"}`,
+    objective: "Check every factor of the briefing and make the go, wait or no-go call",
     ages: FP_AGES,
     interaction: "choose",
     objectKind: "brief",
