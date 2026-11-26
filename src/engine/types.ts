@@ -92,6 +92,12 @@ export interface Exercise {
   seed: number;
   /** True for the guided first exercise (pointer tutorial). Tutorials play on level 0 only. */
   tutorial?: boolean;
+  /**
+   * Round closer (R5a): a finale that brings the round together (e.g. a go/no-go decision after the planning items).
+   * Never served before the round's last slot; on the last slot an unplayed closer is served first (nearest
+   * difficulty first). Needs `selectNextExercise(pool, state, config)`; without `config` closers are only a fallback.
+   */
+  closer?: boolean;
   /** Plain-language description for screen readers. */
   a11yDescription: string;
   /** Game-specific numbers the board needs (e.g. { a: 7, b: 6 } or { start: 3, hops: 4 }). */

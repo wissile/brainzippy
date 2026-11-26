@@ -51,6 +51,7 @@ export const EXERCISE_PREFIX: Record<string, string> = {
   "pattern-parade": "pp", "shape-squish": "ss", "sleepy-trail": "st", "paper-boat-post": "pb", "wordroot-grove": "wg", "lantern-press": "lp",
   "compass-runways": "cr",
   "busy-airport": "ba",
+  "flight-plan": "fp",
 };
 
 /**

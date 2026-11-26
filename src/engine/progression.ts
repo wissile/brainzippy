@@ -11,6 +11,8 @@ import type { Difficulty, Exercise, ExerciseResult, ProgressionConfig, Progressi
  *  R5  The next exercise is an unplayed one at the current difficulty, preferring (a) an interaction/answer kind
  *      different from the previous one, then (b) the kind played least so far this round, then (c) pool order;
  *      if the difficulty is exhausted, the nearest difficulty (lower first).
+ *  R5a Exercises marked `closer` (a round finale) are held back until the round's last slot; there an unplayed
+ *      closer is served first, nearest difficulty first. Needs `config` (roundLength); pools without closers are unaffected.
  *  R6  The round ends after `roundLength` exercises.
  */
 
@@ -63,22 +65,36 @@ export function isRoundComplete(state: ProgressionState, config: ProgressionConf
 const variety = (e: Exercise) => `${e.interaction}:${e.answer.kind}`;
 
 /** Pick the next exercise from a round's pool (a `Round` from `buildRound`, or any `{ exercises }`). */
-export function selectNextExercise(pool: { readonly exercises: readonly Exercise[] }, state: ProgressionState): Exercise | undefined {
+export function selectNextExercise(
+  pool: { readonly exercises: readonly Exercise[] },
+  state: ProgressionState,
+  config?: Pick<ProgressionConfig, "roundLength">,
+): Exercise | undefined {
   const all = pool.exercises;
-  const unplayed = all.filter((e) => !state.played.includes(e.id));
-  if (unplayed.length === 0) return undefined;
+  const open = all.filter((e) => !state.played.includes(e.id));
+  if (open.length === 0) return undefined;
 
   if (state.played.length === 0) {
-    const tutorial = unplayed.find((e) => e.tutorial);
+    const tutorial = open.find((e) => e.tutorial);
     if (tutorial) return tutorial;
   }
-
-  const lastId = state.played[state.played.length - 1];
-  const last = all.find((e) => e.id === lastId);
 
   const maxD = Math.max(...all.map((e) => e.difficulty), state.difficulty);
   const order: number[] = [state.difficulty];
   for (let delta = 1; delta <= maxD; delta++) order.push(state.difficulty - delta, state.difficulty + delta);
+
+  // R5a: closers wait for the round's last slot, where one is served first (nearest difficulty, lower first)
+  if (config && state.results.length >= config.roundLength - 1) {
+    for (const d of order) {
+      const closer = open.find((e) => e.closer && !e.tutorial && e.difficulty === d);
+      if (closer) return closer;
+    }
+  }
+  const regular = open.filter((e) => !e.closer);
+  const unplayed = regular.length ? regular : open;
+
+  const lastId = state.played[state.played.length - 1];
+  const last = all.find((e) => e.id === lastId);
 
   const used = new Map<string, number>();
   for (const id of state.played) {
