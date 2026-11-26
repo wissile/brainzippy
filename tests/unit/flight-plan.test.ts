@@ -261,17 +261,18 @@ describe("weather: METARs this world generates parse back exactly, and decode co
   });
   it("decode items: every METAR group item pairs with its plain-language tile; distractor tiles carry the misconception", () => {
     for (const ex of ofMode("decode")) {
-      if (ex.answer.kind !== "match") throw new Error("match");
+      const a = ex.answer;
+      if (a.kind !== "match") throw new Error("match");
       const x = metarOf(ex.params!);
       const groups = metarGroups(x);
-      for (const it of ex.answer.items) {
+      for (const it of a.items) {
         const k = it.id.slice(2) as GroupKind;
         expect(it.text).toBe(groups.find((g) => g.kind === k)!.text);
-        expect(ex.answer.targets.find((t) => t.id === ex.answer.pairs[it.id])!.text).toBe(groupMeaning(k, x).right);
+        expect(a.targets.find((t) => t.id === a.pairs[it.id])!.text).toBe(groupMeaning(k, x).right);
       }
-      const tiles = new Set(ex.answer.targets.map((t) => t.text));
-      expect(tiles.size, ex.id).toBe(ex.answer.targets.length); // no two tiles read the same
-      expect(ex.answer.targets.length).toBeGreaterThan(ex.answer.items.length);
+      const tiles = new Set(a.targets.map((t) => t.text));
+      expect(tiles.size, ex.id).toBe(a.targets.length); // no two tiles read the same
+      expect(a.targets.length).toBeGreaterThan(a.items.length);
     }
   });
   it("fly/wait items break at most one card line, and the right option names it", () => {
@@ -344,7 +345,8 @@ describe("hints, praise and models", () => {
       if (a.kind === "number") wrongs.push(...legMistakes({ d: ex.params!.d!, tas: ex.params!.tas!, wind: ex.params!.wind!, d2: ex.params!.d2! }).map((x) => x.value).filter((v) => v !== a.value && v >= 0), a.value + 7);
       if (a.kind === "sequence") wrongs.push([...a.order].reverse(), a.pieces.map((pc) => pc.id).slice(0, a.order.length));
       if (a.kind === "match") {
-        const wrong = Object.fromEntries(a.items.map((it, i) => [it.id, a.targets[(a.targets.findIndex((t) => t.id === a.pairs[it.id]) + 1 + i) % a.targets.length]!.id]));
+        const { items, targets, pairs } = a;
+        const wrong = Object.fromEntries(items.map((it, i) => [it.id, targets[(targets.findIndex((t) => t.id === pairs[it.id]) + 1 + i) % targets.length]!.id]));
         wrongs.push(wrong);
       }
       for (const w of wrongs) {
