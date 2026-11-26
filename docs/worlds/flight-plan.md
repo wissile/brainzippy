@@ -70,7 +70,7 @@ First miss: Dabble's line is diagnosed from the miss (`hints.ts`), e.g. too low 
 Intro (4): Ziggy, the calmest pilot at Sky School · flying Bobbo to the festival tomorrow · good pilots plan first · "Will you be my co-pilot?". Between (2, 4, 6). Outro (3): go / wait / fix beat, Ziggy at the festival, sticker **Co-pilot's Clipboard**.
 
 ## Voice
-`voice.json`: 133 lines (Ziggy, Dabble, narrator), METAR reading lines with `vary` lists that cover every generated value (unit-tested); no line praises ability. Clips are rendered by the lead (Kokoro); the clip-coverage unit test fails until then.
+`voice.json`: 118 lines (Ziggy, Dabble, narrator), METAR reading lines with `vary` lists that cover every generated value (unit-tested); no line praises ability. Clips are rendered by the lead (Kokoro); the clip-coverage unit test fails until then.
 
 ## Accessibility
 Every control is a `<button>` (or a native range input) with an action label; drag is optional everywhere; keyboard: Tab/Enter/Space, arrow keys on sliders, digits/Backspace/Enter on the keypad, Backspace on the checklist. Targets ≥ 44 px (sliders' thumbs 44 px, steppers 48 px, keypad 52 px). Reduced motion: no smoke flow, eddies, windsock or cloud drift, no pulses. Calm mascot states (no bouncy celebrations) for the age group.
