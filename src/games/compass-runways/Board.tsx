@@ -6,9 +6,9 @@ import {
   BOARD_VIEW, CR, CompassRose, FieldDecor, Leaf, PlaneTop, RUNWAY_HALF, RunwayArt, SockSide, SockTop, TurnArc, WindStreaks,
 } from "./art";
 import {
-  GAME_NAME, type Kind, type Mode, POINT_NAME, type Point, STRENGTH_ID, STRENGTH_TEXT, airportEnds, angleDiff, answerFor, decode, entryOf,
-  fmtHeading, fmtRunway, headingFromVector, modeOf, norm, reciprocal, runwayHeading, runwayNumber, sockPoints, stepValue, typedValue, vec,
-  working, wraps,
+  GAME_NAME, type Kind, type Mode, POINT_NAME, type Point, STRENGTH_ID, STRENGTH_TEXT, airportEnds, angleDiff, answerFor, checkedValue, decode,
+  entryOf, fmtEntry, fmtHeading, fmtRunway, headingFromVector, modeOf, norm, reciprocal, runwayHeading, runwayNumber, sockPoints, stepValue,
+  typedValue, vec, working, wraps,
 } from "./logic";
 import { TOWER_KNOTS } from "./generator";
 import "./compass-runways.css";
@@ -19,7 +19,9 @@ import "./compass-runways.css";
  *  Windsock Reader   read the sock (side view for strength; on the rose for direction) → tap an answer in the deck
  *  Runway Painter    paint: enter the number (− / + steppers, keypad, digit or arrow keys) → Check
  *                    rotate: drag around the rose to turn the runway (snaps to 10°), or the turn buttons / arrow keys → Check
- *  Heading Turns     drag the plane's nose round the rose (snaps to 5°), or −10 −1 +1 +10 / keypad / keys → Check
+ *  Heading Turns     drag the plane's nose round the rose (snaps to 5°), or −10 −1 +1 +10 / keypad / keys → Check.
+ *                    The keypad (and keyboard) also takes values off the compass — "420", or "−30" with the minus key —
+ *                    so an unwrapped turn can be checked as a miss and Gloop teaches the wrap (steppers and dial wrap).
  *  Into the Wind     tap a runway end on the map (each end is a labelled button) · headwind/crosswind/tailwind in the deck
  *  Tower Talk        a radio call in the deck; answer on the map (runway ends) or in the deck (headings, wind)
  *
@@ -76,7 +78,9 @@ export function CompassBoard({ st, act, busy }: BoardProps) {
   }, [modelShown]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const locked = !canAct || modelShown;
-  const describe = (v: number) => (entry === "runway" ? `Number ${fmtRunway(v)}` : s.kind === "rotate" ? `Runway arrow points ${fmtHeading(v)} degrees` : `Heading ${fmtHeading(v)}`);
+  const describe = (v: number) => (entry === "runway" ? `Number ${fmtRunway(v)}` : s.kind === "rotate" ? `Runway arrow points ${fmtEntry("heading", v)} degrees` : `Heading ${fmtEntry("heading", v)}`);
+  /** Typed digits that are not a value yet ("-", or a runway "0"): Check waits for more. */
+  const pending = !!entry && digits !== "" && checkedValue(entry, digits) === null;
   const setTo = (v: number, quiet = false) => {
     setValue(v);
     setDigits("");
@@ -88,18 +92,34 @@ export function CompassBoard({ st, act, busy }: BoardProps) {
     audio.play("tap", { gain: 0.35 });
     setTo(stepValue(entry, value, by));
   };
-  const typeDigit = (k: string) => {
-    if (locked || !entry) return;
-    const max = entry === "runway" ? 2 : 3;
-    let buf = digits.length >= max ? k : digits + k;
-    if (typedValue(entry, buf) === null && buf.length === max) buf = k;
-    audio.play("tap", { gain: 0.3 });
-    setDigits(buf);
+  const preview = (buf: string) => {
+    if (!entry) return;
     const v = typedValue(entry, buf);
     if (v !== null) {
       setValue(v);
       setSay(describe(v));
     }
+  };
+  const typeDigit = (k: string) => {
+    if (locked || !entry) return;
+    const max = entry === "runway" ? 2 : 3;
+    const sign = digits.startsWith("-") ? "-" : "";
+    const body = digits.slice(sign.length);
+    let buf = sign + (body.length >= max ? k : body + k);
+    if (typedValue(entry, buf) === null && buf.length - sign.length === max) buf = sign + k;
+    audio.play("tap", { gain: 0.3 });
+    setDigits(buf);
+    preview(buf);
+    busy?.();
+  };
+  /** Headings only: a minus sign, for a left turn worked out below zero ("−30"). Toggles. */
+  const typeMinus = () => {
+    if (locked || entry !== "heading") return;
+    const buf = digits.startsWith("-") ? digits.slice(1) : `-${digits}`;
+    audio.play("tap", { gain: 0.3 });
+    setDigits(buf);
+    preview(buf);
+    if (buf === "-") setSay("Minus");
     busy?.();
   };
   const backspace = () => {
@@ -113,11 +133,15 @@ export function CompassBoard({ st, act, busy }: BoardProps) {
     }
   };
   const check = () => {
-    if (!canAct || value === null || !entry) return;
-    if (modelShown && value !== st.model) return;
+    if (!canAct || !entry || pending) return;
+    // typed digits win over the last preview (a lone "0" for north is only resolved here, to 360)
+    const v = digits !== "" ? checkedValue(entry, digits) : value;
+    if (v === null) return;
+    if (modelShown && v !== st.model) return;
     busy?.();
     setDigits("");
-    act({ type: "SUBMIT", value });
+    setValue(v);
+    act({ type: "SUBMIT", value: v });
   };
 
   // ---------- choices ----------
@@ -141,6 +165,11 @@ export function CompassBoard({ st, act, busy }: BoardProps) {
     if (/^[0-9]$/.test(e.key)) {
       e.preventDefault();
       typeDigit(e.key);
+      return;
+    }
+    if ((e.key === "-" || e.key === "−") && entry === "heading") {
+      e.preventDefault();
+      typeMinus();
       return;
     }
     const big = entry === "heading" && !e.shiftKey ? 10 : 1;
@@ -368,8 +397,8 @@ export function CompassBoard({ st, act, busy }: BoardProps) {
   const chip = (() => {
     if (s.kind === "card" || s.kind === "ten" || s.kind === "round") return `Landing heading ${fmtHeading(s.h)}°`;
     if (s.kind === "opp") return `Other end: heading ${fmtHeading(s.h + 180)}°`;
-    if (s.kind === "rotate") return `Arrow points ${fmtHeading(shownVal ?? s.h)}°`;
-    if (mode === "turn") return `Was ${fmtHeading(s.h)}° · now ${fmtHeading(shownVal ?? s.h)}°`;
+    if (s.kind === "rotate") return `Arrow points ${fmtEntry("heading", shownVal ?? s.h)}°`;
+    if (mode === "turn") return `Was ${fmtHeading(s.h)}° · now ${fmtEntry("heading", shownVal ?? s.h)}°`;
     if (s.kind === "two" || s.kind === "four" || s.kind === "xwind") return `Wind from ${fmtHeading(s.w)}° · ${s.s === 2 ? "strong" : "light"}`;
     return null;
   })();
@@ -378,7 +407,7 @@ export function CompassBoard({ st, act, busy }: BoardProps) {
   const steps = modelShown ? working(s) : null;
   const deck = (() => {
     if (entry) {
-      const shown = digits !== "" ? digits.padStart(entry === "runway" ? 2 : 3, "·") : value === null ? (entry === "runway" ? "--" : "---") : entry === "runway" ? fmtRunway(value) : fmtHeading(value);
+      const shown = digits !== "" ? digits.replace("-", "−").padStart(entry === "runway" ? 2 : 3, "·") : value === null ? (entry === "runway" ? "--" : "---") : fmtEntry(entry, value);
       const stepsBy = entry === "runway" ? [-1, 1] : [-10, -1, 1, 10];
       const stepLabel = (by: number) =>
         entry === "runway" ? `Number ${by > 0 ? "up" : "down"} one`
@@ -403,11 +432,14 @@ export function CompassBoard({ st, act, busy }: BoardProps) {
               {["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].map((k) => (
                 <button key={k} type="button" className="cr-key" data-testid="cr-key" data-key={k} aria-label={`Type ${k}`} aria-disabled={locked} onClick={() => typeDigit(k)}>{k}</button>
               ))}
+              {entry === "heading" && (
+                <button type="button" className="cr-key is-minus" data-testid="cr-key" data-key="minus" aria-label="Type a minus sign" aria-disabled={locked} onClick={typeMinus}>−</button>
+              )}
               <button type="button" className="cr-key is-back" data-testid="cr-key" data-key="back" aria-label="Delete the last digit" aria-disabled={locked} onClick={backspace}>⌫</button>
             </div>
           )}
           {steps && <Working steps={steps} />}
-          <button type="button" className={`cr-check ${value !== null && canAct ? "is-ready" : ""} ${solved ? "is-right" : ""}`} data-testid="done" aria-label={entry === "runway" ? "Check the runway number" : "Check the heading"} aria-disabled={!canAct || value === null || (modelShown && value !== st.model)} onClick={check}>
+          <button type="button" className={`cr-check ${value !== null && !pending && canAct ? "is-ready" : ""} ${solved ? "is-right" : ""}`} data-testid="done" aria-label={entry === "runway" ? "Check the runway number" : "Check the heading"} aria-disabled={!canAct || (value === null && digits === "") || pending || (modelShown && value !== st.model)} onClick={check}>
             Check
           </button>
         </div>

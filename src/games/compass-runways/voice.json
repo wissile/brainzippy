@@ -413,6 +413,14 @@
    "text": "Check the direction. Right turns go clockwise, like a clock's hands.",
    "speaker": "gloop"
   },
+  "cr.hint.over360": {
+   "text": "You added the turn carefully! Past three hundred sixty, take three hundred sixty away.",
+   "speaker": "gloop"
+  },
+  "cr.hint.under0": {
+   "text": "You took the turn away carefully! Below zero, add three hundred sixty to come round.",
+   "speaker": "gloop"
+  },
   "cr.hint.tail": {
    "text": "Landing that way, the wind would push from behind. Turn round and face it.",
    "speaker": "gloop"

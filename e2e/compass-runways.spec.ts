@@ -225,12 +225,12 @@ test("a whole round by tap, drag and keyboard: the Compass Rose Pin and a level 
 test("misses: Gloop explains on the first miss, the second miss models the answer (number and runway-end items)", async ({ page }, info) => {
   test.setTimeout(150_000);
   const errors = collectErrors(page);
-  // Heading Turns past 360 (level 4, first item): two wrong headings
+  // Heading Turns (level 4 opens with a plain turn before the wraps): two wrong headings
   await reset(page, 4);
   await enter(page);
   await answering(page);
   let s = await sceneOf(page);
-  expect(["wrap", "turn", "rotate", "opp"]).toContain(s.kind);
+  expect(s.kind).toBe("turn");
   await answer(page, wrongFor(s, 0), "tap");
   await expect(page.getByTestId("helper")).toBeVisible({ timeout: 20_000 });
   await answering(page);
@@ -295,7 +295,7 @@ test("every inner game plays by tap and keyboard (windsock, painter, rotate, tur
     { level: 1, way: "keyboard" }, // paint by tens
     { level: 2, way: "tap" }, // rounding
     { level: 3, way: info.project.name === "desktop" ? "drag" : "tap" }, // quarter turn on the dial
-    { level: 4, way: "keyboard" }, // past 360
+    { level: 4, way: "keyboard" }, // a plain turn, then past 360
     { level: 5, way: "keyboard" }, // into the wind, 2 ends
     { level: 6, way: "tap" }, // 4 ends
     { level: 7, way: "keyboard" }, // tower: wind call
@@ -319,6 +319,54 @@ test("every inner game plays by tap and keyboard (windsock, painter, rotate, tur
   }
   expect([...seen].sort()).toEqual(["paint", "sock", "tower", "turn", "wind"]);
   expect(errors).toEqual([]);
+});
+
+test("a turn past north entered unwrapped (420 / −30) is checked as a miss and Gloop teaches the wrap", async ({ page }, info) => {
+  test.setTimeout(180_000);
+  const errors = collectErrors(page);
+  // level 4: a plain turn first, then wraps. Missing each other item once keeps the band (no step-up), so a wrap item
+  // comes up within the round.
+  await reset(page, 4);
+  await enter(page);
+  for (let i = 0; i < 8; i++) {
+    const id = await exId(page);
+    const s = await sceneOf(page);
+    if (s.kind === "wrap") {
+      const raw = s.h + s.dir * s.d; // the unwrapped sum: above 360 (right) or below 1 (left)
+      expect(raw > 360 || raw < 1).toBe(true);
+      const typed = String(raw);
+      if (info.project.name === "desktop") {
+        await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+        await page.keyboard.type(typed); // "-" is the minus key
+        await expect(page.getByTestId("cr-display")).toHaveAttribute("data-value", typed);
+        await page.keyboard.press("Enter");
+      } else {
+        for (const c of typed) await press(page, `[data-testid="cr-key"][data-key="${c === "-" ? "minus" : c}"]`);
+        await expect(page.getByTestId("cr-display")).toHaveAttribute("data-value", typed);
+        await press(page, '[data-testid="done"]');
+      }
+      const helper = page.getByTestId("helper");
+      await expect(helper).toBeVisible({ timeout: 20_000 });
+      // the caption sits in the helper's bubble, or in the prompt pill on small screens
+      const needle = raw > 360 ? "take three hundred sixty away" : "add three hundred sixty";
+      await expect(page.locator('[data-testid="helper"], [data-testid="prompt"]').filter({ hasText: needle }).first()).toBeVisible();
+      await expect(page.getByTestId("cr-display")).toContainText(raw > 360 ? typed : `−${-raw}`); // the child's entry stays as typed
+      await page.screenshot({ path: `${REVIEW}/${info.project.name}-12-wrap-miss.png` });
+      await answering(page);
+      await answer(page, rightFor(s), "keyboard");
+      await expect(board(page)).toHaveClass(/is-solved/, { timeout: 20_000 });
+      expect(errors).toEqual([]);
+      return;
+    }
+    const r = rightFor(s);
+    const wrong = "num" in r ? wrongFor(s) : { choice: (await page.locator('[data-testid="choice"]').evaluateAll((els, right) => els.map((e) => e.getAttribute("data-value")).find((v) => v !== right), r.choice))! };
+    await answer(page, wrong, "tap");
+    await answering(page);
+    await answer(page, r, "tap");
+    await expect(board(page)).toHaveClass(/is-solved/, { timeout: 20_000 });
+    await nextExercise(page, id);
+  }
+  throw new Error("no wrap item reached");
 });
 
 test("rotate the runway by dragging around the compass rose", async ({ page }, info) => {
@@ -369,6 +417,7 @@ test("the airfield fits every viewport at every level", async ({ page }, info) =
       await answering(page);
       await page.waitForTimeout(700);
       await noOverflow(page);
+      if (level > 0) await expect(page.getByTestId("cr-fictional")).toBeVisible(); // the map is watermarked
       await page.screenshot({ path: `${REVIEW}/vp-${vp.name}-play-l${level}.png` });
     }
   }
