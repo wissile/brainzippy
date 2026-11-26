@@ -8,7 +8,7 @@ import type { AnswerValue, Exercise } from "../../src/engine/types";
 import { lintExercise, validateAnswer } from "../../src/engine/validation";
 import { airportTutorial, busyAirport } from "../../src/games/busy-airport/definition";
 import {
-  BA_LEVELS, BA_MAX_LEVEL, BLANK, COLOURS, CORES, MAX_PASSENGERS, SIGNALS, countChoices, crewFor, generateBusyAirport, modeOf, parseArt,
+  BA_LEVELS, BA_MAX_LEVEL, BLANK, COLOURS, CORES, MAX_PASSENGERS, ONE_TO_ONE_MAX, SIGNALS, countChoices, crewFor, generateBusyAirport, modeOf, parseArt,
   ruleOf, runwayOf, signalsOf, type Mode,
 } from "../../src/games/busy-airport/generator";
 import { alongSayFor, alongStepsFor, explainFor, hintFor, praiseFor } from "../../src/games/busy-airport/hints";
@@ -173,6 +173,8 @@ describe("Busy Airport: content is right at every level", () => {
       expect(sig).toHaveLength(spec.steps);
       for (const s of sig) expect(spec.set).toContain(s);
       if (sig.length === 2) expect(sig[0]).not.toBe(sig[1]);
+      // a plan never starts with stop ("Stop, then slow down" makes no sense); stop may still come second
+      if (sig.length === 2) expect(sig[0], ex.id).not.toBe("stop");
       const opts = ex.answer.kind === "choice" ? ex.answer.options : ex.answer.kind === "sequence" ? ex.answer.pieces : [];
       expect(opts.map((o) => o.id)).toEqual(SIGNALS.filter((s) => spec.set.includes(s)));
       if (ex.answer.kind === "choice") expect(ex.answer.correct).toBe(sig[0]);
@@ -181,6 +183,28 @@ describe("Busy Airport: content is right at every level", () => {
     // across a band both turns appear, so left/right is never a fixed pattern
     const l3 = SEEDS.flatMap((s) => generateBand(busyAirport, 3, s, RL)).filter((e) => modeOf(e) === "signal").map((e) => signalsOf(e)[0]);
     expect(new Set(l3)).toEqual(new Set(["left", "right"]));
+  });
+
+  it("Marshaller: two-signal plans still use every non-stop move first and can end with stop", () => {
+    const plans = byMode("signal").filter((e) => e.params!.steps === 2).map(signalsOf);
+    expect(plans.length).toBeGreaterThan(0);
+    expect(new Set(plans.map((p) => p[0]))).toEqual(new Set(["left", "ahead", "slow", "right"]));
+    expect(plans.some((p) => p[1] === "stop")).toBe(true);
+  });
+
+  it("All Aboard: counts 1–3 are tagged one-to-one (levels 1–4), larger counts cardinality (levels 2–8), as the world doc says", () => {
+    const one = new Set<number>();
+    const card = new Set<number>();
+    for (const ex of byMode("count")) {
+      const n = (ex.answer as { value: number }).value;
+      expect(ex.skillId, ex.id).toBe(n <= ONE_TO_ONE_MAX ? "math.count.one-to-one" : "math.count.cardinality");
+      (n <= ONE_TO_ONE_MAX ? one : card).add(levelOf(ex));
+    }
+    expect([...one].sort()).toEqual([1, 2, 3, 4]);
+    expect([...card].sort()).toEqual([2, 3, 4, 5, 6, 7, 8]);
+    const doc = readFileSync("docs/worlds/busy-airport.md", "utf8");
+    expect(doc).toContain("| `math.count.one-to-one` | core-math | All Aboard (count 1–3) | 1–4");
+    expect(doc).toContain("| `math.count.cardinality` | core-math | All Aboard (count 4–10) | 2–8 |");
   });
 });
 
@@ -213,6 +237,8 @@ describe("Busy Airport: voice, hints and the feedback ladder", () => {
       expect(id.startsWith("ba."), id).toBe(true);
       expect(l.text.split(/\s+/).length, id).toBeLessThanOrEqual(14);
       expect(l.text.toLowerCase(), id).not.toMatch(/smart|clever|genius|brilliant|wrong!/);
+      // praise is for care and accuracy, never speed (there is no time pressure anywhere)
+      if (id.startsWith("ba.praise.")) expect(l.text.toLowerCase(), id).not.toMatch(/on time|fast|quick|speed|hurry|in no time/);
     }
   });
 

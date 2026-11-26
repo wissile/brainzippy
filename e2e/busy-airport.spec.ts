@@ -317,6 +317,15 @@ test("every inner game fits the screen: no overflow, tap targets ≥ 64 px (scre
     const tab = await page.context().newPage();
     await open(tab, level);
     await ready(tab);
+    if (name === "count") {
+      // each number choice carries a quantity picture: a mini ten-frame with exactly that many windows full
+      const frames = await tab.getByTestId("choice").evaluateAll((els) => els.map((e) => [Number((e as HTMLElement).dataset.value), e.querySelectorAll('[data-testid="choice-frame"] i.is-full').length, e.querySelectorAll('[data-testid="choice-frame"] i').length]));
+      expect(frames).toHaveLength(3);
+      for (const [v, full, cells] of frames) expect([full, cells], `frame for ${v}`).toEqual([v, 10]);
+      // board everyone so the tray is awake in the screenshots
+      for (let i = 0, n = await tab.getByTestId("passenger").count(); i < n; i++) await press(tab, '[data-testid="passenger"]:not([aria-disabled="true"])');
+      await expect(tab.locator('.ba-count-tray.is-awake')).toBeVisible();
+    }
     for (const [w, h] of sizes) {
       if (w) await tab.setViewportSize({ width: w, height: h });
       await tab.waitForTimeout(500);
@@ -327,6 +336,17 @@ test("every inner game fits the screen: no overflow, tap targets ≥ 64 px (scre
         .locator('[data-testid="choice"], [data-testid="bag"], [data-testid="plane"], [data-testid="passenger"], [data-testid="bulb"], [data-testid="steer"], [data-testid="undo"], [data-testid="unboard"], [data-testid="done"]')
         .evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return { id: (e as HTMLElement).dataset.testid, x: r.x, y: r.y, w: r.width, h: r.height }; }));
       expect(boxes.length, where).toBeGreaterThan(1);
+      // if Hoot is on screen (fixed in the corner), his bubble never covers the prompt pill
+      const clash = await tab.evaluate(async () => {
+        const h = document.querySelector<HTMLElement>('[data-testid="helper"]:not(.inline)');
+        const p = document.querySelector<HTMLElement>(".prompt-pill");
+        if (!h || !p || getComputedStyle(h).position !== "fixed") return false;
+        await new Promise((r) => setTimeout(r, 600)); // let the slide-in finish
+        const a = h.getBoundingClientRect();
+        const b = p.getBoundingClientRect();
+        return h.isConnected && !h.classList.contains("leaving") && a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
+      });
+      expect(clash, `${where} helper covers the prompt`).toBe(false);
       for (const b of boxes) {
         expect(b.x, `${where} ${b.id} left`).toBeGreaterThanOrEqual(-1);
         expect(b.x + b.w, `${where} ${b.id} right`).toBeLessThanOrEqual(vp.width + 1);

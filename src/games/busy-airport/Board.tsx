@@ -4,7 +4,7 @@ import { IconCheck } from "../../ui/icons";
 import { AllAboardBoard } from "./AllAboard";
 import { Bag, JumboPlane, Lamp, Wands } from "./art";
 import { BagDropBoard } from "./BagDrop";
-import { GAME_OF, modeOf, signalsOf } from "./generator";
+import { GAME_OF, MAX_PASSENGERS, modeOf, signalsOf } from "./generator";
 import { MarshallerBoard } from "./Marshaller";
 import { RunwayLightsBoard } from "./RunwayLights";
 import { boardedStore, readyStore } from "./shared";
@@ -35,6 +35,19 @@ export function AirportBoard(props: BoardProps) {
       <StationSign game={game} />
       {mode === "bags" ? <BagDropBoard {...props} /> : mode === "count" || mode === "make" ? <AllAboardBoard {...props} /> : mode === "lights" ? <RunwayLightsBoard {...props} /> : <MarshallerBoard {...props} />}
     </div>
+  );
+}
+
+/**
+ * A mini ten-frame under each count numeral: the same two rows of five as the plane's windows, with n filled in the
+ * order the passengers took their seats. Gives pre-readers a quantity picture next to the numeral (and the spoken
+ * number), so a 3-year-old can match "this many" to the filled windows without reading the digit.
+ */
+function MiniFrame({ n }: { n: number }) {
+  return (
+    <span className="ba-mini-frame" aria-hidden="true" data-testid="choice-frame" data-n={n}>
+      {Array.from({ length: MAX_PASSENGERS }, (_, k) => <i key={k} className={k < n ? "is-full" : ""} />)}
+    </span>
   );
 }
 
@@ -75,6 +88,7 @@ export function AirportTray({ st, act }: BoardProps) {
               onClick={() => awake && st.phase === "answering" && !out && act({ type: "SUBMIT", value: c })}
             >
               <span className="numeral">{c}</span>
+              <MiniFrame n={c} />
             </button>
           );
         })}

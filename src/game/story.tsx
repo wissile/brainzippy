@@ -127,7 +127,9 @@ export function HelperOverlay({
       const pill = document.querySelector<HTMLElement>(".prompt-pill");
       if (!el || !pill || getComputedStyle(el).position !== "fixed") return setBelow(null);
       const p = pill.getBoundingClientRect();
-      const h = el.getBoundingClientRect();
+      // the layout box, not getBoundingClientRect: the helper-in slide (translateX 120%) is still at its first frame
+      // here (also when a resize swaps the inline helper for the fixed one), which made it look "side by side"
+      const h = { left: el.offsetLeft, right: el.offsetLeft + el.offsetWidth, top: el.offsetTop, bottom: el.offsetTop + el.offsetHeight };
       if (!(h.left < p.right && p.left < h.right)) return setBelow(null); // side by side: the corner is free
       // once moved, stay below the pill (keep following its height); otherwise move only when they really overlap
       setBelow((old) => (old !== null || (h.top < p.bottom && p.top < h.bottom) ? Math.round(p.bottom + 10) : null));

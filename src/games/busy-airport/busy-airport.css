@@ -79,6 +79,12 @@
 .ba-ready-word { font: 800 1.3rem/1 var(--font-display); -webkit-text-stroke: 1.5px var(--go-shadow); paint-order: stroke fill; }
 .ba-count-tray.is-asleep .choice { opacity: 0.4; filter: saturate(0.4); }
 .ba-count-tray.is-awake .choice { animation: rise var(--t-med) var(--ease-bounce) both; }
+/* mini ten-frame under each numeral: two rows of five windows, n of them full (like the plane); static, so no motion path needed */
+.ba-count-tray .choice { gap: 5px; }
+.ba-mini-frame { --cell: clamp(9px, 1.05vw, 13px); display: grid; grid-template-columns: repeat(5, var(--cell)); grid-auto-rows: var(--cell); gap: 2px; padding: 3px; border-radius: 8px; background: rgba(31, 107, 26, 0.45); }
+.ba-mini-frame i { border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.55); }
+.ba-mini-frame i.is-full { background: #fff3c4; border-color: var(--ink); }
+.choice.is-right .ba-mini-frame { background: rgba(154, 106, 0, 0.4); }
 
 /* ======================================================================= Bag Drop */
 .mode-bags { grid-template-rows: minmax(0, 1.3fr) minmax(0, 1fr); grid-template-columns: minmax(0, 1fr); }
@@ -249,6 +255,10 @@
 }
 @media (max-height: 520px) and (orientation: landscape) {
   .ba-ready { width: 116px; height: 84px; }
+  /* short landscape: the shared .dots are hidden here, but the mini frame stays (smaller numeral, smaller cells) */
+  .ba-count-tray .choice { gap: 3px; }
+  .ba-count-tray .numeral { font-size: 2.4rem; }
+  .ba-mini-frame { --cell: 8px; padding: 2px; }
 }
 
 /* ---------- story ---------- */
