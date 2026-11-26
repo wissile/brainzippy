@@ -8,7 +8,11 @@
 .game.play-screen:has(.fp-stage) .game-top > .top-mid { width: auto; min-width: 0; }
 .game.play-screen:has(.fp-stage) .prompt-text { font-size: clamp(1.05rem, 1.1vw + 0.62rem, 1.6rem); line-height: 1.15; }
 @media (orientation: landscape) { .game.play-screen:has(.fp-stage) { grid-template-rows: auto auto minmax(0, 1fr) 0; } }
-@media (max-height: 520px) and (orientation: landscape) { .game.play-screen:has(.fp-stage) { grid-template-rows: auto minmax(0, 1fr) 0; } }
+@media (max-height: 520px) and (orientation: landscape) {
+  .game.play-screen:has(.fp-stage) { grid-template-rows: auto minmax(0, 1fr) 0; }
+  /* phones on their side: a slimmer mascot column, so the prompt (one row with the buttons) and the board get the width */
+  .game.play-screen:has(.fp-stage) { grid-template-columns: 76px minmax(0, 1fr) auto auto; }
+}
 @media (orientation: portrait) {
   .game.play-screen:has(.fp-stage) { grid-template-areas: "top top" "prompt prompt" "board board" "mascot mascot"; grid-template-rows: auto auto minmax(0, 1fr) auto; }
   .game.play-screen:has(.fp-stage) .mascot-slot { flex-direction: row; align-items: flex-end; justify-content: flex-start; gap: 8px; }
@@ -410,9 +414,13 @@
   .game-tunnel .fp-scene { gap: 6px; }
   .fp-graph-cap { display: none; }
   .fp-readout { display: none; }
-  .fp-slider { flex-direction: row; align-items: center; gap: 6px; padding: 1px 6px; }
-  .fp-slider-label { flex: none; width: 66px; flex-direction: column; justify-content: center; font-size: 13px; line-height: 1.15; }
-  .fp-slider-row { flex: 1; min-width: 0; gap: 4px; }
+  /* the two sliders share one row */
+  .game-tunnel .fp-panel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-content: center; }
+  .game-tunnel .fp-panel > * { grid-column: 1 / -1; }
+  .game-tunnel .fp-panel > .fp-slider { grid-column: auto; }
+  .fp-slider { gap: 0; padding: 1px 6px; }
+  .fp-slider-label { font-size: 13px; line-height: 1.15; }
+  .fp-slider-row { gap: 4px; }
   .fp-step { width: 44px; height: 44px; }
   .fp-range { height: 44px; }
 
@@ -431,6 +439,9 @@
   .mode-decode .fp-layout { grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr); }
   .fp-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
   .fp-tile { min-height: 44px; padding: 2px 8px; font-size: 14px; line-height: 1.15; }
+  /* an odd number of tiles leaves one cell free at the bottom right: Check sits there */
+  .mode-decode .fp-panel { position: relative; }
+  .mode-decode .fp-panel:has(.fp-tiles > :last-child:nth-child(odd)) .fp-check { position: absolute; right: 5px; bottom: 5px; width: calc((100% - 14px) / 2); min-width: 0; min-height: 44px; padding: 0 8px; }
 
   /* checklist: step cards in two columns, slots one line tighter */
   .mode-order .fp-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
@@ -440,6 +451,15 @@
   .fp-clip-title { font-size: 0.78rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .fp-slots { gap: 3px; }
   .fp-slot-btn { min-height: 44px; font-size: 14px; line-height: 1.15; padding: 1px 8px; }
+}
+
+/* very short boards (phone on its side with a long prompt): checklist slots and fly/wait choices in two columns */
+@container fp-stage (aspect-ratio > 1.1) and (max-height: 300px) {
+  .fp-slots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, auto); grid-auto-flow: column; gap: 3px 6px; }
+  .fp-clip-title { display: none; }
+  .mode-call .fp-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .mode-call .fp-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .game-leg .fp-layout { grid-template-columns: minmax(250px, calc(var(--chh) * 400 / 260 + 6px)) minmax(0, 1fr); }
 }
 
 /* ---------- reduced motion ---------- */

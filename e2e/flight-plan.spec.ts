@@ -19,6 +19,7 @@ const VIEWPORTS = [
   { name: "915x412", width: 915, height: 412 },
   { name: "1024x1366", width: 1024, height: 1366 },
   { name: "1280x800", width: 1280, height: 800 },
+  { name: "863x360", width: 863, height: 360 }, // phone on its side (Pixel 7 landscape)
 ];
 const PROFILE = { monster: { body: "round", color: "purple", eyes: "three", mouth: "smile", arms: "wings", top: "horns" }, monsterName: "Ziggy", kidName: "Testkid", step: "done", parentSignup: "skipped" };
 type Way = "tap" | "drag" | "keyboard";
