@@ -212,7 +212,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
     audio.play("whoosh");
     const p = resume?.progression ?? freshProgression(round);
     const current = resume?.currentId ? round.exercises.find((e) => e.id === resume.currentId) : undefined;
-    const ex = current ?? selectNextExercise(round, p);
+    const ex = current ?? selectNextExercise(round, p, game.progression);
     if (!ex) return;
     const from = previousScreen();
     countRoundStart(round.level, resume ? "resume" : from === "map" || from === "explore" ? from : "");
@@ -353,7 +353,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
           await audio.speak(beat.line, beat.vars ?? {});
           if (t !== token.current) return;
         }
-        const next = selectNextExercise(round, p2);
+        const next = selectNextExercise(round, p2, game.progression);
         if (!next) {
           setStage("complete");
           return;
@@ -599,7 +599,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
                   const base = seed ?? hooks.seed?.(game.id);
                   const r = buildRound(game, { level: storedLevel(game), seed: base !== undefined ? hashSeed(base, "again", againCount.current) : randomSeed() });
                   const p = freshProgression(r);
-                  const first = selectNextExercise(r, p);
+                  const first = selectNextExercise(r, p, game.progression);
                   if (!first) return;
                   setRound(r);
                   setProg(p);
