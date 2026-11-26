@@ -81,7 +81,7 @@ R0 levels the child up after ≥ 50 % first-try answers; within a round difficul
 
 ## Accessibility
 - Playable muted (every line captioned; the wind is also stated in text and in the board's `aria-label`), by keyboard (digits, `-` for a minus sign on headings, ↑ → +, ↓ ← −, Shift for ±1 on headings, PageUp/PageDown ±10, Backspace, Enter = Check; choice buttons are focusable `<button>`s) and **without drag** (steppers and keypad do everything the dial does).
-- Targets: answers and runway-end buttons ≥ 56 px, steppers 52 px, keypad keys ≥ 44 px (heading keypad: 0–9, −, ⌫ in a 6 × 2 grid). On short landscape phones the keypad hides (container query) and steppers + dial + keyboard remain.
+- Targets: answers and runway-end buttons ≥ 56 px, steppers 52 px, keypad keys ≥ 44 px (heading keypad: 0–9, −, ⌫ in a 6 × 2 grid). On short landscape phones (board ≤ 330 px tall, e.g. 863 × 360 and 915 × 412) a compact deck keeps the keypad, because without it a touch-only child could never enter an unwrapped turn (420 / −30) and get the wrap hint: display and Check share a row, steppers and keys are 44 px, and the deck widens into the space beside the square airfield (the frame keeps its size; checked by e2e on phone-landscape).
 - Reduced motion: no leaf flight (leaf held mid-path), no streak or flutter loops, no glides or spins; dial changes jump.
 - An `aria-live` line announces dial and number changes ("Heading 240", "Painted 27").
 

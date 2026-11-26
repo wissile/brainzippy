@@ -166,8 +166,26 @@
 .cr-check.is-ready { background: linear-gradient(#ffe27a, var(--cr-gold)); }
 .cr-check.is-right { background: var(--cr-gold); }
 .cr-step[aria-disabled="true"], .cr-key[aria-disabled="true"], .cr-check[aria-disabled="true"] { opacity: 0.55; cursor: default; }
-/* short boards (phones in landscape): the keypad gives way to the steppers, dial and keyboard */
-@container cr-stage (max-height: 330px) { .cr-keypad { display: none; } }
+/* short boards (phones in landscape): a compact deck keeps the keypad (it is the only way a child without a keyboard
+   can enter an unwrapped turn like 420 or −30 and get the wrap hint): display and Check share a row, 44px steppers and
+   keys, and the deck widens into the space beside the square airfield (the frame keeps its size). */
+@container cr-stage (max-height: 330px) {
+  .cr-entry { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "display check" "steps steps" "keys keys" "work work"; gap: 6px; }
+  .cr-display { grid-area: display; padding: 0 10px; gap: 6px; align-items: center; }
+  .cr-display-label { font-size: 0.75rem; letter-spacing: 0.5px; }
+  .cr-display-num { font-size: 1.6rem; letter-spacing: 2px; }
+  .cr-check { grid-area: check; min-height: 48px; font-size: 1.2rem; }
+  .cr-steps { grid-area: steps; gap: 6px; }
+  .cr-step { min-height: 44px; min-width: 44px; font-size: 1.05rem; }
+  .cr-keypad { grid-area: keys; gap: 6px; }
+  .cr-key { min-height: 44px; }
+  .cr-working { grid-area: work; }
+  .cr-deck { gap: 6px; }
+  .cr-badge { padding: 2px 12px; font-size: 0.85rem; }
+}
+@container cr-stage (aspect-ratio > 1.15) and (max-height: 330px) {
+  .cr-layout { grid-template-columns: minmax(0, 1fr) minmax(250px, 52%); }
+}
 
 /* worked steps (model) */
 .cr-working {
