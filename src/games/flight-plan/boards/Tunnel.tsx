@@ -136,6 +136,10 @@ export function TunnelBoard({ st, act, alongIndex, busy }: BoardProps) {
             <path d="M14 230 H120" stroke={INK} strokeOpacity="0.25" />
             <text x="14" y="34" className="fp-svg-label">Air → {speed} kt</text>
             <text x="14" y="214" className="fp-svg-label">{aoa}°</text>
+            <g transform="translate(250 22)">
+              <rect width="100" height="26" rx="13" fill={stalled ? "#FDE2E3" : "#DFF5E6"} stroke={stalled ? "#8A1F26" : "#1D6B38"} strokeWidth="2" />
+              <text x="50" y="18" textAnchor="middle" className="fp-svg-chip" fill={stalled ? "#8A1F26" : "#1D6B38"}>{stalled ? "STALLED" : "SMOOTH AIR"}</text>
+            </g>
             {/* lift meter */}
             <g transform="translate(362 26)">
               <rect width="24" height="188" rx="8" fill="#FFFFFF" stroke={INK} strokeWidth="3" />

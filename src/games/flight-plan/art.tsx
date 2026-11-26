@@ -193,15 +193,19 @@ export function FestivalScene() {
 // ---------------------------------------------------------------- the fictional chart
 /** Chart positions (viewBox 0 0 400 260). */
 export const PLACE_XY: readonly (readonly [number, number])[] = [[60, 205], [125, 120], [205, 172], [250, 68], [322, 132], [345, 222]];
+/** Where each place name sits (x, y, anchor), clear of the legs' distance labels. */
+const LABEL_AT: readonly (readonly [number, number, "start" | "middle" | "end"])[] = [
+  [60, 231, "middle"], [112, 124, "end"], [205, 196, "middle"], [250, 50, "middle"], [336, 136, "start"], [345, 205, "middle"],
+];
 function PlaceSymbol({ i }: { i: number }) {
   const [x, y] = PLACE_XY[i]!;
   switch (i) {
-    case 0: // home airfield: ring with a runway
+    case 0: // airfield: a magenta disc with a white runway (original symbol; not a real chart symbol)
     case 5:
       return (
         <g transform={`translate(${x} ${y})`}>
-          <circle r="11" fill="none" stroke="#B43A6B" strokeWidth="3.5" />
-          <path d="M-8 6 L8 -6" stroke="#B43A6B" strokeWidth="4.5" strokeLinecap="round" />
+          <circle r="10" fill="#B43A6B" stroke={INK} strokeWidth="2" />
+          <rect x="-7.5" y="-2.5" width="15" height="5" rx="1.5" fill="#FFFFFF" transform="rotate(-30)" />
         </g>
       );
     case 1: // lighthouse
@@ -262,7 +266,7 @@ export function Chart({ active = [], labels = [], windAngle = null, title = true
       })}
       {active.map((l, i) => {
         const [x1, y1] = xy(l.from), [x2, y2] = xy(l.to);
-        const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+        const mx = x1 + (x2 - x1) * 0.45, my = y1 + (y2 - y1) * 0.45;
         const label = labels[i];
         return (
           <g key={i} className="fp-leg">
@@ -278,12 +282,11 @@ export function Chart({ active = [], labels = [], windAngle = null, title = true
         );
       })}
       {PLACES.map((name, i) => {
-        const [x, y] = xy(i);
-        const below = y < 100;
+        const [lx, ly, anchor] = LABEL_AT[i]!;
         return (
           <g key={name}>
             <PlaceSymbol i={i} />
-            <text x={x} y={below ? y + 26 : y - 16} textAnchor="middle" fontFamily="var(--font-body)" fontWeight="700" fontSize="12.5" fill={INK} paintOrder="stroke" stroke="#FFFFFF" strokeWidth="3.5">{name}</text>
+            <text x={lx} y={ly} textAnchor={anchor} fontFamily="var(--font-body)" fontWeight="700" fontSize="12.5" fill={INK} paintOrder="stroke" stroke="#FFFFFF" strokeWidth="3.5">{name}</text>
           </g>
         );
       })}

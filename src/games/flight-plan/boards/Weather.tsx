@@ -142,7 +142,7 @@ function DecodeBoard({ st, act, alongIndex, busy }: BoardProps) {
     if (selTarget) return assign(id, selTarget);
     audio.play("pickup", { gain: 0.3 });
     setSelected((s) => (s === id ? null : id));
-    if (kb.current) window.setTimeout(() => (document.querySelector('.fp-tiles [data-testid="target"]:not([aria-disabled="true"])') as HTMLElement | null)?.focus({ preventScroll: true }), 30);
+    if (kb.current) window.setTimeout(() => (document.querySelector('.fp-tiles [data-testid="target"]:not(.is-used):not([aria-disabled="true"])') as HTMLElement | null)?.focus({ preventScroll: true }), 30);
   };
   const takenBy = (t: string) => Object.entries(pairs).find(([, v]) => v === t)?.[0];
   const pickTarget = (id: string, e: React.MouseEvent) => {

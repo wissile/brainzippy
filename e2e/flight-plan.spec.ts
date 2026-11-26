@@ -71,7 +71,8 @@ async function activate(page: Page, selector: string, way: Way) {
     const loc = page.locator(selector).first();
     await expect(loc).not.toHaveAttribute("aria-disabled", "true");
     await loc.focus();
-    return page.keyboard.press("Enter");
+    await page.keyboard.press("Enter");
+    return page.waitForTimeout(150); // the board moves focus for keyboard users; let it settle
   }
   return press(page, selector);
 }
