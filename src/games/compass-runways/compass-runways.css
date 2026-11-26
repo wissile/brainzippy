@@ -1,0 +1,214 @@
+/* Compass Rose Runways — game-scoped styles (.cr-*). A calmer, older look (ages 10–12): flat airfield greens, crisp
+   white paint, sky-blue + orange accents from Ziggy's kit. Motion: transform/opacity only; every loop has a
+   reduced-motion path (.is-still / .is-instant and the media query at the end). */
+
+/* ---------- screen layout: controls live on the board, so the tray row collapses ---------- */
+.game.play-screen:has(.cr-stage) .board { padding: 4px; }
+.game.play-screen:has(.cr-stage) .tray { display: none; }
+.game.play-screen:has(.cr-stage) .game-top > .top-mid { width: auto; min-width: 0; }
+.game.play-screen:has(.cr-stage) .prompt-text { font-size: clamp(1rem, 1.1vw + 0.6rem, 1.5rem); }
+@media (orientation: landscape) { .game.play-screen:has(.cr-stage) { grid-template-rows: auto auto minmax(0, 1fr) 0; } }
+@media (max-height: 520px) and (orientation: landscape) { .game.play-screen:has(.cr-stage) { grid-template-rows: auto minmax(0, 1fr) 0; } }
+@media (orientation: portrait) {
+  .game.play-screen:has(.cr-stage) { grid-template-areas: "top top" "prompt prompt" "board board" "mascot mascot"; }
+  .game.play-screen:has(.cr-stage) .mascot-slot { flex-direction: row; align-items: flex-end; justify-content: flex-start; gap: 8px; }
+  .game.play-screen:has(.cr-stage) .mascot-slot .critter { width: auto; height: 10vh; max-height: 10vh; flex: none; }
+  .game.play-screen:has(.cr-stage) .mascot-slot .mascot-bubble { position: static; flex: 1; margin: 0; }
+}
+
+/* ---------- board ---------- */
+.cr-stage {
+  --cr-ink: #2b2140;
+  --cr-sky: #4fb3e8;
+  --cr-sky-deep: #1f6fa8;
+  --cr-sock: #ff7a2f;
+  --cr-gold: #ffd43b;
+  --cr-panel: rgba(255, 255, 255, 0.95);
+  position: relative; flex: 1; width: 100%; height: 100%; min-width: 0; min-height: 0; max-width: 1300px; margin: 0 auto;
+  container: cr-stage / size;
+  user-select: none; -webkit-user-select: none;
+}
+.cr-layout { position: absolute; inset: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+@container cr-stage (aspect-ratio > 1.15) {
+  .cr-layout { grid-template-rows: minmax(0, 1fr); grid-template-columns: minmax(0, 1fr) minmax(250px, 40%); }
+}
+
+/* ---------- the airfield ---------- */
+.cr-scene { position: relative; min-width: 0; min-height: 0; container-type: size; }
+.cr-frame {
+  position: absolute; left: 50%; top: 50%; width: min(100cqw, 100cqh); aspect-ratio: 1; transform: translate(-50%, -50%);
+  border-radius: 26px; overflow: hidden; border: 4px solid rgba(43, 33, 64, 0.85); box-shadow: 0 6px 0 rgba(43, 33, 64, 0.2);
+  touch-action: none;
+}
+.cr-frame.is-dial { cursor: grab; }
+.cr-frame.is-dial:active { cursor: grabbing; }
+.cr-svg { display: block; width: 100%; height: 100%; }
+.cr-svg-note { font: 800 54px var(--font-display); fill: var(--cr-ink); paint-order: stroke; stroke: #fff; stroke-width: 10px; }
+.cr-rose-label { font-family: var(--font-display); }
+.cr-rose-label.is-glow { fill: #c2410c; }
+.cr-tick-glow { animation: cr-glow 1.1s ease-in-out infinite alternate; }
+.cr-north-glow { animation: cr-glow 1.1s ease-in-out infinite alternate; }
+.cr-rwnum { font-family: var(--font-display); }
+.cr-rwnum.is-preview { opacity: 0.72; }
+.cr-rwnum.is-fresh { animation: cr-paint 600ms ease-out both; }
+.cr-rwnum.is-pulse { animation: cr-glow 1s ease-in-out infinite alternate; }
+.cr-runway.is-ghost { opacity: 0.38; }
+.cr-runway.is-ghost rect { stroke: var(--cr-gold); stroke-width: 10px; }
+.cr-plane.is-ghost { opacity: 0.32; }
+.cr-plane.is-go { animation: cr-go 900ms ease-in both; }
+.cr-spin { transition: transform 260ms ease-out; }
+.cr-spin.is-instant { transition: none; }
+.cr-arc.is-hint { opacity: 0.85; animation: cr-glow 1.2s ease-in-out infinite alternate; }
+.cr-sock.is-full .cr-sock-body { animation: cr-flutter 0.5s ease-in-out infinite alternate; transform-origin: 0 0; }
+.cr-sock.is-half .cr-sock-body { animation: cr-flutter 1.4s ease-in-out infinite alternate; transform-origin: 0 0; }
+.cr-streak { animation: cr-streak 1.6s linear infinite; animation-delay: calc(var(--i) * 300ms); }
+.cr-wind-line { animation: cr-dash 1.4s linear infinite; }
+.cr-wind.is-still .cr-wind-line { animation: none; }
+.cr-leaf-fly { animation: cr-leaf 2.4s ease-in-out infinite; }
+.cr-leaf-still { transform: translateY(80px) rotate(30deg); }
+.cr-landing { animation: cr-land 1.3s ease-out both; }
+.cr-landing.is-ghost-loop { animation: cr-land 2.2s ease-out infinite; }
+.cr-landing.is-still { animation: none; }
+
+/* readout chip (top of the airfield) */
+.cr-chip {
+  position: absolute; left: 50%; top: 8px; transform: translateX(-50%); max-width: calc(100% - 16px);
+  padding: 4px 12px; border-radius: 999px; background: var(--cr-panel); border: 3px solid var(--cr-ink);
+  font: 800 clamp(0.8rem, 0.55rem + 1.6cqmin, 1.1rem) / 1.2 var(--font-display); color: var(--cr-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  pointer-events: none;
+}
+.cr-goaround {
+  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); padding: 4px 14px; border-radius: 999px;
+  background: #fff3bf; border: 3px solid var(--cr-ink); font: 800 1rem var(--font-display); color: var(--cr-ink); pointer-events: none;
+}
+
+/* runway-end buttons on the map */
+.cr-end-btn {
+  position: absolute; transform: translate(-50%, -50%); min-width: 56px; min-height: 56px; padding: 4px 10px;
+  border-radius: 18px; border: 4px solid var(--cr-ink); background: #fff; color: var(--cr-ink);
+  font: 800 clamp(1.1rem, 0.7rem + 2cqmin, 1.6rem) / 1 var(--font-display); letter-spacing: -0.5px;
+  box-shadow: 0 5px 0 rgba(43, 33, 64, 0.3); cursor: pointer; transition: transform var(--t-fast), background var(--t-fast);
+}
+.cr-end-btn:hover:not([aria-disabled="true"]) { background: #e8f6ff; }
+.cr-end-btn:active { transform: translate(-50%, calc(-50% + 3px)); }
+.cr-end-btn:focus-visible { outline: 4px solid var(--cr-sky-deep); outline-offset: 3px; }
+
+/* ---------- the deck ---------- */
+.cr-deck { min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 8px; padding: 0 4px; overflow: auto; }
+.cr-badge {
+  align-self: center; display: inline-flex; align-items: center; gap: 8px; padding: 4px 14px; border-radius: 999px;
+  background: var(--cr-ink); color: #fff; font: 800 0.95rem var(--font-display); letter-spacing: 0.3px;
+}
+.cr-badge-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--cr-sky); box-shadow: 0 0 0 2px #fff; }
+.cr-badge-dot.game-sock { background: var(--cr-sock); }
+.cr-badge-dot.game-paint { background: #fff; }
+.cr-badge-dot.game-turn { background: var(--cr-gold); }
+.cr-badge-dot.game-wind { background: #6bcb77; }
+.cr-badge-dot.game-tower { background: var(--cr-sky); }
+.cr-deck-note { margin: 0; text-align: center; font: 700 1rem/1.3 var(--font-display); color: var(--cr-ink); background: var(--cr-panel); border-radius: 14px; padding: 6px 10px; border: 3px solid rgba(43, 33, 64, 0.35); }
+
+/* choices */
+.cr-choices { display: flex; flex-direction: column; gap: 8px; }
+.cr-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.cr-opts.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@container cr-stage (aspect-ratio > 1.15) { .cr-opts.n3 { grid-template-columns: 1fr; } }
+.cr-opts.is-compass { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: ". n ." "w . e" ". s ."; }
+.cr-opts.is-compass .opt-n { grid-area: n; }
+.cr-opts.is-compass .opt-e { grid-area: e; }
+.cr-opts.is-compass .opt-s { grid-area: s; }
+.cr-opts.is-compass .opt-w { grid-area: w; }
+.cr-opt {
+  min-height: 56px; padding: 6px 10px; border-radius: 18px; border: 4px solid var(--cr-ink); background: #fff; color: var(--cr-ink);
+  font: 800 clamp(1rem, 0.7rem + 1.2cqmin, 1.35rem) / 1.1 var(--font-display); box-shadow: 0 5px 0 rgba(43, 33, 64, 0.25); cursor: pointer;
+  transition: transform var(--t-fast), background var(--t-fast);
+}
+.cr-opt:hover:not([aria-disabled="true"]) { background: #e8f6ff; }
+.cr-opt:active { transform: translateY(3px); }
+.cr-opt:focus-visible, .cr-step:focus-visible, .cr-key:focus-visible, .cr-check:focus-visible { outline: 4px solid var(--cr-sky-deep); outline-offset: 3px; }
+
+/* shared answer states */
+.cr-opt.is-out, .cr-end-btn.is-out { opacity: 0.35; background: #e3e6ec; cursor: default; box-shadow: none; }
+.cr-opt.is-wrong, .cr-end-btn.is-wrong, .cr-display.is-wrong { animation: cr-nudge 380ms ease-in-out; background: #ffe3e3; }
+.cr-opt.is-right, .cr-end-btn.is-right { background: var(--cr-gold); }
+.cr-opt.is-model, .cr-end-btn.is-model { background: #fff3bf; border-color: #b7791f; animation: cr-pulse 1.1s ease-in-out infinite; }
+
+/* number entry */
+.cr-entry { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.cr-display {
+  display: flex; align-items: baseline; justify-content: center; gap: 8px; padding: 4px 14px; border-radius: 18px;
+  background: #1f2433; color: #fff; border: 4px solid var(--cr-ink); box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.08);
+}
+.cr-display-label { font: 700 0.9rem var(--font-display); color: #9fd8f5; text-transform: uppercase; letter-spacing: 1px; }
+.cr-display-num { font: 800 clamp(1.8rem, 1rem + 4cqmin, 2.6rem) / 1.1 var(--font-display); letter-spacing: 3px; font-variant-numeric: tabular-nums; min-width: 3.2ch; text-align: center; }
+.cr-display-unit { font: 800 1.4rem var(--font-display); color: #9fd8f5; }
+.cr-display.is-right { background: #2f6b2f; }
+.cr-display.is-model { box-shadow: 0 0 0 4px var(--cr-gold); }
+.cr-steps { display: flex; gap: 8px; justify-content: center; }
+.cr-step {
+  flex: 1; min-width: 52px; min-height: 52px; border-radius: 16px; border: 4px solid var(--cr-ink); background: #e8f6ff; color: var(--cr-ink);
+  font: 800 1.15rem var(--font-display); box-shadow: 0 4px 0 rgba(43, 33, 64, 0.25); cursor: pointer;
+}
+.cr-step:active { transform: translateY(3px); }
+.cr-keypad { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.cr-key {
+  min-height: 46px; min-width: 44px; border-radius: 12px; border: 3px solid var(--cr-ink); background: #fff; color: var(--cr-ink);
+  font: 800 1.15rem var(--font-display); box-shadow: 0 3px 0 rgba(43, 33, 64, 0.22); cursor: pointer; padding: 0;
+}
+.cr-key.is-back { background: #f2f3f7; }
+.cr-key:active { transform: translateY(2px); }
+.cr-check {
+  min-height: 56px; border-radius: 18px; border: 4px solid var(--cr-ink); background: #d9dde6; color: var(--cr-ink);
+  font: 800 1.35rem var(--font-display); box-shadow: 0 5px 0 rgba(43, 33, 64, 0.25); cursor: pointer;
+}
+.cr-check.is-ready { background: linear-gradient(#ffe27a, var(--cr-gold)); }
+.cr-check.is-right { background: var(--cr-gold); }
+.cr-step[aria-disabled="true"], .cr-key[aria-disabled="true"], .cr-check[aria-disabled="true"] { opacity: 0.55; cursor: default; }
+/* short boards (phones in landscape): the keypad gives way to the steppers, dial and keyboard */
+@container cr-stage (max-height: 330px) { .cr-keypad { display: none; } }
+
+/* worked steps (model) */
+.cr-working {
+  margin: 0; padding: 8px 12px 8px 34px; border-radius: 16px; background: #fff8db; border: 3px solid #b7791f; color: var(--cr-ink);
+  font: 700 clamp(0.9rem, 0.7rem + 0.9cqmin, 1.1rem) / 1.35 var(--font-display);
+}
+.cr-working li { animation: cr-in 360ms ease-out both; animation-delay: calc(var(--i) * 450ms); }
+
+/* tower radio */
+.cr-radio { position: relative; padding: 8px 12px; border-radius: 18px; background: #1f2433; color: #fff; border: 4px solid var(--cr-ink); }
+.cr-radio-head { display: flex; align-items: center; gap: 8px; font: 800 0.8rem var(--font-display); letter-spacing: 1.5px; text-transform: uppercase; color: #9fd8f5; }
+.cr-radio-led { width: 10px; height: 10px; border-radius: 50%; background: #6bcb77; box-shadow: 0 0 8px #6bcb77; animation: cr-glow 0.9s ease-in-out infinite alternate; }
+.cr-radio-call { margin: 4px 0 0; font: 800 clamp(1rem, 0.75rem + 1.2cqmin, 1.3rem) / 1.25 var(--font-display); padding-right: 66px; }
+.cr-radio-plane { position: absolute; right: 8px; top: 8px; width: 58px; height: 58px; }
+.cr-radio-tips { margin: 6px 0 0; padding-left: 22px; font: 700 0.95rem/1.3 var(--font-display); color: #fff3bf; }
+
+/* ---------- story ---------- */
+.cr-scene-story { background: linear-gradient(#bfe6fa, #e6f6ff 45%, #a6d683 45.2%); }
+.cr-scene-story.is-stormy { background: linear-gradient(#8c93a8, #c4cad8 45%, #8fbf70 45.2%); }
+.cr-story-ground { position: absolute; left: 50%; top: 58%; width: min(84vmin, 96vw); aspect-ratio: 1; transform: translate(-50%, -50%) perspective(900px) rotateX(38deg); border-radius: 28px; overflow: hidden; border: 4px solid rgba(43, 33, 64, 0.7); }
+.cr-story-ground svg { display: block; width: 100%; height: 100%; }
+.cr-tower { width: 100%; height: auto; display: block; }
+.cr-cloud { width: 100%; height: auto; display: block; }
+.cr-pin { width: 100%; height: auto; display: block; }
+
+/* ---------- keyframes ---------- */
+@keyframes cr-glow { from { opacity: 1; } to { opacity: 0.5; } }
+@keyframes cr-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.cr-end-btn.is-model { animation-name: cr-pulse-end; }
+@keyframes cr-pulse-end { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.08); } }
+@keyframes cr-nudge { 0%, 100% { translate: 0 0; } 25% { translate: -6px 0; } 75% { translate: 6px 0; } }
+@keyframes cr-paint { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+@keyframes cr-flutter { from { transform: scaleY(0.96) skewX(-1.5deg); } to { transform: scaleY(1.02) skewX(1.5deg); } }
+@keyframes cr-streak { from { transform: translateX(-80px); opacity: 0; } 30% { opacity: 0.9; } to { transform: translateX(260px); opacity: 0; } }
+@keyframes cr-dash { to { stroke-dashoffset: -128; } }
+@keyframes cr-leaf { 0% { transform: translateY(420px) rotate(0deg); opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { transform: translateY(-360px) rotate(540deg); opacity: 0; } }
+@keyframes cr-land { from { transform: translate(var(--fx), var(--fy)); opacity: 0; } 25% { opacity: 1; } to { transform: none; opacity: 1; } }
+@keyframes cr-go { to { transform: translateY(-60px); } }
+@keyframes cr-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cr-tick-glow, .cr-north-glow, .cr-rwnum.is-fresh, .cr-rwnum.is-pulse, .cr-plane.is-go, .cr-arc.is-hint, .cr-sock .cr-sock-body,
+  .cr-streak, .cr-wind-line, .cr-leaf-fly, .cr-landing, .cr-working li, .cr-radio-led,
+  .cr-opt.is-model, .cr-end-btn.is-model, .cr-opt.is-wrong, .cr-end-btn.is-wrong, .cr-display.is-wrong { animation: none !important; }
+  .cr-spin { transition: none; }
+  .cr-leaf-fly { transform: translateY(80px) rotate(30deg); }
+}
