@@ -150,18 +150,66 @@ async function solve(page: Page, way: Way, ex?: Exercise) {
       throw new Error(`unexpected answer kind ${a.kind}`);
   }
 }
-async function noOverflow(page: Page) {
+const CONTROLS = ['[data-testid="choice"]', '[data-testid="target"]', '[data-testid="done"]', '[data-testid="key"]', '[data-testid="fp-slot"]', '[data-testid="fp-hear"]', ".fp-step", ".fp-range"];
+/**
+ * Every rendered control is fully on screen and pressable where it is drawn: inside the viewport (x and y), at least
+ * 44 px, and elementFromPoint at its centre is the control or inside it (not clipped by a scrolling panel, not under
+ * the mascot, the helper or anything else).
+ */
+async function unreachableControls(page: Page): Promise<string[]> {
+  return page.evaluate((sels) => {
+    const bad: string[] = [];
+    for (const s of sels)
+      for (const e of Array.from(document.querySelectorAll<HTMLElement>(s))) {
+        const r = e.getBoundingClientRect();
+        if (r.width === 0 && r.height === 0) continue; // not rendered (e.g. a used card)
+        const name = `${s}${e.dataset.value ? `[${e.dataset.value}]` : ""}`;
+        if (Math.min(r.width, r.height) < 43.5) bad.push(`${name}: ${Math.round(r.width)}×${Math.round(r.height)} px`);
+        if (r.left < -1 || r.right > innerWidth + 1 || r.top < -1 || r.bottom > innerHeight + 1) { bad.push(`${name}: off screen (y ${Math.round(r.top)}–${Math.round(r.bottom)} of ${innerHeight})`); continue; }
+        let clip: string | null = null;
+        for (let a = e.parentElement; a && a !== document.body; a = a.parentElement) {
+          const cs = getComputedStyle(a);
+          if (cs.overflowX === "visible" && cs.overflowY === "visible") continue;
+          const ar = a.getBoundingClientRect();
+          if (r.top < ar.top - 1 || r.bottom > ar.bottom + 1 || r.left < ar.left - 1 || r.right > ar.right + 1) { clip = `${a.tagName.toLowerCase()}.${String(a.className).split(" ")[0]}`; break; }
+        }
+        if (clip) { bad.push(`${name}: clipped by ${clip} (scrolled out of view)`); continue; }
+        const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+        if (!hit || !(hit === e || e.contains(hit))) bad.push(`${name}: covered by ${hit ? `${hit.tagName.toLowerCase()}.${String(hit.className).split(" ")[0]}` : "nothing"}`);
+      }
+    return bad;
+  }, CONTROLS);
+}
+async function noOverflow(page: Page, tag = "") {
   const vp = page.viewportSize()!;
   const over = await page.evaluate(() => ({ w: document.documentElement.scrollWidth, h: document.documentElement.scrollHeight }));
-  expect(over.w).toBeLessThanOrEqual(vp.width + 1);
-  expect(over.h).toBeLessThanOrEqual(vp.height + 1);
-  for (const s of ['[data-testid="choice"]', '[data-testid="target"]', '[data-testid="done"]', '[data-testid="key"]', '[data-testid="fp-slot"]', '[data-testid="fp-hear"]', ".fp-step"]) {
-    for (const box of await Promise.all((await page.locator(s).all()).map((c) => c.boundingBox()))) {
-      if (!box) continue;
-      expect(Math.min(box.width, box.height), s).toBeGreaterThanOrEqual(43.5);
-      expect(box.x, s).toBeGreaterThanOrEqual(-1);
-      expect(box.x + box.width, s).toBeLessThanOrEqual(vp.width + 1);
-    }
+  expect(over.w, `${tag} page width`).toBeLessThanOrEqual(vp.width + 1);
+  expect(over.h, `${tag} page height`).toBeLessThanOrEqual(vp.height + 1);
+  expect(await unreachableControls(page), `${tag} controls on screen and pressable`).toEqual([]);
+}
+/** A wrong answer of the right kind for the exercise on screen (first or second miss). */
+async function missOnce(page: Page, ex: Exercise, n: 1 | 2) {
+  const a = ex.answer;
+  switch (a.kind) {
+    case "numeric":
+      await setAngle(page, n === 1 ? Math.max(0, a.value - 4) : Math.min(24, a.value + 5), "tap");
+      return press(page, '[data-testid="done"]');
+    case "number":
+      return typeMinutes(page, a.value + (n === 1 ? 7 : 9), "tap");
+    case "choice":
+      return press(page, sel(a.options.filter((o) => o.id !== a.correct)[n - 1]!.id));
+    case "match":
+      for (const [i, it] of a.items.entries()) {
+        if ((await page.locator(sel(it.id)).getAttribute("aria-disabled")) === "true") continue;
+        await press(page, sel(it.id));
+        await press(page, `[data-testid="target"][data-value="${a.pairs[a.items[(i + 1) % a.items.length]!.id]}"]`);
+      }
+      return press(page, '[data-testid="done"]');
+    case "sequence":
+      for (const id of [...a.order].reverse()) if ((await page.locator(sel(id)).getAttribute("aria-disabled")) !== "true" && (await page.locator(sel(id)).isVisible())) await press(page, sel(id));
+      return press(page, '[data-testid="done"]');
+    default:
+      throw new Error(`unexpected answer kind ${a.kind}`);
   }
 }
 
@@ -266,11 +314,11 @@ test("misses on matching, ordering and choosing: right parts stay, the model com
   test.setTimeout(240_000);
   const errors = collectErrors(page);
   // weather decode (match)
-  const dec = await startAt(page, 3, "decode");
+  const dec = await startAt(page, 4, "decode");
   if (dec.answer.kind !== "match") throw new Error("match");
   const a = dec.answer;
   const last = a.items[a.items.length - 1]!;
-  const rest = a.items.slice(0, -1); // level 3: three groups, so two to swap
+  const rest = a.items.slice(0, -1); // level 4: three groups, so two to swap
   const swap = async () => {
     for (const [i, it] of rest.entries()) {
       await press(page, sel(it.id));
@@ -295,8 +343,8 @@ test("misses on matching, ordering and choosing: right parts stay, the model com
   await press(page, '[data-testid="done"]');
   await nextExercise(page, dec.id);
 
-  // checklist order (sequence with a skip card at level 6)
-  const ord = await startAt(page, 6, "order");
+  // checklist order (sequence with a skip card at level 9)
+  const ord = await startAt(page, 9, "order");
   if (ord.answer.kind !== "sequence") throw new Error("sequence");
   const skip = ord.answer.pieces.find((pc) => pc.id.startsWith("k"))!;
   const wrongOrder = [skip.id, ...ord.answer.order.slice(0, -1)].reverse();
@@ -339,15 +387,15 @@ test("every inner game plays by tap and keyboard (and drag on desktop)", async (
     { level: 1, mode: "speed", way: "tap" },
     { level: 1, mode: "engine", way: "keyboard" },
     { level: 3, mode: "recover", way: "tap" },
-    { level: 4, mode: "flaps", way: desktop ? "drag" : "keyboard" },
+    { level: 6, mode: "flaps", way: desktop ? "drag" : "keyboard" },
     { level: 2, mode: "time", way: "keyboard" },
     { level: 7, mode: "time", way: "tap" },
     { level: 2, mode: "decode", way: "keyboard" },
-    { level: 7, mode: "decode", way: desktop ? "drag" : "tap" },
+    { level: 9, mode: "decode", way: desktop ? "drag" : "tap" },
     { level: 6, mode: "call", way: "tap" },
     { level: 5, mode: "order", way: "keyboard" },
-    { level: 7, mode: "order", way: desktop ? "drag" : "tap" },
-    { level: 4, mode: "missed", way: "tap" },
+    { level: 9, mode: "order", way: desktop ? "drag" : "tap" },
+    { level: 6, mode: "missed", way: "tap" },
     { level: 5, mode: "imsafe", way: "keyboard" },
     { level: 5, mode: "brief", way: "tap" },
     { level: 0, mode: "brief", way: "keyboard" },
@@ -368,8 +416,8 @@ test("the planning room fits every viewport for every inner game", async ({ page
   test.skip(info.project.name !== "desktop", "viewport sweep runs once (it resizes through all four sizes)");
   test.setTimeout(300_000);
   const cases: { level: number; mode: Mode }[] = [
-    { level: 0, mode: "find" }, { level: 0, mode: "time" }, { level: 1, mode: "speed" }, { level: 7, mode: "decode" }, { level: 7, mode: "call" },
-    { level: 7, mode: "order" }, { level: 4, mode: "missed" }, { level: 6, mode: "imsafe" }, { level: 7, mode: "brief" }, { level: 7, mode: "time" },
+    { level: 0, mode: "find" }, { level: 0, mode: "time" }, { level: 1, mode: "speed" }, { level: 9, mode: "decode" }, { level: 9, mode: "call" },
+    { level: 9, mode: "order" }, { level: 6, mode: "missed" }, { level: 6, mode: "imsafe" }, { level: 9, mode: "brief" }, { level: 6, mode: "time" },
   ];
   for (const vp of VIEWPORTS) {
     await page.setViewportSize(vp);
@@ -390,3 +438,35 @@ test("the planning room fits every viewport for every inner game", async ({ page
     }
   }
 });
+
+// Every inner game at every viewport: on screen and pressable at the start (with the round-start helper), while the
+// helper explains a first miss, and with the worked model after a second miss (independent QA review).
+const SWEEP: { level: number; mode: Mode }[] = [
+  { level: 1, mode: "find" }, { level: 6, mode: "flaps" }, { level: 0, mode: "lift" }, { level: 1, mode: "speed" }, { level: 1, mode: "engine" },
+  { level: 3, mode: "recover" }, { level: 6, mode: "time" }, { level: 9, mode: "decode" }, { level: 9, mode: "call" }, { level: 9, mode: "order" },
+  { level: 6, mode: "missed" }, { level: 8, mode: "imsafe" }, { level: 9, mode: "brief" },
+];
+for (const vp of VIEWPORTS) {
+  test(`${vp.name}: every control stays on screen and uncovered, before a miss, with the helper and with the model`, async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop", "viewport set explicitly");
+    test.setTimeout(600_000);
+    await page.setViewportSize(vp);
+    for (const c of SWEEP) {
+      const tag = `${vp.name} L${c.level} ${c.mode}`;
+      const ex = await startAt(page, c.level, c.mode);
+      await page.waitForTimeout(400);
+      expect.soft(await unreachableControls(page), `${tag} start`).toEqual([]);
+      await missOnce(page, ex, 1);
+      await expect(page.getByTestId("helper")).toBeVisible({ timeout: 20_000 });
+      await page.waitForTimeout(700);
+      expect.soft(await unreachableControls(page), `${tag} helper`).toEqual([]);
+      await answering(page);
+      await missOnce(page, ex, 2);
+      await expect(page.locator('[data-testid="model-steps"]:visible, .is-model:visible').first()).toBeVisible({ timeout: 20_000 });
+      await answering(page);
+      await page.waitForTimeout(600);
+      expect.soft(await unreachableControls(page), `${tag} model`).toEqual([]);
+      if (c.mode === "speed") await page.screenshot({ path: `${REVIEW}/vp-${vp.name}-model-speed.png` });
+    }
+  });
+}

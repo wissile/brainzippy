@@ -44,16 +44,28 @@ export function MetarStrip({ params, items, selected, pairs, ok, onPick, hot, zo
     if (my === token.current) setSaying(false);
   };
   const letter = (id: string) => BADGE[(items ?? []).indexOf(id)] ?? "";
+  // when decoding, the leading groups that aren't matched (METAR, station, often the time) sit in the header under the
+  // title, so the groups to match get the full width (fewer rows on phones); the report's reading order is unchanged
+  const firstItem = items ? groups.findIndex((g) => items.includes(`g-${g.kind}`)) : -1;
+  const lead = firstItem > 0 ? groups.slice(0, firstItem) : [];
+  const rest = groups.slice(lead.length);
   return (
     <div className="fp-metar">
       <div className="fp-metar-head">
-        <span className="fp-metar-title">Practice weather report <em>(made up)</em></span>
+        <span className="fp-metar-heading">
+          <span className="fp-metar-title">Practice weather report <em>(made up)</em></span>
+          {lead.length > 0 && (
+            <span className="fp-metar-lead" aria-hidden="true">
+              {lead.map((g, i) => <span key={i} className="fp-group is-dim">{g.text}</span>)}
+            </span>
+          )}
+        </span>
         <button type="button" className={`fp-hear ${saying ? "is-saying" : ""}`} data-testid="fp-hear" aria-label="Read the weather report to me" onClick={() => void read()}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="currentColor" /><path d="M16 9 Q18 12 16 15 M18.5 6.5 Q22 12 18.5 17.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
         </button>
       </div>
       <p className="fp-metar-code" aria-label={`Weather report: ${groups.map((g) => g.text).join(" ")}`}>
-        {groups.map((g, i) => {
+        {rest.map((g, i) => {
           const id = `g-${g.kind}`;
           const isItem = items?.includes(id);
           if (!isItem || !onPick) return <span key={i} className={`fp-group ${items ? "is-dim" : ""}`} aria-hidden="true">{g.text}</span>;
@@ -163,7 +175,7 @@ function DecodeBoard({ st, act, alongIndex, busy }: BoardProps) {
       <div className="fp-layout">
         <section className="fp-scene" aria-label="Weather report">
           <MetarStrip params={ex.params ?? {}} items={items} selected={selected} pairs={pairs} ok={ok} onPick={pickItem} hot={drag.hot} zone dragProps={drag.dragProps} />
-          {f.hinted && <p className="fp-method">Each group's last letters give its job: <b>Z</b> time · <b>KT</b> wind · <b>SM</b> visibility · <b>FEW/SCT/BKN/OVC</b> clouds · <b>/</b> temperature</p>}
+          {f.hinted && <p className="fp-method">Group endings: <b>Z</b> time · <b>KT</b> wind · <b>SM</b> visibility · <b>FEW/SCT/BKN/OVC</b> clouds · <b>/</b> temperature</p>}
         </section>
         <section className="fp-panel" aria-label="Meanings">
           <div className="fp-tiles" role="group" aria-label="Meanings" data-fp-idle="true">
