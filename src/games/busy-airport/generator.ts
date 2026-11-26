@@ -56,6 +56,8 @@ export const CORES: readonly Core[] = ["AB", "AAB", "ABB", "ABC"];
 /** Light kinds reuse the four colours; each also has its own lamp shape (never colour alone). */
 export const BLANK = 9;
 export const MAX_PASSENGERS = 10;
+/** All Aboard counts up to this are tagged `math.count.one-to-one`; larger counts `math.count.cardinality`. */
+export const ONE_TO_ONE_MAX = 3;
 
 interface Level {
   games: readonly Mode[];
@@ -171,7 +173,8 @@ export function countExercise(level: number, rng: Rng, index: number, n: number)
   return {
     ...b,
     id: `ba-count-${n}-l${level}n${index}`,
-    skillId: n <= 3 ? SKILL.oneToOne : SKILL.cardinality,
+    // counts of 1–3 practise one-to-one tagging; they come up at levels 1–4 (count ranges start at 1, 2, 2, 3)
+    skillId: n <= ONE_TO_ONE_MAX ? SKILL.oneToOne : SKILL.cardinality,
     objective: `Board ${n} passengers one at a time and say how many got on`,
     answer: { kind: "number", value: n, choices: countChoices(n) },
     objectKind: "passenger",
@@ -276,7 +279,9 @@ export const SIGNAL_SAY: Record<Signal, string> = {
 
 export function signalExercise(level: number, rng: Rng, index: number, spec: { set: readonly Signal[]; steps: 1 | 2 }): Gen {
   const set = SIGNALS.filter((s) => spec.set.includes(s));
-  const first = set[(index + rng.int(0, set.length - 1)) % set.length]!;
+  // two-signal plans never start with stop ("Stop, then slow down" is not a sensible order for a taxiing plane)
+  const firsts = spec.steps === 2 ? set.filter((s) => s !== "stop") : set;
+  const first = firsts[(index + rng.int(0, firsts.length - 1)) % firsts.length]!;
   const options: AnswerOption[] = set.map((s) => ({ id: s, text: SIGNAL_TEXT[s] }));
   const b = base(rng);
   const common = { ...b, skillId: SKILL.signals, objectKind: "wands" };

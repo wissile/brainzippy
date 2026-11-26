@@ -33,6 +33,8 @@ export function BagDropBoard({ st, alongIndex, busy }: BoardProps) {
   const rule = ruleOf(ex);
   const { reducedMotion, speaking, canAct, celebrate, wrong, locked } = useCommon(st);
   const rootRef = useRef<HTMLDivElement>(null);
+  const nextFocus = useRef(0);
+  useEffect(() => () => window.clearTimeout(nextFocus.current), []);
   const [beltRef, belt] = useSize<HTMLDivElement>();
   const grid = gridFor(items.length, belt.w - 16, belt.h - 12, 124, 10);
   const [assign, setAssign] = useState<Record<string, string>>({});
@@ -50,7 +52,16 @@ export function BagDropBoard({ st, alongIndex, busy }: BoardProps) {
     setAssign((a) => ({ ...a, [id]: plane }));
     setSelected(null);
     audio.play("drop", { gain: 0.6 });
-    if (keyboard) window.setTimeout(() => focusSel(rootRef.current, '[data-testid="bag"]:not([aria-disabled="true"])', '[data-testid="done"]'), 0);
+    if (keyboard) {
+      // move on to the next bag, unless the child has already moved on (picking a bag cancels this; a late timer
+      // used to pull focus back to the first bag after the next bag was picked)
+      const from = document.activeElement;
+      window.clearTimeout(nextFocus.current);
+      nextFocus.current = window.setTimeout(() => {
+        const now = document.activeElement;
+        if (now === from || !now || now === document.body || !now.isConnected) focusSel(rootRef.current, '[data-testid="bag"]:not([aria-disabled="true"])', '[data-testid="done"]');
+      }, 0);
+    }
   };
   const takeBack = (plane: string) => {
     if (!act2) return;
@@ -158,6 +169,7 @@ export function BagDropBoard({ st, alongIndex, busy }: BoardProps) {
                 onPointerDown={(e) => start(e, it.id)}
                 onClick={(e) => {
                   if (ignoreClick(e) || !act2) return;
+                  window.clearTimeout(nextFocus.current);
                   busy?.();
                   setTouched(true);
                   setSelected((s) => (s === it.id ? null : it.id));

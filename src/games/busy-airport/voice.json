@@ -59,7 +59,7 @@
     "ba.praise.count": { "text": "{nWord}! You gave every passenger one number.", "vary": { "n": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] } },
     "ba.praise.count2": { "text": "You counted every passenger, one by one!" },
     "ba.praise.make": { "text": "{nWord} passengers, just right! You stopped at the right number.", "vary": { "n": [2, 3, 4, 5, 6, 7, 8] } },
-    "ba.praise.make2": { "text": "You counted carefully and stopped right on time!" },
+    "ba.praise.make2": { "text": "You counted carefully and stopped at just the right number!" },
     "ba.praise.lights.1": { "text": "You kept the pattern going! The runway glows." },
     "ba.praise.lights.2": { "text": "You said the pattern and found what comes next!" },
     "ba.praise.signal.1": { "text": "You watched the wands carefully!" },

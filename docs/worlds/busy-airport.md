@@ -11,8 +11,8 @@ Code: `src/games/busy-airport/`. Registry: `src/content/packs/busy-airport/`.
 | Skill | Pack | Inner game | Levels (0-based) |
 |---|---|---|---|
 | `pilot.airport.sort` (new) | busy-airport | Bag Drop | 0–8 |
-| `math.count.one-to-one` | core-math | All Aboard (count ≤ 3) | 1–2 |
-| `math.count.cardinality` | core-math | All Aboard (count) | 1–8 |
+| `math.count.one-to-one` | core-math | All Aboard (count 1–3) | 1–4 (mostly 1–2; the count ranges still start at 2–3 up to level 4) |
+| `math.count.cardinality` | core-math | All Aboard (count 4–10) | 2–8 |
 | `math.count.make-set` | core-math | All Aboard (make) | 4–8 |
 | `math.pattern.repeat` | math-pattern-parade | Runway Lights | 2–8 |
 | `pilot.airport.signals` (new) | busy-airport | Marshaller | 3–8 |
@@ -23,7 +23,7 @@ Each exercise belongs to one inner game (`params.mode`); a round of 8 rotates th
 | Game | Scene | Interaction | Answer | Why this interaction |
 |---|---|---|---|---|
 | **Bag Drop** | conveyor belt + 2–4 planes | drag a suitcase onto a plane (or tap bag, tap plane; Enter, Enter); tap a plane to take its last bag back; Ready | `match` bag → plane | sorting is physically putting like with like; the conveyor makes it a job, not a quiz |
-| **All Aboard** — count | big plane with 10 windows in two rows of five (a ten-frame) | tap / drag each passenger; each takes the next window with its number; then pick how many | `number` + 3 choices | one tap = one passenger = one number (one-to-one); the filled windows keep the count visible, and the last number answers "how many" (cardinality) |
+| **All Aboard** — count | big plane with 10 windows in two rows of five (a ten-frame) | tap / drag each passenger; each takes the next window with its number; then pick how many (each answer shows the numeral over a mini ten-frame with that many windows full, and says the number) | `number` + 3 choices | one tap = one passenger = one number (one-to-one); the filled windows keep the count visible, and the last number answers "how many" (cardinality) |
 | **All Aboard** — make | same plane, a lounge with n + 2–3 passengers, Ziggy's ticket board shows n (numeral + dots) | board exactly n, "Send one back" if too many, Ready | `number` (no choices) | counting out and **stopping** is a separate skill from counting what is there |
 | **Runway Lights** | runway with blinking lights and empty sockets | one gap: tap (or drag) the next bulb; 2–3 gaps: fill sockets in order, undo, Ready | `choice` / `sequence` | lights blink left to right so the child hears/sees the rhythm of the unit; the bulb box always holds one bulb that never fits |
 | **Marshaller** | taxiway junction, marshaller with glowing wands, plane from behind | big picture buttons: Turn left, Go ahead, Stop, Slow down, Turn right; two-signal levels show a numbered strip and a plan | `choice` / `sequence` | direction vocabulary through a real airport job; the plane rolls the chosen way (wrong = a puzzled wiggle, never a crash) |
@@ -38,16 +38,16 @@ Each exercise belongs to one inner game (`params.mode`); a round of 8 rotates th
 | 4 | count out a set | shape, 3 planes, 4 bags | count 3–7 · make 2–4 | AAB / ABB, next light | + stop |
 | 5 | — | **colour + shape**, 4 planes (2 × 2), 4 bags | count 4–8 · make 3–6 | AAB / ABB, 2 more | + go ahead |
 | 6 | — | colour + shape, 5 bags | count 5–10 · make 4–7 | ABC (mostly), 1–2 more, 4 bulbs | + slow down (all five) |
-| 7 | — | colour + shape, 5 bags | count 6–10 · make 5–8 | ABC / AAB / ABB, 3 more | two signals in order (4 moves) |
+| 7 | — | colour + shape, 5 bags | count 6–10 · make 5–8 | ABC / AAB / ABB, 3 more | two signals in order (4 moves; never starting with stop) |
 | 8 | — | colour + shape, 5 bags | count 6–10 · make 6–8 | missing light in the middle | two signals in order (all five) |
 
 R0 levels the child up after ≥ 50 % first-try answers; within a round difficulty steps up after 2 first-try answers (so a level-0 round usually meets All Aboard and Runway Lights too). **No time pressure anywhere.**
 
 ## Distractors and the misconceptions they target
 - **Bag Drop.** Shape levels: bag colours are random and planes are all white, so colour can never be the rule (the classic pre-school slip is to sort by the most salient attribute, colour, whatever the rule). Two-attribute levels: every bag shares one attribute with a wrong plane (red-star vs red-circle vs blue-star), which targets "one match is enough". Every plane gets a bag before any plane gets a second, so no plane is a pure decoy at low levels.
-- **All Aboard.** Count choices are three neighbours (n−1, n, n+1, clamped to 1–10): skipping a passenger or counting one twice gives exactly ±1. Make-a-set: the lounge always holds 2–3 extra passengers, so the child must stop ("keep going past n" is the common error); too many / too few is diagnosed in Hoot's hint.
+- **All Aboard.** Count choices are three neighbours (n−1, n, n+1, clamped to 1–10): skipping a passenger or counting one twice gives exactly ±1. Each choice carries a quantity picture (a mini ten-frame laid out like the plane's windows) under the numeral, so 3–4-year-olds who don't yet read numerals can match "this many" to the filled windows; the numeral stays the larger cue. Make-a-set: the lounge always holds 2–3 extra passengers, so the child must stop ("keep going past n" is the common error); too many / too few is diagnosed in Hoot's hint.
 - **Runway Lights.** Two full repeats show before the first gap (three for AB), so the unit is visible. Single-gap bulb boxes contain the pattern's colours (plus an outsider colour from level 6); multi-gap boxes add one bulb that never fits — an outsider colour, or for AAB/ABB a pattern colour that isn't needed next (targets "copy the last light" and "any pattern colour will do"). Level 8 hides a light in the middle (not only at the end), so the child must check the unit both ways.
-- **Marshaller.** Left ↔ right is the most confused pair, and both turns appear in every band. Stop vs go ahead (both arms up) differ in wands crossed vs beckoning; slow down is low and patting.
+- **Marshaller.** Left ↔ right is the most confused pair, and both turns appear in every band. Two-signal plans never start with stop (a plane that has stopped is not then told to slow down); stop can still be the second move. Stop vs go ahead (both arms up) differ in wands crossed vs beckoning; slow down is low and patting.
 
 ## Hints (wrong answers are never punished)
 - **First miss:** Hoot pops in with the strategy for that game (`hintFor`): check each colour / look at each tag's shape / check colour **and** shape; touch each window and say one number; too many — send some back / we need more; say the pattern out loud; follow the pointing wand / crossed wands mean stop / beckoning means go ahead / patting means slow down. On the board: right bags stay loaded with a tick, wrong ones roll back; the wrong number, bulb or move greys out; right lights stay in their sockets; for make-a-set the n seats Ziggy needs light up as dashed rings.
