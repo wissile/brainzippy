@@ -42,7 +42,7 @@ export function Options({ st, act, busy, options, label = "Choose" }: Pick<Board
   const a = st.exercise.answer;
   const correct = a.kind === "choice" ? a.correct : null;
   return (
-    <div className={`fp-options ${options.length >= 4 ? "is-many" : ""}`} role="group" aria-label={label}>
+    <div className={`fp-options ${options.length >= 4 ? "is-many" : ""}`} role="group" aria-label={label} data-fp-idle="true">
       {options.map((o) => {
         const out = st.eliminated.includes(o.id);
         const picked = st.lastAnswer === o.id;

@@ -109,7 +109,7 @@ function OrderBoard({ st, act, alongIndex, busy }: BoardProps) {
           </div>
         </section>
         <section className="fp-panel" aria-label="Step cards">
-          <div className="fp-cards" role="group" aria-label="Step cards">
+          <div className="fp-cards" role="group" aria-label="Step cards" data-fp-idle="true">
             {pieces.map((pc) => {
               const used = placed.includes(pc.id) || (model?.includes(pc.id) ?? false);
               const out = st.eliminated.includes(pc.id);

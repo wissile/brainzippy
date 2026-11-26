@@ -166,7 +166,7 @@ function DecodeBoard({ st, act, alongIndex, busy }: BoardProps) {
           {f.hinted && <p className="fp-method">Each group's last letters give its job: <b>Z</b> time · <b>KT</b> wind · <b>SM</b> visibility · <b>FEW/SCT/BKN/OVC</b> clouds · <b>/</b> temperature</p>}
         </section>
         <section className="fp-panel" aria-label="Meanings">
-          <div className="fp-tiles" role="group" aria-label="Meanings">
+          <div className="fp-tiles" role="group" aria-label="Meanings" data-fp-idle="true">
             {targets.map((t) => {
               const user = usedBy(t.id);
               const isModel = modelPairs !== null && f.canAct && lastItem !== undefined && modelPairs[lastItem] === t.id && !pairs[lastItem];
