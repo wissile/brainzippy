@@ -52,6 +52,7 @@ export const EXERCISE_PREFIX: Record<string, string> = {
   "compass-runways": "cr",
   "busy-airport": "ba",
   "flight-plan": "fp",
+  bakery: "bk",
 };
 
 /**
