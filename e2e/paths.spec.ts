@@ -76,8 +76,9 @@ test("only live paths show without the dev override: English and Pilot are live 
   await expect(page.getByTestId("path-picker")).toBeVisible();
   await expect(page.getByTestId("path-card-english")).toHaveAttribute("aria-label", /Learn English with Sarah/);
   await expect(page.getByTestId("path-card-pilot")).toHaveAttribute("aria-label", /^Sky School: Learn to fly with Ziggy/);
-  await expect(page.getByTestId("path-card-math")).toHaveAttribute("aria-label", "Number Hill: coming soon");
-  for (const id of ["cs", "money", "sci"]) await expect(page.getByTestId(`path-card-${id}`)).toHaveCount(0);
+  await expect(page.getByTestId("path-card-math")).toHaveAttribute("aria-label", /^Number Hill: Count and build with Bobbo/); // live since D-044
+  await expect(page.getByTestId("path-card-sci")).toHaveAttribute("aria-label", "Fizz Lab: coming soon");
+  for (const id of ["cs", "money"]) await expect(page.getByTestId(`path-card-${id}`)).toHaveCount(0);
 });
 
 test("pick a path, hear it, sail there, play from it, come back to the island", async ({ page }, info) => {
@@ -100,14 +101,14 @@ test("pick a path, hear it, sail there, play from it, come back to the island", 
   const view = page.getByTestId("path-view");
   await expect(page.getByTestId("path-title")).toHaveText("Count and build with Bobbo");
   await expect(page.getByTestId("path-title")).toBeFocused(); // focus moves to the new screen
-  await expect(view).toHaveAttribute("data-world", "counting-adventure"); // age band 3–5 → age 4 → first maths world for 4
+  await expect(view).toHaveAttribute("data-world", "bubble-bath"); // age band 3–5 → age 4 → nearest, then younger: Gloop's Bubble Bath (3–4)
   await expect(view).toHaveAttribute("data-level", "0");
-  await expect(page.locator('.journey-stop[aria-current="step"]')).toHaveAttribute("data-world", "counting-adventure");
+  await expect(page.locator('.journey-stop[aria-current="step"]')).toHaveAttribute("data-world", "bubble-bath");
   await expect(page.locator(".journey-stop")).toHaveCount(5); // ages 3–5: five stops; 10 rounds left today, so all glow
   await expect(page.locator(".journey-stop").last()).toHaveAttribute("data-state", "today");
   await page.waitForTimeout(600);
   await page.screenshot({ path: `${SHOTS}/${info.project.name}-02-island.png` });
-  expect((await stored(page)).paths).toMatchObject({ v: 1, cur: "math", at: "math", by: { math: { w: "counting-adventure", easy: 0, hard: 0 } } });
+  expect((await stored(page)).paths).toMatchObject({ v: 1, cur: "math", at: "math", by: { math: { w: "bubble-bath", easy: 0, hard: 0 } } });
 
   // today's trail (Monster Island) prefers the chosen path: its world is the first learning stop
   await press(page, '[data-testid="view-islands"]');
@@ -115,11 +116,17 @@ test("pick a path, hear it, sail there, play from it, come back to the island", 
   await sail(page);
   await expect(page.getByTestId("trail")).toBeVisible();
   const plan = (await stored(page)).progress.daily.plan.stops as { w: string; k: string }[];
-  expect(plan.find((s) => s.k !== "review" && s.k !== "pick")?.w).toBe("counting-adventure");
-  await press(page, '[data-testid="view-islands"]');
-  await press(page, '[data-testid="path-card-math"]');
-  await sail(page);
-  await expect(page).toHaveURL(/\/path$/);
+  expect(plan.find((s) => s.k !== "review" && s.k !== "pick")?.w).toBe("bubble-bath");
+  // play from the island: move this child's maths stop on to Bobbo's Breakfast, which the generic e2e solver can play
+  // (Bubble Bath's own rounds are covered by e2e/bubble-bath.spec.ts)
+  await page.evaluate(() => {
+    const s = JSON.parse(localStorage.getItem("bz.v1")!);
+    s.paths.by.math = { ...s.paths.by.math, w: "counting-adventure" };
+    s.paths.at = "math"; // the boat is back at Number Hill
+    localStorage.setItem("bz.v1", JSON.stringify(s));
+  });
+  await page.goto("/path");
+  await expect(page.getByTestId("path-view")).toHaveAttribute("data-world", "counting-adventure");
 
   await press(page, '[data-testid="path-play"]');
   await expect(page).toHaveURL(/\/play\/counting-adventure$/);
