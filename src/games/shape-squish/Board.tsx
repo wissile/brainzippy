@@ -128,6 +128,23 @@ const Ghost = ({ drag, children, size }: { drag: Drag | null; children: React.Re
   ) : null;
 
 const focusSel = (root: HTMLElement | null, sel: string) => (root?.querySelector(sel) as HTMLElement | null)?.focus({ preventScroll: true });
+/**
+ * After a keyboard move, focus the next thing to act on once React has re-rendered (next task), unless the focus moved
+ * meanwhile: a child who already went on (Tab, or Enter on the next shape) keeps their focus. Under load the timer can
+ * run after the next key press, and it pulled the focus back mid-action (the flaky keyboard round in
+ * e2e/shape-squish.spec.ts). A pressed control that leaves the board drops the focus without a focusin, so it still moves on.
+ */
+const focusLater = (root: HTMLElement | null, sel: string) => {
+  let moved = false;
+  const onFocus = () => {
+    moved = true;
+  };
+  document.addEventListener("focusin", onFocus, true);
+  window.setTimeout(() => {
+    document.removeEventListener("focusin", onFocus, true);
+    if (!moved) focusSel(root, sel);
+  }, 0);
+};
 
 /** Publish what Squish would submit (null = nothing to check yet). */
 function usePublish(exId: string, value: AnswerValue | null) {
@@ -339,7 +356,7 @@ function FindBoard({ st, alongIndex, busy }: BoardProps) {
     busy?.();
     setInJar((j) => [...j, id]);
     audio.play("drop", { gain: 0.6 });
-    if (keyboard) window.setTimeout(() => focusSel(rootRef.current, '.ss-src [data-testid="shape"]:not([aria-disabled="true"])'), 0);
+    if (keyboard) focusLater(rootRef.current, '.ss-src [data-testid="shape"]:not([aria-disabled="true"])');
   };
   const takeOut = (id: string) => {
     if (!act2) return;
@@ -451,7 +468,7 @@ function SortBoard({ st, alongIndex, busy }: BoardProps) {
     setAssign((a) => ({ ...a, [id]: t }));
     setSelected(null);
     audio.play("drop", { gain: 0.6 });
-    if (keyboard) window.setTimeout(() => focusSel(rootRef.current, '.ss-src [data-testid="shape"]:not([aria-disabled="true"])'), 0);
+    if (keyboard) focusLater(rootRef.current, '.ss-src [data-testid="shape"]:not([aria-disabled="true"])');
   };
   const unplace = (id: string) => {
     if (!act2 || okLocked.includes(id)) return;
@@ -626,7 +643,7 @@ function ComposeBoard({ st, alongIndex, busy }: BoardProps) {
       audio.play("star", { gain: 0.5 });
       if (!speaking) void audio.speak("ss.full");
     }
-    if (keyboard) window.setTimeout(() => focusSel(rootRef.current, '.ss-src [data-testid="piece"]:not([aria-disabled="true"])'), 0);
+    if (keyboard) focusLater(rootRef.current, '.ss-src [data-testid="piece"]:not([aria-disabled="true"])');
   };
   const takeLast = (o: number) => {
     if (!act2 || boxes[o]!.length === 0) return;
