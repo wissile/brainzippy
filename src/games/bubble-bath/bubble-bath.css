@@ -206,8 +206,13 @@
 .gb-strip-slot.is-filled { border-style: solid; border-color: var(--ink); background: #fff3bf; animation: gb-plop var(--t-med) var(--ease-bounce) both; }
 .gb-strip-slot.is-next { color: #4a3f60; background: #fff3bf; border: 3px solid #b07f00; animation: gb-breathe 1.6s ease-in-out infinite; }
 .gb-strip-slot.is-along { background: #fff3bf; }
-.gb-popnum { position: absolute; font: 800 clamp(1.4rem, 4cqh, 2.4rem)/1 var(--font-display); color: #fff; -webkit-text-stroke: 2px #2b2140; paint-order: stroke fill; }
-.gb-popped { position: relative; }
+/* where a counted bubble was: a soft ring with the number it got (ink on white, readable on the water) */
+.gb-popnum {
+  position: absolute; width: 56%; aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85); border: 3px dashed #2b2140;
+  font: 800 clamp(1.5rem, 28cqmin, 3rem)/1 var(--font-display); color: #2b2140; animation: gb-plop var(--t-med) var(--ease-bounce) both;
+}
+.gb-popped { position: relative; container-type: size; }
 .gb-parade { display: grid; place-items: center; }
 .gb-bubbles { display: grid; gap: 12px; justify-content: center; align-content: center; }
 .gb-bubble-btn { background: transparent; box-shadow: none; border-radius: 50%; }
