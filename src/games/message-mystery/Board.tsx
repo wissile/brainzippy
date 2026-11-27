@@ -300,8 +300,11 @@ export function MessageBoard({ st, act, busy }: BoardProps) {
   const sent = solved && (d.mode === "sort") ? (st.lastAnswer as Bin) : null;
   const idleOnFrom = d.fold && !sh.revealed.includes(`${m.id}:from`);
 
+  // keyed by message: in the inbox, posting one message shows the next on a fresh card, so it doesn't glide back from
+  // the bin it was dropped on (the transform transition) while the child, or a test, reaches for it
   const card = (
     <article
+      key={m.id}
       className={`mm-card ${lifted ? "is-lifted" : ""} ${drag?.active ? "is-dragging" : ""} ${sent ? `is-sent is-sent-${sent}` : ""} ${draggable ? "can-drag" : ""}`}
       data-testid="mm-card"
       data-msg={m.id}
