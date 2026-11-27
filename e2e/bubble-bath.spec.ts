@@ -56,6 +56,13 @@ async function startAt(page: Page, level: number, mode: Mode, pick: (e: Exercise
   await ready(page);
   return ex;
 }
+/** Through the story into play (the story may already have ended by itself on a slow machine). */
+async function enter(page: Page) {
+  await press(page, '[data-testid="story-begin"]');
+  const skip = page.getByTestId("story-skip");
+  await skip.or(screen(page)).first().waitFor({ timeout: 30_000 });
+  if (await skip.isVisible()) await skip.click({ force: true }).catch(() => undefined);
+}
 async function helperGone(page: Page) {
   await page.getByTestId("helper").waitFor({ state: "detached", timeout: 25_000 }).catch(() => undefined);
 }
@@ -299,8 +306,7 @@ test("a whole round by tap and tap-tap: every inner game (level 4 start)", async
   const errors = collectErrors(page);
   await setState(page, 3);
   await page.goto("/play/bubble-bath");
-  await press(page, '[data-testid="story-begin"]');
-  await press(page, '[data-testid="story-skip"]');
+  await enter(page);
   const modes = await playRound(page, ["tap"]);
   expect(modes[0]).toBe("size");
   expect(modes.at(-1)).toBe("parade");
@@ -313,8 +319,7 @@ test("a whole round by keyboard only (level 6 start: tipped shapes, 4 sponges, c
   const errors = collectErrors(page);
   await setState(page, 5);
   await page.goto("/play/bubble-bath");
-  await press(page, '[data-testid="story-begin"]');
-  await press(page, '[data-testid="story-skip"]');
+  await enter(page);
   const modes = await playRound(page, ["keyboard"]);
   expect(modes.at(-1)).toBe("parade");
   expect(new Set(modes).size).toBeGreaterThanOrEqual(4);

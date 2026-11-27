@@ -101,12 +101,13 @@ export function MoreOrFewerBoard({ st, act, alongIndex, busy }: BoardProps) {
           }}
         >
           <svg viewBox="0 0 48 48" aria-hidden="true">
-            <circle cx="14" cy="12" r="7" fill="#FFD43B" stroke="currentColor" strokeWidth="3" />
-            <circle cx="34" cy="36" r="7" fill="#FFD43B" stroke="currentColor" strokeWidth="3" />
-            <path d="M18 18 L30 30" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeDasharray="5 4" />
-            <circle cx="34" cy="12" r="7" fill="#FFD43B" stroke="currentColor" strokeWidth="3" />
-            <circle cx="14" cy="36" r="7" fill="#FFD43B" stroke="currentColor" strokeWidth="3" />
-            <path d="M30 18 L18 30" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeDasharray="5 4" />
+            {[13, 35].map((x) => (
+              <g key={x}>
+                <circle cx={x} cy="9" r="6.5" fill="#FFD43B" stroke="currentColor" strokeWidth="3" />
+                <path d={`M${x} 16 V32`} stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeDasharray="3.5 3.5" />
+                <circle cx={x} cy="39" r="6.5" fill="#FFD43B" stroke="currentColor" strokeWidth="3" />
+              </g>
+            ))}
           </svg>
         </button>
       </div>

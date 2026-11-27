@@ -11,10 +11,21 @@ import { BathBackground, BubbleBuddySticker, Duck, FoamToy, GB, ParadeBubble, Si
  */
 const scene = (children: React.ReactNode, extra = "") => (
   <div className={`scene gb-story ${extra}`}>
-    <BathBackground />
+    <BathBackground tub={false} />
     {children}
   </div>
 );
+
+/** Gloop (or anyone) sitting in the tub: the tub front with its foam rim is drawn over the lower part of the body. */
+function InTub({ children, foam = 1, rim }: { children?: React.ReactNode; foam?: number; rim?: [React.ReactNode, React.ReactNode] }) {
+  return (
+    <span className="gb-intub">
+      {children && <span className="gb-intub-who">{children}</span>}
+      <TubFront foam={foam} />
+      {rim && <span className="gb-intub-rim"><span>{rim[0]}</span><span>{rim[1]}</span></span>}
+    </span>
+  );
+}
 
 /** The front of the tub with a foam rim, drawn over Gloop so he sits in the water. */
 function TubFront({ foam = 1 }: { foam?: number }) {
@@ -40,8 +51,7 @@ export const bathIntro: StoryBeat[] = [
     camera: "rise",
     scene: ({ speaking }) =>
       scene(<>
-        <Actor x={50} y={86} w={30}><Gloop state="greeting" talking={speaking} size="100%" /></Actor>
-        <Actor x={50} y={100} w={70} z={2}><TubFront /></Actor>
+        <Actor x={50} y={100} w={76}><InTub><Gloop state="greeting" talking={speaking} size="100%" /></InTub></Actor>
         <Actor x={24} y={40} w={7} float><ParadeBubble k={1} dots={false} /></Actor>
         <Actor x={78} y={34} w={6} float><ParadeBubble k={2} dots={false} /></Actor>
       </>),
@@ -52,8 +62,7 @@ export const bathIntro: StoryBeat[] = [
     sfx: "whoosh",
     scene: ({ speaking }) =>
       scene(<>
-        <Actor x={50} y={86} w={26}><Gloop state="thinking" talking={speaking} size="100%" /></Actor>
-        <Actor x={50} y={100} w={70} z={2}><TubFront foam={1.4} /></Actor>
+        <Actor x={50} y={100} w={76}><InTub foam={1.4}><Gloop state="thinking" talking={speaking} size="100%" /></InTub></Actor>
         {SPILL.map(([x, y, k, r], i) => (
           <Actor key={i} x={x} y={y} w={10} enter={i % 2 ? "right" : "left"} z={3}>
             <span className="gb-tumble" style={{ "--r": `${r}deg`, "--i": i } as React.CSSProperties}><Spilled k={k} /></span>
@@ -66,7 +75,7 @@ export const bathIntro: StoryBeat[] = [
     camera: "pan-right",
     scene: () =>
       scene(<>
-        <Actor x={50} y={100} w={70} z={2}><TubFront foam={1.2} /></Actor>
+        <Actor x={50} y={100} w={76}><InTub foam={1.2} /></Actor>
         {[[20, 60, 6], [34, 48, 4], [62, 44, 5], [80, 58, 3]].map(([x, y, k], i) => (
           <Actor key={i} x={x!} y={y!} w={9} float><ParadeBubble k={k!} dots /></Actor>
         ))}
@@ -79,8 +88,7 @@ export const bathIntro: StoryBeat[] = [
     sfx: "star",
     scene: ({ speaking }) =>
       scene(<>
-        <Actor x={42} y={86} w={24}><Gloop state="encouraging" talking={speaking} size="100%" /></Actor>
-        <Actor x={42} y={100} w={56} z={2}><TubFront /></Actor>
+        <Actor x={40} y={100} w={64}><InTub><Gloop state="encouraging" talking={speaking} size="100%" /></InTub></Actor>
         <Actor x={80} y={92} w={22} enter="right" z={3}><Bobbo state="greeting" size="100%" /></Actor>
       </>),
   },
@@ -93,10 +101,12 @@ export const bathOutro: StoryBeat[] = [
     sfx: "complete",
     scene: () =>
       scene(<>
-        <Actor x={50} y={86} w={24}><Gloop state="celebrating" size="100%" /></Actor>
-        <Actor x={50} y={100} w={70} z={2}><TubFront foam={0.7} /></Actor>
-        {[24, 32, 40].map((x, i) => <Actor key={x} x={x} y={74} w={5 + i * 2} z={3}><SizePiece art="size~boat~100" /></Actor>)}
-        {[62, 70, 78].map((x) => <Actor key={x} x={x} y={74} w={7} z={3}><Duck /></Actor>)}
+        <Actor x={50} y={100} w={76}>
+          <InTub foam={0.5} rim={[
+            [46, 72, 100].map((s) => <SizePiece key={s} art={`size~boat~${s}`} />),
+            [0, 1, 2].map((i) => <Duck key={i} />),
+          ]}><Gloop state="celebrating" size="100%" /></InTub>
+        </Actor>
       </>),
   },
   {

@@ -78,7 +78,7 @@ export function QuickLookBoard({ st, alongIndex, busy }: BoardProps) {
   return (
     <div className={`gb-board mode-look ${celebrate ? "is-celebrating" : ""} ${reducedMotion ? "still" : ""}`} data-testid="gb-board" data-mode="look" data-n={n} data-seen={show !== "wait"} data-visible={visible}>
       <div className="gb-pool">
-        <svg className={`gb-look-svg ${visible ? "is-on" : "is-off"}`} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={visible ? `${n} ${n === 1 ? "bubble" : "bubbles"}` : "The foam is covering the bubbles"} data-testid="look-bubbles">
+        <svg className={`gb-look-svg ${visible ? "is-on" : "is-off"}`} viewBox={`-8 -8 ${w + 16} ${h + 16}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={visible ? `${n} ${n === 1 ? "bubble" : "bubbles"}` : "The foam is covering the bubbles"} data-testid="look-bubbles">
           {rings.map((r, i) => <circle key={`r${i}`} cx={r.cx} cy={r.cy} r={r.r} className="gb-ring" data-testid="group-ring" />)}
           {spots.map((s, i) => (
             <g key={`${i}-${peeks}`} className="gb-lb" style={{ "--i": i } as React.CSSProperties}>

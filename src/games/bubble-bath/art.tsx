@@ -212,6 +212,18 @@ export function ParadeBubble({ k, dots, popped = false }: { k: number; dots: boo
   );
 }
 
+/** A plain bath bubble (prompt icon and sign: no numeral, so it never hints at an answer). */
+export function PlainBubble() {
+  return (
+    <svg viewBox="0 0 100 100" className="gb-plain-bubble" aria-hidden="true">
+      <circle cx="40" cy="58" r="30" fill="rgba(210,245,255,0.85)" stroke={INK} strokeWidth="5" />
+      <circle cx="74" cy="34" r="18" fill="rgba(210,245,255,0.85)" stroke={INK} strokeWidth="5" />
+      <path d="M22 50 Q26 36 40 32" fill="none" stroke="#fff" strokeWidth="7" strokeLinecap="round" />
+      <path d="M66 30 Q68 24 75 22" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /** Dot picture for a number answer (the dots of a dice) — a quantity picture next to the numeral. */
 export function DicePicture({ n }: { n: number }) {
   const P: Record<number, [number, number][]> = { 1: [[20, 20]], 2: [[10, 10], [30, 30]], 3: [[10, 10], [20, 20], [30, 30]], 4: [[10, 10], [30, 10], [10, 30], [30, 30]], 5: [[10, 10], [30, 10], [20, 20], [10, 30], [30, 30]] };
@@ -225,7 +237,7 @@ export function DicePicture({ n }: { n: number }) {
 
 // ---------------------------------------------------------------- background
 
-export function BathBackground() {
+export function BathBackground({ tub = true }: { tub?: boolean } = {}) {
   return (
     <svg className="scene-bg bg gb-bg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
       <rect width="1600" height="900" fill={GB.wall} />
@@ -252,7 +264,7 @@ export function BathBackground() {
       <rect y="620" width="1600" height="280" fill={GB.floor} />
       <path d="M0 620 H1600" stroke={INK} strokeWidth="6" opacity="0.3" />
       {/* the bathtub and its foam */}
-      <g transform="translate(240 600)">
+      {tub && <g transform="translate(240 600)">
         <path d="M0 40 H1120 Q1110 250 900 270 H220 Q10 250 0 40 Z" fill={GB.tub} stroke={INK} strokeWidth="8" strokeLinejoin="round" />
         <path d="M30 70 H1090" stroke={GB.tubShade} strokeWidth="14" strokeLinecap="round" />
         <rect x="-20" y="22" width="1160" height="34" rx="17" fill={GB.tub} stroke={INK} strokeWidth="8" />
@@ -260,7 +272,7 @@ export function BathBackground() {
         {[[60, 10, 46], [150, -4, 58], [270, 12, 40], [820, 6, 50], [930, -8, 60], [1050, 10, 44]].map(([x, y, r], i) => (
           <circle key={i} cx={x} cy={y} r={r} fill={GB.foam} stroke={INK} strokeWidth="5" opacity="0.95" />
         ))}
-      </g>
+      </g>}
       {([[200, 420, 22], [330, 360, 14], [1420, 430, 18], [1500, 360, 12], [760, 80, 16], [880, 150, 10]] as const).map(([x, y, r], i) => (
         <g key={i} className="gb-float" style={{ animationDelay: `${i * 0.9}s` }}>
           <circle cx={x} cy={y} r={r} fill="rgba(255,255,255,0.55)" stroke="#7FC7D9" strokeWidth="3" />
@@ -295,7 +307,7 @@ export function BubbleBuddySticker() {
 const SIMPLE_TOY: Record<string, string> = { circle: "toy~circle~blue~0~90~0", square: "toy~square~red~0~90~0", triangle: "toy~triangle~green~0~90~0", toy: "toy~triangle~yellow~0~90~0" };
 export function BathIcon({ kind }: { kind: string }) {
   if (kind === "duck") return <Duck />;
-  if (kind === "bubble") return <ParadeBubble k={3} dots={false} />;
+  if (kind === "bubble") return <PlainBubble />;
   if (kind === "boat" || kind === "sponge") return <SizePiece art={`size~${kind as SizeKind}~100`} />;
   if (kind === "gloop") return <Gloop state="idle" size="100%" />;
   if (kind === "bobbo") return <Bobbo state="idle" size="100%" />;

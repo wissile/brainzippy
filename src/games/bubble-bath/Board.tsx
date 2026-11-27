@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import type { BoardProps } from "../../game/boards";
 import { IconCheck } from "../../ui/icons";
-import { DicePicture, Duck, FoamToy, ParadeBubble, SizePiece } from "./art";
+import { DicePicture, Duck, FoamToy, ParadeBubble, PlainBubble, SizePiece } from "./art";
 import { BubbleParadeBoard } from "./BubbleParade";
 import { GAME_OF, modeOf, type InnerGame } from "./generator";
 import { MoreOrFewerBoard } from "./MoreOrFewer";
@@ -20,7 +20,7 @@ const TITLES: Record<InnerGame, string> = { "shape-splash": "Shape Splash", "qui
 function StationSign({ game }: { game: InnerGame }) {
   const pic =
     game === "shape-splash" ? <FoamToy art="toy~triangle~green~0~90~0" />
-    : game === "quick-look" ? <ParadeBubble k={3} dots={false} />
+    : game === "quick-look" ? <PlainBubble />
     : game === "more-fewer" ? <Duck />
     : game === "size-line" ? <SizePiece art="size~boat~100" />
     : <ParadeBubble k={1} dots />;
