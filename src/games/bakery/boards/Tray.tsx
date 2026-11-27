@@ -190,7 +190,7 @@ export function TrayBoard({ st, act, alongIndex, busy }: BoardProps) {
         </section>
         <section className="bk-panel" aria-label="Your answer">
           {s.kind === "build" ? (
-            <div className="bk-build">
+            <div className="bk-build" data-bk-idle="true">
               <div className="bk-steppers">
                 <Stepper id="rows" label="Rows" value={rc.rows} min={1} max={BUILD_MAX.rows} unitLabel="row" disabled={buildLocked} onStep={(by) => setBuild(rc.rows + by, rc.cols)} />
                 <Stepper id="cols" label="In each row" value={rc.cols} min={1} max={BUILD_MAX.cols} unitLabel="cookie in each row" disabled={buildLocked} onStep={(by) => setBuild(rc.rows, rc.cols + by)} />

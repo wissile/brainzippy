@@ -102,7 +102,7 @@ every control is on screen (x and y), ≥ 44 px, unclipped and the `elementFromP
 at start, with the helper and with the model, at 390×844, 915×412, 863×360, 1024×1366 and 1280×800.
 
 ## Voice
-113 lines in `src/games/bakery/voice.json` (prefix `bk.`; speakers bobbo, puff, narrator), no `vary` (spoken prompts are
+117 lines in `src/games/bakery/voice.json` (prefix `bk.`; speakers bobbo, puff, narrator), no `vary` (spoken prompts are
 generic; numbers are on screen and in the a11y description). Clips not rendered yet — the clip-coverage unit test fails
 for these lines until the main agent runs gen_voice.py.
 

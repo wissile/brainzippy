@@ -198,7 +198,7 @@ function EquivBoard({ st, act, alongIndex, busy }: BoardProps) {
           <p className="sr-only" aria-live="polite">{`${n} of ${s.c} slices iced`}</p>
         </section>
         <section className="bk-panel" aria-label="Your answer">
-          <div className="bk-build">
+          <div className="bk-build" data-bk-idle="true">
             <Stepper id="value" label="Iced slices" value={n} min={0} max={s.c} unitLabel="iced slice" disabled={locked} onStep={(by) => set(n + by)} />
             <CheckButton st={st} onCheck={check} label={`Check: ${n} of ${s.c} slices iced`} ready={n > 0} />
           </div>

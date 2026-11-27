@@ -59,7 +59,10 @@ export function BarBoard({ st, act, alongIndex, busy }: BoardProps) {
       if (home) setPlaced((p) => ({ ...p, [home.id]: tagId }));
       setPicked(null);
       setNote(`${tag.tag} goes on "${home?.name ?? tag.name}".`);
-    } else setNote(`${tag.tag} belongs on a different bar. Read the order again.`);
+    } else {
+      setPicked(null); // the tag slides back to the row
+      setNote(`${tag.tag} belongs on a different bar. Read the order again.`);
+    }
   };
   const tapTag = (id: string) => {
     if (!f.canAct || tagUsed(id)) return;
