@@ -87,6 +87,7 @@
 
 /* svg text */
 .ln-svg-small { font: 800 13px var(--font-body); fill: #33496b; }
+.ln-svg-wall { font: 800 12px var(--font-body); fill: #fff; }
 .ln-svg-tiny { font: 700 10px var(--font-body); fill: #33496b; }
 .ln-svg-strong { font: 900 13px var(--font-body); fill: var(--ink); }
 .ln-svg-place { font: 800 13.5px var(--font-body); fill: #3b2f1a; paint-order: stroke; stroke: #f4ebd3; stroke-width: 4px; }

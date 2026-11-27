@@ -78,7 +78,7 @@ function LineDiagram({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
     <svg className="ln-diagram" viewBox="0 0 400 226" style={ar(400, 226)} role="img" aria-label="Angles along the straight harbour wall" data-testid="ln-diagram">
       <rect x="10" y={cy} width="380" height="18" rx="4" fill={LN.stormLight} stroke={INK} strokeWidth="4" />
       <path d={`M40 ${cy + 4} V${cy + 18} M100 ${cy + 4} V${cy + 18} M160 ${cy + 4} V${cy + 18} M240 ${cy + 4} V${cy + 18} M300 ${cy + 4} V${cy + 18} M360 ${cy + 4} V${cy + 18}`} stroke={INK} strokeWidth="2" opacity="0.4" />
-      <text x="16" y={cy - 8} className="ln-svg-small">harbour wall (a straight line)</text>
+      <text x="372" y={cy + 13.5} className="ln-svg-wall" textAnchor="end">harbour wall: a straight line</text>
       {starts.slice(1).map((s, i) => <BeamRay key={i} cx={cx} cy={cy} a={s} len={160} />)}
       {parts.map((v, i) => (
         <AngleMark key={i} cx={cx} cy={cy} a0={starts[i]!} a1={starts[i]! + v} r={i % 2 ? 54 : 38} label={isX(i) ? xLabel(v, reveal) : `${v}°`} kind={isX(i) ? unknownKind(reveal) : "given"} />

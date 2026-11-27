@@ -151,7 +151,7 @@
     "ln.praise.angle": { "text": "You used the angle fact step by step.", "speaker": "hoot" },
     "ln.praise.angle2": { "text": "You found the fact that fits, then worked it out.", "speaker": "hoot" },
     "ln.praise.bearing": { "text": "Clockwise from north, three figures. The beam is spot on.", "speaker": "hoot" },
-    "ln.praise.pyth": { "text": "You found the hypotenuse first and kept the working tidy.", "speaker": "hoot" },
+    "ln.praise.pyth": { "text": "You spotted the longest side first, then squared carefully.", "speaker": "hoot" },
     "ln.praise.scale": { "text": "You used the scale carefully. The chart and the sea agree.", "speaker": "hoot" },
     "ln.praise.share": { "text": "You counted the parts first. That's the key to ratios.", "speaker": "hoot" },
     "ln.praise.graph": { "text": "You read the graph carefully, across and up.", "speaker": "hoot" },

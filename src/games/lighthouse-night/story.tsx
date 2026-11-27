@@ -4,7 +4,7 @@ import { Ripple } from "../../characters/library";
 import type { MascotState } from "../../engine/types";
 import { Actor } from "../../game/scenes";
 import type { StoryBeat } from "../../game/story";
-import { DawnHarbour, KeepersLampSticker, LampRoom, NightHarbour } from "./art";
+import { DawnHarbour, KeepersLampSticker, LampRoom, NightHarbour, Ship, Tower } from "./art";
 
 /**
  * "Lighthouse Night" — a storm rolls over Number Hill harbour; Hoot the lighthouse keeper (with Ripple, the sea otter
@@ -13,10 +13,12 @@ import { DawnHarbour, KeepersLampSticker, LampRoom, NightHarbour } from "./art";
  */
 const calm = (s: MascotState): MascotState => (s === "celebrating" ? "encouraging" : s);
 const storm = (children: React.ReactNode) => <div className="scene ln-scene-story"><NightHarbour />{children}</div>;
+const ship = (colour: string) => <svg viewBox="0 0 120 60" aria-hidden="true"><Ship colour={colour} /></svg>;
+const tower = <svg viewBox="0 0 120 300" aria-hidden="true"><Tower /></svg>;
 const room = (children: React.ReactNode) => <div className="scene ln-scene-story"><LampRoom />{children}</div>;
 
 export const lnIntro: StoryBeat[] = [
-  { line: "ln.story.intro1", camera: "wide", holdMs: 2600, scene: () => storm(null) },
+  { line: "ln.story.intro1", camera: "wide", holdMs: 2600, scene: () => storm(<Actor x={50} y={74} w={16}>{tower}</Actor>) },
   {
     line: "ln.story.intro2",
     camera: "pan-right",
@@ -38,7 +40,15 @@ export const lnIntro: StoryBeat[] = [
 ];
 
 export const lnOutro: StoryBeat[] = [
-  { line: "ln.story.outro1", camera: "rise", holdMs: 2400, scene: () => storm(null) },
+  {
+    line: "ln.story.outro1",
+    camera: "rise",
+    holdMs: 2400,
+    scene: () => storm(<>
+      <Actor x={30} y={82} w={22} enter="left">{ship("#4FB3E8")}</Actor>
+      <Actor x={62} y={88} w={22} enter="left">{ship("#7DBE6E")}</Actor>
+    </>),
+  },
   {
     line: "ln.story.outro2",
     camera: "close",

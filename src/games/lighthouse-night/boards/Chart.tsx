@@ -110,8 +110,8 @@ function ChartRoute({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
 function ChartHome({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
   const ex = st.exercise;
   const east = p(ex, "east"), north = p(ex, "north"), c = p(ex, "cmc"), k = p(ex, "k");
-  const u = Math.min(220 / east, 150 / north, U);
-  const hx = 40, hy = 206;
+  const u = Math.min(190 / east, 150 / north, U);
+  const hx = 110, hy = 206;
   const bx = hx + east * u, by = hy - north * u;
   return (
     <ChartPaper k={k} h={276}>
@@ -121,7 +121,7 @@ function ChartHome({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
       <path d={`M${hx} ${hy} L${bx} ${by}`} stroke={LN.lamp} strokeWidth="6" strokeLinecap="round" />
       <path d={`M${hx} ${hy} L${bx} ${by}`} stroke={INK} strokeWidth="2" strokeLinecap="round" />
       <rect x={hx - 12} y={hy - 6} width="24" height="12" rx="3" fill={LN.stormLight} stroke={INK} strokeWidth="3" />
-      <g transform="translate(388 112)">
+      <g transform="translate(330 22)">
         <rect x="-118" y="-14" width="124" height="44" rx="6" fill="#fff" opacity="0.85" />
         <rect x="-110" y="-6" width="16" height="9" rx="2" fill={LN.stormLight} stroke={INK} strokeWidth="2" />
         <text x="-88" y="2" className="ln-svg-small" dominantBaseline="central">harbour mouth</text>
@@ -131,7 +131,7 @@ function ChartHome({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
       <circle cx={bx} cy={by} r="8" fill={LN.red} stroke={INK} strokeWidth="3" />
       <text x={(hx + bx) / 2 + 10} y={hy + 19} className="ln-side" textAnchor="middle">{east} cm east</text>
       <text x={bx + 8} y={(hy + by) / 2} className="ln-side" textAnchor="start" dominantBaseline="central">{north} cm north</text>
-      <text x={(hx + bx) / 2 + 10} y={(hy + by) / 2 + 6} className={`ln-side ${reveal ? "is-model" : "is-ask"}`} textAnchor="start">{reveal ? `${c} cm = ${c * k} km` : "? km"}</text>
+      <text x={(hx + bx) / 2 - 10} y={(hy + by) / 2} className={`ln-side ${reveal ? "is-model" : "is-ask"}`} textAnchor="end">{reveal ? `${c} cm = ${c * k} km` : "? km"}</text>
     </ChartPaper>
   );
 }
