@@ -8,9 +8,10 @@ import type { Difficulty, Exercise, ExerciseResult, ProgressionConfig, Progressi
  *  R2  First-try success increments the streak; at `stepUpAfter` the difficulty rises one band (capped) and the streak resets.
  *  R3  Needing `stepDownAtAttempts` or more attempts lowers difficulty one band (floored at 1) and resets the streak.
  *  R4  Any other success (e.g. second try) resets the streak and keeps difficulty.
- *  R5  The next exercise is an unplayed one at the current difficulty, preferring (a) an interaction/answer kind
- *      different from the previous one, then (b) the kind played least so far this round, then (c) pool order;
- *      if the difficulty is exhausted, the nearest difficulty (lower first).
+ *  R5  The next exercise is an unplayed one at the current difficulty, preferring (a) a kind different from the
+ *      previous one, then (b) the kind played least so far this round, then (c) pool order; if the difficulty is
+ *      exhausted, the nearest difficulty (lower first). A kind is `Exercise.variety` when set (an inner game),
+ *      else the interaction + answer kind.
  *  R5a Exercises marked `closer` (a round finale) are held back until the round's last slot; there an unplayed
  *      closer is served first, nearest difficulty first. Needs `config` (roundLength); pools without closers are unaffected.
  *  R6  The round ends after `roundLength` exercises.
@@ -62,7 +63,7 @@ export function isRoundComplete(state: ProgressionState, config: ProgressionConf
   return state.results.length >= config.roundLength;
 }
 
-const variety = (e: Exercise) => `${e.interaction}:${e.answer.kind}`;
+const variety = (e: Exercise) => e.variety ?? `${e.interaction}:${e.answer.kind}`;
 
 /** Pick the next exercise from a round's pool (a `Round` from `buildRound`, or any `{ exercises }`). */
 export function selectNextExercise(

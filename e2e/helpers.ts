@@ -50,6 +50,17 @@ export async function enterGame(page: Page) {
   await story.click({ force: true });
 }
 
+/**
+ * From the map screen, open a world the way a child can always find it: the Explore tab, then the world's card.
+ * Today's trail is planned from every world (new worlds change it: a new 3–5 child now meets Gloop's Bubble Bath, not
+ * Bobbo's Breakfast), so a given world may not be on it; the generic trail-stop flow is covered by daily/onboarding specs.
+ */
+export async function openFromMap(page: Page, id = "counting-adventure") {
+  await press(page, '[data-testid="view-explore"]');
+  await expect(page.getByTestId("explore")).toBeVisible();
+  await press(page, `[data-testid="explore-${id}"]`);
+}
+
 /** Opens a world directly (today's trail is planned from every world, so a given stop may not be on it). */
 export async function openGame(page: Page, id = "counting-adventure") {
   await page.goto(`/play/${id}`);

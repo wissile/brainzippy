@@ -123,7 +123,19 @@ export function ReefBoard({ st, alongIndex, busy, progress }: BoardProps) {
   }, [rs.place]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---------- moving cards ----------
-  const focus = (sel: string) => window.setTimeout(() => (rootRef.current?.querySelector(sel) as HTMLElement | null)?.focus({ preventScroll: true }), 0);
+  // after a keyboard move, focus the next spot once React has re-rendered, unless the focus moved meanwhile (under load
+  // the timer can run after the next key press and pulled the focus off the spot the child had already chosen)
+  const focus = (sel: string) => {
+    let moved = false;
+    const onFocus = () => {
+      moved = true;
+    };
+    document.addEventListener("focusin", onFocus, true);
+    window.setTimeout(() => {
+      document.removeEventListener("focusin", onFocus, true);
+      if (!moved) (rootRef.current?.querySelector(sel) as HTMLElement | null)?.focus({ preventScroll: true });
+    }, 0);
+  };
   const targetOut = (t: string) => (scene.mode === "eats" || scene.mode === "plant") && out(t);
   const cardOut = (c: string) => scene.mode !== "eats" && scene.mode !== "plant" && out(c);
   const nextFrag = (place: Record<string, string>) => FRAG_IDS.find((f) => !place[f]);

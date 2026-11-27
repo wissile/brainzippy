@@ -324,6 +324,15 @@ function generateAt(level: number, rng: Rng, index: number, tag: string): Gen {
 /** Is item `index` at `level` an interleaved review item? (docs §3: index % 4 === 3 from L3; every odd item at L9) */
 export const isReview = (level: number, index: number) => (level >= 3 && index % 4 === 3) || (level === 9 && index % 2 === 1);
 
+/**
+ * The engine's variety key (R5) is the mode, one per inner game: owner pictures and apostrophe sentences (L8), or
+ * which-word and root-in-context (L5), share interaction and answer kind, and without their own keys the variety rule
+ * served a review item second, so a fast player stepped up without meeting the level's second inner game. The authored
+ * tutorial carries its mode's key too (definition.ts).
+ */
+export const varietyOf = (m: number) => `wg-${m}`;
+const withVariety = (g: Gen): Gen => ({ ...g, variety: varietyOf(g.params?.m ?? 0) });
+
 export const generateWordroot: ExerciseGenerator = (level, rng, index): Gen => {
   const lv = Math.max(0, Math.min(WG_MAX_LEVEL, level));
   const tag = `l${lv}n${index}`;
@@ -331,7 +340,7 @@ export const generateWordroot: ExerciseGenerator = (level, rng, index): Gen => {
     // an item from an earlier level, generated with that level's parameters and stamped with its skill; either mode
     const src = lv === 9 ? rng.int(0, 8) : rng.int(Math.max(0, lv - 4), lv - 1);
     const at = rng.int(0, 1) === 0 ? index : index - 1;
-    return generateAt(src, rng, at, `r${src}-${tag}`);
+    return withVariety(generateAt(src, rng, at, `r${src}-${tag}`));
   }
-  return generateAt(lv, rng, index, tag);
+  return withVariety(generateAt(lv, rng, index, tag));
 };

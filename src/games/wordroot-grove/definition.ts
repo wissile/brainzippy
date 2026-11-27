@@ -1,5 +1,5 @@
 import type { Exercise, GameDefinition } from "../../engine/types";
-import { SKILLS, WG_AGES, WG_MAX_LEVEL, generateWordroot } from "./generator";
+import { SKILLS, WG_AGES, WG_MAX_LEVEL, generateWordroot, varietyOf } from "./generator";
 import { MODE } from "./logic";
 
 /**
@@ -27,6 +27,7 @@ export const wordrootTutorial: Exercise = {
   objectKind: "leaf",
   seed: 7,
   tutorial: true,
+  variety: varietyOf(MODE.meaning),
   params: { m: MODE.meaning, b: 0, k: 0 },
   prompt: { line: "wg.prompt.meaning", text: "What does this word mean?" },
   a11yDescription: "A leaf shows the word unlock: un, then lock. Three meanings: lock it again; open the lock; lock it ahead of time. Choose what the word means.",

@@ -98,6 +98,13 @@ export interface Exercise {
    * difficulty first). Needs `selectNextExercise(pool, state, config)`; without `config` closers are only a fallback.
    */
   closer?: boolean;
+  /**
+   * Variety key for R5 (e.g. which inner game an exercise belongs to): items with the same key count as the same kind
+   * when picking the next exercise. Default `${interaction}:${answer.kind}`. Set it when two inner games share an
+   * interaction and answer kind, so the variety rule tells them apart (otherwise an item of another kind, such as an
+   * interleaved review, is preferred and a fast player can step up without meeting the level's second inner game).
+   */
+  variety?: string;
   /** Plain-language description for screen readers. */
   a11yDescription: string;
   /** Game-specific numbers the board needs (e.g. { a: 7, b: 6 } or { start: 3, hops: 4 }). */

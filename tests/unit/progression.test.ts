@@ -159,3 +159,27 @@ describe("R5a: round closers wait for the last slot", () => {
     }
   });
 });
+
+describe("R5 variety key (Exercise.variety)", () => {
+  // Two inner games that share interaction + answer kind (A, B) and a review item of another kind (R), in pool order.
+  const base = game.exercises.find((e) => e.difficulty === 2 && e.interaction === "choose-count")!;
+  const other = game.exercises.find((e) => e.difficulty === 2 && e.interaction !== "choose-count")!;
+  const items = (keyed: boolean) => ({
+    exercises: [
+      { ...base, id: "a1", ...(keyed ? { variety: "A" } : {}) },
+      { ...base, id: "b1", ...(keyed ? { variety: "B" } : {}) },
+      { ...other, id: "r1", ...(keyed ? { variety: "R" } : {}) },
+      { ...base, id: "a2", ...(keyed ? { variety: "A" } : {}) },
+    ],
+  });
+  const after = (id: string): ProgressionState => ({ ...initialProgression(cfg, 2), played: [id], results: [result(1, id)], streak: 1 });
+
+  it("without keys, interaction + answer kind decide: the item of another kind comes next", () => {
+    expect(selectNextExercise(items(false), after("a1"), cfg)?.id).toBe("r1");
+  });
+  it("with keys, items of another key are all 'different'; least used then pool order decide", () => {
+    expect(selectNextExercise(items(true), after("a1"), cfg)?.id).toBe("b1");
+    const st: ProgressionState = { ...after("a1"), played: ["a1", "b1"] };
+    expect(selectNextExercise(items(true), st, cfg)?.id).toBe("r1");
+  });
+});

@@ -427,12 +427,8 @@ test("every level is playable: three items at each of levels 1–10", async ({ p
   expect(errors).toEqual([]);
 });
 
-test("layout: targets ≥ 44px, on screen and never overlapping at the four viewports, every mode; screenshots for review", async ({ page }) => {
-  test.skip(test.info().project.name !== "desktop", "viewports are set explicitly");
-  test.setTimeout(600_000);
-  const errors = collectErrors(page);
-  const { mkdirSync } = await import("node:fs");
-  mkdirSync(REVIEW, { recursive: true });
+/** The layout checks (soft expectations: every viewport and mode is checked and photographed, then all problems are reported). */
+function layoutChecks(page: Page) {
   /** While Hoot's bubble shows: it never covers the prompt pill, its speaker button or any control, and the speaker button stays clickable. */
   const helperClear = async (label: string) => {
     const helper = page.getByTestId("helper");
@@ -500,7 +496,64 @@ test("layout: targets ≥ 44px, on screen and never overlapping at the four view
     await page.setViewportSize({ width: 1280, height: 800 });
   };
 
-  // (soft expectations: every viewport and mode is checked and photographed, then all problems are reported)
+  return { helperClear, check };
+}
+
+const MODES = [
+  [1, "combine"], [1, "order"], [2, "modTap"], [2, "modFix"], [3, "pronTap"], [3, "pronFix"], [4, "cutTap"], [4, "concise"], [5, "connote"], [5, "feelSort"],
+  [6, "device"], [6, "figMeaning"], [7, "purpose"], [7, "shift"], [8, "evidenceTap"], [8, "claimSort"], [9, "strongest"], [9, "offTap"], [9, "enough"],
+] as const;
+/** Each mode from `levels` at the four viewports; the densest boards also after the first and the second miss. Returns how many first-miss helper bubbles were checked. */
+async function checkModes(page: Page, levels: readonly number[]) {
+  const { helperClear, check } = layoutChecks(page);
+  await start(page, levels[0]);
+  await answering(page);
+  await helperGone(page);
+  let missHelpers = 0;
+  for (const [level, mode] of MODES) {
+    if (!levels.includes(level)) continue;
+    await goLevel(page, level);
+    const b = await toMode(page, mode);
+    if (!b) continue;
+    await check(`play-L${level + 1}-${mode}`);
+    if (["order", "claimSort", "combine", "pronFix", "enough", "feelSort", "strongest"].includes(mode)) {
+      // first miss (strategy) and second miss (worked steps / model) on the densest boards
+      if (mode === "order" && "texts" in b) {
+        const ids = await tileIds(page, [...b.texts!].reverse());
+        for (const id of ids) await press(page, choice(id));
+        await press(page, '[data-testid="done"]');
+      } else await missOnce(page, b);
+      // Hoot's first-miss strategy on a large landscape screen (the one place his bubble floats)
+      if (await page.getByTestId("helper").waitFor({ state: "visible", timeout: 10_000 }).then(() => true).catch(() => false)) {
+        await helperClear(`helper-miss1-L${level + 1}-${mode} 1280x800`);
+        await page.screenshot({ path: `${REVIEW}/helper-miss1-L${level + 1}-${mode}-1280x800.png` });
+        missHelpers++;
+      }
+      await answering(page);
+      await helperGone(page);
+      await check(`miss1-L${level + 1}-${mode}`);
+      if (mode === "order") {
+        // fill the rest wrongly again (reverse of what is free), then check
+        const free = await page.locator('.lp-tiles [data-testid="choice"]:not([aria-disabled="true"])').evaluateAll((els) => els.map((e) => e.getAttribute("data-value")!));
+        const empty = await page.locator('[data-testid="slot"][data-filled="false"]').count();
+        for (const id of free.reverse().slice(0, empty)) await press(page, choice(id));
+        if ((await page.locator('[data-testid="slot"][data-filled="false"]').count()) === 0) await press(page, '[data-testid="done"]');
+      } else await missOnce(page, b);
+      await answering(page);
+      await page.waitForTimeout(1500);
+      await check(`miss2-L${level + 1}-${mode}`);
+    }
+  }
+  return missHelpers;
+}
+
+test("layout: targets ≥ 44px, on screen and never overlapping at the four viewports: story, Hoot at round start, level 1 and its misses; screenshots for review", async ({ page }) => {
+  test.skip(test.info().project.name !== "desktop", "viewports are set explicitly");
+  test.setTimeout(420_000);
+  const errors = collectErrors(page);
+  const { mkdirSync } = await import("node:fs");
+  mkdirSync(REVIEW, { recursive: true });
+  const { helperClear, check } = layoutChecks(page);
   // story beats at each viewport
   await seed(page, { muted: true, ageBand: "ages-12-14", progress: progressAt(0) });
   await page.goto("/play/lantern-press");
@@ -545,47 +598,51 @@ test("layout: targets ≥ 44px, on screen and never overlapping at the four view
   await press(page, choice(optId("although")));
   await answering(page);
   await check("miss2-L1-connective");
-  const MODES = [
-    [1, "combine"], [1, "order"], [2, "modTap"], [2, "modFix"], [3, "pronTap"], [3, "pronFix"], [4, "cutTap"], [4, "concise"], [5, "connote"], [5, "feelSort"],
-    [6, "device"], [6, "figMeaning"], [7, "purpose"], [7, "shift"], [8, "evidenceTap"], [8, "claimSort"], [9, "strongest"], [9, "offTap"], [9, "enough"],
-  ] as const;
-  let missHelpers = 0;
-  for (const [level, mode] of MODES) {
-    await goLevel(page, level);
-    const b = await toMode(page, mode);
-    if (!b) continue;
-    await check(`play-L${level + 1}-${mode}`);
-    if (["order", "claimSort", "combine", "pronFix", "enough", "feelSort", "strongest"].includes(mode)) {
-      // first miss (strategy) and second miss (worked steps / model) on the densest boards
-      if (mode === "order" && "texts" in b) {
-        const ids = await tileIds(page, [...b.texts!].reverse());
-        for (const id of ids) await press(page, choice(id));
-        await press(page, '[data-testid="done"]');
-      } else await missOnce(page, b);
-      // Hoot's first-miss strategy on a large landscape screen (the one place his bubble floats)
-      if (await page.getByTestId("helper").waitFor({ state: "visible", timeout: 10_000 }).then(() => true).catch(() => false)) {
-        await helperClear(`helper-miss1-L${level + 1}-${mode} 1280x800`);
-        await page.screenshot({ path: `${REVIEW}/helper-miss1-L${level + 1}-${mode}-1280x800.png` });
-        missHelpers++;
-      }
-      await answering(page);
-      await helperGone(page);
-      await check(`miss1-L${level + 1}-${mode}`);
-      if (mode === "order") {
-        // fill the rest wrongly again (reverse of what is free), then check
-        const free = await page.locator('.lp-tiles [data-testid="choice"]:not([aria-disabled="true"])').evaluateAll((els) => els.map((e) => e.getAttribute("data-value")!));
-        const empty = await page.locator('[data-testid="slot"][data-filled="false"]').count();
-        for (const id of free.reverse().slice(0, empty)) await press(page, choice(id));
-        if ((await page.locator('[data-testid="slot"][data-filled="false"]').count()) === 0) await press(page, '[data-testid="done"]');
-      } else await missOnce(page, b);
-      await answering(page);
-      await page.waitForTimeout(1500);
-      await check(`miss2-L${level + 1}-${mode}`);
-    }
-  }
+  expect(errors).toEqual([]);
+});
+
+test("layout: targets ≥ 44px, on screen and never overlapping at the four viewports: every mode of levels 2–5, the densest after each miss", async ({ page }) => {
+  test.skip(test.info().project.name !== "desktop", "viewports are set explicitly");
+  test.setTimeout(420_000);
+  const errors = collectErrors(page);
+  const { mkdirSync } = await import("node:fs");
+  mkdirSync(REVIEW, { recursive: true });
+  const missHelpers = await checkModes(page, [1, 2, 3, 4]);
   expect(missHelpers, "first-miss helper bubbles checked").toBeGreaterThan(0);
+  expect(errors).toEqual([]);
+});
+
+test("layout: targets ≥ 44px, on screen and never overlapping at the four viewports: every mode of levels 6–8, the densest after each miss", async ({ page }) => {
+  test.skip(test.info().project.name !== "desktop", "viewports are set explicitly");
+  test.setTimeout(420_000);
+  const errors = collectErrors(page);
+  const { mkdirSync } = await import("node:fs");
+  mkdirSync(REVIEW, { recursive: true });
+  const missHelpers = await checkModes(page, [5, 6, 7]);
+  expect(missHelpers, "first-miss helper bubbles checked").toBeGreaterThan(0);
+  expect(errors).toEqual([]);
+});
+
+test("layout: targets ≥ 44px, on screen and never overlapping at the four viewports: every mode of levels 9–10, the densest after each miss", async ({ page }) => {
+  test.skip(test.info().project.name !== "desktop", "viewports are set explicitly");
+  test.setTimeout(420_000);
+  const errors = collectErrors(page);
+  const { mkdirSync } = await import("node:fs");
+  mkdirSync(REVIEW, { recursive: true });
+  const missHelpers = await checkModes(page, [8, 9]);
+  expect(missHelpers, "first-miss helper bubbles checked").toBeGreaterThan(0);
+  expect(errors).toEqual([]);
+});
+
+test("layout: targets ≥ 44px, on screen and never overlapping at the four viewports: the reward and the resume card; screenshots for review", async ({ page }) => {
+  test.skip(test.info().project.name !== "desktop", "viewports are set explicitly");
+  test.setTimeout(420_000);
+  const errors = collectErrors(page);
+  const { mkdirSync } = await import("node:fs");
+  mkdirSync(REVIEW, { recursive: true });
+  await start(page, 0);
+  await answering(page);
   // reward after a level-1 round by tap
-  await goLevel(page, 0);
   await playRest(page, "tap");
   await finish(page);
   await page.waitForTimeout(800);

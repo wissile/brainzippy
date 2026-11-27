@@ -232,6 +232,12 @@
   .lp-stick { padding: 6px; gap: 5px; }
   .lp-slot-btn { min-height: 46px; }
   .lp-check { min-height: 50px; }
+  /* phones: the article boards and the worked steps (second miss) are the tallest; tighter spacing keeps Check and
+     every answer on screen at 390×844 (it went 8–12 px below the screen on claim sorting and strongest evidence) */
+  .lp-stage, .lp-lower { gap: 6px; }
+  .lp-cards.is-article, .lp-article { gap: 4px; }
+  .lp-chain { gap: 3px; }
+  .lp-chain li { padding: 0.1em 0.5em; line-height: 1.22; }
 }
 
 /* ---------- big portrait boards (tablets): roomier, larger reading text ---------- */
@@ -276,6 +282,10 @@
   .lp-stage.kind-match .lp-lower { flex-basis: 36%; }
   .lp-stage.mode-feelSort .lp-bins { grid-template-columns: minmax(0, 1fr); }
   .lp-stage.mode-enough .lp-top, .lp-stage.mode-pronFix .lp-top { flex-basis: 50%; }
+  /* tapping sentences of an article: the article needs the room (the lower column only holds the count and Check);
+     on landscape phones its last sentence went below the screen */
+  .lp-stage.kind-set:has(.lp-article) .lp-top { flex-basis: 70%; }
+  .lp-stage.kind-set:has(.lp-article) .lp-lower { flex-basis: 30%; }
   /* long answers (whole sentences): give them the wider column */
   .lp-stage:has(.lp-options.is-long) .lp-top { flex-basis: 42%; }
   .lp-stage:has(.lp-options.is-long) .lp-lower { flex-basis: 58%; }
