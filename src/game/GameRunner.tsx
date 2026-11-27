@@ -1,3 +1,4 @@
+import { shouldExplain } from "./explainRule";
 import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { audio } from "../audio/AudioEngine";
 import { useApp } from "../app/AppContext";
@@ -42,6 +43,8 @@ export interface GameSkin {
     Character: GameSkin["Mascot"]; name: string; explainLine: string; hintLine?: string;
     /** Optional: pick the round-start explanation for the first exercise (e.g. by level). Falls back to explainLine. */
     explainFor?: (ex: Exercise) => string | undefined;
+    /** Optional: also explain the first time an exercise with a new key (e.g. its inner game) appears in a round. */
+    explainKey?: (ex: Exercise) => string;
     /** Optional: pick the first-miss line from the miss itself (diagnose a misconception). Falls back to hintLine. */
     hintFor?: (s: ExerciseState) => string | undefined;
   };
@@ -61,7 +64,7 @@ export interface GameSkin {
   /** Intro/resume card line + caption (default: Bobbo's counting greeting). */
   intro?: { line: string; text: string; backLine?: string; backText?: string };
   /** Idle help: line to replay and element to point at while answering. */
-  idle?: { line: string; target: string };
+  idle?: { line: string; target: string; lineFor?: (ex: Exercise) => string | undefined };
   /** Optional: the sound for a miss, replacing the engine's gentle "retry" sound (null = no sound; e.g. a neutral chime). */
   missSfx?: { id: SfxId; rate?: number; gain?: number } | null;
 }
@@ -261,7 +264,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
       await audio.speak(ex.prompt?.line ?? PROMPT_LINE[ex.interaction], promptVars(ex));
       if (t !== token.current) return;
       // a helper character explains the concept at the start of each round
-      if (skin.helper && (stRef.current === s || stRef.current?.exercise.id === ex.id) && prog.results.length === 0 && stRef.current?.attempts === 0) {
+      if (skin.helper && (stRef.current === s || stRef.current?.exercise.id === ex.id) && shouldExplain(ex, prog.played, round.exercises, prog.results.length, skin.helper.explainKey) && stRef.current?.attempts === 0) {
         await showHelper(skin.helper.explainFor?.(ex) ?? skin.helper.explainLine, { ...ex.params, ...nVar(ex) });
         if (t !== token.current) return;
       }
@@ -473,7 +476,7 @@ export function GameRunner({ game, skin, seed }: GameRunnerProps) {
           setPointer({ target: '[data-testid="pile-object"]', dragTo: '[data-testid="basket"]' });
         }
       } else if (skin.idle) {
-        void audio.speak(skin.idle.line, { ...ex.params, kind: ex.objectKind });
+        void audio.speak(skin.idle.lineFor?.(ex) ?? skin.idle.line, { ...ex.params, kind: ex.objectKind });
         setPointer({ target: skin.idle.target });
       } else {
         // never point at a number (that would give away or bias the answer) — point at the objects to count

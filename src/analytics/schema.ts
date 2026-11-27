@@ -53,6 +53,7 @@ export const EXERCISE_PREFIX: Record<string, string> = {
   "busy-airport": "ba",
   "flight-plan": "fp",
   bakery: "bk",
+  "bubble-bath": "gb",
 };
 
 /**

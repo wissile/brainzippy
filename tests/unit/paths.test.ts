@@ -49,9 +49,9 @@ describe("path data in the packs", () => {
   });
   it("coverage today (informational): which ages each path still needs", () => {
     const gaps = Object.fromEntries(paths.map((p) => [p.id, pathAgeGaps(p)]));
-    // math has worlds for 4–13 (Bobbo's Bakery fills age 10); English covers 3–14: 3–5 (Rhyme Lanterns), 6–8 (Paper Boat Post), 9–11 (Wordroot
-    // Grove) and 12–14 (The Lantern Press). Whether the English path goes live is the owner's call (docs/PATHS.md).
-    expect(gaps.math).toEqual([3, 14]);
+    // math has worlds for 3–13 (Bubble Bath at 3, Bakery at 10; Lighthouse Night closes 14 once merged); English covers 3–14:
+    // 3–5 (Rhyme Lanterns), 6–8 (Paper Boat Post), 9–11 (Wordroot Grove) and 12–14 (The Lantern Press).
+    expect(gaps.math).toEqual([14]);
     expect(gaps.english).toEqual([]);
   });
   it("trail order is by age, and a world never comes before a world that teaches its prerequisite", () => {
@@ -73,7 +73,7 @@ describe("path data in the packs", () => {
   it("an explicit order in the pack wins; unknown ids are skipped and other worlds follow by age", () => {
     const base = registry.libraries.find((l) => l.id === "math")!;
     const lib: Library = { ...base, path: { ...base.path!, worlds: ["sky-balloon-race", "nope"] } };
-    expect(pathWorlds(lib).map((w) => w.id).slice(0, 2)).toEqual(["sky-balloon-race", "counting-adventure"]);
+    expect(pathWorlds(lib).map((w) => w.id).slice(0, 2)).toEqual(["sky-balloon-race", "bubble-bath"]);
   });
   it("a synthetic registry: live flag, world-less libraries and the engine view", () => {
     const world = (id: string, ages: [number, number]): World => ({
