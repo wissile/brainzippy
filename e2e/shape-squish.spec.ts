@@ -15,8 +15,14 @@ const progress = (level: number) => ({ v: 1, stickers: [], roundsCompleted: 0, s
 async function open(page: Page, level = 0) {
   await seed(page, { muted: true, ...(level ? { progress: progress(level) } : {}) });
   await page.goto("/play/shape-squish");
-  await press(page, '[data-testid="story-begin"]');
+  await beginIfNeeded(page);
   await press(page, '[data-testid="story-skip"]');
+}
+/** "Start the story" shows only while the browser still needs a tap for sound; a tab opened after other taps may not need one. */
+async function beginIfNeeded(page: Page) {
+  const begin = page.getByTestId("story-begin");
+  await begin.or(page.getByTestId("story-skip")).first().waitFor({ state: "visible", timeout: 20_000 });
+  if (await begin.isVisible()) await press(page, '[data-testid="story-begin"]');
 }
 const isTouch = (page: Page) => page.evaluate(() => matchMedia("(pointer: coarse)").matches);
 async function helperGone(page: Page) {
@@ -281,7 +287,7 @@ test("every mode fits the screen: no overflow, tap targets ≥ 64 px (screenshot
       await tab.setViewportSize({ width: w, height: h });
       await seed(tab, { muted: true });
       await tab.goto("/play/shape-squish");
-      await press(tab, '[data-testid="story-begin"]');
+      await beginIfNeeded(tab);
       await tab.waitForTimeout(2600);
       await tab.screenshot({ path: `${REVIEW}/intro-${w}x${h}.png` });
       await tab.close();
