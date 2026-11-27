@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { advanceTo, collectErrors, currentExercise, enterGame, openGame, press, screen, seed, solve, waitForNext } from "./helpers";
+import { advanceTo, collectErrors, currentExercise, enterGame, openFromMap, openGame, press, screen, seed, solve, waitForNext } from "./helpers";
 
 test.describe("gameplay behaviour", () => {
   test.beforeEach(({}, info) => {
@@ -63,7 +63,7 @@ test.describe("gameplay behaviour", () => {
     await page.goto("/");
     await expect(page.getByTestId("site-play")).toBeVisible();
     const focusAndEnter = async (testId: string) => {
-      for (let i = 0; i < 25; i++) {
+      for (let i = 0; i < 60; i++) {
         await page.keyboard.press("Tab");
         if ((await page.evaluate(() => document.activeElement?.getAttribute("data-testid"))) === testId) break;
       }
@@ -72,7 +72,9 @@ test.describe("gameplay behaviour", () => {
       await page.waitForTimeout(400);
     };
     await focusAndEnter("site-play");
-    await focusAndEnter("stop-counting-adventure");
+    // Explore → Bobbo's Breakfast (today's trail is planned from every world, so this world may not be on it)
+    await focusAndEnter("view-explore");
+    await focusAndEnter("explore-counting-adventure");
     await page.getByTestId("story-skip").waitFor();
     await focusAndEnter("story-skip");
     await expect(screen(page)).toHaveAttribute("data-phase", "counting");
@@ -100,7 +102,7 @@ test.describe("gameplay behaviour", () => {
     await page.goto("/map");
     await press(page, '[data-testid="sound-toggle"]');
     await expect(page.getByTestId("sound-toggle")).toHaveAttribute("aria-pressed", "false");
-    await press(page, '[data-testid="stop-counting-adventure"]');
+    await openFromMap(page);
     await enterGame(page);
     await expect(page.getByTestId("speech-bubble").first()).toContainText("count the apples");
     await expect(page.getByTestId("live-caption")).toContainText("count the apples");
@@ -155,7 +157,7 @@ test.describe("gameplay behaviour", () => {
     await expect(page.getByTestId("site-play")).toBeVisible({ timeout: 30_000 });
     const homeMs = Date.now() - start;
     await press(page, '[data-testid="site-play"]');
-    await press(page, '[data-testid="stop-counting-adventure"]');
+    await openFromMap(page);
     await enterGame(page);
     const id = await solve(page);
     await waitForNext(page, id);

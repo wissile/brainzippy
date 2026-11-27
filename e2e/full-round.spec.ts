@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { collectErrors, enterGame, openGame, press, screen, seed, solve, waitForNext } from "./helpers";
+import { collectErrors, enterGame, openFromMap, openGame, press, screen, seed, solve, waitForNext } from "./helpers";
 
 test("child plays a complete round from home to sticker, then plays again", async ({ page }, info) => {
   const errors = collectErrors(page);
@@ -13,7 +13,7 @@ test("child plays a complete round from home to sticker, then plays again", asyn
   await press(page, '[data-testid="site-play"]');
   await expect(page.getByTestId("map")).toBeVisible();
   await shot("02-map");
-  await press(page, '[data-testid="stop-counting-adventure"]');
+  await openFromMap(page);
   await expect(page.getByTestId("story")).toBeVisible();
   await page.waitForTimeout(1500);
   await shot("04-story");

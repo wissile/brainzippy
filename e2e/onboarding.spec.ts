@@ -1,5 +1,5 @@
 import { type Page, expect, test } from "@playwright/test";
-import { collectErrors, press, seed, beginIfAsked } from "./helpers";
+import { collectErrors, openFromMap, press, seed, beginIfAsked } from "./helpers";
 
 test.beforeEach(({}, info) => {
   test.skip(info.project.name === "tablet", "onboarding runs on desktop, phone and phone-landscape");
@@ -169,7 +169,7 @@ test("voice clips: the game plays recorded audio files, not only speech synthesi
   await press(page, '[data-testid="site-play"]');
   await expect(page.getByTestId("map")).toBeVisible();
   // (arriving by full page load: the map's greeting waits for the first tap — covered by the daily-learning specs)
-  await press(page, '[data-testid="stop-counting-adventure"]');
+  await openFromMap(page);
   await expect.poll(() => clips.includes("ca.story.1.mp3"), { timeout: 10_000 }).toBe(true);
   await press(page, '[data-testid="story-skip"]');
   await expect.poll(() => clips.includes("prompt.tap-count__kind-apple.mp3"), { timeout: 10_000 }).toBe(true);

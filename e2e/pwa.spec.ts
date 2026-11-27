@@ -1,5 +1,5 @@
 import { type Page, expect, test } from "@playwright/test";
-import { collectErrors, enterGame, press, seed, solve, waitForNext } from "./helpers";
+import { collectErrors, enterGame, openFromMap, press, seed, solve, waitForNext } from "./helpers";
 
 /** These tests exercise the service worker; every other spec blocks it (playwright.config.ts). */
 test.use({ serviceWorkers: "allow" });
@@ -41,7 +41,7 @@ test("after one online visit, a world plays a full exercise offline", async ({ p
   await seed(page, { muted: true });
   await page.goto("/map");
   await waitForController(page);
-  await press(page, '[data-testid="stop-counting-adventure"]');
+  await openFromMap(page);
   await expect(page.getByTestId("story")).toBeVisible();
   // opening the world caches its whole bundle: chunk + deps, music, voice clips
   await expect.poll(() => worldCached(page, "counting-adventure"), { timeout: 90_000 }).toBe(true);
