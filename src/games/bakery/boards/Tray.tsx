@@ -131,6 +131,7 @@ export function TrayBoard({ st, act, alongIndex, busy }: BoardProps) {
       role="img"
       aria-label={ex.a11yDescription}
       data-testid="bk-tray"
+      data-geo={`${PAD},${y0},${CELL},${vw},${vh}`}
       {...(draggable ? drag.props : {})}
     >
       <rect x="4" y={y0 - PAD + 4} width={geo.cols * CELL + PAD * 2 - 8} height={geo.rows * CELL + PAD * 2 - 8} rx="18" fill={BK.tray} stroke={BK.ink} strokeWidth="6" />

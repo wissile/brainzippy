@@ -98,7 +98,8 @@ export function useBoardKeys(h: KeyHandlers) {
  */
 export function useEntry(st: ExerciseState, initial = "") {
   const [entry, setEntry] = useState(initial);
-  const fresh = useRef(false);
+  // a starting value (a stepper's 1) is a placeholder: the first digit typed replaces it
+  const fresh = useRef(initial !== "");
   const f = flags(st);
   const modelValue = f.modelOn && typeof st.model === "number" ? st.model : null;
   useEffect(() => {

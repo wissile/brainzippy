@@ -190,9 +190,14 @@ export function BarBoard({ st, act, alongIndex, busy }: BoardProps) {
               ? <div key={i} className={`bk-seg is-slot ${sg.cls ?? ""}`} style={segStyle(sg.grow, sg.slot === "cin" ? s.a : undefined)}>{slotBtn(slotOf(sg.slot))}</div>
               : <div key={i} className={`bk-seg ${sg.cls ?? ""}`} style={segStyle(sg.grow, sg.cls?.includes("is-unknown") && s.kind === "fracb" ? s.b - s.a : undefined)}><span>{sg.text}</span></div>)}
           </div>
-          {r.chip && <div className="bk-chip">{r.chip === "times" ? "×" : ""}{slotBtn(slotOf(r.chip), "is-chip")}</div>}
         </div>
-      ))}
+      )).flatMap((el, i) => {
+        const chip = rows[i]!.chip;
+        // the number of equal parts sits under its bar, like a brace: "Trays: [ ]" / "× [ ]"
+        return chip
+          ? [el, <div className="bk-barrow is-chiprow" key={`chip-${chip}`}><span className="bk-barrow-name" /><div className="bk-chip">{chip === "times" ? "×" : ""}{slotBtn(slotOf(chip), "is-chip")}</div></div>]
+          : [el];
+      })}
       <p className="bk-question" data-testid="bk-question">{question}</p>
     </div>
   );

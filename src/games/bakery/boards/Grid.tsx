@@ -84,7 +84,7 @@ export function GridBoard({ st, act, alongIndex, busy }: BoardProps) {
     for (let i = 1; i <= s.b; i++) pts.push([x0, y0 + (s.b - i) * CELL]);
     for (const [x, y] of pts) {
       n += 1;
-      edgeMarks.push(<circle key={n} cx={x} cy={y} r="5" fill={BK.icingDeep} />);
+      edgeMarks.push(<circle key={n} cx={x} cy={y} r="7" fill="#fff" stroke={BK.ink} strokeWidth="3" />);
     }
   }
 
@@ -112,7 +112,7 @@ export function GridBoard({ st, act, alongIndex, busy }: BoardProps) {
   const split = s.kind === "lshape" && (f.hinted || f.solved) ? lshapeParts(s) : null;
 
   const svg = (
-    <svg ref={svgRef} viewBox={`0 0 ${vw} ${vh}`} className={`bk-grid ${draggable ? "is-drag" : ""}`} role="img" aria-label={ex.a11yDescription} data-testid="bk-grid" {...(draggable ? drag.props : {})}>
+    <svg ref={svgRef} viewBox={`0 0 ${vw} ${vh}`} className={`bk-grid ${draggable ? "is-drag" : ""}`} role="img" aria-label={ex.a11yDescription} data-testid="bk-grid" data-geo={`${x0},${y0},${CELL},${vw},${vh}`} {...(draggable ? drag.props : {})}>
       <rect x="0" y="0" width={vw} height={vh} rx="16" fill="#FFFDF7" />
       {paper && (
         <g stroke="#E5D9C3" strokeWidth="2">
@@ -141,7 +141,10 @@ export function GridBoard({ st, act, alongIndex, busy }: BoardProps) {
   );
 
   const readout = (() => {
-    if (s.kind === "make") return f.hinted || f.solved ? `${W} × ${h} = ${W * h} tiles (need ${s.a * s.b})` : `${W} wide, ${h} high`;
+    if (s.kind === "make") {
+      const tall = h > MAKE_MAX ? " · taller than the paper" : "";
+      return (f.hinted || f.solved ? `${W} × ${h} = ${W * h} tiles (need ${s.a * s.b})` : `${W} wide, ${h} high`) + tall;
+    }
     if (s.kind === "area" && (f.hinted || f.solved)) return `${s.b} rows of ${s.a} tiles`;
     if (s.kind === "perim" && (f.hinted || f.solved)) return `${s.a} + ${s.b} + ${s.a} + ${s.b}`;
     return null;
