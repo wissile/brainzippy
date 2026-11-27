@@ -22,8 +22,8 @@ export function SizeLineBoard({ st, alongIndex, busy }: BoardProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [shelfRef, shelf] = useSize<HTMLDivElement>();
   const [waterRef, water] = useSize<HTMLDivElement>();
-  const slotCell = Math.max(64, Math.floor(Math.min((shelf.w - 16 - 10 * (count - 1)) / count, shelf.h - 24, 150)));
-  const grid = gridFor(count, water.w - 16 - 84, water.h - 12, 130, 10);
+  const slotCell = Math.max(64, Math.floor(Math.min((shelf.w - 16 - 10 * (count - 1)) / count, shelf.h - 24, 190)));
+  const grid = gridFor(count, water.w - 16 - 84, water.h - 12, 170, 10);
   const [placed, setPlaced] = useState<(string | null)[]>(() => Array.from({ length: count }, () => null));
   const [history, setHistory] = useState<number[]>([]);
   const [okSlots, setOkSlots] = useState<number[]>([]);
@@ -91,6 +91,7 @@ export function SizeLineBoard({ st, alongIndex, busy }: BoardProps) {
                 data-value={id ?? ""}
                 data-gb-drop={`slot:${i}`}
                 aria-disabled={!act2 || !pc || isOk}
+                tabIndex={act2 && pc && !isOk ? 0 : -1}
                 aria-label={pc ? `Space ${i + 1}: the ${pc.text} ${g.kind}. Press to take it back` : `Space ${i + 1} of ${count}, empty`}
                 onClick={(e) => !ignoreClick(e) && takeBack(i)}
               >
@@ -129,7 +130,7 @@ export function SizeLineBoard({ st, alongIndex, busy }: BoardProps) {
             );
           })}
         </div>
-        <button type="button" className="gb-tool gb-undo" data-testid="undo" aria-disabled={!act2 || history.every((s) => okSlots.includes(s) || placed[s] === null)} aria-label="Undo: take the last piece back" onClick={undo}>
+        <button type="button" className="gb-tool gb-undo" data-testid="undo" tabIndex={!act2 || history.every((s) => okSlots.includes(s) || placed[s] === null) ? -1 : 0} aria-disabled={!act2 || history.every((s) => okSlots.includes(s) || placed[s] === null)} aria-label="Undo: take the last piece back" onClick={undo}>
           <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M18 12 L8 22 L18 32 M9 22 H30 Q40 22 40 31 Q40 40 30 40 H22" fill="none" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </button>
       </div>

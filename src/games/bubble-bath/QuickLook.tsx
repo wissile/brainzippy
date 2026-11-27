@@ -12,7 +12,7 @@ import { seenStore, useCommon } from "./shared";
  * 2 and 2, 3 and 2…). Second miss: Gloop counts them one by one and the right answer glows.
  */
 const QUIET_MS = 400;
-const WAIT_CAP_MS = 8000;
+const WAIT_CAP_MS = 12000; // a long round-start helper must not use up the look (Peek recovers it anyway)
 
 /** One ring per little group: centred on the group, wide enough for its bubbles. */
 export function groupRings(spots: readonly Spot[]): { cx: number; cy: number; r: number }[] {
@@ -105,6 +105,7 @@ export function QuickLookBoard({ st, alongIndex, busy }: BoardProps) {
           data-testid="peek"
           data-gb-idle=""
           aria-disabled={!canPeek}
+          tabIndex={canPeek ? 0 : -1}
           aria-label="Peek: see the bubbles again"
           onClick={() => {
             if (!canPeek) return;

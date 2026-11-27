@@ -1,7 +1,7 @@
 import { Bobbo } from "../../characters/Bobbo";
 import { Gloop } from "../../characters/Crew";
 import { CREW, INK } from "../../characters/palette";
-import { type Shape, type SizeKind, type ToyColour, type WallThing, parseSize, parseThing, parseToy } from "./generator";
+import { type Shape, type SizeKind, type ToyColour, type Variant, type WallThing, parseSize, parseThing, parseToy } from "./generator";
 
 /**
  * Original art for Gloop's Bubble Bath. Critter Crew style: ink outlines, flat bright fills, soft white highlights.
@@ -33,20 +33,21 @@ export const TOY_FILL: Record<ToyColour, string> = { red: "#F2545B", blue: "#4D9
 
 // ---------------------------------------------------------------- shape geometry (100 × 100 box, centre 50,50)
 
-export function shapePoints(shape: Shape, skinny = false): [number, number][] {
+/** Triangles: 0 regular (equal sides) · 1 long and thin · 2 lopsided (right angle top-left, all sides different). */
+export function shapePoints(shape: Shape, variant: Variant = 0): [number, number][] {
   if (shape === "square") return [[20, 20], [80, 20], [80, 80], [20, 80]];
-  if (shape === "triangle") return skinny ? [[50, 6], [70, 92], [30, 92]] : [[50, 16], [88, 82], [12, 82]];
+  if (shape === "triangle") return variant === 1 ? [[50, 6], [70, 92], [30, 92]] : variant === 2 ? [[24, 14], [88, 14], [24, 58]] : [[50, 16], [88, 82], [12, 82]];
   return [];
 }
 const poly = (pts: [number, number][]) => `M${pts.map(([x, y]) => `${x} ${y}`).join(" L")} Z`;
 /** The outline of a shape as a path (circle r 38). */
-export const shapePath = (shape: Shape, skinny = false) => (shape === "circle" ? "M12 50 A38 38 0 1 0 88 50 A38 38 0 1 0 12 50 Z" : poly(shapePoints(shape, skinny)));
+export const shapePath = (shape: Shape, variant: Variant = 0) => (shape === "circle" ? "M12 50 A38 38 0 1 0 88 50 A38 38 0 1 0 12 50 Z" : poly(shapePoints(shape, variant)));
 
 /** Numbered corner dots (the hint that counts corners). `upTo` = how many are lit (−1 = all). */
-function Corners({ shape, skinny, upTo = -1 }: { shape: Shape; skinny: boolean; upTo?: number }) {
+function Corners({ shape, variant, upTo = -1 }: { shape: Shape; variant: Variant; upTo?: number }) {
   return (
     <g className="gb-corners">
-      {shapePoints(shape, skinny).map(([x, y], i) => (upTo < 0 || i <= upTo) && (
+      {shapePoints(shape, variant).map(([x, y], i) => (upTo < 0 || i <= upTo) && (
         <circle key={i} cx={x} cy={y} r="7" fill="#FFD43B" stroke={INK} strokeWidth="3" className={i === upTo ? "is-now" : ""} />
       ))}
     </g>
@@ -62,8 +63,8 @@ export function FoamToy({ art, className = "" }: { art: string | undefined; clas
   return (
     <svg viewBox="0 0 100 100" className={`gb-toy ${className}`} aria-hidden="true">
       <g transform={`translate(50 50) scale(${s}) rotate(${t.rot}) translate(-50 -50)`}>
-        <path d={shapePath(t.shape, t.skinny)} fill={fill} stroke={INK} strokeWidth={6 / s} strokeLinejoin="round" />
-        <path d={shapePath(t.shape, t.skinny)} fill="none" stroke="#fff" strokeOpacity="0.45" strokeWidth={5 / s} strokeLinejoin="round" transform="translate(50 50) scale(0.72) translate(-50 -50)" />
+        <path d={shapePath(t.shape, t.variant)} fill={fill} stroke={INK} strokeWidth={6 / s} strokeLinejoin="round" />
+        <path d={shapePath(t.shape, t.variant)} fill="none" stroke="#fff" strokeOpacity="0.45" strokeWidth={5 / s} strokeLinejoin="round" transform="translate(50 50) scale(0.72) translate(-50 -50)" />
         {/* foam pores */}
         <circle cx="44" cy="58" r="3" fill="#fff" opacity="0.4" /><circle cx="58" cy="50" r="2.4" fill="#fff" opacity="0.4" />
       </g>
@@ -83,19 +84,20 @@ export function Hole({ shape }: { shape: Shape }) {
 // ---------------------------------------------------------------- things on the bathroom wall (Shape Splash: find)
 
 export function WallThingArt({ art, corners = false, upTo = -1, className = "" }: { art: string | undefined; corners?: boolean; upTo?: number; className?: string }) {
-  const { thing, shape, rot, skinny } = parseThing(art);
+  const { thing, shape, rot, variant } = parseThing(art);
   return (
     <svg viewBox="0 0 100 100" className={`gb-thing ${className}`} aria-hidden="true">
       <g transform={`rotate(${rot} 50 50)`}>
-        <ThingBody thing={thing} skinny={skinny} />
-        {corners && shape !== "circle" && <Corners shape={shape} skinny={skinny} upTo={upTo} />}
+        <ThingBody thing={thing} variant={variant} />
+        {corners && shape !== "circle" && <Corners shape={shape} variant={variant} upTo={upTo} />}
       </g>
       {corners && shape === "circle" && upTo >= 0 && <path d={shapePath("circle")} fill="none" stroke="#FFD43B" strokeWidth="7" strokeDasharray="10 8" className="gb-trace" />}
     </svg>
   );
 }
 
-function ThingBody({ thing, skinny }: { thing: WallThing; skinny: boolean }) {
+/** Flat things only: each one's outline is exactly its shape (no balls, boxes or other solids). */
+function ThingBody({ thing, variant }: { thing: WallThing; variant: Variant }) {
   switch (thing) {
     case "mirror":
       return <>
@@ -110,13 +112,12 @@ function ThingBody({ thing, skinny }: { thing: WallThing; skinny: boolean }) {
         <path d="M50 50 L50 30 M50 50 L64 56" stroke={INK} strokeWidth="5" strokeLinecap="round" />
         <circle cx="50" cy="50" r="4" fill={CREW.puff} stroke={INK} strokeWidth="2" />
       </>;
-    case "ball":
+    case "mat":
+      // a round bath mat lying flat: rings, no shading
       return <>
-        <path d={shapePath("circle")} fill="#fff" stroke={INK} strokeWidth="6" />
-        <path d="M50 12 C30 30 30 70 50 88 C38 70 38 30 50 12 Z" fill="#4D96FF" />
-        <path d="M50 12 C70 30 70 70 50 88 C62 70 62 30 50 12 Z" fill="#F2545B" />
-        <path d={shapePath("circle")} fill="none" stroke={INK} strokeWidth="6" />
-        <circle cx="35" cy="34" r="5" fill="#fff" opacity="0.8" />
+        <path d={shapePath("circle")} fill={CREW.puff} stroke={INK} strokeWidth="6" />
+        <circle cx="50" cy="50" r="26" fill="none" stroke="#fff" strokeWidth="5" strokeDasharray="6 6" />
+        <circle cx="50" cy="50" r="12" fill="#FFD1E1" />
       </>;
     case "window":
       return <>
@@ -133,21 +134,27 @@ function ThingBody({ thing, skinny }: { thing: WallThing; skinny: boolean }) {
         <path d="M38 52 Q50 40 62 52 L58 52 Q50 46 42 52 Z" fill={CREW.gloop} />
         <circle cx="66" cy="44" r="3" fill="#fff" />
       </>;
-    case "box":
+    case "frame":
+      // a square picture frame with a little boat picture
       return <>
-        <path d={shapePath("square")} fill={CREW.zuzu} stroke={INK} strokeWidth="6" strokeLinejoin="round" />
-        <path d="M34 20 Q50 30 66 20" fill="none" stroke={INK} strokeWidth="4" />
-        <circle cx="38" cy="52" r="6" fill="#B8A3FF" /><circle cx="62" cy="64" r="5" fill="#B8A3FF" /><circle cx="60" cy="40" r="4" fill="#B8A3FF" />
+        <path d={shapePath("square")} fill={GB.wood} stroke={INK} strokeWidth="6" strokeLinejoin="round" />
+        <rect x="31" y="31" width="38" height="38" fill="#DDF3FF" stroke={INK} strokeWidth="3.5" />
+        <path d="M36 58 H64 L60 64 H40 Z" fill={GB.boat} />
+        <path d="M50 38 V56 L60 56 Z" fill="#fff" stroke={INK} strokeWidth="2" strokeLinejoin="round" />
       </>;
     case "flag":
+      // a pennant hanging from its pole: the cloth is a lopsided triangle (right angle at the pole)
       return <>
-        <path d={shapePath("triangle", skinny)} fill={CREW.bobbo} stroke={INK} strokeWidth="6" strokeLinejoin="round" />
-        <path d={skinny ? "M44 60 L56 60" : "M36 66 L64 66"} stroke="#fff" strokeWidth="5" strokeLinecap="round" opacity="0.8" />
+        <path d="M24 8 V94" stroke={INK} strokeWidth="6" strokeLinecap="round" />
+        <circle cx="24" cy="8" r="5" fill={CREW.sparkle} stroke={INK} strokeWidth="3" />
+        <path d={shapePath("triangle", 2)} fill={CREW.bobbo} stroke={INK} strokeWidth="6" strokeLinejoin="round" />
+        <circle cx="42" cy="28" r="5" fill="#fff" opacity="0.85" />
       </>;
-    case "shelf":
+    case "sign":
+      // a bath-time sign: a duck picture inside a triangle, no words
       return <>
-        <path d={shapePath("triangle", skinny)} fill={GB.wood} stroke={INK} strokeWidth="6" strokeLinejoin="round" />
-        <path d={skinny ? "M44 50 L48 70 M52 42 L56 64" : "M34 70 L66 70 M42 56 L58 56"} stroke={GB.woodDeep} strokeWidth="4" strokeLinecap="round" />
+        <path d={shapePath("triangle", variant)} fill={CREW.sparkle} stroke={INK} strokeWidth="6" strokeLinejoin="round" />
+        <g transform={variant === 1 ? "translate(41 54) scale(0.18)" : "translate(37 50) scale(0.26)"}><Duck /></g>
       </>;
   }
 }
@@ -199,15 +206,15 @@ function Sponge({ ghost }: { ghost: boolean }) {
 }
 
 /** A parade bubble with its numeral and (lower levels) that many dots. */
-export function ParadeBubble({ k, dots, popped = false }: { k: number; dots: boolean; popped?: boolean }) {
+export function ParadeBubble({ k, dots, popped = false }: { k: number | null; dots: boolean; popped?: boolean }) {
   const DOT: Record<number, [number, number][]> = { 1: [[50, 0]], 2: [[42, 0], [58, 0]], 3: [[34, 0], [50, 0], [66, 0]], 4: [[42, -6], [58, -6], [42, 6], [58, 6]], 5: [[34, -6], [50, -6], [66, -6], [42, 6], [58, 6]] };
   return (
     <svg viewBox="0 0 100 100" className={`gb-pbubble ${popped ? "is-popped" : ""}`} aria-hidden="true">
       <circle cx="50" cy="50" r="44" fill="rgba(210,245,255,0.75)" stroke={INK} strokeWidth="4" />
       <circle cx="50" cy="50" r="44" fill="none" stroke="#B7A6FF" strokeWidth="3" strokeDasharray="30 22" opacity="0.7" />
       <path d="M24 38 Q28 24 42 18" fill="none" stroke="#fff" strokeWidth="7" strokeLinecap="round" />
-      <text x="50" y={dots ? 58 : 66} textAnchor="middle" className="gb-pnum">{k}</text>
-      {dots && <g transform="translate(0 78)">{(DOT[k] ?? []).map(([x, y], i) => <circle key={i} cx={x} cy={y} r="4.6" fill={CREW.zuzu} stroke={INK} strokeWidth="1.5" />)}</g>}
+      {k !== null && <text x="50" y={dots ? 58 : 66} textAnchor="middle" className="gb-pnum">{k}</text>}
+      {dots && k !== null && <g transform="translate(0 78)">{(DOT[k] ?? []).map(([x, y], i) => <circle key={i} cx={x} cy={y} r="4.6" fill={CREW.zuzu} stroke={INK} strokeWidth="1.5" />)}</g>}
     </svg>
   );
 }

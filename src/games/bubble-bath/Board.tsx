@@ -3,7 +3,7 @@ import type { BoardProps } from "../../game/boards";
 import { IconCheck } from "../../ui/icons";
 import { DicePicture, Duck, FoamToy, ParadeBubble, PlainBubble, SizePiece } from "./art";
 import { BubbleParadeBoard } from "./BubbleParade";
-import { GAME_OF, modeOf, type InnerGame } from "./generator";
+import { GAME_OF, modeOf, paradeForm, type InnerGame } from "./generator";
 import { MoreOrFewerBoard } from "./MoreOrFewer";
 import { QuickLookBoard } from "./QuickLook";
 import { FindBoard, SortBoard } from "./ShapeSplash";
@@ -63,10 +63,11 @@ export function BathTray({ st, act }: BoardProps) {
   const right = st.phase === "solved" || (st.phase === "feedback" && !!st.feedback?.correct);
   const wrongPick = (v: string | number) => st.phase === "feedback" && !st.feedback?.correct && st.lastAnswer === v;
 
-  if (mode === "look" && ex.answer.kind === "number") {
+  if ((mode === "look" || (mode === "parade" && paradeForm(ex) === "count")) && ex.answer.kind === "number") {
+    // Quick Look: awake once the bubbles have been shown · Parade (count): once every bubble is popped
     const awake = seen.exId === ex.id && seen.seen;
     return (
-      <div className={`choice-tray gb-look-tray ${awake ? "is-awake" : "is-asleep"}`} role="group" aria-label="How many bubbles did you see?">
+      <div className={`choice-tray gb-look-tray ${awake ? "is-awake" : "is-asleep"}`} role="group" aria-label={mode === "look" ? "How many bubbles did you see?" : "How many bubbles did you pop?"}>
         {(ex.answer.choices ?? []).map((c) => {
           const out = st.eliminated.includes(c);
           return (
@@ -77,6 +78,7 @@ export function BathTray({ st, act }: BoardProps) {
               data-testid="choice"
               data-value={c}
               aria-disabled={!awake || st.phase !== "answering" || out}
+              tabIndex={!awake || out ? -1 : 0}
               aria-label={`${c} ${c === 1 ? "bubble" : "bubbles"}`}
               onClick={() => awake && st.phase === "answering" && !out && act({ type: "SUBMIT", value: c })}
             >
@@ -98,13 +100,16 @@ export function BathTray({ st, act }: BoardProps) {
           data-testid="choice"
           data-value="same"
           aria-disabled={st.phase !== "answering" || out}
+          tabIndex={out ? -1 : 0}
           aria-label="The same: both tubs have the same number of ducks"
           onClick={() => st.phase === "answering" && !out && act({ type: "SUBMIT", value: "same" })}
         >
-          <svg viewBox="0 0 60 40" aria-hidden="true" className="gb-same-pic">
-            <rect x="4" y="8" width="52" height="8" rx="4" fill="#fff" stroke="#1f6b1a" strokeWidth="3" />
-            <rect x="4" y="24" width="52" height="8" rx="4" fill="#fff" stroke="#1f6b1a" strokeWidth="3" />
-          </svg>
+          {/* two ducks, partner to partner: nobody left over */}
+          <span className="gb-same-pic" aria-hidden="true">
+            <span className="gb-same-duck"><Duck /></span>
+            <svg viewBox="0 0 20 20" className="gb-same-eq"><rect x="2" y="5" width="16" height="3.5" rx="1.75" fill="#fff" /><rect x="2" y="11.5" width="16" height="3.5" rx="1.75" fill="#fff" /></svg>
+            <span className="gb-same-duck"><Duck flip /></span>
+          </span>
           <span className="gb-same-word">Same</span>
         </button>
       </div>
@@ -121,6 +126,7 @@ export function BathTray({ st, act }: BoardProps) {
         data-testid="done"
         aria-label="Ready! Check my work"
         aria-disabled={!enabled}
+        tabIndex={enabled ? 0 : -1}
         onClick={() => enabled && value !== null && act({ type: "SUBMIT", value })}
       >
         <IconCheck />

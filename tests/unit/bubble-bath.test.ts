@@ -9,11 +9,12 @@ import { lintExercise, validateAnswer } from "../../src/engine/validation";
 import { bathTutorial, bubbleBath } from "../../src/games/bubble-bath/definition";
 import {
   BAND, BUBBLE_R, GAME_OF, GB_LEVELS, GB_MAX_LEVEL, MAX_DUCKS, MAX_LOOK, NUMBER_WORDS, SHAPES, WALL_THINGS, arrange, generateBubbleBath, holeShape,
-  isTipped, lookChoices, modeOf, paradeSlots, parseSize, parseThing, parseToy, questionOf, spotsOf, type Mode,
+  isTipped, modeOf, paradeForm, paradeSlots, parseSize, parseThing, parseToy, questionOf, spotsOf, type Mode,
 } from "../../src/games/bubble-bath/generator";
 import {
-  alongSayFor, alongStepsFor, diagnoseCompare, diagnoseFind, diagnoseLook, diagnoseParade, diagnoseSize, diagnoseSort, explainFor, hintFor, praiseFor,
+  alongSayFor, alongStepsFor, diagnoseCompare, diagnoseFind, diagnoseLook, diagnoseParade, diagnoseSize, diagnoseSort, explainFor, hintFor, idleFor, innerGameKey, praiseFor,
 } from "../../src/games/bubble-bath/logic";
+import { shouldExplain } from "../../src/game/explainRule";
 import { duckRow } from "../../src/games/bubble-bath/MoreOrFewer";
 import { groupRings } from "../../src/games/bubble-bath/QuickLook";
 import { gridFor } from "../../src/games/bubble-bath/shared";
@@ -115,14 +116,14 @@ describe("Bubble Bath: content is right and unambiguous at every level", () => {
         const fits = targets.filter((h) => holeShape(h.art) === t.shape);
         expect(fits.map((h) => h.id), `${ex.id} ${it.id}`).toEqual([pairs[it.id]]);
         if (isTipped(t.shape, t.rot)) { tipped++; expect(spec.tipped, ex.id).toBe(true); }
-        if (t.skinny) { skinny++; expect(spec.skinny && t.shape === "triangle", ex.id).toBe(true); }
+        if (t.skinny || t.lopsided) { skinny++; expect(spec.skinny && t.shape === "triangle", ex.id).toBe(true); }
       }
       expect(new Set(Object.values(pairs)).size, ex.id).toBe(targets.length);
       expect(items.length).toBeGreaterThanOrEqual(spec.toys[0]);
       expect(items.length).toBeLessThanOrEqual(spec.toys[1]);
     }
     expect(tipped).toBeGreaterThan(50);
-    expect(skinny).toBeGreaterThan(20);
+    expect(skinny).toBeGreaterThan(10);
   });
 
   it("Shape Splash find: exactly one thing has the asked shape; every thing's drawing is the shape it is filed under", () => {
@@ -140,6 +141,15 @@ describe("Bubble Bath: content is right and unambiguous at every level", () => {
       for (const s of shapes) expect(SHAPES.slice(0, spec.shapes)).toContain(s);
     }
     for (const [thing, shape] of Object.entries(WALL_THINGS)) expect(SHAPES).toContain(shape), expect(thing).toBeTruthy();
+    // flat things only (no solids such as balls or boxes), and every triangle variant appears somewhere
+    expect(Object.keys(WALL_THINGS).sort()).toEqual(["clock", "flag", "frame", "mat", "mirror", "sign", "tile", "window"]);
+    const things = byMode("find").flatMap((e) => (e.answer.kind === "choice" ? e.answer.options.map((o) => parseThing(o.art)) : []));
+    for (const t of things) {
+      if (t.thing === "flag") expect([t.rot, t.variant]).toEqual([0, 2]); // a flag hangs from its pole, never turned
+      if (t.skinny) expect(t.shape).toBe("triangle");
+    }
+    expect(things.some((t) => t.lopsided)).toBe(true);
+    expect(things.some((t) => t.skinny)).toBe(true);
   });
 
   it("Quick Look: 1–5 bubbles in the level's range, no two overlap, all inside the picture; three neighbouring choices within 1–5", () => {
@@ -149,7 +159,11 @@ describe("Bubble Bath: content is right and unambiguous at every level", () => {
       const spec = GB_LEVELS[levelOf(ex)]!.look;
       expect(n).toBeGreaterThanOrEqual(spec.n[0]);
       expect(n).toBeLessThanOrEqual(spec.n[1]);
-      expect(ex.answer.choices).toEqual(lookChoices(n));
+      const c = ex.answer.choices!;
+      expect(c).toContain(n);
+      expect(c).toEqual([c[0]!, c[0]! + 1, c[0]! + 2]);
+      expect(c[0]).toBeGreaterThanOrEqual(1);
+      expect(c[2]).toBeLessThanOrEqual(MAX_LOOK);
       expect(ex.params!.show).toBe(spec.showMs);
       expect(ex.params!.show!).toBeGreaterThanOrEqual(1500);
       const spots = spotsOf(ex);
@@ -165,12 +179,24 @@ describe("Bubble Bath: content is right and unambiguous at every level", () => {
       // the objective never states how many
       expect(ex.objective, ex.id).not.toMatch(new RegExp(`\\b(${n}|${NUMBER_WORDS[n]})\\b`, "i"));
     }
-    for (let n = 1; n <= MAX_LOOK; n++) {
-      const c = lookChoices(n);
-      expect(c).toContain(n);
-      expect(c[0]).toBeGreaterThanOrEqual(1);
-      expect(c[2]).toBeLessThanOrEqual(MAX_LOOK);
+  });
+
+  it("Quick Look and the counting parade: the answer is not predictable by position (first, middle and last all occur)", () => {
+    const numberItems = all.filter((e) => e.answer.kind === "number");
+    const pos = (e: Exercise) => (e.answer.kind === "number" ? e.answer.choices!.indexOf(e.answer.value) : -1);
+    expect(new Set(numberItems.map(pos))).toEqual(new Set([0, 1, 2]));
+    // for every n with room on both sides, each position occurs
+    for (const n of [3]) {
+      const ps = new Set(numberItems.filter((e) => e.answer.kind === "number" && e.answer.value === n).map(pos));
+      expect([...ps].sort(), `n=${n}`).toEqual([0, 1, 2]);
     }
+    for (const n of [2, 4]) {
+      const ps = new Set(byMode("look").filter((e) => e.answer.kind === "number" && e.answer.value === n).map(pos));
+      expect(ps.size, `n=${n}`).toBeGreaterThanOrEqual(2);
+    }
+    // no single position dominates
+    const counts = [0, 1, 2].map((k) => numberItems.filter((e) => pos(e) === k).length / numberItems.length);
+    for (const c of counts) expect(c).toBeLessThan(0.6);
   });
 
   it("Quick Look group rings: every bubble sits inside its group's ring; clumps make two groups for n ≥ 2", () => {
@@ -224,17 +250,26 @@ describe("Bubble Bath: content is right and unambiguous at every level", () => {
       const { order, pieces } = ex.answer;
       const sizes = order.map((id) => parseSize(pieces.find((p) => p.id === id)!.art).size);
       expect(sizes, ex.id).toEqual(GB_LEVELS[levelOf(ex)]!.size.sizes);
-      for (let i = 1; i < sizes.length; i++) expect(sizes[i]! - sizes[i - 1]!).toBeGreaterThanOrEqual(15);
+      for (let i = 1; i < sizes.length; i++) expect(sizes[i]! / sizes[i - 1]!, ex.id).toBeGreaterThanOrEqual(1.18);
       expect(pieces.map((p) => p.id), ex.id).not.toEqual(order);
       expect(validateAnswer(ex.answer, order).correct).toBe(true);
       expect(new Set(pieces.map((p) => p.art)).size).toBe(pieces.length);
     }
   });
 
-  it("Bubble Parade: 1…n in order, bubbles never sit in counting order left to right, dots as the level says", () => {
+  it("Bubble Parade: levels 0–3 pop-and-count (one-to-one, how many?), levels 4–7 numerals 1…n in order", () => {
     for (const ex of byMode("parade")) {
-      if (ex.answer.kind !== "sequence") throw new Error("sequence");
       const spec = GB_LEVELS[levelOf(ex)]!.parade;
+      expect(paradeForm(ex), ex.id).toBe(spec.form);
+      expect(spec.form).toBe(levelOf(ex) <= 3 ? "count" : "order");
+      if (spec.form === "count") {
+        if (ex.answer.kind !== "number") throw new Error("number");
+        expect(ex.answer.value).toBe(spec.n);
+        expect(ex.skillId).toBe("math.count.one-to-one");
+        continue;
+      }
+      if (ex.answer.kind !== "sequence") throw new Error("sequence");
+      expect(ex.skillId).toBe("math.count.sequence");
       expect(ex.answer.order).toEqual(Array.from({ length: spec.n }, (_, i) => `b${i + 1}`));
       const slots = paradeSlots(ex).map((s) => s.slot);
       expect([...slots].sort()).toEqual(Array.from({ length: spec.n }, (_, i) => i));
@@ -313,7 +348,7 @@ describe("Bubble Bath: diagnosed hints, ladder and voice", () => {
       expect(VOICE_LINES[ex.prompt!.line], ex.prompt!.line).toBeDefined();
       const vary = VOICE_LINES[ex.prompt!.line]!.vary ?? {};
       for (const [k, vals] of Object.entries(vary)) expect(vals, `${ex.id} ${k}`).toContain((promptVars as Record<string, unknown>)[k]);
-      expect(renderLine(ex.prompt!.line, promptVars)).toBe(ex.prompt!.text.replace("1, 2, 3…", "one, two, three!"));
+      expect(renderLine(ex.prompt!.line, promptVars), ex.id).toBe(ex.prompt!.text); // the pill says what the voice says
       ids.add(explainFor(ex));
       const praiseVars: Record<string, string | number> = { ...ex.params, kind: ex.objectKind, ...(ex.answer.kind === "number" ? { n: ex.answer.value } : {}) };
       for (const p of praiseFor(ex)) {
@@ -326,11 +361,13 @@ describe("Bubble Bath: diagnosed hints, ladder and voice", () => {
         if (say !== null) expect(say).toBeLessThanOrEqual(5);
       }
     }
-    for (const id of ["over", "under"]) ids.add(`gb.hint.look.${id}`);
+    for (const id of ["tooMany", "tooFew"]) ids.add(`gb.hint.look.${id}`);
+    for (const ex of all) { const idle = idleFor(ex); if (idle) ids.add(idle); }
+    ids.add("gb.parade.howMany");
     for (const id of ["same", "notSame", "long", "fewer", "more"]) ids.add(`gb.hint.compare.${id}`);
     for (const id of ["reverse", "middle", "start"]) ids.add(`gb.hint.size.${id}`);
-    for (const id of ["circle", "square", "triangle", "tipped", "skinny"]) ids.add(`gb.hint.shape.${id}`);
-    for (const id of ["place", "skip"]) ids.add(`gb.hint.parade.${id}`);
+    for (const id of ["circle", "square", "triangle", "tipped", "skinny", "lopsided"]) ids.add(`gb.hint.shape.${id}`);
+    for (const id of ["numbers", "skip", "last"]) ids.add(`gb.hint.parade.${id}`);
     for (const id of ids) lineExists(id);
     const mine = Object.entries(VOICE_LINES).filter(([id]) => id.startsWith("gb."));
     expect(mine.length).toBeGreaterThan(50);
@@ -338,6 +375,36 @@ describe("Bubble Bath: diagnosed hints, ladder and voice", () => {
       expect(l.text.split(/\s+/).length, id).toBeLessThanOrEqual(14);
       if (id.startsWith("gb.praise")) expect(l.text.toLowerCase(), id).not.toMatch(/smart|genius|clever|brilliant|fast|quick/);
     }
+  });
+
+  it("each inner game is explained the first time it appears in a round (runner rule + this world's key)", () => {
+    const round = buildRound(bubbleBath, { level: 3, seed: 5 });
+    const pick = (m: string) => round.exercises.find((e) => innerGameKey(e) === m)!;
+    const look = pick("look");
+    const look2 = round.exercises.find((e) => innerGameKey(e) === "look" && e.id !== look.id)!;
+    const size = pick("size");
+    expect(shouldExplain(look, [look.id], round.exercises, 0, innerGameKey)).toBe(true); // round start
+    expect(shouldExplain(size, [look.id, size.id], round.exercises, 1, innerGameKey)).toBe(true); // a new game mid-round
+    expect(shouldExplain(look2, [look.id, size.id, look2.id], round.exercises, 2, innerGameKey)).toBe(false); // seen already
+    expect(shouldExplain(size, [look.id, size.id], round.exercises, 1)).toBe(false); // no key: only the first item (old behaviour)
+    expect(innerGameKey(round.exercises.find((e) => modeOf(e) === "parade")!)).toBe("parade-count");
+  });
+
+  it("stepUpAfter 3: a first-try level-0 round meets at most two new inner games (each explained), and still reaches level + 3 for U1", () => {
+    expect(bubbleBath.progression.stepUpAfter).toBe(3);
+    const round = buildRound(bubbleBath, { level: 0, seed: 1 });
+    let p = initialProgression(bubbleBath.progression, 1);
+    const keys = new Set<string>();
+    let top = 0;
+    for (let k = 0; k < BAND; k++) {
+      const ex = selectNextExercise(round, p, bubbleBath.progression)!;
+      keys.add(GAME_OF[modeOf(ex)]);
+      top = Math.max(top, ex.difficulty);
+      p = applyResult({ ...p, played: [...p.played, ex.id] }, { exerciseId: ex.id, skillId: ex.skillId, difficulty: ex.difficulty, attempts: 1, firstTry: true, hintsShown: 0 }, bubbleBath.progression);
+    }
+    const fresh = [...keys].filter((g) => g !== "shape-splash" && g !== "bubble-parade");
+    expect(fresh.length).toBeLessThanOrEqual(2);
+    expect(top).toBe(3);
   });
 
   it("layout helpers: grids never go below 64 px cells; duck rows stay inside the tub", () => {

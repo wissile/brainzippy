@@ -6,7 +6,7 @@ import { GameRunner, type GameSkin } from "../../game/GameRunner";
 import { BathBackground, BathIcon, BubbleBuddySticker, NoBasket } from "./art";
 import { BathBoard, BathTray } from "./Board";
 import { bubbleBath } from "./definition";
-import { alongSayFor, alongStepsFor, explainFor, hintFor, praiseFor } from "./logic";
+import { alongSayFor, alongStepsFor, explainFor, hintFor, idleFor, innerGameKey, praiseFor } from "./logic";
 import { resetStores } from "./shared";
 import { bathBetween, bathIntro, bathOutro } from "./story";
 
@@ -26,14 +26,15 @@ const skin: GameSkin = {
   Tray: BathTray,
   music: "sky",
   story: { intro: bathIntro, outro: bathOutro, between: bathBetween },
-  helper: { Character: BobboHelper, name: "Bobbo", explainLine: "gb.help.sort", explainFor, hintLine: "gb.retry", hintFor },
+  // Bobbo explains each inner game the first time it appears in a round (explainKey), not only on the first item
+  helper: { Character: BobboHelper, name: "Bobbo", explainLine: "gb.help.sort", explainFor, explainKey: innerGameKey, hintLine: "gb.retry", hintFor },
   praise: ["gb.praise.sort.1"],
   praiseFor,
   hintVoice: { "retry.1": "gb.retry", "hint.countAlong": "gb.retry", "hint.model": "gb.hint.countAlong", "hint.show": "gb.hint.show", "hint.modelTap": "gb.hint.yourTurn" },
   alongSteps: alongStepsFor,
   alongSay: alongSayFor,
   tutorialTarget: "[data-gb-tutorial]",
-  idle: { line: "gb.idle", target: "[data-gb-idle]" },
+  idle: { line: "gb.idle", target: "[data-gb-idle]", lineFor: idleFor },
 };
 
 export default function BubbleBath() {

@@ -7,22 +7,25 @@ import type { Rng } from "../../engine/rng";
  * Index 0–6 rotate through the level's games (the new one first); index 7 is the Bubble Parade finale (`closer`).
  * Full rationale (misconceptions, why each interaction): docs/worlds/bubble-bath.md.
  *
- *   Lv  new ideas                         Shape Splash (sort · find)        Quick Look         More or Fewer             Size Line           Parade
- *   0   Shape Splash (tutorial)           ○□ · 2 holes, 2 toys · 2 pics     —                  —                         —                   1–3 + dots
- *   1   Quick Look, triangles             ○□△ · 3 holes, 3 toys · 3 pics    1–3 line/dice 2.5s —                         —                   1–3 + dots
- *   2   More or Fewer (more)              same                              1–4               more · ≤4 · differ by ≥2   —                   1–3 + dots
- *   3   Size Line, "fewer"                same                              1–4 · 2.2 s       + fewer · ≤5                3 · outlines        1–4 + dots
- *   4   "same", tipped shapes, plain line tipped, any size · 4 toys          2–5 (5 structured) + same · differ by ≥1      3 · plain slots     1–4 + dots
- *   5   4 sponges, bubble clumps         tipped · 4 pictures                2–5 + clumps 2 s  ≤6                         4 · outlines        1–5 + dots
- *   6   long-line trap, skinny △,        + skinny triangles                 3–5 · 1.8 s       longer line has fewer      4 · plain           1–5 numerals
- *       numerals only
- *   7   closer sizes                      all                               1–5 any · 1.5 s   long-line trap ≤6          4 · close sizes     1–5 numerals
+ *   Lv  new ideas                       Shape Splash (sort · find)           Quick Look          More or Fewer             Size Line           Parade (finale)
+ *   0   Shape Splash (tutorial)         ○□ · 2 holes, 2 toys · 2 pictures    —                   —                         —                   pop & count 3
+ *   1   Quick Look, triangles           ○□△ · 3 holes, 3 toys · 3 pictures   1–3 row/dice 2.5 s  —                         —                   pop & count 3
+ *   2   More or Fewer ("more")          same                                 1–4                 more · ≤4 · differ by ≥2  —                   pop & count 4
+ *   3   Size Line, "fewer"              same                                 1–4 · 2.2 s         + fewer · ≤5              3 · outlines        pop & count 4
+ *   4   "same", tipped shapes,          tipped · 3 toys · tipped pictures    1–4 · 2.2 s         + same                    3 · outlines        numbers 1–4 in order (dots)
+ *       numbered parade
+ *   5   plain spaces, five, close       4 toys · 4 pictures                  2–5 (5 structured)  differ by ≥1              3 · plain spaces    1–5 (dots)
+ *   6   4 pieces, long-line trap,       same                                 3–5 · clumps 1.8 s  longer line has fewer     4 · outlines        1–5 (dots)
+ *       bubble clumps
+ *   7   skinny & lopsided triangles,    + skinny/lopsided triangles, sizes   2–5 any · 1.5 s     long-line trap ≤6         4 · plain · close   1–5 numerals only
+ *       numerals-only, close sizes
  *
  * No answer is ever timed. Quick Look shows its bubbles briefly (that is what makes it subitizing), but the child can
  * peek again as often as they like and answers whenever they are ready.
  */
 export const GB_AGES = [3, 4] as const;
 export const SKILL = {
+  sequence: "math.count.sequence",
   subitize: "math.count.subitize",
   compare: "math.count.compare",
   order: "math.measure.order-size",
@@ -52,9 +55,12 @@ export type Question = "more" | "fewer";
 export const SIZE_KINDS = ["boat", "sponge"] as const;
 export type SizeKind = (typeof SIZE_KINDS)[number];
 /** Things on the bathroom wall in Shape Splash's "find" picture, and the shape each one is. */
-export const WALL_THINGS = { mirror: "circle", clock: "circle", ball: "circle", window: "square", tile: "square", box: "square", flag: "triangle", shelf: "triangle" } as const;
+/** Every thing is a flat shape (no solids like balls or boxes): the shape is the whole outline the child sees. */
+export const WALL_THINGS = { mirror: "circle", clock: "circle", mat: "circle", window: "square", tile: "square", frame: "square", flag: "triangle", sign: "triangle" } as const;
 export type WallThing = keyof typeof WALL_THINGS;
-export const THINGS_OF: Record<Shape, readonly WallThing[]> = { circle: ["mirror", "clock", "ball"], square: ["window", "tile", "box"], triangle: ["flag", "shelf"] };
+export const THINGS_OF: Record<Shape, readonly WallThing[]> = { circle: ["mirror", "clock", "mat"], square: ["window", "tile", "frame"], triangle: ["flag", "sign"] };
+/** Triangle variants: 0 regular (equal sides) · 1 long and thin · 2 lopsided (a right angle, sides all different lengths). */
+export type Variant = 0 | 1 | 2;
 
 export const MAX_DUCKS = 6;
 export const MAX_LOOK = 5;
@@ -64,10 +70,12 @@ interface Level {
   games: readonly Mode[];
   sort: { shapes: 2 | 3; toys: readonly [number, number]; tipped: boolean; sizes: boolean; skinny: boolean };
   find: { shapes: 2 | 3; options: 2 | 3 | 4; tipped: boolean; skinny: boolean };
+  /** `skinny` levels also bring lopsided (right-angled) triangles. */
   look: { n: readonly [number, number]; arr: readonly Arrangement[]; showMs: number };
   compare: { max: number; minDiff: number; fewer: boolean; same: boolean; spread: boolean };
   size: { outline: boolean; sizes: readonly number[] };
-  parade: { n: 3 | 4 | 5; dots: boolean };
+  /** count: pop each unnumbered bubble once while counting, then say how many · order: pop numbered bubbles 1…n */
+  parade: { n: 3 | 4 | 5; form: "count" | "order"; dots: boolean };
 }
 
 const SORT3 = { shapes: 3, toys: [3, 3], tipped: false, sizes: false, skinny: false } as const;
@@ -82,12 +90,12 @@ export const GB_LEVELS: readonly Level[] = [
     sort: { shapes: 2, toys: [2, 2], tipped: false, sizes: false, skinny: false },
     find: { shapes: 2, options: 2, tipped: false, skinny: false },
     look: NO_LOOK, compare: NO_COMPARE, size: NO_SIZE,
-    parade: { n: 3, dots: true },
+    parade: { n: 3, form: "count", dots: false },
   },
   {
     games: ["look", "sort", "find"],
     sort: SORT3, find: FIND3, look: NO_LOOK, compare: NO_COMPARE, size: NO_SIZE,
-    parade: { n: 3, dots: true },
+    parade: { n: 3, form: "count", dots: false },
   },
   {
     games: ["compare", "look", "sort", "find"],
@@ -95,7 +103,7 @@ export const GB_LEVELS: readonly Level[] = [
     look: { n: [1, 4], arr: ["line", "dice"], showMs: 2500 },
     compare: { max: 4, minDiff: 2, fewer: false, same: false, spread: false },
     size: NO_SIZE,
-    parade: { n: 3, dots: true },
+    parade: { n: 4, form: "count", dots: false },
   },
   {
     games: ["size", "compare", "look", "sort", "find"],
@@ -103,43 +111,44 @@ export const GB_LEVELS: readonly Level[] = [
     look: { n: [1, 4], arr: ["line", "dice"], showMs: 2200 },
     compare: { max: 5, minDiff: 2, fewer: true, same: false, spread: false },
     size: { outline: true, sizes: [46, 72, 100] },
-    parade: { n: 4, dots: true },
+    parade: { n: 4, form: "count", dots: false },
   },
   {
     games: ["compare", "sort", "look", "size", "find"],
-    sort: { shapes: 3, toys: [4, 4], tipped: true, sizes: true, skinny: false },
+    sort: { shapes: 3, toys: [3, 3], tipped: true, sizes: false, skinny: false },
     find: { shapes: 3, options: 3, tipped: true, skinny: false },
-    look: { n: [2, 5], arr: ["line", "dice"], showMs: 2200 },
-    compare: { max: 5, minDiff: 1, fewer: true, same: true, spread: false },
-    size: { outline: false, sizes: [50, 75, 100] },
-    parade: { n: 4, dots: true },
+    look: { n: [1, 4], arr: ["line", "dice"], showMs: 2200 },
+    compare: { max: 5, minDiff: 2, fewer: true, same: true, spread: false },
+    size: { outline: true, sizes: [46, 72, 100] },
+    parade: { n: 4, form: "order", dots: true },
   },
   {
     games: ["size", "look", "find", "compare", "sort"],
-    sort: { shapes: 3, toys: [4, 4], tipped: true, sizes: true, skinny: false },
+    sort: { shapes: 3, toys: [4, 4], tipped: true, sizes: false, skinny: false },
     find: { shapes: 3, options: 4, tipped: true, skinny: false },
-    look: { n: [2, 5], arr: ["dice", "clumps", "line"], showMs: 2000 },
-    compare: { max: 6, minDiff: 1, fewer: true, same: true, spread: false },
-    size: { outline: true, sizes: [40, 60, 80, 100] },
-    parade: { n: 5, dots: true },
+    look: { n: [2, 5], arr: ["line", "dice"], showMs: 2000 },
+    compare: { max: 5, minDiff: 1, fewer: true, same: true, spread: false },
+    size: { outline: false, sizes: [50, 75, 100] },
+    parade: { n: 5, form: "order", dots: true },
   },
   {
-    games: ["compare", "find", "look", "size", "sort"],
-    sort: { shapes: 3, toys: [4, 4], tipped: true, sizes: true, skinny: true },
-    find: { shapes: 3, options: 4, tipped: true, skinny: true },
+    games: ["compare", "size", "look", "find", "sort"],
+    sort: { shapes: 3, toys: [4, 4], tipped: true, sizes: false, skinny: false },
+    find: { shapes: 3, options: 4, tipped: true, skinny: false },
     look: { n: [3, 5], arr: ["clumps", "dice"], showMs: 1800 },
-    compare: { max: 6, minDiff: 1, fewer: true, same: true, spread: true },
-    size: { outline: false, sizes: [44, 63, 82, 100] },
-    parade: { n: 5, dots: false },
+    compare: { max: 5, minDiff: 1, fewer: true, same: true, spread: true },
+    size: { outline: true, sizes: [40, 60, 80, 100] },
+    parade: { n: 5, form: "order", dots: true },
   },
   {
-    games: ["size", "look", "compare", "sort", "find"],
+    games: ["sort", "size", "look", "compare", "find"],
     sort: { shapes: 3, toys: [4, 4], tipped: true, sizes: true, skinny: true },
     find: { shapes: 3, options: 4, tipped: true, skinny: true },
-    look: { n: [1, 5], arr: ["line", "dice", "clumps"], showMs: 1500 },
+    look: { n: [2, 5], arr: ["line", "dice", "clumps"], showMs: 1500 },
     compare: { max: 6, minDiff: 1, fewer: true, same: true, spread: true },
-    size: { outline: false, sizes: [55, 70, 85, 100] },
-    parade: { n: 5, dots: false },
+    // geometric steps of about 1.2× (58 → 70 → 84 → 100): a design hypothesis to playtest, not a research threshold
+    size: { outline: false, sizes: [58, 70, 84, 100] },
+    parade: { n: 5, form: "order", dots: false },
   },
 ];
 export const GB_MAX_LEVEL = GB_LEVELS.length - 1;
@@ -153,21 +162,24 @@ export const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six
 
 // ---------------------------------------------------------------- art keys (data only; art.tsx draws them)
 
-/** A foam bath toy: shape, colour, turn (degrees), size (% of the cell) and variant (1 = skinny triangle). */
-export const toyArt = (shape: Shape, colour: ToyColour, rot: number, scale: number, skinny: boolean) => `toy~${shape}~${colour}~${rot}~${scale}~${skinny ? 1 : 0}`;
+/** A foam bath toy: shape, colour, turn (degrees), size (% of the cell) and triangle variant. */
+export const toyArt = (shape: Shape, colour: ToyColour, rot: number, scale: number, variant: Variant) => `toy~${shape}~${colour}~${rot}~${scale}~${variant}`;
 export const holeArt = (shape: Shape) => `hole~${shape}`;
-export const thingArt = (thing: WallThing, rot: number, skinny: boolean) => `thing~${thing}~${rot}~${skinny ? 1 : 0}`;
+export const thingArt = (thing: WallThing, rot: number, variant: Variant) => `thing~${thing}~${rot}~${variant}`;
 export const sizeArt = (kind: SizeKind, size: number) => `size~${kind}~${size}`;
 export const bubbleArt = (k: number, dots: boolean) => `bubble~${k}~${dots ? 1 : 0}`;
-export interface ToyArt { shape: Shape; colour: ToyColour; rot: number; scale: number; skinny: boolean }
+const toVariant = (v: string): Variant => (v === "1" ? 1 : v === "2" ? 2 : 0);
+export interface ToyArt { shape: Shape; colour: ToyColour; rot: number; scale: number; variant: Variant; skinny: boolean; lopsided: boolean }
 export function parseToy(art: string | undefined): ToyArt {
-  const [, shape = "circle", colour = "red", rot = "0", scale = "100", skinny = "0"] = (art ?? "").split("~");
-  return { shape: shape as Shape, colour: colour as ToyColour, rot: Number(rot), scale: Number(scale), skinny: skinny === "1" };
+  const [, shape = "circle", colour = "red", rot = "0", scale = "100", v = "0"] = (art ?? "").split("~");
+  const variant = toVariant(v);
+  return { shape: shape as Shape, colour: colour as ToyColour, rot: Number(rot), scale: Number(scale), variant, skinny: variant === 1, lopsided: variant === 2 };
 }
-export function parseThing(art: string | undefined): { thing: WallThing; shape: Shape; rot: number; skinny: boolean } {
-  const [, thing = "mirror", rot = "0", skinny = "0"] = (art ?? "").split("~");
+export function parseThing(art: string | undefined): { thing: WallThing; shape: Shape; rot: number; variant: Variant; skinny: boolean; lopsided: boolean } {
+  const [, thing = "mirror", rot = "0", v = "0"] = (art ?? "").split("~");
   const t = thing as WallThing;
-  return { thing: t, shape: WALL_THINGS[t] ?? "circle", rot: Number(rot), skinny: skinny === "1" };
+  const variant = toVariant(v);
+  return { thing: t, shape: WALL_THINGS[t] ?? "circle", rot: Number(rot), variant, skinny: variant === 1, lopsided: variant === 2 };
 }
 export function parseSize(art: string | undefined): { kind: SizeKind; size: number } {
   const [, kind = "boat", size = "100"] = (art ?? "").split("~");
@@ -198,9 +210,10 @@ export function sortExercise(level: number, rng: Rng, index: number, spec: Level
     const tip = canTip && (rng.chance(0.5) || tippedCount === 0);
     if (tip) tippedCount++;
     const rot = tip ? rng.pick(TURNS[shape]) : 0;
-    const skinny = spec.skinny && shape === "triangle" && rng.chance(0.6);
+    // skinny levels: long thin or lopsided (right-angled) triangles, as well as regular ones
+    const variant: Variant = spec.skinny && shape === "triangle" ? rng.pick([0, 1, 2] as const) : 0;
     const scale = spec.sizes ? rng.pick([62, 80, 100]) : 88;
-    return { hole: h, art: toyArt(shape, colours[i % colours.length]!, rot, scale, skinny) };
+    return { hole: h, art: toyArt(shape, colours[i % colours.length]!, rot, scale, variant) };
   });
   const items: AnswerOption[] = toys.map((t, i) => ({ id: `t${i + 1}`, art: t.art }));
   const targets: AnswerOption[] = holes.map((s, i) => ({ id: `h${i + 1}`, art: holeArt(s), text: s }));
@@ -234,11 +247,12 @@ export function findExercise(level: number, rng: Rng, index: number, spec: Level
     const pool = THINGS_OF[shape].filter((t) => !used.has(t));
     const thing = rng.pick(pool.length ? pool : THINGS_OF[shape]);
     used.add(thing);
-    // tipped levels: the target is tipped more often than not (the misconception is "a tipped square is a diamond")
-    const tip = spec.tipped && shape !== "circle" && rng.chance(isTarget ? 0.7 : 0.4);
+    // tipped levels: the target is tipped more often than not (the misconception is "a tipped square is a diamond").
+    // A flag hangs from its pole and is never turned; its cloth is always a lopsided (right-angled) triangle.
+    const tip = spec.tipped && shape !== "circle" && thing !== "flag" && rng.chance(isTarget ? 0.7 : 0.4);
     const rot = tip ? rng.pick(TURNS[shape]) : 0;
-    const skinny = spec.skinny && shape === "triangle" && rng.chance(0.6);
-    return { shape, art: thingArt(thing, rot, skinny), isTarget };
+    const variant: Variant = thing === "flag" ? 2 : spec.skinny && shape === "triangle" && rng.chance(0.6) ? 1 : 0;
+    return { shape, art: thingArt(thing, rot, variant), isTarget };
   };
   const things = rng.shuffle([make(target, true), ...distractorShapes.map((s) => make(s, false))]);
   const options: AnswerOption[] = things.map((t, i) => ({ id: `o${i + 1}`, art: t.art }));
@@ -251,7 +265,7 @@ export function findExercise(level: number, rng: Rng, index: number, spec: Level
     objective: spec.tipped ? "Find a named shape in a picture, even when it is turned or stretched" : "Find a named shape in a picture",
     answer: { kind: "choice", correct, options },
     objectKind: target,
-    params: { mode: MODES.indexOf("find"), sh: SHAPES.indexOf(target) },
+    params: { mode: MODES.indexOf("find"), sh: SHAPES.indexOf(target), k: spec.shapes },
     prompt: { line: "gb.prompt.find", vars: { shape: target }, text: `Can you find a ${target}?` },
     a11yDescription: `A picture of Gloop's bathroom wall with ${options.length} things on it. Find the one shaped like a ${target}.`,
   };
@@ -299,9 +313,13 @@ export function arrange(n: number, arr: Arrangement, rng: Rng): { spots: Spot[];
   return { spots, w: sizes.length === 1 ? 100 : 120, h: 76 };
 }
 
-/** Three neighbouring numbers that include n, within 1–5 (one more and one fewer are the typical slips). */
-export function lookChoices(n: number): number[] {
-  const lo = Math.max(1, Math.min(n - 1, MAX_LOOK - 2));
+/**
+ * Three neighbouring numbers that include n, within 1–5. Where the window starts is chosen at random, so the answer
+ * is sometimes first, sometimes middle, sometimes last (never "always the middle one"); n ± 1 is in the window
+ * whenever the window allows it.
+ */
+export function lookChoices(n: number, rng: Rng): number[] {
+  const lo = rng.int(Math.max(1, n - 2), Math.min(n, MAX_LOOK - 2));
   return [lo, lo + 1, lo + 2];
 }
 
@@ -323,11 +341,12 @@ export function lookExercise(level: number, rng: Rng, index: number, spec: Level
     id: `gb-look-${n}-${arr}-l${level}n${index}`,
     skillId: SKILL.subitize,
     objective: spec.n[1] === MAX_LOOK ? "Recognise a group at a glance by seeing its little groups, and say how many" : "Recognise a small group at a glance and say how many",
-    answer: { kind: "number", value: n, choices: lookChoices(n) },
+    answer: { kind: "number", value: n, choices: lookChoices(n, rng) },
     objectKind: "bubble",
     params,
     prompt: { line: "gb.prompt.look", text: "Watch the bubbles. How many did you see?" },
-    a11yDescription: `${n} ${n === 1 ? "bubble pops" : "bubbles pop"} up on the water for a moment${arr === "line" ? ", in a row" : arr === "dice" ? ", like the dots on a dice" : ", in little groups"}. Choose how many you saw. Press Peek to see them again.`,
+    // no count here: it is read out while the foam covers the bubbles (the picture's own label names the count while shown)
+    a11yDescription: `Some bubbles pop up on the water for a moment${arr === "line" ? ", in a row" : arr === "dice" ? ", like the dots on a dice" : ", in little groups"}, then the foam covers them. Choose how many you saw. Press Peek to see them again.`,
   };
 }
 
@@ -403,29 +422,45 @@ export function sizeExercise(level: number, rng: Rng, index: number, spec: Level
 
 // ---------------------------------------------------------------- Bubble Parade (finale; sequence 1 → n)
 
+export const PARADE_FORMS = ["count", "order"] as const;
 export function paradeExercise(level: number, rng: Rng, index: number, spec: Level["parade"]): Gen {
   const n = spec.n;
   // where each bubble floats in the parade row: never already in counting order left to right
   let slots = rng.shuffle(Array.from({ length: n }, (_, i) => i));
   for (let guard = 0; slots.every((v, i) => v === i) && guard < 8; guard++) slots = rng.shuffle(slots);
   if (slots.every((v, i) => v === i)) slots = [...slots.slice(1), slots[0]!];
-  const pieces: AnswerOption[] = Array.from({ length: n }, (_, i) => ({ id: `b${i + 1}`, text: String(i + 1), art: bubbleArt(i + 1, spec.dots) }));
-  const params: Record<string, number> = { mode: MODES.indexOf("parade"), n, dots: spec.dots ? 1 : 0 };
+  const params: Record<string, number> = { mode: MODES.indexOf("parade"), n, form: PARADE_FORMS.indexOf(spec.form), dots: spec.dots ? 1 : 0 };
   slots.forEach((s, i) => {
     params[`s${i}`] = s;
     params[`j${i}`] = rng.int(0, 2);
   });
   const b = base(rng);
+  if (spec.form === "count") {
+    // one-to-one: plain bubbles, each popped exactly once while its number is said, then "how many?"
+    return {
+      ...b,
+      id: `gb-parade-count-${n}-l${level}n${index}`,
+      skillId: SKILL.oneToOne,
+      objective: "Pop each bubble once, saying one number for each, then tell how many there were",
+      answer: { kind: "number", value: n, choices: lookChoices(n, rng) },
+      objectKind: "bubble",
+      closer: true,
+      params,
+      prompt: { line: "gb.prompt.parade.count", text: "Bubble parade! Pop every bubble and count. How many?" },
+      a11yDescription: "The bubble parade: big bubbles float across the bath. Press each bubble once to pop it; each pop says the next number. Then choose how many you popped.",
+    };
+  }
+  const pieces: AnswerOption[] = Array.from({ length: n }, (_, i) => ({ id: `b${i + 1}`, text: String(i + 1), art: bubbleArt(i + 1, spec.dots) }));
   return {
     ...b,
     id: `gb-parade-${n}${spec.dots ? "-dots" : ""}-l${level}n${index}`,
-    skillId: SKILL.oneToOne,
-    objective: `Pop each bubble once, in counting order from one to ${n}`,
+    skillId: SKILL.sequence,
+    objective: `Find the numbers from one to ${n} in counting order`,
     answer: { kind: "sequence", order: pieces.map((p) => p.id), pieces },
     objectKind: "bubble",
     closer: true,
     params,
-    prompt: { line: "gb.prompt.parade", text: "Bubble parade! Pop them in counting order: 1, 2, 3…" },
+    prompt: { line: "gb.prompt.parade", text: "Bubble parade! Pop them in counting order: one, two, three!" },
     a11yDescription: `The bubble parade: ${n} big bubbles float across the bath, each with a number${spec.dots ? " and that many dots" : ""}. Pop them in counting order, starting with one.`,
   };
 }
@@ -460,6 +495,7 @@ export const spotsOf = (ex: Pick<Exercise, "params">): Spot[] => {
   const p = ex.params ?? {};
   return Array.from({ length: p.n ?? 0 }, (_, i) => ({ x: p[`x${i}`] ?? 0, y: p[`y${i}`] ?? 0, g: p[`g${i}`] ?? 0 }));
 };
+export const paradeForm = (ex: Pick<Exercise, "params">): "count" | "order" => PARADE_FORMS[ex.params?.form ?? 1] ?? "order";
 export const questionOf = (ex: Pick<Exercise, "params">): Question => ((ex.params?.q ?? 0) === 1 ? "fewer" : "more");
 /** Bubble Parade: the parade-row slot of bubble k (1-based) and its little bob offset. */
 export const paradeSlots = (ex: Pick<Exercise, "params">): { k: number; slot: number; jitter: number }[] => {

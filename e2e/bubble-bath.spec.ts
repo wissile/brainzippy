@@ -3,7 +3,7 @@ import { type Page, expect, test } from "@playwright/test";
 import { buildRound } from "../src/engine/round";
 import type { Exercise } from "../src/engine/types";
 import { bubbleBath } from "../src/games/bubble-bath/definition";
-import { BAND, modeOf, type Mode } from "../src/games/bubble-bath/generator";
+import { BAND, modeOf, paradeForm, type Mode } from "../src/games/bubble-bath/generator";
 import { collectErrors, press, reviewDir, screen } from "./helpers";
 
 /**
@@ -106,6 +106,14 @@ async function dragTo(page: Page, from: string, to: string) {
   for (let i = 1; i <= 12; i++) await page.mouse.move(ax + ((bx - ax) * i) / 12, ay + ((by - ay) * i) / 12);
   await page.mouse.up();
 }
+/** Bubble Parade (count form): pop every bubble; each pop adds the next number to the strip. */
+async function popAll(page: Page, way: Way) {
+  const n = Number(await board(page).getAttribute("data-n"));
+  for (let i = Number(await board(page).getAttribute("data-popped")); i < n; i++) {
+    await activate(page, '[data-testid="bubble"]', way);
+    await expect(page.getByTestId("strip-slot").nth(i)).toHaveAttribute("data-value", String(i + 1));
+  }
+}
 /** Quick Look: the choices wake up once the bubbles have been shown. */
 async function lookSeen(page: Page) {
   await expect(board(page)).toHaveAttribute("data-seen", "true", { timeout: 20_000 });
@@ -144,6 +152,11 @@ async function solve(page: Page, way: Way, ex: Exercise) {
       return activate(page, '[data-testid="done"]', way === "drag" ? "tap" : way);
     }
     case "parade": {
+      if (a.kind === "number") {
+        // pop and count: every bubble once, then how many
+        await popAll(page, way === "drag" ? "tap" : way);
+        return activate(page, sel("choice", String(a.value)), way === "drag" ? "tap" : way);
+      }
       if (a.kind !== "sequence") throw new Error("sequence");
       for (const [i, id] of a.order.entries()) {
         await activate(page, sel("bubble", id), way === "drag" ? "tap" : way);
@@ -185,6 +198,10 @@ async function missOnce(page: Page, ex: Exercise, n: 1 | 2) {
       return press(page, '[data-testid="done"]');
     }
     case "parade": {
+      if (a.kind === "number") {
+        await popAll(page, "tap");
+        return press(page, sel("choice", String(a.choices!.filter((c) => c !== a.value)[n - 1])));
+      }
       if (a.kind !== "sequence") throw new Error("sequence");
       for (const id of [...a.order].reverse()) if ((await page.locator(sel("bubble", id)).count()) > 0) await press(page, sel("bubble", id));
       return;
@@ -314,7 +331,7 @@ test("a whole round by tap and tap-tap: every inner game (level 4 start)", async
   expect(errors).toEqual([]);
 });
 
-test("a whole round by keyboard only (level 6 start: tipped shapes, 4 sponges, clumps)", async ({ page }) => {
+test("a whole round by keyboard only (level 6 start: four toys, plain spaces, five bubbles, numbered parade)", async ({ page }) => {
   test.setTimeout(300_000);
   const errors = collectErrors(page);
   await setState(page, 5);
@@ -331,13 +348,13 @@ test("first miss brings Bobbo's diagnosed hint, second miss models the answer, i
   const errors = collectErrors(page);
   const desk = info.project.name === "desktop";
   const three = (e: Exercise) => e.answer.kind !== "choice" || e.answer.options.length >= 3;
-  for (const [level, mode] of [[2, "look"], [4, "compare"], [3, "size"], [4, "sort"], [5, "find"], [3, "parade"]] as const) {
+  for (const [level, mode] of [[2, "look"], [4, "compare"], [3, "size"], [4, "sort"], [5, "find"], [3, "parade"], [5, "parade"]] as const) {
     const ex = await startAt(page, level, mode, three);
     await missOnce(page, ex, 1);
     await expect(page.getByTestId("helper")).toBeVisible({ timeout: 20_000 });
     // the diagnosed hint line is shown (in the helper's bubble or in the prompt pill on small screens)
     await expect(page.locator('[data-testid="speech-bubble"], .helper-bubble').first()).toBeVisible();
-    if (desk) await page.screenshot({ path: `${REVIEW}/miss1-${mode}.png` });
+    if (desk) await page.screenshot({ path: `${REVIEW}/miss1-${mode}${mode === "parade" ? `-${paradeForm(ex)}` : ""}.png` });
     await ready(page);
     // the board's first-miss help
     if (mode === "look") await expect(page.getByTestId("group-ring").first()).toBeVisible();
@@ -346,15 +363,15 @@ test("first miss brings Bobbo's diagnosed hint, second miss models the answer, i
       const correct = ex.answer.correct;
       await expect(page.locator(sel("choice", ex.answer.options.find((o) => o.id !== correct)!.id))).toHaveClass(/is-out/);
     }
-    if (mode === "parade") await expect(page.locator(".gb-strip-slot.is-next")).toBeVisible();
+    if (mode === "parade") await expect(page.locator(".gb-strip-slot.is-next")).toBeVisible(); // next number (order) / last number (count)
+    if (mode === "look") await expect(page.getByTestId("peek")).toHaveAttribute("aria-disabled", "true"); // bubbles stay shown: the hint says "look", not "peek"
     await missOnce(page, ex, 2);
     await answering(page);
     await expect(page.locator(".is-model:visible").first()).toBeVisible({ timeout: 20_000 });
-    if (desk) await page.screenshot({ path: `${REVIEW}/model-${mode}.png` });
+    if (desk) await page.screenshot({ path: `${REVIEW}/model-${mode}${mode === "parade" ? `-${paradeForm(ex)}` : ""}.png` });
     // errorless finish: press what glows
     if (mode === "sort" || mode === "size") await press(page, '[data-testid="done"]');
-    else if (mode === "parade") {
-      if (ex.answer.kind !== "sequence") throw new Error("sequence");
+    else if (mode === "parade" && ex.answer.kind === "sequence") {
       for (const id of ex.answer.order) await press(page, sel("bubble", id));
     } else await press(page, ".is-model");
     await nextExercise(page, ex.id);
@@ -379,7 +396,7 @@ test("inner-game tools: Peek shows the bubbles again, Pair up draws partners, Un
   await solve(page, "tap", cmp);
   await nextExercise(page, cmp.id);
   // Size Line: tap a piece, Undo returns it
-  const sz = await startAt(page, 5, "size");
+  const sz = await startAt(page, 6, "size");
   if (sz.answer.kind !== "sequence") throw new Error("sequence");
   await press(page, sel("piece", sz.answer.pieces[0]!.id));
   await expect(page.getByTestId("slot").first()).toHaveAttribute("data-value", sz.answer.pieces[0]!.id);
@@ -392,7 +409,7 @@ test("inner-game tools: Peek shows the bubbles again, Pair up draws partners, Un
 // the worked model after a second miss.
 const SWEEP: { level: number; mode: Mode }[] = [
   { level: 0, mode: "sort" }, { level: 5, mode: "sort" }, { level: 5, mode: "find" }, { level: 4, mode: "look" }, { level: 6, mode: "compare" },
-  { level: 6, mode: "size" }, { level: 5, mode: "parade" },
+  { level: 6, mode: "size" }, { level: 2, mode: "parade" }, { level: 5, mode: "parade" },
 ];
 for (const vp of VIEWPORTS) {
   test(`${vp.name}: every control stays on screen and uncovered, before a miss, with the helper and with the model`, async ({ page }, info) => {
@@ -407,6 +424,10 @@ for (const vp of VIEWPORTS) {
       await page.waitForTimeout(500);
       await noOverflow(page, `${tag} start`);
       await page.screenshot({ path: `${REVIEW}/vp-${vp.name}-l${c.level}-${c.mode}.png` });
+      if (c.mode === "parade" && paradeForm(ex) === "count") {
+        await popAll(page, "tap"); // the number choices wake up: check them too
+        await noOverflow(page, `${tag} counted`);
+      }
       await missOnce(page, ex, 1);
       await expect(page.getByTestId("helper")).toBeVisible({ timeout: 20_000 });
       await page.waitForTimeout(700);
@@ -416,7 +437,7 @@ for (const vp of VIEWPORTS) {
       await answering(page);
       await page.waitForTimeout(600);
       expect.soft(await unreachableControls(page), `${tag} model`).toEqual([]);
-      if (c.mode === "compare" || c.mode === "parade") await page.screenshot({ path: `${REVIEW}/vp-${vp.name}-model-${c.mode}.png` });
+      if (c.mode === "compare" || c.mode === "parade") await page.screenshot({ path: `${REVIEW}/vp-${vp.name}-model-${c.mode}-l${c.level}.png` });
     }
   });
 }

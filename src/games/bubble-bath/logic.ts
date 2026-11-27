@@ -1,6 +1,6 @@
 import type { ExerciseState } from "../../engine/session";
 import type { AnswerValue, Exercise } from "../../engine/types";
-import { SHAPES, isTipped, modeOf, paradeSlots, parseThing, parseToy, questionOf, type Shape } from "./generator";
+import { SHAPES, isTipped, modeOf, paradeForm, paradeSlots, parseThing, parseToy, questionOf, type Shape } from "./generator";
 
 /**
  * What Bobbo (the helper) and Gloop say, chosen per inner game, plus the diagnosis of typical wrong answers.
@@ -16,6 +16,7 @@ import { SHAPES, isTipped, modeOf, paradeSlots, parseThing, parseToy, questionOf
 /** Quick Look: said more (counted one twice / guessed big) or fewer (missed one) than there were. */
 export type LookMiss = "over" | "under";
 export const diagnoseLook = (n: number, picked: number): LookMiss => (picked > n ? "over" : "under");
+const LOOK_LINE: Record<LookMiss, string> = { over: "gb.hint.look.tooMany", under: "gb.hint.look.tooFew" };
 
 /**
  * More or Fewer:
@@ -57,9 +58,10 @@ export function diagnoseSize(order: readonly string[], submitted: readonly strin
 }
 
 /** Shape Splash: the idea the child needs — what makes the shape (corners), or that tipped / skinny shapes still count. */
-export type ShapeMiss = Shape | "tipped" | "skinny";
-function shapeNeed(shape: Shape, rot: number, skinny: boolean): ShapeMiss {
+export type ShapeMiss = Shape | "tipped" | "skinny" | "lopsided";
+function shapeNeed(shape: Shape, rot: number, skinny: boolean, lopsided = false): ShapeMiss {
   if (skinny) return "skinny";
+  if (lopsided) return "lopsided";
   if (isTipped(shape, rot)) return "tipped";
   return shape;
 }
@@ -70,14 +72,14 @@ export function diagnoseSort(ex: Exercise, value: AnswerValue | null): ShapeMiss
   const got = value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, string>) : {};
   const wrong = a.items.find((it) => got[it.id] !== undefined && got[it.id] !== a.pairs[it.id]) ?? a.items[0]!;
   const t = parseToy(wrong.art);
-  return shapeNeed(t.shape, t.rot, t.skinny);
+  return shapeNeed(t.shape, t.rot, t.skinny, t.lopsided);
 }
 /** Find: what to look for in the target (its corners), or that it is still that shape when tipped or stretched. */
 export function diagnoseFind(ex: Exercise): ShapeMiss {
   const a = ex.answer;
   if (a.kind !== "choice") return "circle";
   const t = parseThing(a.options.find((o) => o.id === a.correct)?.art);
-  return shapeNeed(t.shape, t.rot, t.skinny);
+  return shapeNeed(t.shape, t.rot, t.skinny, t.lopsided);
 }
 
 /**
@@ -93,6 +95,12 @@ export function diagnoseParade(ex: Pick<Exercise, "params">, submitted: readonly
 
 // ---------------------------------------------------------------- helper lines
 
+/**
+ * Which inner game (and finale form) an exercise belongs to: Bobbo explains each one the first time it appears in a
+ * round (GameRunner `helper.explainKey`), not only on the round's first item.
+ */
+export const innerGameKey = (ex: Exercise): string => (modeOf(ex) === "parade" ? `parade-${paradeForm(ex)}` : modeOf(ex));
+
 const hasTipped = (ex: Exercise): boolean => {
   const a = ex.answer;
   if (a.kind === "match") return a.items.some((it) => { const t = parseToy(it.art); return isTipped(t.shape, t.rot); });
@@ -105,15 +113,33 @@ export function explainFor(ex: Exercise): string {
     case "sort":
       return hasTipped(ex) ? "gb.help.tipped" : "gb.help.sort";
     case "find":
-      return hasTipped(ex) ? "gb.help.tipped" : "gb.help.find";
+      return hasTipped(ex) ? "gb.help.tipped" : (ex.params?.k ?? 3) === 2 ? "gb.help.find2" : "gb.help.find";
     case "look":
-      return "gb.help.look";
+      return "gb.help.look.peek";
     case "compare":
-      return (ex.params?.spread ?? 0) ? "gb.help.compare.long" : "gb.help.compare";
+      return (ex.params?.spread ?? 0) ? "gb.help.compare.trap" : "gb.help.compare.pair";
     case "size":
-      return "gb.help.size";
+      return "gb.help.size.undo";
     case "parade":
-      return "gb.help.parade";
+      return paradeForm(ex) === "count" ? "gb.help.parade.count" : "gb.help.parade";
+  }
+}
+
+/** Idle help, per inner game: what to press (the icon-only tools get named here). Undefined = the general line. */
+export function idleFor(ex: Exercise): string | undefined {
+  switch (modeOf(ex)) {
+    case "look":
+      return "gb.idle.look";
+    case "compare":
+      return "gb.idle.compare";
+    case "size":
+      return "gb.idle.size";
+    case "sort":
+      return "gb.idle.sort";
+    case "parade":
+      return paradeForm(ex) === "count" ? "gb.idle.paradeCount" : "gb.idle.parade";
+    case "find":
+      return undefined;
   }
 }
 
@@ -126,13 +152,14 @@ export function hintFor(s: ExerciseState): string {
     case "find":
       return `gb.hint.shape.${diagnoseFind(ex)}`;
     case "look":
-      return `gb.hint.look.${diagnoseLook(ex.answer.kind === "number" ? ex.answer.value : 0, typeof v === "number" ? v : 0)}`;
+      // the bubbles stay visible after a miss (with group rings), so the hint points at them, not at Peek
+      return LOOK_LINE[diagnoseLook(ex.answer.kind === "number" ? ex.answer.value : 0, typeof v === "number" ? v : 0)];
     case "compare":
       return `gb.hint.compare.${diagnoseCompare(ex, typeof v === "string" ? v : "")}`;
     case "size":
       return `gb.hint.size.${diagnoseSize(ex.answer.kind === "sequence" ? ex.answer.order : [], Array.isArray(v) ? (v as string[]) : [])}`;
     case "parade":
-      return `gb.hint.parade.${diagnoseParade(ex, Array.isArray(v) ? (v as string[]) : [])}`;
+      return paradeForm(ex) === "count" ? "gb.hint.parade.last" : diagnoseParade(ex, Array.isArray(v) ? (v as string[]) : []) === "place" ? "gb.hint.parade.numbers" : "gb.hint.parade.skip";
   }
 }
 
@@ -143,13 +170,14 @@ export function praiseFor(ex: Exercise): string[] {
     case "find":
       return ["gb.praise.find.1", "gb.praise.find.2"];
     case "look":
-      return ["gb.praise.look.1", "gb.praise.look.2"];
+      // "you spotted the little groups" only where there were little groups to spot
+      return ex.answer.kind === "number" && ex.answer.value >= 3 ? ["gb.praise.look.1", "gb.praise.look.2"] : ["gb.praise.look.1"];
     case "compare":
-      return ex.answer.kind === "choice" && ex.answer.correct === "same" ? ["gb.praise.compare.same"] : ["gb.praise.compare.1", "gb.praise.compare.2"];
+      return ex.answer.kind === "choice" && ex.answer.correct === "same" ? ["gb.praise.compare.same"] : ["gb.praise.compare.checked", "gb.praise.compare.looked"];
     case "size":
       return ["gb.praise.size.1", "gb.praise.size.2"];
     case "parade":
-      return ["gb.praise.parade.1", "gb.praise.parade.2"];
+      return paradeForm(ex) === "count" ? ["gb.praise.parade.count"] : ["gb.praise.parade.1", "gb.praise.parade.2"];
   }
 }
 
@@ -165,8 +193,9 @@ export function alongStepsFor(ex: Exercise): number {
     case "compare":
       return Math.max(ex.params?.a ?? 0, ex.params?.b ?? 0);
     case "size":
-    case "parade":
       return a.kind === "sequence" ? a.order.length : 0;
+    case "parade":
+      return a.kind === "sequence" ? a.order.length : a.kind === "number" ? a.value : 0;
     case "sort":
       return a.kind === "match" ? a.items.length : 0;
     case "find": {

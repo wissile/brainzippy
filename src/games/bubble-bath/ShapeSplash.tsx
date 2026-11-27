@@ -17,14 +17,14 @@ import { Ghost, focusSel, gridFor, modelSlice, useAfterMiss, useCommon, useDrag,
  */
 const describeToy = (art: string | undefined) => {
   const t = parseToy(art);
-  const shape = t.skinny ? "long, thin triangle" : t.shape;
+  const shape = t.skinny ? "long, thin triangle" : t.lopsided ? "lopsided triangle" : t.shape;
   return `${t.colour} ${shape}${isTipped(t.shape, t.rot) ? ", tipped over" : ""}`;
 };
 const SIDES = { circle: "round all the way, no corners", square: "4 straight sides the same length, 4 corners", triangle: "3 straight sides, 3 corners" } as const;
-const THING_NAME = { mirror: "Round mirror", clock: "Clock", ball: "Ball", window: "Window", tile: "Tile", box: "Tissue box", flag: "Flag", shelf: "Corner shelf" } as const;
+const THING_NAME = { mirror: "Round mirror", clock: "Clock", mat: "Bath mat", window: "Window", tile: "Tile", frame: "Picture frame", flag: "Flag on a pole", sign: "Sign" } as const;
 export const describeThing = (art: string | undefined) => {
   const t = parseThing(art);
-  return `${THING_NAME[t.thing]}: ${SIDES[t.shape]}${t.skinny ? ", long and thin" : ""}${isTipped(t.shape, t.rot) ? ", turned" : ""}`;
+  return `${THING_NAME[t.thing]}: ${SIDES[t.shape]}${t.skinny ? ", long and thin" : t.lopsided ? ", sides all different lengths" : ""}${isTipped(t.shape, t.rot) ? ", turned" : ""}`;
 };
 
 export function SortBoard({ st, alongIndex, busy }: BoardProps) {
@@ -38,8 +38,8 @@ export function SortBoard({ st, alongIndex, busy }: BoardProps) {
   useEffect(() => () => window.clearTimeout(nextFocus.current), []);
   const [boxRef, box] = useSize<HTMLDivElement>();
   const [waterRef, water] = useSize<HTMLDivElement>();
-  const holeGrid = gridFor(targets.length, box.w - 16, box.h - 12, 150, 12);
-  const toyGrid = gridFor(items.length, water.w - 16, water.h - 12, 128, 10);
+  const holeGrid = gridFor(targets.length, box.w - 16, box.h - 12, 190, 12);
+  const toyGrid = gridFor(items.length, water.w - 16, water.h - 12, 170, 10);
   const [assign, setAssign] = useState<Record<string, string>>({});
   const [okLocked, setOkLocked] = useState<string[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -103,6 +103,7 @@ export function SortBoard({ st, alongIndex, busy }: BoardProps) {
                 data-shape={shape}
                 data-gb-drop={`hole:${t.id}`}
                 aria-disabled={!act2}
+                tabIndex={selected || inside.length ? 0 : -1}
                 aria-label={`The ${shape} hole, ${inside.length} ${inside.length === 1 ? "toy" : "toys"} inside. ${selected ? "Press to post the toy here" : inside.length ? "Press to take the last toy back" : ""}`}
                 onClick={(e) => {
                   if (ignoreClick(e)) return;
@@ -196,6 +197,7 @@ export function FindBoard({ st, act, alongIndex }: BoardProps) {
                 data-value={o.id}
                 data-shape={parseThing(o.art).shape}
                 aria-disabled={!canAct || out}
+                tabIndex={out ? -1 : 0}
                 aria-label={describeThing(o.art)}
                 onClick={() => canAct && !out && act({ type: "SUBMIT", value: o.id })}
               >

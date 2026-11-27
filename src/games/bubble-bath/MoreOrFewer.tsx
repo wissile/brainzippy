@@ -57,6 +57,7 @@ export function MoreOrFewerBoard({ st, act, alongIndex, busy }: BoardProps) {
         data-value={id}
         data-count={count}
         aria-disabled={!canAct || out}
+        tabIndex={out ? -1 : 0}
         aria-label={`${id === "a" ? "Top" : "Bottom"} tub: ${count} ${count === 1 ? "duck" : "ducks"}${spread === (id === "a" ? 1 : 2) ? ", spread out wide" : ""}. Choose this tub`}
         onClick={() => canAct && !out && act({ type: "SUBMIT", value: id })}
       >
@@ -92,6 +93,7 @@ export function MoreOrFewerBoard({ st, act, alongIndex, busy }: BoardProps) {
           data-gb-idle=""
           aria-pressed={showPairs}
           aria-disabled={!canAct || auto}
+          tabIndex={auto ? -1 : 0}
           aria-label={showPairs ? "Ducks paired up. Press to unpair" : "Pair up the ducks: give each duck a partner"}
           onClick={() => {
             if (!canAct || auto) return;
