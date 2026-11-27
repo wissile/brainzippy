@@ -33,7 +33,7 @@ const pack: ContentPack = {
     {
       id: "math.geom.area-perimeter",
       title: "Area and perimeter",
-      topic: "math.shape",
+      topic: "math.geom",
       ages: [8, 11],
       prerequisites: ["math.mult.arrays"],
       objective: "Find the area of a rectangle as rows × columns of square tiles and its perimeter as the sum of its sides, find a missing side from the area, and find the area of an L-shape by splitting it.",
@@ -49,7 +49,7 @@ const pack: ContentPack = {
     {
       id: "math.solve.bar-model",
       title: "Word problems with bar models",
-      topic: "math.algebra",
+      topic: "math.solve",
       ages: [9, 12],
       prerequisites: ["math.mult.arrays"],
       objective: "Draw a two-step word problem as a bar model (part–whole, comparison, equal parts, times as many, fraction of a whole) and use it to choose the operations.",
