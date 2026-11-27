@@ -104,3 +104,58 @@ describe("level-ups (R0)", () => {
     expect(st.difficulty).toBe(2);
   });
 });
+
+describe("R5a: round closers wait for the last slot", () => {
+  // Each difficulty gets a closer (a finale); the fixture pool is otherwise unchanged.
+  const closers = [1, 2, 3, 4].map((d) => ({ ...game.exercises.find((e) => e.difficulty === d && !e.tutorial)!, id: `finale-d${d}`, closer: true }));
+  const pool = { exercises: [...game.exercises, ...closers] };
+  const run = (attempts: number, withConfig = true) => {
+    let st: ProgressionState = initialProgression(cfg);
+    const seq: string[] = [];
+    while (!isRoundComplete(st, cfg)) {
+      const ex = selectNextExercise(pool, st, withConfig ? cfg : undefined);
+      if (!ex) break;
+      seq.push(ex.id);
+      st = applyResult(markPlayed(st, ex.id), { ...result(attempts, ex.id), difficulty: ex.difficulty }, cfg);
+    }
+    return { seq, st };
+  };
+
+  it("a closer is never served before the last slot, and the last slot is always a closer at the current difficulty", () => {
+    for (const attempts of [1, 2, 3]) {
+      const { seq, st } = run(attempts);
+      expect(seq).toHaveLength(cfg.roundLength);
+      expect(seq.slice(0, -1).some((id) => id.startsWith("finale"))).toBe(false);
+      const lastDifficulty = st.results.at(-1)!.difficulty;
+      expect(seq.at(-1), `attempts ${attempts}`).toBe(`finale-d${lastDifficulty}`);
+    }
+  });
+
+  it("the closer comes from the current difficulty, else the nearest (lower first)", () => {
+    const st: ProgressionState = { ...initialProgression(cfg), difficulty: 3, played: ["x1"], results: Array.from({ length: 7 }, (_, i) => result(1, `r${i}`)) };
+    expect(selectNextExercise(pool, st, cfg)?.id).toBe("finale-d3");
+    const noD3 = { exercises: pool.exercises.filter((e) => e.id !== "finale-d3") };
+    expect(selectNextExercise(noD3, st, cfg)?.id).toBe("finale-d2");
+  });
+
+  it("without config (older callers) closers are only a fallback when nothing else is left", () => {
+    const { seq } = run(1, false);
+    expect(seq.some((id) => id.startsWith("finale"))).toBe(false);
+    const st: ProgressionState = { ...initialProgression(cfg), played: game.exercises.map((e) => e.id) };
+    expect(selectNextExercise(pool, st)?.closer).toBe(true);
+  });
+
+  it("pools without closers pick exactly as before (R5 unchanged)", () => {
+    for (const attempts of [1, 2, 3]) {
+      let a: ProgressionState = initialProgression(cfg);
+      let b: ProgressionState = initialProgression(cfg);
+      while (!isRoundComplete(a, cfg)) {
+        const x = selectNextExercise(game, a)!;
+        const y = selectNextExercise(game, b, cfg)!;
+        expect(y.id).toBe(x.id);
+        a = applyResult(markPlayed(a, x.id), { ...result(attempts, x.id), difficulty: x.difficulty }, cfg);
+        b = applyResult(markPlayed(b, y.id), { ...result(attempts, y.id), difficulty: y.difficulty }, cfg);
+      }
+    }
+  });
+});

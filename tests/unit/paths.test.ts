@@ -33,7 +33,7 @@ describe("path data in the packs", () => {
       expect(p.title).toMatch(new RegExp(`with ${p.hostName}$`));
       expect(p.host).toBe(p.library.host); // swapping Library.host swaps the path's host
     }
-    expect(paths.find((p) => p.id === "pilot")!.title).toBe("Learn to fly with Zephy");
+    expect(paths.find((p) => p.id === "pilot")!.title).toBe("Learn to fly with Ziggy");
     expect(paths.find((p) => p.id === "math")!.title).toBe("Count and build with Bobbo");
   });
   it("every title has a voice line that says it, pre-rendered for the CURRENT host (re-render after a host swap)", () => {
@@ -307,7 +307,7 @@ describe("app glue: storage, rounds, plan", () => {
     expect(ensurePlan("2026-11-23")).toBe(withPath); // stable until something changes
   });
   it("without a visible path the plan is exactly the planner's", () => {
-    pickPath(pilot()); // chosen while visible…
+    pickPath(visiblePaths().find((p) => p.id === "cs")!); // a path that is not live, chosen while the dev override showed it…
     withOverride(false); // …but no path is visible now
     expect(pathFocus()).toBeNull();
     const plan = ensurePlan("2026-11-23");

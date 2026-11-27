@@ -1,0 +1,537 @@
+{
+ "_note": "Compass Rose Runways (prefix cr.). Speakers: ziggy (host, in the tower), gloop (helper), narrator (story). Numbers are spoken digit by digit, the way a tower says them (runway two seven, wind two four zero). See docs/worlds/compass-runways.md.",
+ "lines": {
+  "cr.ready": {
+   "text": "Hi, I'm Ziggy, up in the tower. Ready to help me run the runways?",
+   "speaker": "ziggy"
+  },
+  "cr.back": {
+   "text": "Welcome back to the tower. More planes are on the way.",
+   "speaker": "ziggy"
+  },
+  "cr.story.intro1": {
+   "text": "Last night, a wild storm blew across Sky School Airport.",
+   "speaker": "narrator"
+  },
+  "cr.story.intro2": {
+   "text": "Oh dear. The wind carried off every runway sign and number!",
+   "speaker": "ziggy"
+  },
+  "cr.story.intro3": {
+   "text": "And the first planes are already flying in.",
+   "speaker": "narrator"
+  },
+  "cr.story.intro4": {
+   "text": "Read the wind with me, and paint the runways before they land.",
+   "speaker": "ziggy"
+  },
+  "cr.story.between2": {
+   "text": "Two jobs done. The first plane is lining up.",
+   "speaker": "ziggy"
+  },
+  "cr.story.between4": {
+   "text": "Halfway there. Keep an eye on that windsock.",
+   "speaker": "ziggy"
+  },
+  "cr.story.between6": {
+   "text": "Two more, and every plane can come down.",
+   "speaker": "ziggy"
+  },
+  "cr.story.outro1": {
+   "text": "One by one, every plane touched down safely.",
+   "speaker": "narrator"
+  },
+  "cr.story.outro2": {
+   "text": "You read the wind, worked out headings and painted every number.",
+   "speaker": "ziggy"
+  },
+  "cr.story.outro3": {
+   "text": "Here's your Compass Rose Pin. Welcome to the tower crew!",
+   "speaker": "ziggy"
+  },
+  "cr.prompt.tutorial": {
+   "text": "The sock points west, so the wind comes from the east. Tap East!",
+   "speaker": "ziggy"
+  },
+  "cr.prompt.strength": {
+   "text": "How strong is the wind? Read the windsock.",
+   "speaker": "ziggy"
+  },
+  "cr.prompt.from": {
+   "text": "Read the windsock. Where is the wind coming from?",
+   "speaker": "ziggy"
+  },
+  "cr.prompt.fromDeg": {
+   "text": "Read the sock on the compass rose. Which heading is the wind coming from?",
+   "speaker": "ziggy"
+  },
+  "cr.prompt.paint": {
+   "text": "Which number gets painted on this runway end?",
+   "speaker": "ziggy"
+  },
+  "cr.prompt.opp": {
+   "text": "This end is runway {rw}. Paint the number on the other end.",
+   "speaker": "ziggy",
+   "vary": {
+    "rw": [
+     "zero one",
+     "zero two",
+     "zero three",
+     "zero four",
+     "zero five",
+     "zero six",
+     "zero seven",
+     "zero eight",
+     "zero nine",
+     "one zero",
+     "one one",
+     "one two",
+     "one three",
+     "one four",
+     "one five",
+     "one six",
+     "one seven",
+     "one eight",
+     "one nine",
+     "two zero",
+     "two one",
+     "two two",
+     "two three",
+     "two four",
+     "two five",
+     "two six",
+     "two seven",
+     "two eight",
+     "two nine",
+     "three zero",
+     "three one",
+     "three two",
+     "three three",
+     "three four",
+     "three five",
+     "three six"
+    ]
+   }
+  },
+  "cr.prompt.rotate": {
+   "text": "Turn the runway until its arrow end is runway {rw}.",
+   "speaker": "ziggy",
+   "vary": {
+    "rw": [
+     "zero one",
+     "zero two",
+     "zero three",
+     "zero four",
+     "zero five",
+     "zero six",
+     "zero seven",
+     "zero eight",
+     "zero nine",
+     "one zero",
+     "one one",
+     "one two",
+     "one three",
+     "one four",
+     "one five",
+     "one six",
+     "one seven",
+     "one eight",
+     "one nine",
+     "two zero",
+     "two one",
+     "two two",
+     "two three",
+     "two four",
+     "two five",
+     "two six",
+     "two seven",
+     "two eight",
+     "two nine",
+     "three zero",
+     "three one",
+     "three two",
+     "three three",
+     "three four",
+     "three five",
+     "three six"
+    ]
+   }
+  },
+  "cr.prompt.turn": {
+   "text": "Turn {dir} {deg} degrees. What's your new heading?",
+   "speaker": "ziggy",
+   "vary": {
+    "dir": [
+     "right",
+     "left"
+    ],
+    "deg": [
+     30,
+     45,
+     60,
+     90,
+     120,
+     135,
+     150,
+     180
+    ]
+   }
+  },
+  "cr.prompt.land": {
+   "text": "Which runway end should this plane land on?",
+   "speaker": "ziggy"
+  },
+  "cr.prompt.xwind": {
+   "text": "Compare the wind with the runway. What will the plane feel?",
+   "speaker": "ziggy"
+  },
+  "cr.tower.wind": {
+   "text": "Tower here. Wind {wind} at one zero. Which runway?",
+   "speaker": "ziggy",
+   "vary": {
+    "wind": [
+     "zero one zero",
+     "zero two zero",
+     "zero three zero",
+     "zero four zero",
+     "zero five zero",
+     "zero six zero",
+     "zero seven zero",
+     "zero eight zero",
+     "zero nine zero",
+     "one zero zero",
+     "one one zero",
+     "one two zero",
+     "one three zero",
+     "one four zero",
+     "one five zero",
+     "one six zero",
+     "one seven zero",
+     "one eight zero",
+     "one nine zero",
+     "two zero zero",
+     "two one zero",
+     "two two zero",
+     "two three zero",
+     "two four zero",
+     "two five zero",
+     "two six zero",
+     "two seven zero",
+     "two eight zero",
+     "two nine zero",
+     "three zero zero",
+     "three one zero",
+     "three two zero",
+     "three three zero",
+     "three four zero",
+     "three five zero",
+     "three six zero"
+    ]
+   }
+  },
+  "cr.tower.line": {
+   "text": "Cleared to land, runway {rw}. What heading will you fly?",
+   "speaker": "ziggy",
+   "vary": {
+    "rw": [
+     "zero one",
+     "zero two",
+     "zero three",
+     "zero four",
+     "zero five",
+     "zero six",
+     "zero seven",
+     "zero eight",
+     "zero nine",
+     "one zero",
+     "one one",
+     "one two",
+     "one three",
+     "one four",
+     "one five",
+     "one six",
+     "one seven",
+     "one eight",
+     "one nine",
+     "two zero",
+     "two one",
+     "two two",
+     "two three",
+     "two four",
+     "two five",
+     "two six",
+     "two seven",
+     "two eight",
+     "two nine",
+     "three zero",
+     "three one",
+     "three two",
+     "three three",
+     "three four",
+     "three five",
+     "three six"
+    ]
+   }
+  },
+  "cr.tower.join": {
+   "text": "Tower here. Follow my turn. Which runway is straight ahead?",
+   "speaker": "ziggy"
+  },
+  "cr.tower.comp": {
+   "text": "Tower here. Wind {wind} at one zero. What wind will you feel?",
+   "speaker": "ziggy",
+   "vary": {
+    "wind": [
+     "zero one zero",
+     "zero two zero",
+     "zero three zero",
+     "zero four zero",
+     "zero five zero",
+     "zero six zero",
+     "zero seven zero",
+     "zero eight zero",
+     "zero nine zero",
+     "one zero zero",
+     "one one zero",
+     "one two zero",
+     "one three zero",
+     "one four zero",
+     "one five zero",
+     "one six zero",
+     "one seven zero",
+     "one eight zero",
+     "one nine zero",
+     "two zero zero",
+     "two one zero",
+     "two two zero",
+     "two three zero",
+     "two four zero",
+     "two five zero",
+     "two six zero",
+     "two seven zero",
+     "two eight zero",
+     "two nine zero",
+     "three zero zero",
+     "three one zero",
+     "three two zero",
+     "three three zero",
+     "three four zero",
+     "three five zero",
+     "three six zero"
+    ]
+   }
+  },
+  "cr.idle": {
+   "text": "Take your time. The compass rose has every clue you need.",
+   "speaker": "ziggy"
+  },
+  "cr.help.strength": {
+   "text": "A limp windsock means calm. The fuller and straighter it flies, the stronger the wind.",
+   "speaker": "gloop"
+  },
+  "cr.help.from": {
+   "text": "A windsock is like a tail. It points away from where the wind comes from.",
+   "speaker": "gloop"
+  },
+  "cr.help.fromDeg": {
+   "text": "Find where the sock points, then look the opposite way on the rose.",
+   "speaker": "gloop"
+  },
+  "cr.help.paint": {
+   "text": "Take the heading and drop the last zero. Heading two seven zero is runway two seven.",
+   "speaker": "gloop"
+  },
+  "cr.help.round": {
+   "text": "Round the heading to the nearest ten first, then drop the zero.",
+   "speaker": "gloop"
+  },
+  "cr.help.opp": {
+   "text": "The two ends face opposite ways, so their numbers are eighteen apart.",
+   "speaker": "gloop"
+  },
+  "cr.help.rotate": {
+   "text": "Runway numbers are headings without the last zero. Put the zero back to aim the arrow.",
+   "speaker": "gloop"
+  },
+  "cr.help.turn": {
+   "text": "Turning right adds degrees. Turning left takes them away.",
+   "speaker": "gloop"
+  },
+  "cr.help.wrap": {
+   "text": "Going right past north? Add the turn, then take away three hundred sixty.",
+   "speaker": "gloop"
+  },
+  "cr.help.wrapLeft": {
+   "text": "Going left past north? Add three hundred sixty first, then take the turn away.",
+   "speaker": "gloop"
+  },
+  "cr.help.land": {
+   "text": "Planes land into the wind. Choose the end that faces where the wind comes from.",
+   "speaker": "gloop"
+  },
+  "cr.help.xwind": {
+   "text": "Wind straight down the runway is a headwind. Wind across it is a crosswind.",
+   "speaker": "gloop"
+  },
+  "cr.help.tower": {
+   "text": "Take the call one step at a time. Find the number first, then what it means.",
+   "speaker": "gloop"
+  },
+  "cr.hint.toWind": {
+   "text": "That's where the wind is going. Name the side it comes from.",
+   "speaker": "gloop"
+  },
+  "cr.hint.mouth": {
+   "text": "Find the sock's wide, open end. The wind blows into it.",
+   "speaker": "gloop"
+  },
+  "cr.hint.ticks": {
+   "text": "Check the marks on the rose. Each big mark is thirty degrees.",
+   "speaker": "gloop"
+  },
+  "cr.hint.recip": {
+   "text": "That number belongs to the other end. Follow the landing arrow.",
+   "speaker": "gloop"
+  },
+  "cr.hint.roundCheck": {
+   "text": "Nearly! Is the heading closer to the ten above, or the ten below?",
+   "speaker": "gloop"
+  },
+  "cr.hint.oppSame": {
+   "text": "Each end gets its own number. The other end faces the opposite way.",
+   "speaker": "gloop"
+  },
+  "cr.hint.flip": {
+   "text": "That lines up the other end. Swing the arrow end round the other way.",
+   "speaker": "gloop"
+  },
+  "cr.hint.addZero": {
+   "text": "Runway numbers are headings with the last zero dropped. Put the zero back.",
+   "speaker": "gloop"
+  },
+  "cr.hint.turnWay": {
+   "text": "Check the direction. Right turns go clockwise, like a clock's hands.",
+   "speaker": "gloop"
+  },
+  "cr.hint.over360": {
+   "text": "You added the turn carefully! Past three hundred sixty, take three hundred sixty away.",
+   "speaker": "gloop"
+  },
+  "cr.hint.under0": {
+   "text": "You took the turn away carefully! Below zero, add three hundred sixty to come round.",
+   "speaker": "gloop"
+  },
+  "cr.hint.tail": {
+   "text": "Landing that way, the wind would push from behind. Turn round and face it.",
+   "speaker": "gloop"
+  },
+  "cr.hint.side": {
+   "text": "That runway is side-on to the wind. Find the end that faces it best.",
+   "speaker": "gloop"
+  },
+  "cr.hint.across": {
+   "text": "Is the wind blowing along the runway, or across it from the side?",
+   "speaker": "gloop"
+  },
+  "cr.hint.along": {
+   "text": "Look again. Is the wind in line with the runway, or across it?",
+   "speaker": "gloop"
+  },
+  "cr.hint.frontBack": {
+   "text": "Is the wind blowing into the plane's nose, or from behind its tail?",
+   "speaker": "gloop"
+  },
+  "cr.hint.lineRecip": {
+   "text": "That's the other end's heading. Just add a zero to the runway number.",
+   "speaker": "gloop"
+  },
+  "cr.hint.steps": {
+   "text": "First work out the new heading. Then find the runway that matches it.",
+   "speaker": "gloop"
+  },
+  "cr.hint.model": {
+   "text": "Here's the working. Follow it on the board.",
+   "speaker": "ziggy"
+  },
+  "cr.hint.show": {
+   "text": "See the glowing answer? Work out why it fits.",
+   "speaker": "ziggy"
+  },
+  "cr.hint.yourTurn": {
+   "text": "Now you try it.",
+   "speaker": "ziggy"
+  },
+  "cr.retry": {
+   "text": "Not quite. Have another look.",
+   "speaker": "ziggy"
+  },
+  "cr.praise.strength": {
+   "text": "You read how full the windsock was.",
+   "speaker": "ziggy"
+  },
+  "cr.praise.from": {
+   "text": "Yes! You named the wind by where it comes from.",
+   "speaker": "ziggy"
+  },
+  "cr.praise.from2": {
+   "text": "Spot on. You looked past where the sock was pointing.",
+   "speaker": "ziggy"
+  },
+  "cr.praise.fromDeg": {
+   "text": "You read the sock against the compass rose.",
+   "speaker": "ziggy"
+  },
+  "cr.praise.paint": {
+   "text": "Heading divided by ten. Fresh paint on the runway!",
+   "speaker": "ziggy"
+  },
+  "cr.praise.round": {
+   "text": "You rounded to the nearest ten first. Neat painting!",
+   "speaker": "ziggy"
+  },
+  "cr.praise.opp": {
+   "text": "You used the eighteen rule for the other end.",
+   "speaker": "ziggy"
+  },
+  "cr.praise.rotate": {
+   "text": "You turned the runway to match its number.",
+   "speaker": "ziggy"
+  },
+  "cr.praise.turnRight": {
+   "text": "A right turn, so you added degrees. On heading!",
+   "speaker": "ziggy"
+  },
+  "cr.praise.turnLeft": {
+   "text": "A left turn, so you took degrees away. On heading!",
+   "speaker": "ziggy"
+  },
+  "cr.praise.wrap": {
+   "text": "You went past north and kept counting round the circle.",
+   "speaker": "ziggy"
+  },
+  "cr.praise.land": {
+   "text": "Into the wind. That headwind means a slower, shorter landing.",
+   "speaker": "ziggy"
+  },
+  "cr.praise.land2": {
+   "text": "You matched the runway to the wind. Smooth landing!",
+   "speaker": "ziggy"
+  },
+  "cr.praise.xwind": {
+   "text": "You compared the wind with the runway's heading.",
+   "speaker": "ziggy"
+  },
+  "cr.praise.twind": {
+   "text": "You turned the tower's wind call into a runway.",
+   "speaker": "ziggy"
+  },
+  "cr.praise.tline": {
+   "text": "You turned the runway number back into a heading.",
+   "speaker": "ziggy"
+  },
+  "cr.praise.tjoin": {
+   "text": "Turn first, then match the runway. Lined up!",
+   "speaker": "ziggy"
+  }
+ }
+}

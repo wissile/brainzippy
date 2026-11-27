@@ -66,7 +66,7 @@ async function tabTo(page: Page, testid: string, max = 60) {
   throw new Error(`Tab never reached ${testid}`);
 }
 
-test("only live paths show without the dev override: English is live (ages 3–14), Pilot is next (in fog)", async ({ page }) => {
+test("only live paths show without the dev override: English and Pilot are live (ages 3–14), Maths is next (in fog)", async ({ page }) => {
   await start(page);
   await page.goto("/map");
   await expect(page.getByTestId("trail")).toBeVisible(); // a new child's boat is at home: today's trail
@@ -75,8 +75,9 @@ test("only live paths show without the dev override: English is live (ages 3–1
   await page.goto("/paths");
   await expect(page.getByTestId("path-picker")).toBeVisible();
   await expect(page.getByTestId("path-card-english")).toHaveAttribute("aria-label", /Learn English with Sarah/);
-  await expect(page.getByTestId("path-card-pilot")).toHaveAttribute("aria-label", "Sky School: coming soon");
-  for (const id of ["math", "cs", "money", "sci"]) await expect(page.getByTestId(`path-card-${id}`)).toHaveCount(0);
+  await expect(page.getByTestId("path-card-pilot")).toHaveAttribute("aria-label", /^Sky School: Learn to fly with Ziggy/);
+  await expect(page.getByTestId("path-card-math")).toHaveAttribute("aria-label", "Number Hill: coming soon");
+  for (const id of ["cs", "money", "sci"]) await expect(page.getByTestId(`path-card-${id}`)).toHaveCount(0);
 });
 
 test("pick a path, hear it, sail there, play from it, come back to the island", async ({ page }, info) => {
@@ -85,7 +86,7 @@ test("pick a path, hear it, sail there, play from it, come back to the island", 
   await expect(page.getByTestId("path-picker")).toBeVisible();
   await expect(page.getByTestId("view-islands")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("path-go")).toHaveCount(0); // nothing chosen yet
-  await expect(page.getByTestId("path-card-pilot")).toHaveAttribute("aria-label", /Learn to fly with Zephy/);
+  await expect(page.getByTestId("path-card-pilot")).toHaveAttribute("aria-label", /Learn to fly with Ziggy/);
   await page.waitForTimeout(600);
   await page.screenshot({ path: `${SHOTS}/${info.project.name}-01-ocean.png` });
 
@@ -236,11 +237,11 @@ test("keyboard only: choose a path, sail, start it and open the game", async ({ 
   await expect(page.getByTestId("path-go")).toBeFocused(); // the card takes focus
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/path$/);
-  await expect(page.getByTestId("path-title")).toHaveText("Learn to fly with Zephy");
+  await expect(page.getByTestId("path-title")).toHaveText("Learn to fly with Ziggy");
   await tabTo(page, "path-play");
-  await expect(page.getByTestId("path-play")).toHaveAttribute("aria-label", /^Play Zephy's Sky Hoops, level \d+$/);
+  await expect(page.getByTestId("path-play")).toHaveAttribute("aria-label", /^Play Ziggy's Busy Airport, level \d+$/); // ages 3–5 start the pilot journey at Busy Airport
   await page.keyboard.press(" ");
-  await expect(page).toHaveURL(/\/play\/sky-hoops$/);
+  await expect(page).toHaveURL(/\/play\/busy-airport$/);
 });
 
 for (const vp of [{ width: 390, height: 844 }, { width: 915, height: 412 }, { width: 1024, height: 1366 }, { width: 1280, height: 800 }]) {

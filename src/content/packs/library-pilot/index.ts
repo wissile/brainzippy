@@ -16,15 +16,15 @@ const pack: ContentPack = {
       id: "pilot",
       title: "Pilot ground school",
       kidTitle: "Sky School",
-      host: "zephy",
+      host: "ziggy", // D-042: Ziggy hosts the Pilot journey; Zephy still hosts Sky Hoops
       theme: { main: "#E5484D", soft: "#FDE8E9", deep: "#A1181D" },
-      ages: [6, 14],
-      pitch: "Learn how planes fly with Zephy.",
+      ages: [3, 14], // D-042: Ziggy's Busy Airport starts the journey at 3
+      pitch: "Learn how planes fly with Ziggy.",
       description: "How planes fly, weather, maps and checklists, aligned with the FAA Private Pilot knowledge areas. Educational only: not FAA-approved training and not for navigation.",
       status: "live",
       order: 11,
       // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
-      path: { title: "Learn to fly with {host}", line: "path.pilot.title", live: false, soon: true },
+      path: { title: "Learn to fly with {host}", line: "path.pilot.title", live: true },
     },
   ],
   topics: [

@@ -54,8 +54,9 @@ test("the ocean shows live journeys, the next one in fog and Monster Island", as
   await page.goto("/paths");
   await expect(page.getByTestId("path-picker")).toBeVisible();
   await expect(page.getByTestId("path-card-english")).toHaveAttribute("aria-label", /^Word Woods: Learn English with Sarah/);
-  await expect(page.getByTestId("path-card-pilot")).toHaveAttribute("aria-label", "Sky School: coming soon");
-  for (const id of ["math", "cs", "sci", "nature", "money"]) await expect(page.getByTestId(`path-card-${id}`)).toHaveCount(0);
+  await expect(page.getByTestId("path-card-pilot")).toHaveAttribute("aria-label", /^Sky School: Learn to fly with Ziggy/);
+  await expect(page.getByTestId("path-card-math")).toHaveAttribute("aria-label", "Number Hill: coming soon");
+  for (const id of ["cs", "sci", "nature", "money"]) await expect(page.getByTestId(`path-card-${id}`)).toHaveCount(0);
   await expect(page.getByTestId("ocean-home")).toHaveAttribute("aria-label", /you are here/); // a new child's boat is at home
   await expect(caption(page)).toHaveText("Which island shall we sail to? Tap one!");
   await expect(page.getByTestId("view-islands")).toHaveAttribute("aria-pressed", "true");
@@ -148,7 +149,7 @@ test("sail home to Monster Island: today's trail, and the map stays there", asyn
 test("the island in fog only says it is coming soon", async ({ page }) => {
   await start(page);
   await page.goto("/paths");
-  await press(page, '[data-testid="path-card-pilot"]');
+  await press(page, '[data-testid="path-card-math"]');
   await expect(page.getByTestId("ocean-card")).toContainText("This island is still being built. Come back soon!");
   await expect(page.getByTestId("path-go")).toHaveCount(0);
   await expect(caption(page)).toHaveText("This island is still being built. Come back soon!");

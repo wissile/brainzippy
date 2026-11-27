@@ -276,7 +276,7 @@ describe("daily planner: variety (P7) on the real registry", () => {
       // P9 / D5: no two consecutive stops in the same world when there is another world to use
       if (open.length >= 2) for (let i = 1; i < plan.length; i++) expect(plan[i]!.world === plan[i - 1]!.world, `${ctx} @${i}`).toBe(false);
     }
-  });
+  }, 60_000); // hundreds of plans: give it room on busy machines (it hit the 5 s default under load)
 });
 
 // ---------------------------------------------------------------- P11 library variety on a synthetic multi-library registry

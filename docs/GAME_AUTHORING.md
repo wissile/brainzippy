@@ -54,6 +54,7 @@ export const myGame: GameDefinition = {
 ```
 Every exercise: `id` (lowercase, unique), `skillId` (declared in a pack), `objective`, `ages`, `difficulty` (= level + 1), `interaction`, `answer`, `objectKind` (prompt icon / art key), `seed`, `a11yDescription`, optional `params` (your numbers), `prompt { line, vars, text }`, `tutorial`, `layout`, `poolSize` (make-set).
 - Exactly **one** `tutorial: true` exercise at difficulty 1. Tutorials play on level 0 only.
+- Optional `closer: true` (R5a): a finale that should end the round (e.g. Ziggy's Flight Plan's go/no-go briefing). Closers are never served before the round's last slot; there one is served first. Give every band one so the last slot always finds one at the current difficulty.
 - Static (no generator) worlds need **≥ 8 exercises at difficulty 1** and **≥ 5 at every other difficulty** (1..maxLevel+1).
 - Distractors must be plausible (±1, ±2, a common error, a near-miss word) — never silly.
 

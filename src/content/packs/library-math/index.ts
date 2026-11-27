@@ -21,7 +21,7 @@ const pack: ContentPack = {
       status: "live",
       order: 1,
       // D-034: the library as a path for every age; live once ages 3–14 all have a world (docs/PATHS.md)
-      path: { title: "Count and build with {host}", line: "path.math.title", live: false },
+      path: { title: "Count and build with {host}", line: "path.math.title", live: false, soon: true },
       art: "island-number-hill",
     },
   ],

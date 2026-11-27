@@ -59,6 +59,9 @@
 .st-post:hover:not([aria-disabled="true"]) { border-color: rgba(255, 255, 255, 0.8); }
 .st-post:focus-visible { outline: 4px solid var(--sparkle); outline-offset: 2px; }
 .st-post.is-here::after { background: #5CF2E0; }
+/* the post a critter stands on lets presses through to the critter, so a drag can always start on it (its hit area
+   covered the critter on short landscape screens); tapping it would not move anything anyway */
+.st-post.is-here, .st-posts li:has(> .st-post.is-here) { pointer-events: none; }
 .st-post.is-out { opacity: 0.35; }
 .st-post.is-out::after { background: #888; }
 .st-post.is-wrong { animation: nudge 420ms ease-in-out; border-color: #FF8F86; }

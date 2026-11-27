@@ -25,7 +25,8 @@ import { IconCheck, IconPlay } from "../ui/icons";
  */
 const ORDER: OnboardingStep[] = ["intro", "pop", "build", "name", "kid", "age", "grownup", "done"];
 const GUEST_ORDER: OnboardingStep[] = ORDER.filter((s) => s !== "grownup");
-const MONSTER_NAMES = ["Ziggy", "Pip", "Mo", "Bloop", "Nova", "Fizz", "Taco", "Luna"];
+// "Ziggy" left the list (D-042): Ziggy is the Pilot journey host, and a child's monster with the same name would meet a second Ziggy
+const MONSTER_NAMES = ["Kiki", "Pip", "Mo", "Bloop", "Nova", "Fizz", "Taco", "Luna"];
 
 function useProfile() {
   const [profile, setProfileState] = useState<Profile>(() => loadState().profile);
