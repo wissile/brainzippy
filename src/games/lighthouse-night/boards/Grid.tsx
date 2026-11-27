@@ -75,7 +75,7 @@ function Axes({ fr }: { fr: Frame }) {
       <path d={`M${X(lo)} ${Y(0)} H${X(hi) + 8}`} stroke={INK} strokeWidth="2.5" />
       <path d={`M${X(0)} ${Y(lo)} V${Y(hi) - 8}`} stroke={INK} strokeWidth="2.5" />
       <text x={X(hi) + 10} y={Y(0)} className="ln-svg-axis" dominantBaseline="central">x</text>
-      <text x={X(0)} y={Y(hi) - 14} className="ln-svg-axis" textAnchor="middle">y</text>
+      <text x={X(0) + 8} y={Y(hi) - 2} className="ln-svg-axis" textAnchor="start">y</text>
       {ns.filter((n) => n !== 0 && n % step === 0).map((n) => (
         <g key={`l${n}`}>
           <text x={X(n)} y={Y(0) + 13} className="ln-svg-tick" textAnchor="middle">{fmtNum(n)}</text>
@@ -87,30 +87,87 @@ function Axes({ fr }: { fr: Frame }) {
   );
 }
 
-function PathLine({ fr, m, c, cls = "", label }: { fr: Frame; m: number; c: number; cls?: string; label?: string }) {
+function PathLine({ fr, m, c, cls = "" }: { fr: Frame; m: number; c: number; cls?: string }) {
   const { lo, hi, X, Y } = fr;
   const xa = lo - 1, xb = hi + 1;
-  // label where the path enters the grid on the left, or through the bottom/top edge
-  let lx = lo + 0.3;
-  let ly = m * lx + c;
-  if (ly > hi - 0.3 || ly < lo + 0.3) {
-    const bound = ly > hi - 0.3 ? hi - 0.3 : lo + 0.3;
-    lx = m === 0 ? lo + 0.3 : (bound - c) / m;
-    ly = bound;
-  }
-  const show = label && lx >= lo && lx <= hi;
   return (
     <g className={`ln-path ${cls}`}>
       <path d={`M${X(xa)} ${Y(m * xa + c)} L${X(xb)} ${Y(m * xb + c)}`} className="ln-path-line" clipPath="url(#ln-grid-clip)" />
-      {show && <text x={X(lx) + 8} y={Y(ly) + (m > 0 ? -8 : 16)} className="ln-svg-eq" textAnchor="start">{label}</text>}
     </g>
   );
 }
 
-const Dot = ({ fr, x, y, label, cls = "", dx = 8, dy = -8, anchor = "start" }: { fr: Frame; x: number; y: number; label?: string; cls?: string; dx?: number; dy?: number; anchor?: "start" | "middle" | "end" }) => (
+// ------------------------------------------------------------------------------------------------ label placement
+/**
+ * Labels on the grid (ship names, equations, point names, the crossing point, run/rise) must not sit on the tick
+ * numbers, the axis letters, the points or each other, and must stay inside the picture. Each label tries a list of
+ * candidate spots and takes the first free one (estimated text boxes; every label also has a paper halo).
+ */
+interface Box { l: number; t: number; r: number; b: number }
+export interface Label { x: number; y: number; text: string; anchor: "start" | "middle" | "end"; cls: string; central?: boolean }
+const SIZES: Record<string, number> = { "ln-svg-strong": 14, "ln-svg-eq": 13.5, "ln-svg-tick": 13, "ln-svg-axis": 14 };
+function boxOf(l: Label): Box {
+  const size = SIZES[l.cls.split(" ")[0]!] ?? 14;
+  const w = l.text.length * size * 0.62 + 2;
+  const left = l.anchor === "start" ? l.x : l.anchor === "end" ? l.x - w : l.x - w / 2;
+  const top = l.central ? l.y - size * 0.6 : l.y - size * 0.9;
+  return { l: left, t: top, r: left + w, b: top + size * 1.2 };
+}
+const hits = (a: Box, b: Box) => Math.min(a.r, b.r) - Math.max(a.l, b.l) > 0 && Math.min(a.b, b.b) - Math.max(a.t, b.t) > 0;
+class Placer {
+  taken: Box[] = [];
+  out: Label[] = [];
+  constructor(fr: Frame) {
+    const { lo, hi, X, Y } = fr;
+    const step = hi - lo > 8 ? 2 : 1;
+    for (let n = lo; n <= hi; n++) {
+      if (n === 0 || n % step !== 0) continue;
+      this.taken.push(boxOf({ x: X(n), y: Y(0) + 13, text: fmtNum(n), anchor: "middle", cls: "ln-svg-tick" }));
+      this.taken.push(boxOf({ x: X(0) - 5, y: Y(n), text: fmtNum(n), anchor: "end", cls: "ln-svg-tick", central: true }));
+    }
+    this.taken.push(boxOf({ x: X(0) - 5, y: Y(0) + 13, text: "0", anchor: "end", cls: "ln-svg-tick" }));
+    this.taken.push(boxOf({ x: X(hi) + 10, y: Y(0), text: "x", anchor: "start", cls: "ln-svg-axis", central: true }));
+    this.taken.push(boxOf({ x: X(0) + 8, y: Y(hi) - 2, text: "y", anchor: "start", cls: "ln-svg-axis" }));
+  }
+  /** Reserve a point's circle. */
+  point(x: number, y: number, r = 8) {
+    this.taken.push({ l: x - r, t: y - r, r: x + r, b: y + r });
+  }
+  /** Place a label at the first free candidate (or the first candidate if none is free). */
+  place(cands: Label[]) {
+    const inside = (b: Box) => b.l >= 2 && b.r <= SIZE - 2 && b.t >= 2 && b.b <= SIZE - 2;
+    const pick = cands.find((c) => { const b = boxOf(c); return inside(b) && !this.taken.some((t) => hits(t, b)); }) ?? cands.find((c) => inside(boxOf(c))) ?? cands[0];
+    if (!pick) return;
+    this.taken.push(boxOf(pick));
+    this.out.push(pick);
+  }
+  /** A point's name: right-above, left, above, below… */
+  dot(fr: Frame, x: number, y: number, text: string, cls = "ln-svg-strong") {
+    const X = fr.X(x), Y = fr.Y(y);
+    this.place([
+      { x: X + 9, y: Y - 8, text, anchor: "start", cls }, { x: X - 10, y: Y + 5, text, anchor: "end", cls },
+      { x: X, y: Y - 12, text, anchor: "middle", cls }, { x: X, y: Y + 23, text, anchor: "middle", cls },
+      { x: X + 10, y: Y + 18, text, anchor: "start", cls }, { x: X - 10, y: Y - 8, text, anchor: "end", cls },
+      { x: X + 12, y: Y + 5, text, anchor: "start", cls }, { x: X - 10, y: Y + 20, text, anchor: "end", cls },
+    ]);
+  }
+  /** A path's name: along the visible part of y = mx + c, just above or below the line. */
+  line(fr: Frame, m: number, c: number, text: string, cls = "ln-svg-eq") {
+    const cands: Label[] = [];
+    for (const t of [0.12, 0.25, 0.75, 0.88, 0.38, 0.62, 0.5, 0.05, 0.95]) {
+      const x = fr.lo + t * (fr.hi - fr.lo);
+      const y = m * x + c;
+      if (y < fr.lo || y > fr.hi) continue;
+      const X = fr.X(x), Y = fr.Y(y);
+      cands.push({ x: X + 6, y: Y + (m > 0 ? -9 : 18), text, anchor: "start", cls }, { x: X - 6, y: Y + (m > 0 ? 20 : -9), text, anchor: "end", cls });
+    }
+    this.place(cands);
+  }
+}
+
+const Dot = ({ fr, x, y, cls = "" }: { fr: Frame; x: number; y: number; cls?: string }) => (
   <g className={`ln-dot ${cls}`}>
     <circle cx={fr.X(x)} cy={fr.Y(y)} r="6" fill={LN.red} stroke={INK} strokeWidth="2.5" />
-    {label && <text x={fr.X(x) + dx} y={fr.Y(y) + dy} className="ln-svg-strong" textAnchor={anchor}>{label}</text>}
   </g>
 );
 
@@ -139,42 +196,77 @@ function GridPicture({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
       <defs><clipPath id="ln-grid-clip"><rect x={fr.X(fr.lo)} y={fr.Y(fr.hi)} width={fr.X(fr.hi) - fr.X(fr.lo)} height={fr.Y(fr.lo) - fr.Y(fr.hi)} /></clipPath></defs>
       <Axes fr={fr} />
       {(mode === "grad" || mode === "icpt" || mode === "eqn") && (<>
-        <PathLine fr={fr} m={mm} c={c} label={SHIPS[p(ex, "ship")]} />
+        <PathLine fr={fr} m={mm} c={c} />
         {mode === "grad" && reveal && (
           <path d={`M${fr.X(x1)} ${fr.Y(y1)} H${fr.X(x2)} V${fr.Y(y2)}`} className="ln-runrise" />
         )}
         {/* the step triangle A → corner → B: run on the horizontal side, rise outside the vertical side (inside
             when B is near the right edge); A sits to the left of its point and B beyond the end of the rise */}
-        {mode === "grad" && reveal && <text x={(fr.X(x1) + fr.X(x2)) / 2} y={fr.Y(y1) + (y2 > y1 ? 18 : -9)} className="ln-svg-strong" textAnchor="middle">{`run ${x2 - x1}`}</text>}
-        {mode === "grad" && reveal && (
-          <text x={fr.X(x2) + (fr.X(x2) + 66 > SIZE ? -8 : 8)} y={(fr.Y(y1) + fr.Y(y2)) / 2} className="ln-svg-strong" dominantBaseline="central" textAnchor={fr.X(x2) + 66 > SIZE ? "end" : "start"}>{`rise ${fmtNum(y2 - y1)}`}</text>
-        )}
-        {mode === "grad" && <Dot fr={fr} x={x1} y={y1} label="A" dx={-10} dy={5} anchor="end" />}
-        {mode === "grad" && <Dot fr={fr} x={x2} y={y2} label="B" dx={0} dy={y2 > y1 ? -12 : 22} anchor="middle" />}
-        {mode === "eqn" && <Dot fr={fr} x={x1} y={y1} label="A" />}
-        {mode === "eqn" && <Dot fr={fr} x={x2} y={y2} label="B" />}
-        {mode === "icpt" && reveal && <Dot fr={fr} x={0} y={c} label={`(0, ${fmtNum(c)})`} cls="is-model" />}
+        {mode !== "icpt" && <Dot fr={fr} x={x1} y={y1} />}
+        {mode !== "icpt" && <Dot fr={fr} x={x2} y={y2} />}
+        {mode === "icpt" && reveal && <Dot fr={fr} x={0} y={c} cls="is-model" />}
       </>)}
       {mode === "meet" && (<>
-        <PathLine fr={fr} m={p(ex, "m1")} c={p(ex, "c1")} label={SHIPS[p(ex, "s1")]} />
-        <PathLine fr={fr} m={p(ex, "m2")} c={p(ex, "c2")} cls="is-second" label={SHIPS[p(ex, "s2")]} />
+        <PathLine fr={fr} m={p(ex, "m1")} c={p(ex, "c1")} />
+        <PathLine fr={fr} m={p(ex, "m2")} c={p(ex, "c2")} cls="is-second" />
         {reveal && (() => {
           const [mx, my] = meetOf(p(ex, "m1"), p(ex, "c1"), p(ex, "m2"), p(ex, "c2"));
-          return <Dot fr={fr} x={mx} y={my} label={fmtPt(mx, my)} cls="is-model" />;
+          return <Dot fr={fr} x={mx} y={my} cls="is-model" />;
         })()}
       </>)}
       {mode === "para" && (<>
-        <PathLine fr={fr} m={mm} c={c} label="Gull" />
-        {reveal && <PathLine fr={fr} m={mm} c={p(ex, "c2")} cls="is-second" label={fmtLine(mm, p(ex, "c2"))} />}
+        <PathLine fr={fr} m={mm} c={c} />
+        {reveal && <PathLine fr={fr} m={mm} c={p(ex, "c2")} cls="is-second" />}
       </>)}
       {fin && (<>
         {reveal && <PathLine fr={fr} m={mm} c={c} />}
-        <Dot fr={fr} x={x2} y={y2} label="Harbour" />
+        <Dot fr={fr} x={x2} y={y2} />
         <circle cx={fr.X(x1)} cy={fr.Y(y1)} r="8" fill={LN.lamp} stroke={INK} strokeWidth="3" />
-        <text x={fr.X(x1) + 10} y={fr.Y(y1) + 16} className="ln-svg-strong">Bobbo</text>
       </>)}
+      {gridLabels(ex, fr, reveal).map((l, i) => (
+        <text key={i} x={l.x} y={l.y} className={`${l.cls} ln-halo`} textAnchor={l.anchor} dominantBaseline={l.central ? "central" : undefined}>{l.text}</text>
+      ))}
     </svg>
   );
+}
+
+/** Every label of the grid picture, placed clear of ticks, points and each other (fixed labels first). */
+export function gridLabels(ex: BoardProps["st"]["exercise"], fr: Frame, reveal: boolean): Label[] {
+  const mode = modeOf(ex);
+  const P = new Placer(fr);
+  const mm = p(ex, "mm"), c = p(ex, "c");
+  const x1 = p(ex, "x1"), y1 = p(ex, "y1"), x2 = p(ex, "x2"), y2 = p(ex, "y2");
+  if (mode === "grad" || mode === "eqn" || mode === "home") { P.point(fr.X(x1), fr.Y(y1)); P.point(fr.X(x2), fr.Y(y2)); }
+  if (mode === "grad" && reveal) {
+    // the step triangle A → corner → B: run on the horizontal side, rise beside the vertical side
+    const midX = (fr.X(x1) + fr.X(x2)) / 2, midY = (fr.Y(y1) + fr.Y(y2)) / 2;
+    const run = `run ${x2 - x1}`, rise = `rise ${fmtNum(y2 - y1)}`;
+    P.place([
+      { x: midX, y: fr.Y(y1) + (y2 > y1 ? 19 : -9), text: run, anchor: "middle", cls: "ln-svg-strong" },
+      { x: midX, y: fr.Y(y1) + (y2 > y1 ? -9 : 19), text: run, anchor: "middle", cls: "ln-svg-strong" },
+    ]);
+    P.place([
+      { x: fr.X(x2) + 9, y: midY, text: rise, anchor: "start", cls: "ln-svg-strong", central: true },
+      { x: fr.X(x2) - 9, y: midY, text: rise, anchor: "end", cls: "ln-svg-strong", central: true },
+      { x: fr.X(x2) + 9, y: midY + 14, text: rise, anchor: "start", cls: "ln-svg-strong", central: true },
+      { x: fr.X(x2) - 9, y: midY + 14, text: rise, anchor: "end", cls: "ln-svg-strong", central: true },
+    ]);
+  }
+  if (mode === "grad" || mode === "eqn") { P.dot(fr, x1, y1, "A"); P.dot(fr, x2, y2, "B"); }
+  if (mode === "icpt" && reveal) { P.point(fr.X(0), fr.Y(c)); P.dot(fr, 0, c, `(0, ${fmtNum(c)})`); }
+  if (mode === "meet" && reveal) {
+    const [mx, my] = meetOf(p(ex, "m1"), p(ex, "c1"), p(ex, "m2"), p(ex, "c2"));
+    P.point(fr.X(mx), fr.Y(my));
+    P.dot(fr, mx, my, fmtPt(mx, my));
+  }
+  if (mode === "home") { P.dot(fr, x2, y2, "Harbour"); P.dot(fr, x1, y1, "Bobbo"); }
+  if (mode === "grad" || mode === "icpt" || mode === "eqn") P.line(fr, mm, c, SHIPS[p(ex, "ship")] ?? "Ship");
+  if (mode === "meet") { P.line(fr, p(ex, "m1"), p(ex, "c1"), SHIPS[p(ex, "s1")] ?? "Ship"); P.line(fr, p(ex, "m2"), p(ex, "c2"), SHIPS[p(ex, "s2")] ?? "Ship", "ln-svg-eq is-second"); }
+  if (mode === "para") {
+    P.line(fr, mm, c, "Gull");
+    if (reveal) P.line(fr, mm, p(ex, "c2"), fmtLine(mm, p(ex, "c2")), "ln-svg-eq is-second");
+  }
+  return P.out;
 }
 
 // ------------------------------------------------------------------------------------------------ plot a point

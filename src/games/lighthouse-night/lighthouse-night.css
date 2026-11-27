@@ -97,6 +97,8 @@
 .ln-svg-compass.is-north { fill: #b3262d; }
 .ln-svg-axis { font: 900 14px var(--font-body); fill: var(--ink); font-style: italic; }
 .ln-svg-tick { font: 700 13px var(--font-body); fill: #33496b; }
+.ln-halo { paint-order: stroke; stroke: #f2f8fb; stroke-width: 5px; stroke-linejoin: round; }
+.ln-svg-tick, .ln-svg-axis { paint-order: stroke; stroke: #f2f8fb; stroke-width: 3px; stroke-linejoin: round; }
 .ln-svg-eq { font: 900 13.5px var(--font-body); fill: #1c4e8a; paint-order: stroke; stroke: #fff; stroke-width: 4px; }
 
 /* angle marks */
@@ -113,7 +115,7 @@
 .ln-side.is-model { fill: #6b3a00; }
 .ln-path-line { stroke: #1c6fa8; stroke-width: 4; stroke-linecap: round; }
 .ln-path.is-second .ln-path-line { stroke: #c06a1e; stroke-dasharray: 10 6; }
-.ln-path.is-second .ln-svg-eq { fill: #8a4513; }
+.ln-path.is-second .ln-svg-eq, .ln-svg-eq.is-second { fill: #8a4513; }
 .ln-runrise { fill: none; stroke: #b07a00; stroke-width: 3; stroke-dasharray: 6 4; }
 .ln-dot.is-model circle { fill: #ffd43b; }
 .ln-lastpt { fill: none; stroke: #8a8496; stroke-width: 3; stroke-dasharray: 4 3; }
