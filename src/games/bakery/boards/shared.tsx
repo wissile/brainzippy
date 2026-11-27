@@ -128,6 +128,13 @@ export function useEntry(st: ExerciseState, initial = "") {
   return { entry, value, type, back, set, locked, modelValue, setRaw: setEntry };
 }
 
+/** "Check: 1 tile", "Check: 12 tiles", or "Check (nothing typed yet)". */
+export function checkText(entry: string, one = "", many = one): string {
+  if (entry === "") return "Check (nothing typed yet)";
+  const unit = entry === "1" ? one : many;
+  return `Check: ${entry}${unit ? ` ${unit}` : ""}`;
+}
+
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "back"] as const;
 
 /** Display + keypad + Check. Typical wrong answers (up to 4 digits) are all enterable so the hint can diagnose them. */

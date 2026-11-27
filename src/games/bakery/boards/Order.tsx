@@ -68,7 +68,7 @@ export function OrderBoard({ st, act, alongIndex, busy }: BoardProps) {
         className="bk-line-btn"
         data-testid="bk-line"
         data-value={isTotal ? "total" : i}
-        aria-label={`${text}: ${vals[i] || "empty"}${active === i ? " (typing here)" : ", tap to type here"}`}
+        aria-label={`${text}: ${vals[i] || "empty"}${!isTotal && mark(i) ? (mark(i) === "is-ok" ? ", right" : ", check again") : ""}${active === i ? " (typing here)" : ", tap to type here"}`}
         aria-pressed={active === i}
         aria-disabled={locked}
         onClick={() => {
@@ -79,7 +79,7 @@ export function OrderBoard({ st, act, alongIndex, busy }: BoardProps) {
       >
         <span className="bk-line-text">{text}</span>
         <span className="bk-line-val" data-testid={isTotal ? "bk-total" : undefined}>{vals[i] || " "}</span>
-        {!isTotal && marked && vals[i] !== "" && <span className="bk-line-mark" aria-label={mark(i) === "is-ok" ? "right" : "check again"}>{mark(i) === "is-ok" ? "✓" : "?"}</span>}
+        {!isTotal && marked && vals[i] !== "" && <span className="bk-line-mark" aria-hidden="true">{mark(i) === "is-ok" ? "✓" : "?"}</span>}
       </button>
     </li>
   );
@@ -98,7 +98,7 @@ export function OrderBoard({ st, act, alongIndex, busy }: BoardProps) {
         </section>
         <section className="bk-panel" aria-label="Keypad">
           <Keypad st={st} entry={vals[active] ?? ""} onType={type} onBack={back} onCheck={check} label={active === n ? "Total" : `Line ${active + 1}`} showDisplay={false}
-            checkLabel={`Check the total: ${total || "nothing typed"}`} ready={total !== ""} />
+            checkLabel={total === "" ? "Check the total (nothing typed yet)" : `Check the total: ${total}`} ready={total !== ""} />
           {total === "" && !f.modelOn && <p className="bk-note is-soft" data-testid="bk-order-note">Tap a line to work it out, then fill in the total.</p>}
           <ModelSteps ex={ex} st={st} alongIndex={alongIndex} />
         </section>

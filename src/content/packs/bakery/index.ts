@@ -62,7 +62,7 @@ const pack: ContentPack = {
       topic: "math.division",
       skills: ["math.mult.arrays", "math.div.missing-factor", "math.geom.area-perimeter", "math.frac.of-amount", "math.frac.equivalent", "math.frac.compare", "math.solve.bar-model"],
       ages: [9, 11],
-      maxLevel: 8,
+      maxLevel: 9,
       title: "Bobbo's Bakery",
       gameType: "multiplication, area, fractions and word-problem game",
       blurb: "The island festival ordered everything! Be Bobbo's head baker: fill trays, cut fair slices and plan the order.",

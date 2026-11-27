@@ -2,7 +2,6 @@
   "lines": {
     "bk.ready": { "text": "Hi, head baker! The festival order is waiting. Ready to bake?", "speaker": "bobbo" },
     "bk.back": { "text": "Welcome back, head baker. More orders came in!", "speaker": "bobbo" },
-
     "bk.story.intro1": { "text": "Tomorrow is the island festival, and Bobbo's Bakery just got its biggest order ever." },
     "bk.story.intro2": { "text": "Cookies, muffins, cakes and pies for the whole island! That's too much for one baker.", "speaker": "bobbo" },
     "bk.story.intro3": { "text": "Puff knows a baker's secret: bake in neat rows, cut fair slices, and draw the order before you start." },
@@ -13,7 +12,6 @@
     "bk.story.outro1": { "text": "Every tray is full and every line of the order is ticked." },
     "bk.story.outro2": { "text": "You planned each batch step by step. Thank you, head baker!", "speaker": "bobbo" },
     "bk.story.outro3": { "text": "The festival cart rolls out. Here's your Head Baker's Hat sticker!" },
-
     "bk.prompt.tutorial": { "text": "Tap plus to add a row. Make two rows of three cookies.", "speaker": "bobbo" },
     "bk.prompt.count": { "text": "How many cookies are on this tray? Count in rows.", "speaker": "bobbo" },
     "bk.prompt.build": { "text": "Fill the tray with the rows the order asks for.", "speaker": "bobbo" },
@@ -29,10 +27,8 @@
     "bk.prompt.cmp": { "text": "Which is more cake? Or are they the same?", "speaker": "bobbo" },
     "bk.prompt.bar": { "text": "Read the order. Put each number on its bar, then work it out.", "speaker": "bobbo" },
     "bk.prompt.order": { "text": "Festival order! Work out each line, then the total for the cart.", "speaker": "bobbo" },
-
     "bk.help.count": { "text": "Count one row, then count the rows. Rows times how many in each row gives the total.", "speaker": "puff" },
     "bk.help.build": { "text": "Rows go across, like shelves. Set the rows first, then how many cookies sit in each row.", "speaker": "puff" },
-    "bk.help.fact": { "text": "Big trays are easier in two pieces. Split the rows into a fact you know, then add the pieces.", "speaker": "puff" },
     "bk.help.missing": { "text": "Think multiplication backwards: what times the number you know makes the total?", "speaker": "puff" },
     "bk.help.area": { "text": "Area is the tiles inside. Count the tiles in one row, then multiply by the number of rows.", "speaker": "puff" },
     "bk.help.perim": { "text": "Perimeter is the ribbon round the outside. Add up all four sides.", "speaker": "puff" },
@@ -47,7 +43,6 @@
     "bk.help.timesb": { "text": "Times as many means the same bar, repeated. Count how many copies you need.", "speaker": "puff" },
     "bk.help.fracb": { "text": "Cut the bar into equal parts. Find one part, then the cinnamon parts, then what is left.", "speaker": "puff" },
     "bk.help.order": { "text": "One line at a time. Work out each line, then add all the lines for the cart.", "speaker": "puff" },
-
     "bk.hint.added": { "text": "Looks like those numbers were added. Rows of cookies are equal groups, so we multiply.", "speaker": "puff" },
     "bk.hint.oneRow": { "text": "That's just one row. Now count how many rows there are.", "speaker": "puff" },
     "bk.hint.oneCol": { "text": "That's the number of rows. How many cookies are in each one?", "speaker": "puff" },
@@ -84,7 +79,6 @@
     "bk.hint.cmp.half": { "text": "Compare each one with half a cake. Which is more than half?", "speaker": "puff" },
     "bk.hint.oneStep": { "text": "That's one step done. Read the question again: what else does it ask?", "speaker": "puff" },
     "bk.hint.sold": { "text": "That's how many were sold. The question asks how many are left.", "speaker": "puff" },
-    "bk.hint.addAll": { "text": "Selling takes cookies away. Which parts come off the whole bar?", "speaker": "puff" },
     "bk.hint.forgotMore": { "text": "Bobbo's bar is longer. Don't forget his extra piece.", "speaker": "puff" },
     "bk.hint.moreTwice": { "text": "The extra piece belongs to one bar only. Add it just once.", "speaker": "puff" },
     "bk.hint.oneStepPuff": { "text": "That's how many Puff baked. Now put both bars together.", "speaker": "puff" },
@@ -104,7 +98,19 @@
     "bk.hint.lineFrac": { "text": "Check the muffins line. Find one equal group first, then take the groups you need.", "speaker": "puff" },
     "bk.hint.lineExtra": { "text": "Check the buns line. Don't forget the extra buns.", "speaker": "puff" },
     "bk.hint.missedLine": { "text": "Did every line go into the total? Add them all for the cart.", "speaker": "puff" },
-
+    "bk.help.factSplit": { "text": "Big trays are easier in two pieces. Cut the tray into facts you know, then add the pieces.", "speaker": "puff" },
+    "bk.help.cmpbPuff": { "text": "Two bars to compare. Bobbo baked more, so Puff's bar is Bobbo's bar without the extra.", "speaker": "puff" },
+    "bk.hint.oneGroup": { "text": "That's one equal group. Now take as many groups as the top number says.", "speaker": "puff" },
+    "bk.hint.sameTopBig": { "text": "Those slices are bigger, so fewer of them make the same amount of cake.", "speaker": "puff" },
+    "bk.hint.subSame": { "text": "Taking the same from the top and bottom changes the amount. Put small slices together into big ones.", "speaker": "puff" },
+    "bk.hint.equivRest": { "text": "That's the part of the cake with no icing. How much should be iced?", "speaker": "puff" },
+    "bk.hint.makePerimeter": { "text": "That height gives that much ribbon round the edge. We need that many tiles inside: width times height.", "speaker": "puff" },
+    "bk.hint.makeSubtracted": { "text": "Taking the width away won't work. Which height, times the width, makes the tiles we need?", "speaker": "puff" },
+    "bk.hint.fewerPuff": { "text": "Puff baked fewer. Take the extra off Bobbo's number to make Puff's bar.", "speaker": "puff" },
+    "bk.hint.justPuff": { "text": "That's both bakers together. The question asks only about Puff.", "speaker": "puff" },
+    "bk.hint.wholeParts": { "text": "That's only some of the parts. The whole bar is every part together: both sales and what's left.", "speaker": "puff" },
+    "bk.hint.notTakeAway": { "text": "Careful: the word left doesn't always mean take away. Look at the bar: which part is missing?", "speaker": "puff" },
+    "bk.hint.addAllBar": { "text": "Selling takes some away. Which parts come off the whole bar?", "speaker": "puff" },
     "bk.praise.rows": { "text": "You counted in rows. That's the baker's way!", "speaker": "bobbo" },
     "bk.praise.rows2": { "text": "Rows times how many in each row. You worked it out!", "speaker": "bobbo" },
     "bk.praise.build": { "text": "You set the rows first, then filled each one. Perfect tray!", "speaker": "bobbo" },
@@ -118,7 +124,6 @@
     "bk.praise.bar": { "text": "You drew the story first, then solved it. Order done!", "speaker": "bobbo" },
     "bk.praise.bar2": { "text": "Two steps, one at a time. That order is ready!", "speaker": "bobbo" },
     "bk.praise.order": { "text": "Every line checked and added. The cart is packed!", "speaker": "bobbo" },
-
     "bk.retry": { "text": "Let's look again together.", "speaker": "bobbo" },
     "bk.model": { "text": "Here's how a baker works it out. Follow the steps, then press Check.", "speaker": "puff" },
     "bk.labels": { "text": "That number belongs on a different bar. Read the story again.", "speaker": "puff" },

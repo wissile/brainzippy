@@ -406,7 +406,9 @@ test("every inner game plays by tap and keyboard (and drag on desktop)", async (
     { level: 5, kind: "lshape", way: "tap" },
     { level: 4, kind: "of", way: "keyboard" },
     { level: 5, kind: "equiv", way: desktop ? "drag" : "tap" },
-    { level: 8, kind: "equiv", way: "keyboard" },
+    { level: 9, kind: "equiv", way: "keyboard" },
+    { level: 9, kind: "cmp", way: "tap" },
+    { level: 8, kind: "pw", way: "keyboard" },
     { level: 7, kind: "cmp", way: "keyboard" },
     { level: 6, kind: "pw", way: desktop ? "drag" : "tap" },
     { level: 6, kind: "cmpb", way: "keyboard" },
@@ -448,10 +450,11 @@ test("a wrong tag slides back; after two slips it settles on its bar (never coun
 // Every inner game at every viewport: on screen and pressable at the start (with the round-start helper), while the
 // helper explains a first miss, and with the worked model after a second miss.
 const SWEEP: { level: number; kind: Kind }[] = [
-  { level: 0, kind: "count" }, { level: 1, kind: "build" }, { level: 8, kind: "fact" }, { level: 8, kind: "missing" },
+  { level: 0, kind: "count" }, { level: 1, kind: "build" }, { level: 9, kind: "fact" }, { level: 8, kind: "missing" },
   { level: 2, kind: "area" }, { level: 3, kind: "perim" }, { level: 7, kind: "make" }, { level: 8, kind: "lshape" },
   { level: 6, kind: "of" }, { level: 4, kind: "of" }, { level: 5, kind: "equiv" }, { level: 4, kind: "cmp" },
-  { level: 6, kind: "pw" }, { level: 7, kind: "mulb" }, { level: 7, kind: "timesb" }, { level: 8, kind: "fracb" }, { level: 8, kind: "order" },
+  { level: 6, kind: "pw" }, { level: 8, kind: "pw" }, { level: 7, kind: "mulb" }, { level: 8, kind: "timesb" }, { level: 8, kind: "fracb" },
+  { level: 9, kind: "cmp" }, { level: 9, kind: "equiv" }, { level: 8, kind: "order" },
 ];
 for (const vp of VIEWPORTS) {
   test(`${vp.name}: every control stays on screen and uncovered, before a miss, with the helper and with the model`, async ({ page }, info) => {

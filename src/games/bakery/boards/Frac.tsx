@@ -3,7 +3,7 @@ import { audio } from "../../../audio/AudioEngine";
 import type { BoardProps } from "../../../game/boards";
 import { BK, MuffinShape } from "../art";
 import { clamp, decode, frac } from "../logic";
-import { CheckButton, Keypad, ModelSteps, Stepper, Tab, flags, useBoardKeys, useEntry, usePointerDrag, useSubmit } from "./shared";
+import { CheckButton, Keypad, ModelSteps, Stepper, Tab, checkText, flags, useBoardKeys, useEntry, usePointerDrag, useSubmit } from "./shared";
 
 /**
  * Batch Fractions (math.frac.of-amount, math.frac.equivalent, math.frac.compare).
@@ -134,7 +134,7 @@ function OfBoard({ st, act, alongIndex, busy }: BoardProps) {
           </p>
         </section>
         <section className="bk-panel" aria-label="Your answer">
-          <Keypad st={st} entry={en.entry} onType={en.type} onBack={en.back} onCheck={check} label="Iced muffins" checkLabel={`Check: ${en.entry || "nothing typed"} muffins`} />
+          <Keypad st={st} entry={en.entry} onType={en.type} onBack={en.back} onCheck={check} label="Iced muffins" checkLabel={checkText(en.entry, "muffin", "muffins")} />
           <ModelSteps ex={ex} st={st} alongIndex={alongIndex} />
         </section>
       </div>

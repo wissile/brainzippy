@@ -11,7 +11,7 @@ import { type Kind, compareId, decode, diagnose, modelSteps as stepsOf } from ".
 export const EXPLAIN: Record<Kind, string> = {
   count: "bk.help.count",
   build: "bk.help.build",
-  fact: "bk.help.fact",
+  fact: "bk.help.factSplit",
   missing: "bk.help.missing",
   area: "bk.help.area",
   perim: "bk.help.perim",
@@ -29,7 +29,9 @@ export const EXPLAIN: Record<Kind, string> = {
 };
 
 export function explainFor(ex: Pick<Exercise, "params">): string {
-  return EXPLAIN[decode(ex).kind];
+  const s = decode(ex);
+  if (s.kind === "cmpb" && s.v === 2) return "bk.help.cmpbPuff";
+  return EXPLAIN[s.kind];
 }
 
 /** First-miss line, diagnosed from what the child entered or chose. Falls back to the inner game's method line. */
@@ -53,10 +55,11 @@ export function hintFor(st: Pick<ExerciseState, "exercise" | "lastAnswer">): str
 /** Every first-miss line hintFor can return (voice coverage test). */
 export const HINT_WHYS = [
   "added", "oneRow", "oneCol", "rowOff", "swap", "sameTotal", "rowsOff", "colsOff", "neighbour", "subtracted", "addedDiv", "multiplied",
-  "offByOne", "perimeter", "addedSides", "edgeTiles", "area", "half", "edgeSquares", "threeSides", "box", "onePart", "addedNotch", "byNum",
-  "noDivide", "rest", "subNum", "sameTop", "addSame", "oneStep", "sold", "addAll", "forgotMore", "moreTwice", "oneStepPuff", "whoHasMore",
-  "addedGroups", "forgotExtra", "extraEach", "wrongGroups", "oneStepTimes", "addedTimes", "bobboOnly", "total", "part", "lineTray",
-  "lineBoxes", "lineBrownies", "lineFrac", "lineExtra", "missedLine",
+  "offByOne", "perimeter", "addedSides", "edgeTiles", "area", "half", "edgeSquares", "threeSides", "makePerimeter", "makeSubtracted",
+  "box", "onePart", "addedNotch", "oneGroup", "byNum", "noDivide", "rest", "subNum", "sameTop", "sameTopBig", "addSame", "subSame",
+  "equivRest", "oneStep", "sold", "addAllBar", "wholeParts", "notTakeAway", "forgotMore", "moreTwice", "oneStepPuff", "whoHasMore",
+  "fewerPuff", "justPuff", "addedGroups", "forgotExtra", "extraEach", "wrongGroups", "oneStepTimes", "addedTimes", "bobboOnly", "total",
+  "part", "lineTray", "lineBoxes", "lineBrownies", "lineFrac", "lineExtra", "missedLine",
 ] as const;
 
 /** Praise the process the item needed (never ability, never speed). */

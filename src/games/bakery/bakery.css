@@ -166,13 +166,16 @@
 .bk-seg.is-copy { min-width: 26px; background: #ffe9c9; color: #6b3b1f; font-size: 0.95rem; }
 .bk-seg.is-copy.is-more { background: #e9e0ff; }
 .bk-seg.is-unknown { background: #fff; border-style: dashed; color: var(--pink-deep); }
+.bk-seg.is-unknown > span { padding: 0 4px; border-radius: 6px; background: #fff; }
 .bk-seg.is-space { visibility: hidden; }
 .bk-seg.is-gap { background: transparent; border-style: dashed; }
 .bk-seg.is-cin, .bk-seg.is-unknown { background-image: repeating-linear-gradient(90deg, transparent 0 calc(100% / var(--parts, 1) - 2px), rgba(43, 33, 64, 0.5) calc(100% / var(--parts, 1) - 2px) calc(100% / var(--parts, 1))); }
 .bk-slot { width: 100%; height: 100%; min-height: 44px; min-width: 44px; padding: 2px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; border: none; border-radius: inherit; background: #fff8ec; line-height: 1.05; }
 .bk-seg.is-cin .bk-slot { background: rgba(214, 140, 80, 0.5); }
 .bk-seg.is-extra .bk-slot { background: #e0f6ee; }
-.bk-slot-name { font-weight: 700; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.02em; color: #6b3b1f; max-width: 100%; overflow-wrap: anywhere; line-height: 1; }
+/* slot names are single words, never broken (QA: no "EXTR/A"); the slot widens to fit its name */
+.bk-slot-name { font-weight: 800; font-size: 0.82rem; color: #6b3b1f; white-space: nowrap; line-height: 1.1; }
+.bk-seg.is-slot { min-width: max-content; }
 .bk-slot-val { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; }
 .bk-slot.is-target { box-shadow: inset 0 0 0 4px #ffd43b; animation: bk-glow 1s ease-in-out infinite alternate; }
 .bk-slot.is-filled { background: #ffd89a; }
@@ -180,7 +183,7 @@
 .bk-slot.is-ok { background: var(--gold); }
 .bk-chip { flex: none; display: flex; align-items: center; gap: 2px; font-weight: 900; font-size: 1.2rem; }
 .bk-slot.is-chip { width: auto; min-width: 72px; height: 48px; border: 3px solid var(--ink); border-radius: 10px; }
-.bk-slot.is-chip .bk-slot-name { font-size: 0.68rem; }
+.bk-slot.is-chip { padding-top: 3px; }
 .bk-question { margin: 0; align-self: flex-end; padding: 2px 12px; border-radius: 999px; background: #fff; border: 2px dashed var(--pink-deep); font-weight: 800; color: var(--pink-deep); }
 .bk-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .bk-tag { min-width: 64px; min-height: 48px; padding: 2px 14px; border-radius: 12px; border: 3px solid var(--ink); background: #fff; font-family: var(--font-display) !important; font-weight: 800 !important; font-size: 1.4rem !important; box-shadow: 0 4px 0 rgba(43, 33, 64, 0.22); touch-action: none; }
@@ -203,7 +206,7 @@
 .bk-line.is-off .bk-line-val { background: #fde2e3; border-color: var(--bad); border-style: solid; }
 .bk-line.is-right .bk-line-btn { background: var(--gold); }
 .bk-line.is-wrong .bk-line-btn { animation: bk-nudge 480ms ease-in-out; }
-.bk-line-mark { flex: none; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--ok); color: #fff; font-weight: 900; font-size: 0.95rem; }
+.bk-line-mark { flex: none; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: #1e7d40; color: #fff; font-weight: 900; font-size: 0.95rem; }
 .bk-line.is-off .bk-line-mark { background: var(--bad); }
 
 /* ---------- story ---------- */

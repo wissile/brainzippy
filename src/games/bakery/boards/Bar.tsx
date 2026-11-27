@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { audio } from "../../../audio/AudioEngine";
 import type { BoardProps } from "../../../game/boards";
 import { type BarSlot, barSlots, decode, storyText } from "../logic";
-import { Keypad, ModelSteps, Tab, flags, useBoardKeys, useEntry, useKeyboardFlag, useSubmit } from "./shared";
+import { Keypad, ModelSteps, Tab, checkText, flags, useBoardKeys, useEntry, useKeyboardFlag, useSubmit } from "./shared";
 
 /**
  * Bar-Model Orders (math.solve.bar-model): a two-step word problem on an order card, drawn as bars (roughly to scale;
@@ -67,7 +67,10 @@ export function BarBoard({ st, act, alongIndex, busy }: BoardProps) {
   const tapTag = (id: string) => {
     if (!f.canAct || tagUsed(id)) return;
     audio.play("tap", { gain: 0.3 });
-    setPicked((p) => (p === id ? null : id));
+    const next = picked === id ? null : id;
+    setPicked(next);
+    // keyboard users: the bars come before the tags in tab order, so take focus to the first empty bar
+    if (next && kb.current) window.setTimeout(() => (document.querySelector('[data-testid="bk-slot"][aria-disabled="false"]') as HTMLElement | null)?.focus({ preventScroll: true }), 40);
   };
   const tapSlot = (id: string) => {
     if (picked) place(picked, id);
@@ -123,10 +126,15 @@ export function BarBoard({ st, act, alongIndex, busy }: BoardProps) {
   const rows: Row[] = (() => {
     const { a, b, c } = s;
     switch (s.kind) {
-      case "pw": return [
-        { name: "Baked", segs: [{ grow: a, slot: "whole" }] },
-        { name: "Sold, left", segs: [{ grow: b, slot: "p1" }, { grow: c, slot: "p2" }, { grow: a - b - c, text: "? left", cls: "is-unknown" }] },
-      ];
+      case "pw": return s.v === 1
+        ? [
+          { name: "Baked", segs: [{ grow: a, text: "? baked", cls: "is-unknown" }] },
+          { name: "Sold, left", segs: [{ grow: b, slot: "p1" }, { grow: c, slot: "p2" }, { grow: a - b - c, slot: "left" }] },
+        ]
+        : [
+          { name: "Baked", segs: [{ grow: a, slot: "whole" }] },
+          { name: "Sold, left", segs: [{ grow: b, slot: "p1" }, { grow: c, slot: "p2" }, { grow: a - b - c, text: "? left", cls: "is-unknown" }] },
+        ];
       case "cmpb": return s.v === 0
         ? [
           { name: "Puff", segs: [{ grow: a, slot: "puff" }, { grow: b, cls: "is-space" }] },
@@ -152,8 +160,8 @@ export function BarBoard({ st, act, alongIndex, busy }: BoardProps) {
   })();
   const question = (() => {
     switch (s.kind) {
-      case "pw": return "Left: ?";
-      case "cmpb": return "Altogether: ?";
+      case "pw": return s.v === 1 ? "Baked: ?" : "Left: ?";
+      case "cmpb": return s.v === 2 ? "Puff: ?" : "Altogether: ?";
       case "mulb": return "Total: ?";
       case "timesb": return s.v === 0 ? "Altogether: ?" : "How many more: ?";
       case "fracb": return "Plain: ?";
@@ -247,9 +255,11 @@ export function BarBoard({ st, act, alongIndex, busy }: BoardProps) {
         </section>
         <section className="bk-panel" aria-label="Your answer">
           {!f.modelOn && !allPlaced && tags}
-          {note && !allPlaced && <p className="bk-note" data-testid="bk-note" aria-live="polite">{note}</p>}
+          {note && !allPlaced && <p className="bk-note" data-testid="bk-note">{note}</p>}
+          {/* always mounted, so screen readers announce each slip note when its text changes */}
+          <p className="sr-only" aria-live="polite" data-testid="bk-note-live">{allPlaced ? "" : note}</p>
           <Keypad st={st} entry={en.entry} onType={en.type} onBack={en.back} onCheck={check} label={question.replace(": ?", "")} disabled={!allPlaced}
-            checkLabel={`Check: ${en.entry || "nothing typed"}`} />
+            checkLabel={checkText(en.entry)} />
           <ModelSteps ex={ex} st={st} alongIndex={alongIndex} />
         </section>
       </div>

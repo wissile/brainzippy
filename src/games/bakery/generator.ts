@@ -45,8 +45,9 @@ export const LEVELS: readonly LevelSpec[] = [
   { label: "Batch Fractions: fraction of an amount (groups drawn) · compare (same numerator or denominator)", fresh: ["of", "cmp"], slots: ["of", "cmp", "of", "area", "cmp", "fact", "of", "order"] },
   { label: "Equivalent fractions on a cake · L-shaped trays · fraction of an amount without groups", fresh: ["equiv", "lshape"], slots: ["equiv", "lshape", "of", "equiv", "cmp", "lshape", "missing", "order"] },
   { label: "Bar-Model Orders: part–whole two-step · comparison (more than), then altogether", fresh: ["pw", "cmpb"], slots: ["pw", "cmpb", "pw", "equiv", "cmpb", "lshape", "of", "order"] },
-  { label: "Bar models: equal trays plus extra · times as many · fraction of a bar · covered cakes", fresh: ["mulb", "timesb", "fracb"], slots: ["mulb", "timesb", "fracb", "pw", "mulb", "cmp", "make", "order"] },
-  { label: "Festival rush: every inner game mixed, hardest settings", fresh: [], slots: ["timesb", "lshape", "fracb", "equiv", "fact", "cmpb", "missing", "order"] },
+  { label: "Bar models: equal trays plus extra · times as many (altogether) · fraction of a bar", fresh: ["mulb", "timesb", "fracb"], slots: ["mulb", "timesb", "fracb", "pw", "mulb", "cmp", "make", "order"] },
+  { label: "Word-problem twists: how many MORE (times as many) · the whole is missing · \"that is m more than Puff\" (altogether / how many did Puff bake)", fresh: ["timesb", "pw", "cmpb"], slots: ["pw", "timesb", "cmpb", "lshape", "fracb", "missing", "mulb", "order"] },
+  { label: "Festival rush: compare with the cakes covered (½ as a benchmark) · equivalent fractions with bigger slices · totals 100–200; everything mixed", fresh: ["cmp", "equiv"], slots: ["cmp", "equiv", "cmpb", "pw", "fact", "of", "lshape", "order"] },
 ];
 export const BK_MAX_LEVEL = LEVELS.length - 1;
 export const BAND = 8;
@@ -57,6 +58,9 @@ function deal<T>(band: GeneratorBand | undefined, key: string, items: readonly T
   const deck = r.shuffle([...items]);
   return deck[((pos % deck.length) + deck.length) % deck.length]!;
 }
+/** Goods that make sense on a tray (no pies) and that get iced (no pies or tarts): indexes into GOODS. */
+const TRAY_GOODS = [0, 1, 2, 3, 4] as const;
+const ICED_GOODS = [0, 1, 2, 4] as const;
 const range = (lo: number, hi: number) => Array.from({ length: hi - lo + 1 }, (_, i) => lo + i);
 /** (w − 2)(h − 2) = 4 ⇔ area = perimeter: avoided so "area" and "perimeter" answers never coincide. */
 const areaIsPerimeter = (w: number, h: number) => (w - 2) * (h - 2) === 4;
@@ -88,7 +92,7 @@ export function pickScenario(kind: Kind, lv: number, rng: Rng, band: GeneratorBa
         lv === 0 ? [[2, 5, 10], range(2, 6)]
           : lv === 1 ? [[3, 4], range(2, 10)]
             : lv === 2 ? [[6, 7, 8, 9], range(3, 9)]
-              : lv < 8 ? [range(6, 12), range(4, 12)]
+              : lv < 9 ? [range(6, 12), range(4, 12)]
                 : [range(6, 12), range(6, 12)];
       const x = deal(band, `fact-${lv}`, one, k);
       const y = rng.pick(other);
@@ -96,7 +100,7 @@ export function pickScenario(kind: Kind, lv: number, rng: Rng, band: GeneratorBa
       return s;
     }
     case "missing": {
-      const [ka, kb] = lv <= 1 ? [[2, 5], [2, 6]] : lv === 2 ? [[3, 6], [3, 9]] : lv < 8 ? [[4, 9], [4, 12]] : [[6, 12], [6, 12]];
+      const [ka, kb] = lv <= 1 ? [[2, 5], [2, 6]] : lv === 2 ? [[3, 6], [3, 9]] : lv < 9 ? [[4, 9], [4, 12]] : [[6, 12], [6, 12]];
       do {
         s.a = rng.int(ka[0]!, ka[1]!);
         s.b = rng.int(kb[0]!, kb[1]!);
@@ -123,7 +127,7 @@ export function pickScenario(kind: Kind, lv: number, rng: Rng, band: GeneratorBa
       return s;
     }
     case "lshape": {
-      const [wr, hr] = lv < 8 ? [[5, 8], [4, 7]] : [[6, 12], [5, 10]];
+      const [wr, hr] = lv < 9 ? [[5, 8], [4, 7]] : [[6, 12], [5, 10]];
       s.a = rng.int(wr[0]!, wr[1]!);
       s.b = rng.int(hr[0]!, hr[1]!);
       s.c = rng.int(2, s.a - 2);
@@ -131,16 +135,16 @@ export function pickScenario(kind: Kind, lv: number, rng: Rng, band: GeneratorBa
       return s;
     }
     case "of": {
-      const dens = lv <= 4 ? [2, 3, 4, 5] : lv < 8 ? range(2, 8) : range(3, 10);
+      const dens = lv <= 4 ? [2, 3, 4, 5] : lv < 9 ? range(2, 8) : range(3, 10);
       s.b = deal(band, `of-${lv}`, dens, k);
       s.a = rng.int(1, s.b - 1);
-      const kk = lv <= 4 ? rng.int(2, 6) : lv < 8 ? rng.int(2, 8) : rng.int(3, 8);
+      const kk = lv <= 4 ? rng.int(2, 6) : lv < 9 ? rng.int(2, 8) : rng.int(3, 8);
       s.c = s.b * kk;
       s.v = lv <= 4 ? 1 : 0;
       return s;
     }
     case "equiv": {
-      const reverse = lv >= 8 && k % 2 === 1;
+      const reverse = lv >= 9 && k % 2 === 0;
       const m = rng.pick([2, 3]);
       if (!reverse) {
         do s.b = rng.pick([2, 3, 4]);
@@ -157,8 +161,9 @@ export function pickScenario(kind: Kind, lv: number, rng: Rng, band: GeneratorBa
       return s;
     }
     case "cmp": {
-      const types = lv === 4 ? ["den", "num"] : lv <= 6 ? ["den", "num", "eq"] : lv === 7 ? ["num", "eq", "den"] : ["num", "eq", "half"];
-      const t = types[(k + (band?.seed ?? 0)) % types.length]!;
+      // the ½ benchmark comes first at level 9 so a band always has one
+      const types = lv === 4 ? ["den", "num"] : lv <= 8 ? ["den", "num", "eq"] : ["half", "num", "eq"];
+      const t = lv >= 9 ? types[k % types.length]! : types[(k + (band?.seed ?? 0)) % types.length]!;
       if (t === "den") {
         s.b = s.d = rng.int(3, 8);
         s.a = rng.int(1, s.b - 1);
@@ -183,11 +188,12 @@ export function pickScenario(kind: Kind, lv: number, rng: Rng, band: GeneratorBa
         }
         if (rng.chance(0.5)) [s.a, s.b, s.c, s.d] = [s.c, s.d, s.a, s.b];
       }
-      s.v = lv <= 6 ? 1 : 0;
+      s.v = lv <= 8 ? 1 : 0; // cakes drawn; covered until a miss at level 9 (reason from the numbers)
       return s;
     }
     case "pw": {
-      const big = lv >= 8;
+      const big = lv >= 9;
+      s.v = lv === 8 ? 1 : lv >= 9 ? (k + (band?.seed ?? 0)) % 2 : 0; // 1 = the whole is the unknown ("left" does not mean subtract)
       for (let g = 0; g < 60; g++) {
         s.a = big ? rng.int(100, 200) : rng.int(40, 99);
         s.b = big ? rng.int(20, 70) : rng.int(10, 30);
@@ -199,7 +205,7 @@ export function pickScenario(kind: Kind, lv: number, rng: Rng, band: GeneratorBa
       return s;
     }
     case "cmpb": {
-      s.v = lv >= 8 ? 1 : 0;
+      s.v = lv <= 7 ? 0 : lv === 8 ? ((k + (band?.seed ?? 0)) % 2 === 0 ? 1 : 2) : [2, 1, 0][k % 3]!;
       if (s.v === 0) {
         s.a = rng.int(12, 40);
         s.b = rng.int(5, 20);
@@ -214,13 +220,13 @@ export function pickScenario(kind: Kind, lv: number, rng: Rng, band: GeneratorBa
       s.a = rng.int(3, 9);
       s.b = rng.int(3, 6);
       s.c = rng.int(1, s.a - 1);
-      s.e = deal(band, `goods-${lv}`, range(0, 5), k + 4);
+      s.e = deal(band, `goods-mulb-${lv}`, TRAY_GOODS, k);
       return s;
     case "timesb":
       s.a = rng.int(4, 12);
-      s.b = rng.int(2, 4);
-      s.v = lv >= 8 ? (k % 3 === 2 ? 0 : 1) : k % 2;
-      s.e = deal(band, `goods-${lv}`, range(0, 5), k + 1);
+      s.v = lv <= 7 ? 0 : lv === 8 ? 1 : k % 2; // "how many more" from level 8
+      s.b = s.v === 1 ? rng.int(3, 4) : rng.int(2, 4); // b ≥ 3: with b = 2 the difference would equal Puff's own number
+      s.e = deal(band, `goods-ice-${lv}`, ICED_GOODS, k);
       return s;
     case "fracb":
       s.b = rng.int(3, 6);
@@ -230,7 +236,7 @@ export function pickScenario(kind: Kind, lv: number, rng: Rng, band: GeneratorBa
       return s;
     case "order": {
       const kinds: LineKind[] =
-        lv <= 1 ? [1, 2] : lv <= 3 ? [1, 3] : lv <= 5 ? [2, 4, 3] : lv <= 7 ? [5, 4, 1] : [5, 4, 3];
+        lv <= 1 ? [1, 2] : lv <= 3 ? [1, 3] : lv <= 5 ? [2, 4, 3] : lv === 6 ? [2, 4, 1] : lv <= 8 ? [5, 4, 1] : [5, 4, 3];
       s.lines = kinds.map((lk) => orderLine(lk, rng));
       return s;
     }

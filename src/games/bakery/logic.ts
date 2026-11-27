@@ -53,10 +53,11 @@ export interface Line { k: LineKind; a: number; b: number; c: number }
  *  of                a/b of c; v 1 = equal groups drawn
  *  equiv             a/b shown; c = slices on the second cake
  *  cmp               a/b (left) vs c/d (right); v 1 = cakes drawn (0 = covered until the first miss)
- *  pw                a baked, b sold in the morning, c in the afternoon
- *  cmpb              v 0: a Puff, b more (Bobbo = a + b) · v 1: a Bobbo, b more than Puff (Puff = a − b)
+ *  pw                a baked, b sold in the morning, c in the afternoon; v 0 how many left · 1 how many baked (the whole is the unknown)
+ *  cmpb              v 0: a Puff, b more (Bobbo = a + b), altogether · v 1: a Bobbo, b more than Puff (Puff = a − b), altogether ·
+ *                    v 2: as v 1, but asks how many Puff baked (inverse language: "more" yet subtract)
  *  mulb              a in each tray, b trays, c extra
- *  timesb            a Puff, b times as many (Bobbo = a × b); v 0 altogether, 1 how many more
+ *  timesb            a Puff, b times as many (Bobbo = a × b); v 0 altogether, 1 how many more (b ≥ 3)
  *  fracb             a/b of c have cinnamon; how many are plain
  *  e                 goods index (bar models)
  */
@@ -146,8 +147,8 @@ export function answerFor(s: Scenario): number | string {
     case "of": return (s.c / s.b) * s.a;
     case "equiv": return (s.a * s.c) / s.b;
     case "cmp": return compareId(s.a, s.b, s.c, s.d);
-    case "pw": return s.a - s.b - s.c;
-    case "cmpb": return s.v === 0 ? 2 * s.a + s.b : 2 * s.a - s.b;
+    case "pw": return s.v === 1 ? s.a : s.a - s.b - s.c;
+    case "cmpb": return s.v === 0 ? 2 * s.a + s.b : s.v === 1 ? 2 * s.a - s.b : s.a - s.b;
     case "mulb": return s.a * s.b + s.c;
     case "timesb": return s.v === 0 ? (s.b + 1) * s.a : (s.b - 1) * s.a;
     case "fracb": return s.c - (s.c / s.b) * s.a;
@@ -207,8 +208,8 @@ export function mistakes(s: Scenario): Mistake[] {
       break;
     case "make": {
       const area = a * b;
-      if (area % 2 === 0) add(area / 2 - a, "perimeter");
-      add(area - a, "subtracted");
+      if (area % 2 === 0) add(area / 2 - a, "makePerimeter");
+      add(area - a, "makeSubtracted");
       break;
     }
     case "lshape": {
@@ -222,7 +223,7 @@ export function mistakes(s: Scenario): Mistake[] {
     }
     case "of": {
       const right = (c / b) * a;
-      add(c / b, "onePart");
+      add(c / b, "oneGroup");
       if (c % a === 0) add(c / a, "byNum");
       add(c * a, "noDivide");
       add(c - right, "rest");
@@ -232,27 +233,42 @@ export function mistakes(s: Scenario): Mistake[] {
     }
     case "equiv": {
       const right = (a * c) / b;
-      add(a, "sameTop");
-      add(a + (c - b), "addSame");
-      add(c - right, "rest");
+      const reverse = c < b; // bigger slices on the second cake (6/8 = ?/4)
+      add(a, reverse ? "sameTopBig" : "sameTop");
+      add(a + (c - b), reverse ? "subSame" : "addSame");
+      add(c - right, "equivRest");
       break;
     }
     case "pw":
+      if (s.v === 1) {
+        const left = a - b - c;
+        add(b + c, "wholeParts");
+        add(b + left, "wholeParts");
+        add(c + left, "wholeParts");
+        add(Math.abs(b + c - left), "notTakeAway");
+        add(Math.abs(left - b), "notTakeAway");
+        add(Math.abs(left - c), "notTakeAway");
+        break;
+      }
       add(a - b, "oneStep");
       add(a - c, "oneStep");
       add(b + c, "sold");
-      add(a + b + c, "addAll");
+      add(a + b + c, "addAllBar");
       break;
     case "cmpb":
       if (s.v === 0) {
         add(a + b, "oneStep");
         add(2 * a, "forgotMore");
         add(a + b + b, "moreTwice");
-      } else {
+      } else if (s.v === 1) {
         add(a - b, "oneStepPuff");
         add(2 * a + b, "whoHasMore");
         add(a + b, "whoHasMore");
-        add(2 * a, "forgotMore");
+        add(2 * a, "fewerPuff");
+      } else {
+        add(a + b, "whoHasMore");
+        add(2 * a - b, "justPuff");
+        add(a, "fewerPuff");
       }
       break;
     case "mulb":
@@ -262,14 +278,15 @@ export function mistakes(s: Scenario): Mistake[] {
       add(a * c + b, "wrongGroups");
       break;
     case "timesb":
+      // "b times as many" read as "b more" (additive): Bobbo = a + b
       if (s.v === 0) {
         add(a * b, "oneStepTimes");
+        add(2 * a + b, "addedTimes");
         add(a + b, "addedTimes");
-        add(a * b + b, "addedTimes");
       } else {
         add(a * b, "bobboOnly");
         add((b + 1) * a, "total");
-        add(a * b - b, "addedTimes");
+        add(b, "addedTimes");
       }
       break;
     case "fracb": {
@@ -277,12 +294,12 @@ export function mistakes(s: Scenario): Mistake[] {
       add(part, "part");
       add(c - a, "subNum");
       add(c - b, "subNum");
-      add(c / b, "onePart");
+      add(c / b, "oneGroup");
       break;
     }
     case "order": {
       const total = orderTotal(s.lines);
-      s.lines.forEach((l, i) => {
+      s.lines.forEach((l) => {
         const right = lineValue(l);
         const swapIn = (v: number) => total - right + v;
         if (l.k === 1) add(swapIn(l.a + l.b), "lineTray");
@@ -299,7 +316,7 @@ export function mistakes(s: Scenario): Mistake[] {
           add(swapIn(l.a * l.b), "lineExtra");
           add(swapIn(l.a + l.b + l.c), "lineBoxes");
         }
-        add(total - right, i === s.lines.length - 1 ? "missedLine" : "missedLine");
+        add(total - right, "missedLine");
       });
       break;
     }
@@ -352,11 +369,16 @@ export function lineText(l: Line): string {
 export function storyText(s: Scenario): string {
   const g = goods(s.e);
   switch (s.kind) {
-    case "pw": return `Bobbo baked ${s.a} ${g}. He sold ${s.b} in the morning and ${s.c} in the afternoon. How many ${g} are left?`;
+    case "pw":
+      return s.v === 1
+        ? `Bobbo baked some ${g}. He sold ${s.b} in the morning and ${s.c} in the afternoon, and he had ${s.a - s.b - s.c} left. How many ${g} did he bake?`
+        : `Bobbo baked ${s.a} ${g}. He sold ${s.b} in the morning and ${s.c} in the afternoon. How many ${g} are left?`;
     case "cmpb":
       return s.v === 0
         ? `Puff baked ${s.a} ${g}. Bobbo baked ${s.b} more than Puff. How many ${g} did they bake altogether?`
-        : `Bobbo baked ${s.a} ${g}. That is ${s.b} more than Puff baked. How many ${g} did they bake altogether?`;
+        : s.v === 1
+          ? `Bobbo baked ${s.a} ${g}. That is ${s.b} more than Puff baked. How many ${g} did they bake altogether?`
+          : `Bobbo baked ${s.a} ${g}. That is ${s.b} more than Puff baked. How many ${g} did Puff bake?`;
     case "mulb": return `Each tray holds ${s.a} ${g}. Bobbo fills ${s.b} trays and has ${s.c} extra ${g}. How many ${g} is that?`;
     case "timesb":
       return s.v === 0
@@ -374,12 +396,15 @@ export function storyText(s: Scenario): string {
 export interface BarSlot { id: string; name: string; tag: string }
 export function barSlots(s: Scenario): BarSlot[] {
   switch (s.kind) {
-    case "pw": return [{ id: "whole", name: "Baked", tag: String(s.a) }, { id: "p1", name: "Morning", tag: String(s.b) }, { id: "p2", name: "Afternoon", tag: String(s.c) }];
+    case "pw":
+      return s.v === 1
+        ? [{ id: "p1", name: "Morning", tag: String(s.b) }, { id: "p2", name: "Afternoon", tag: String(s.c) }, { id: "left", name: "Left", tag: String(s.a - s.b - s.c) }]
+        : [{ id: "whole", name: "Baked", tag: String(s.a) }, { id: "p1", name: "Morning", tag: String(s.b) }, { id: "p2", name: "Afternoon", tag: String(s.c) }];
     case "cmpb":
       return s.v === 0
         ? [{ id: "puff", name: "Puff", tag: String(s.a) }, { id: "more", name: "More", tag: String(s.b) }]
         : [{ id: "bobbo", name: "Bobbo", tag: String(s.a) }, { id: "more", name: "More", tag: String(s.b) }];
-    case "mulb": return [{ id: "one", name: "One tray", tag: String(s.a) }, { id: "trays", name: "Trays", tag: String(s.b) }, { id: "extra", name: "Extra", tag: String(s.c) }];
+    case "mulb": return [{ id: "one", name: "Tray", tag: String(s.a) }, { id: "trays", name: "Trays", tag: String(s.b) }, { id: "extra", name: "Extra", tag: String(s.c) }];
     case "timesb": return [{ id: "puff", name: "Puff", tag: String(s.a) }, { id: "times", name: "Times", tag: String(s.b) }];
     case "fracb": return [{ id: "whole", name: "All", tag: String(s.c) }, { id: "cin", name: "Cinnamon", tag: frac(s.a, s.b) }];
     default: return [];
@@ -395,9 +420,10 @@ export function modelSteps(s: Scenario): string[] {
     case "count": return [`${a} rows, ${b} in each row`, `Skip-count: ${Array.from({ length: a }, (_, i) => (i + 1) * b).join(", ")}`, `${a} × ${b} = ${a * b}`];
     case "build": return [`Rows go across: make ${a} rows`, `Put ${b} in each row`, `${a} rows of ${b} = ${a * b} cookies`];
     case "fact": {
-      const [x, y] = splitFor(b);
-      if (y === 0) return [`${a} rows of ${b}`, `${a} × ${b} = ${a * b}`];
-      return [`Split ${b} into ${x} + ${y}`, `${a} × ${x} = ${a * x} and ${a} × ${y} = ${a * y}`, `${a * x} + ${a * y} = ${a * b}`];
+      const sp = factSplit(a, b);
+      if (!sp) return [`${a} rows of ${b}`, `${a} × ${b} = ${a * b}`];
+      if (sp.dir === "col") return [`Split each row of ${b} into ${sp.x} + ${sp.y}`, `${a} × ${sp.x} = ${a * sp.x} and ${a} × ${sp.y} = ${a * sp.y}`, `${a * sp.x} + ${a * sp.y} = ${a * b}`];
+      return [`Split the ${a} rows into ${sp.x} + ${sp.y}`, `${sp.x} × ${b} = ${sp.x * b} and ${sp.y} × ${b} = ${sp.y * b}`, `${sp.x * b} + ${sp.y * b} = ${a * b}`];
     }
     case "missing":
       return s.v === 0
@@ -420,13 +446,22 @@ export function modelSteps(s: Scenario): string[] {
       const word = id === "same" ? "the same" : id === "l" ? `${frac(a, b)} is more` : `${frac(c, d)} is more`;
       if (b === d) return [`Same size slices (${b} in each cake)`, `Compare how many: ${a} and ${c}`, `So ${word}`];
       if (a === c) return [`Same number of slices (${a})`, `Fewer cuts make bigger slices`, `So ${word}`];
-      return [`Use the same slices: ${frac(a * d, b * d)} and ${frac(c * b, d * b)}`, `Compare ${a * d} and ${c * b}`, `So ${word}`];
+      if (d % b === 0) return [`Cut the left cake like the right: ${frac(a, b)} = ${frac((a * d) / b, d)}`, `Compare ${frac((a * d) / b, d)} and ${frac(c, d)}`, `So ${word}`];
+      if (b % d === 0) return [`Cut the right cake like the left: ${frac(c, d)} = ${frac((c * b) / d, b)}`, `Compare ${frac(a, b)} and ${frac((c * b) / d, b)}`, `So ${word}`];
+      // ½ as a benchmark (one fraction below a half, the other above)
+      const vsHalf = (n: number, m: number) => `Half of ${m} slices is ${m / 2}: ${frac(n, m)} is ${2 * n < m ? "less" : "more"} than 1/2`;
+      return [vsHalf(a, b), vsHalf(c, d), `So ${word}`];
     }
-    case "pw": return [`Sold: ${b} + ${c} = ${b + c}`, `Left: ${a} − ${b + c} = ${a - b - c}`];
+    case "pw":
+      return s.v === 1
+        ? [`Sold: ${b} + ${c} = ${b + c}`, `Baked = sold + left: ${b + c} + ${a - b - c} = ${a}`]
+        : [`Sold: ${b} + ${c} = ${b + c}`, `Left: ${a} − ${b + c} = ${a - b - c}`];
     case "cmpb":
       return s.v === 0
         ? [`Bobbo: ${a} + ${b} = ${a + b}`, `Altogether: ${a} + ${a + b} = ${2 * a + b}`]
-        : [`Puff: ${a} − ${b} = ${a - b}`, `Altogether: ${a} + ${a - b} = ${2 * a - b}`];
+        : s.v === 1
+          ? [`Puff: ${a} − ${b} = ${a - b}`, `Altogether: ${a} + ${a - b} = ${2 * a - b}`]
+          : [`Bobbo baked more, so Puff's bar is ${b} shorter`, `Puff: ${a} − ${b} = ${a - b}`];
     case "mulb": return [`${b} trays of ${a}: ${b} × ${a} = ${a * b}`, `Add the extra: ${a * b} + ${c} = ${a * b + c}`];
     case "timesb":
       return s.v === 0
@@ -442,6 +477,19 @@ export function lineWorking(l: Line): string {
     case 4: return `${l.c} ÷ ${l.b} × ${l.a} = ${lineValue(l)}`;
     case 5: return `${l.a} × ${l.b} + ${l.c} = ${lineValue(l)}`;
   }
+}
+
+/**
+ * How a fact's tray is split for the hint and the model: the larger factor (6 or more) is split into friendlier facts —
+ * the row length (a column cut) or the number of rows (a row cut). null = no split (both factors are friendly already).
+ */
+export function factSplit(a: number, b: number): { dir: "col" | "row"; x: number; y: number } | null {
+  const [bx, by] = splitFor(b);
+  const [ax, ay] = splitFor(a);
+  const col = by > 0 ? { dir: "col" as const, x: bx, y: by } : null;
+  const row = ay > 0 ? { dir: "row" as const, x: ax, y: ay } : null;
+  if (col && row) return b >= a ? col : row;
+  return col ?? row;
 }
 
 /** How a fact's row length is split into friendlier facts for the hint (7 × 8 → 7 × 5 + 7 × 3). [b, 0] = no split. */

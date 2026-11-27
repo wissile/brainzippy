@@ -2,7 +2,7 @@ import { useRef } from "react";
 import type { BoardProps } from "../../../game/boards";
 import { BK } from "../art";
 import { clamp, decode, lshapeParts, perimeter } from "../logic";
-import { Keypad, ModelSteps, Stepper, Tab, cellAt, flags, useBoardKeys, useEntry, usePointerDrag, useSubmit } from "./shared";
+import { Keypad, ModelSteps, Stepper, Tab, cellAt, checkText, flags, useBoardKeys, useEntry, usePointerDrag, useSubmit } from "./shared";
 
 /**
  * Tray Builder (math.geom.area-perimeter): Bobbo's trays on squared baking paper.
@@ -162,7 +162,7 @@ export function GridBoard({ st, act, alongIndex, busy }: BoardProps) {
         <section className="bk-panel" aria-label="Your answer">
           {s.kind === "make" && <Stepper id="value" label="Height" value={h} min={1} max={MAKE_MAX} unitLabel="row of height" disabled={en.locked} onStep={stepH} />}
           <Keypad st={st} entry={en.entry} onType={en.type} onBack={en.back} onCheck={check} label={s.kind === "perim" ? "Ribbon" : s.kind === "make" ? "Height" : "Area"} unit={unit}
-            checkLabel={`Check: ${en.entry || "nothing typed"} ${unit}`} showDisplay={s.kind !== "make"} />
+            checkLabel={s.kind === "make" ? checkText(en.entry, "square high", "squares high") : s.kind === "perim" ? checkText(en.entry, "unit", "units") : checkText(en.entry, "tile", "tiles")} showDisplay={s.kind !== "make"} />
           <ModelSteps ex={ex} st={st} alongIndex={alongIndex} />
         </section>
       </div>

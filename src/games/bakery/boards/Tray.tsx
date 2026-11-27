@@ -3,8 +3,8 @@ import { audio } from "../../../audio/AudioEngine";
 import { useApp } from "../../../app/AppContext";
 import type { BoardProps } from "../../../game/boards";
 import { BK, CookieShape } from "../art";
-import { buildCode, buildCols, buildRows, clamp, decode, splitFor } from "../logic";
-import { CheckButton, Keypad, ModelSteps, Stepper, Tab, cellAt, flags, useBoardKeys, useEntry, usePointerDrag, useSubmit } from "./shared";
+import { buildCode, buildCols, buildRows, clamp, decode, factSplit } from "../logic";
+import { CheckButton, Keypad, ModelSteps, Stepper, Tab, cellAt, checkText, flags, useBoardKeys, useEntry, usePointerDrag, useSubmit } from "./shared";
 
 /**
  * Tray Arrays (math.mult.arrays, math.div.missing-factor): cookies on a baking tray in rows.
@@ -80,7 +80,7 @@ export function TrayBoard({ st, act, alongIndex, busy }: BoardProps) {
       default: return { rows: s.a, cols: s.b, filledR: s.a, filledC: s.b };
     }
   })();
-  const labelSpace = s.kind === "count" || s.kind === "fact" ? 56 : 0;
+  const labelSpace = s.kind === "count" ? 56 : s.kind === "fact" ? (factSplit(s.a, s.b)?.dir === "row" ? 130 : 20) : 0;
   const vw = geo.cols * CELL + PAD * 2 + labelSpace;
   const vh = geo.rows * CELL + PAD * 2 + (s.kind === "fact" ? 30 : 0);
   const y0 = PAD + (s.kind === "fact" ? 30 : 0);
@@ -100,11 +100,13 @@ export function TrayBoard({ st, act, alongIndex, busy }: BoardProps) {
   const skip = s.kind === "count" && f.modelOn;
   const split = (() => {
     if (s.kind !== "fact" || !(f.hinted || f.solved)) return null;
-    const [x, y] = splitFor(s.b);
-    if (y > 0) return { dir: "col" as const, at: x, parts: [`${s.a} × ${x} = ${f.modelOn || f.solved ? s.a * x : "?"}`, `${s.a} × ${y} = ${f.modelOn || f.solved ? s.a * y : "?"}`] };
-    const [p, q] = splitFor(s.a);
-    if (q > 0) return { dir: "row" as const, at: p, parts: [`${p} × ${s.b}`, `${q} × ${s.b}`] };
-    return null;
+    const sp = factSplit(s.a, s.b);
+    if (!sp) return null;
+    const shown = f.modelOn || f.solved;
+    const part = (r: number, c: number) => `${r} × ${c} = ${shown ? r * c : "?"}`;
+    return sp.dir === "col"
+      ? { dir: "col" as const, at: sp.x, parts: [part(s.a, sp.x), part(s.a, sp.y)] }
+      : { dir: "row" as const, at: sp.x, parts: [part(sp.x, s.b), part(sp.y, s.b)] };
   })();
   const small = geo.rows * geo.cols > 60;
 
@@ -209,7 +211,7 @@ export function TrayBoard({ st, act, alongIndex, busy }: BoardProps) {
                 onBack={en.back}
                 onCheck={check}
                 label={s.kind === "missing" ? (s.v === 0 ? "In each row" : "Rows") : "Cookies"}
-                checkLabel={`Check: ${en.entry || "nothing typed"}`}
+                checkLabel={s.kind === "missing" ? checkText(en.entry, s.v === 0 ? "in each row" : "row", s.v === 0 ? "in each row" : "rows") : checkText(en.entry, "cookie", "cookies")}
                 showDisplay={s.kind !== "missing"}
               />
             </>

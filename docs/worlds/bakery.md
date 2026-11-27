@@ -49,7 +49,7 @@ The order sheet is an engine R5a `closer`: every band has one, it is never serve
 always the last item. Lines draw on the games unlocked so far (rows of cookies, boxes, a brownie slab's squares, a
 fraction of a batch, bags plus extras).
 
-## Levels (0-based; the screen shows level + 1). maxLevel 8, band = 8 items, slot 7 = order sheet. No time pressure.
+## Levels (0-based; the screen shows level + 1). maxLevel 9, band = 8 items, slot 7 = order sheet. No time pressure.
 Slot 0 is the level's new idea; slots 1–6 rotate by the band seed (so fast players meet different review games).
 
 | Lv | New ideas | Slots 0–6 | Parameters |
@@ -59,15 +59,18 @@ Slot 0 is the level's new idea; slots 1–6 rotate by the band seed (so fast pla
 | 2 | area by tiles, perimeter on the grid · ×6–×9 | area, perim, fact, area, missing, perim, area | sides 3–6 × 2–5 (tiles drawn); facts {6–9} × 3–9; order: rows + brownies |
 | 3 | build a tray to an area (missing side) · area and perimeter from side lengths · facts to 12 × 12 | make, area, perim, fact, make, missing, perim | sides 4–9 × 3–8, no grid; perimeter shows two sides (opposite sides equal) |
 | 4 | fraction of an amount (boxes drawn) · compare (same numerator or same denominator) | of, cmp, of, area, cmp, fact, of | denominators 2–5, amount ≤ 30; cakes drawn; order: boxes, fraction, brownies |
-| 5 | equivalent fractions on a cake · L-shaped trays · fraction of an amount without boxes | equiv, lshape, of, equiv, cmp, lshape, missing | halves/thirds/quarters → ×2/×3 slices (≤ 12); L 5–8 × 4–7, notch ≥ 2; compare adds equal pairs |
-| 6 | bar models: part–whole two-step · "more than", then altogether | pw, cmpb, pw, equiv, cmpb, lshape, of | totals 40–99; parts 10–30 |
-| 7 | equal trays + extra · times as many (altogether / how many more) · fraction of a bar · covered cakes | mulb, timesb, fracb, pw, mulb, cmp, make | 3–9 per tray × 3–6 + extra; 4–12 × 2–4; compare cakes covered until a miss; order: bags + fraction + rows |
-| 8 | festival rush (mixed, hardest) | timesb, lshape, fracb, equiv, fact, cmpb, missing | facts 6–12 × 6–12; L up to 12 × 10; equivalent fractions both ways (6/8 = ?/4); "that is m more than Puff" (find the smaller first); totals 100–200; compare with ½ as a benchmark |
+| 5 | equivalent fractions on a cake · L-shaped trays · fraction of an amount without boxes (compare also meets equal pairs, "the same", which goes with equivalence) | equiv, lshape, of, equiv, cmp, lshape, missing | halves/thirds/quarters → ×2/×3 slices (≤ 12); L 5–8 × 4–7, notch ≥ 2 |
+| 6 | bar models: part–whole two-step · "more than", then altogether | pw, cmpb, pw, equiv, cmpb, lshape, of | totals 40–99; parts 10–30; order: boxes, fraction, rows |
+| 7 | equal trays + extra · times as many (altogether) · fraction of a bar | mulb, timesb, fracb, pw, mulb, cmp, make | 3–9 per tray × 3–6 + extra; 4–12 × 2–4; cakes still drawn; order: bags + fraction + rows |
+| 8 | word-problem twists, so keyword tricks fail: times as many → how many **more** · part–whole with the **whole** unknown ("…he had 25 left. How many did he bake?") · "that is m more than Puff" → altogether, or how many did **Puff** bake | pw, timesb, cmpb, lshape, fracb, missing, mulb | how-many-more uses × 3 or × 4 (with × 2 the difference would equal Puff's own number) |
+| 9 | festival rush: compare with the cakes **covered** until a miss, using ½ as a benchmark (one fraction below ½, one above) · equivalent fractions with bigger slices (6/8 = ?/4) · bigger numbers | cmp, equiv, cmpb, pw, fact, of, lshape | facts 6–12 × 6–12; part–whole totals 100–200 (whole known or unknown); of: denominators 3–10; L up to 12 × 10; order: bags + fraction + brownies |
 
 Guards (unit-tested over every level × 50 seeds): area never equals perimeter for the same tray ((w−2)(h−2) ≠ 4) so the
 two answers can't coincide; rows ≠ row length in count/build; every fraction-of-amount and equivalent answer is whole;
 L-shape parts are at least 2 wide; bar-model "left"/"Puff" parts are ≥ 5 (≥ 8 for "more than Puff"); order totals < 200;
-every answer ≤ 4 digits; no objective string contains its answer.
+every answer ≤ 4 digits; no objective string contains its answer; level 8 serves all three twists and level 9 serves the
+½-benchmark compare (covered), reverse equivalence and totals 100–200 (unit test "the hardest levels serve what the doc
+claims"). Goods: no pies on trays, no iced pies or tarts.
 
 ## Misconceptions → first-miss hints (diagnosed from the wrong answer; `logic.ts mistakes()`, `hints.ts hintFor()`)
 Keypads take up to 4 digits so each of these can be typed and reach the diagnosis (e.g. 42 × 6 = 252 for 42 ÷ 6).
@@ -78,15 +81,15 @@ Keypads take up to 4 digits so each of these can be typed and reach the diagnosi
 | missing | total − known · total + known · total × known · ±1 | `subtracted`, `addedDiv`, `multiplied`, `offByOne` |
 | area | the perimeter · width + height · only the edge tiles | `perimeter`, `addedSides`, `edgeTiles` |
 | perim | the area · two sides only · edge squares (corners once) · three sides | `area`, `half`, `edgeSquares`, `threeSides` |
-| make | the height that gives that *perimeter* · area − width | `perimeter`, `subtracted` |
+| make | the height that gives that *perimeter* · area − width | `makePerimeter`, `makeSubtracted` (tile wording, not the area-item line) |
 | lshape | the whole box (notch not removed) · one rectangle · the perimeter · notch added | `box`, `onePart`, `perimeter`, `addedNotch` |
-| of | one group only · divided by the numerator · no division · the un-iced rest · subtracted a number | `onePart`, `byNum`, `noDivide`, `rest`, `subNum` |
-| equiv | same number of slices · added the same to top and bottom · the un-iced rest | `sameTop`, `addSame`, `rest` |
+| of | one group only · divided by the numerator · no division · the un-iced rest · subtracted a number | `oneGroup`, `byNum`, `noDivide`, `rest`, `subNum` |
+| equiv | same number of slices (smaller slices → ice more; at level 9 bigger slices → ice fewer) · added (or, at level 9, took away) the same top and bottom · the un-iced part of the cake | `sameTop` / `sameTopBig`, `addSame` / `subSame`, `equivRest` |
 | cmp | bigger denominator = bigger · fewer same-size slices · "same" when not · not same when equal · benchmark ½ | `cmp.bigDen`, `cmp.smallNum`, `cmp.notSame`, `cmp.isSame`, `cmp.half` |
-| bars | one step only · "sold" not "left" · added everything · forgot the "more" part · counted it twice · who has more · trays added not multiplied · forgot the extra · extra on every tray · times-as-many added · Bobbo only · total instead of difference · the fraction part not the rest | `oneStep`, `sold`, `addAll`, `forgotMore`, `moreTwice`, `oneStepPuff`, `whoHasMore`, `addedGroups`, `forgotExtra`, `extraEach`, `wrongGroups`, `oneStepTimes`, `addedTimes`, `bobboOnly`, `total`, `part`, `subNum` |
+| bars | one step only · "sold" not "left" · added everything · whole unknown: only some parts / "left" read as take away · forgot the "more" part · counted it twice · who has more · Puff baked fewer (2 × Bobbo) · both bakers when only Puff is asked · trays added not multiplied · forgot the extra · extra on every tray · times as many read as "b more" (a + b, 2a + b, or b for how many more) · Bobbo only · total instead of difference · the fraction part not the rest · one equal group only | `oneStep`, `sold`, `addAllBar`, `wholeParts`, `notTakeAway`, `forgotMore`, `moreTwice`, `oneStepPuff`, `whoHasMore`, `fewerPuff`, `justPuff`, `addedGroups`, `forgotExtra`, `extraEach`, `wrongGroups`, `oneStepTimes`, `addedTimes`, `bobboOnly`, `total`, `part`, `oneGroup`, `subNum` |
 | order | one line worked the wrong way (rows added, boxes added, brownie perimeter, fraction not divided, extras forgotten) · a line left out | `lineTray`, `lineBoxes`, `lineBrownies`, `lineFrac`, `lineExtra`, `missedLine` |
 Any other miss gets the inner game's method line (`bk.help.<kind>`). The board adds a visual strategy on the first
-miss: row counts at row ends; the fact split into friendlier facts (7 × 8 = 7 × 5 + 7 × 3); tiles appearing; all four
+miss: row counts at row ends; the fact's larger factor (6 or more) split into friendlier facts (7 × 8 = 7 × 5 + 7 × 3; 12 × 4 = 10 × 4 + 2 × 4); tiles appearing; all four
 sides labelled and unit steps dotted round the edge; the L's dashed cut; muffin boxes appearing; matching slice groups
 outlined on the cakes; covered cakes uncovered; order lines ticked / marked "check again".
 Second miss: the worked steps (`modelSteps`) appear one per runner step, the answer is filled in (tray / height /
@@ -96,13 +99,15 @@ after two slips the tag settles on its bar so nobody gets stuck.
 ## Accessibility
 All controls are `<button>`s with action labels and `data-testid`s; drag is optional everywhere (tray corner/edge,
 grid top edge, cake slices, number tags) with tap and keyboard equivalents (arrows for steppers and order lines, digits
-and Backspace for the keypad, Enter to check). Targets ≥ 44 px (ages 9–11). Every scene has a full `a11yDescription`
+and Backspace for the keypad, Enter to check). Enter on a number tag moves focus to the first empty bar; slip notes are announced through an always-mounted polite
+live region; the order sheet's "right" / "check again" marks are part of each line's accessible name; Check buttons say
+what they check ("Check: 1 tile", "Check (nothing typed yet)"). Bar labels are single words at ≈13 px and never break. Targets ≥ 44 px (ages 9–11). Every scene has a full `a11yDescription`
 (the numbers are in it). Reduced motion: no tile pop, oven glow, nudges, pulses or cart roll. Layout sweep: e2e checks
 every control is on screen (x and y), ≥ 44 px, unclipped and the `elementFromPoint` at its centre, in every inner game
 at start, with the helper and with the model, at 390×844, 915×412, 863×360, 1024×1366 and 1280×800.
 
 ## Voice
-117 lines in `src/games/bakery/voice.json` (prefix `bk.`; speakers bobbo, puff, narrator), no `vary` (spoken prompts are
+128 lines in `src/games/bakery/voice.json` (prefix `bk.`; speakers bobbo, puff, narrator), no `vary` (spoken prompts are
 generic; numbers are on screen and in the a11y description). Clips not rendered yet — the clip-coverage unit test fails
 for these lines until the main agent runs gen_voice.py.
 
@@ -112,10 +117,13 @@ for these lines until the main agent runs gen_voice.py.
 - Perimeter is in "units", area in "square tiles"; the grid is unitless (no cm claims).
 - Bars are drawn roughly to scale; very small parts keep a minimum width so they can be tapped (simplification).
 - Fractions compare only the same-sized whole (every cake is the same size; said in the help line).
-- Compare at level 8 uses ½ as a benchmark (4.NF.A.2); earlier levels use same numerator or same denominator only.
+- Compare at level 9 uses ½ as a benchmark (4.NF.A.2), with a model that compares each fraction with ½; equal pairs
+  (from level 5) are modelled by cutting one cake like the other; earlier levels use same numerator or denominator.
 - All quantities and names are fictional. No real brands.
 - Review flags for curriculum-designer: the level-8 "that is m more than Puff" items (inverse comparison) are hard for
-  some 10-year-olds; the order-sheet line values are not marked until a miss (they are working, not answers).
+  some 10-year-olds (kept, per the content review; Puff's bar is drawn shorter with the "More" gap); the order-sheet
+  line values are not marked until a miss (they are working, not answers). Word problems are on screen only; a
+  "read it to me" option is a candidate improvement. Content is Grade 3–4 / UK Y4–Y5; no Grade 5 / Y6 content yet.
 
 ## Files
 `src/games/bakery/{definition,generator,logic,hints,story,art,Board,Bakery}.ts(x)`, `boards/{shared,Tray,Grid,Frac,Bar,Order}.tsx`,
