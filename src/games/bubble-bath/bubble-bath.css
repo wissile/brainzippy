@@ -199,14 +199,15 @@
 }
 .gb-strip-slot.is-filled { border-style: solid; border-color: var(--ink); background: #fff3bf; animation: gb-plop var(--t-med) var(--ease-bounce) both; }
 .gb-strip-slot.is-next { color: rgba(43, 33, 64, 0.45); border-color: #e0a800; animation: gb-breathe 1.6s ease-in-out infinite; }
-.gb-parade { display: grid; place-items: center; overflow: hidden; }
+.gb-parade { display: grid; place-items: center; }
 .gb-bubbles { display: grid; gap: 12px; justify-content: center; align-content: center; }
 .gb-bubble-btn { background: transparent; box-shadow: none; border-radius: 50%; }
 .gb-bubble-btn > svg { width: 96%; height: 96%; }
 .gb-bubble-btn.bob-0 > svg { animation: gb-bob 3.2s ease-in-out infinite; }
 .gb-bubble-btn.bob-1 > svg { animation: gb-bob 3.6s ease-in-out -1.2s infinite; }
 .gb-bubble-btn.bob-2 > svg { animation: gb-bob 3s ease-in-out -2s infinite; }
-.gb-bubble-btn.is-model { box-shadow: 0 0 0 5px #fff, 0 0 22px 8px rgba(255, 226, 122, 0.95); }
+/* the glowing next bubble pulses its halo, not its size, so it never grows past the water's edge on short screens */
+.gb-bubble-btn.is-model { animation: gb-halo 1.1s ease-in-out infinite; box-shadow: 0 0 0 5px #fff, 0 0 22px 8px rgba(255, 226, 122, 0.95); }
 .gb-pnum { font: 800 46px/1 var(--font-display); fill: #2b2140; }
 .gb-popped { display: grid; place-items: center; }
 .gb-splash { width: 40%; aspect-ratio: 1; border-radius: 50%; border: 4px dotted rgba(255, 255, 255, 0.9); opacity: 0; }
@@ -264,13 +265,14 @@
 @keyframes gb-pulse { 50% { transform: scale(1.4); } }
 @keyframes gb-trace { to { stroke-dashoffset: -36; } }
 @keyframes gb-fade-in { from { opacity: 0; } }
+@keyframes gb-halo { 50% { box-shadow: 0 0 0 8px #fff, 0 0 30px 14px rgba(255, 212, 59, 0.95); } }
 
 /* ---------- reduced motion ---------- */
 .gb-board.still .gb-bubble-btn > svg, .gb-board.still .gb-duck-at.is-lonely svg, .gb-board.still .gb-peek, .gb-board.still .gb-strip-slot.is-next, .gb-board.still .gb-trace,
 .gb-board.still .gb-corners .is-now, .gb-board.still .gb-tut-hand { animation: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .gb-bg .gb-twinkle, .gb-bg .gb-float, .gb-story .gb-tumble, .gb-bubble-btn > svg, .gb-duck-at.is-lonely svg, .gb-peek.is-awake, .gb-strip-slot.is-next, .gb-trace,
-  .gb-corners .is-now, .gb-tut-hand, .gb-item.is-model, .gb-tub.is-model, .gb-slot.is-model, .gb-chip.is-model, .gb-look-svg .gb-lb, .gb-foam { animation: none !important; }
+  .gb-corners .is-now, .gb-tut-hand, .gb-item.is-model, .gb-bubble-btn.is-model, .gb-tub.is-model, .gb-slot.is-model, .gb-chip.is-model, .gb-look-svg .gb-lb, .gb-foam { animation: none !important; }
   .gb-sign { display: none; }
   .gb-item.is-model, .gb-tub.is-model, .gb-slot.is-model { outline: 5px solid var(--ink); outline-offset: 3px; }
 }

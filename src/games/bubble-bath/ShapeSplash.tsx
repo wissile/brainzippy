@@ -173,7 +173,7 @@ export function FindBoard({ st, act, alongIndex }: BoardProps) {
   const { options, correct } = ex.answer;
   const { reducedMotion, canAct, celebrate } = useCommon(st);
   const [wallRef, wall] = useSize<HTMLDivElement>();
-  const grid = gridFor(options.length, wall.w - 24, wall.h - 20, 170, 14);
+  const grid = gridFor(options.length, wall.w - 24, wall.h - 20, 220, 14);
   const right = celebrate;
   const corners = st.hintStage >= 1;
   const counting = st.phase === "feedback" && st.model !== null && alongIndex >= 0;
