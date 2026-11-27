@@ -353,7 +353,7 @@ test("every inner game and finale plays by tap and keyboard (and drag on desktop
     { level: 5, mode: "reason", way: "keyboard" },
     { level: 5, mode: "bread", way: "keyboard" },
     { level: 4, mode: "bback", way: desktop ? "drag" : "keyboard" },
-    { level: 2, mode: "hyp", way: "tap" },
+    { level: 3, mode: "hyp", way: "tap" },
     { level: 4, mode: "leg", way: "keyboard" },
     { level: 5, mode: "round", way: "tap" },
     { level: 7, mode: "conv", way: "tap" },
@@ -361,7 +361,7 @@ test("every inner game and finale plays by tap and keyboard (and drag on desktop
     { level: 2, mode: "map", way: "tap" },
     { level: 6, mode: "share", way: "keyboard" },
     { level: 7, mode: "ratio", way: "tap" },
-    { level: 3, mode: "plot", way: desktop ? "drag" : "tap" },
+    { level: 2, mode: "plot", way: desktop ? "drag" : "tap" },
     { level: 6, mode: "plot", way: "keyboard" },
     { level: 6, mode: "grad", way: "tap" },
     { level: 7, mode: "icpt", way: "keyboard" },
@@ -390,7 +390,7 @@ test("every inner game and finale plays by tap and keyboard (and drag on desktop
 // explains a first miss, and with the worked model after a second miss.
 const SWEEP: { level: number; mode: Mode; fin?: Finale }[] = [
   { level: 1, mode: "line" }, { level: 1, mode: "point" }, { level: 0, mode: "kind" }, { level: 1, mode: "vert" }, { level: 7, mode: "tri" },
-  { level: 3, mode: "par" }, { level: 5, mode: "reason" }, { level: 5, mode: "bread" }, { level: 4, mode: "bback" }, { level: 2, mode: "hyp" },
+  { level: 3, mode: "par" }, { level: 5, mode: "reason" }, { level: 5, mode: "bread" }, { level: 4, mode: "bback" }, { level: 3, mode: "hyp" },
   { level: 5, mode: "round" }, { level: 7, mode: "conv" }, { level: 8, mode: "real" }, { level: 6, mode: "share" }, { level: 7, mode: "ratio" },
   { level: 6, mode: "plot" }, { level: 6, mode: "grad" }, { level: 6, mode: "eqn" }, { level: 8, mode: "meet" }, { level: 8, mode: "para" },
   { level: 1, mode: "home", fin: "ftri" }, { level: 4, mode: "home", fin: "fchart" }, { level: 6, mode: "home", fin: "fcourse" },
@@ -426,7 +426,7 @@ for (const vp of VIEWPORTS) {
       await page.waitForTimeout(600);
       expect.soft(await unreachableControls(page), `${tag} model`).toEqual([]);
       // the picture shows the modelled value too (lengths on the tower triangle)
-      if (gameOf(ex) === "ladder" && c.mode !== "conv" && (ex.answer.kind === "number" || ex.answer.kind === "numeric")) await expect.soft(page.locator(".ln-side.is-model")).toContainText(`${ex.answer.value} m`);
+      if (gameOf(ex) === "ladder" && c.mode !== "conv" && (ex.answer.kind === "number" || ex.answer.kind === "numeric")) await expect.soft(page.locator(".ln-side.is-model")).toContainText(`${c.mode === "round" ? ex.answer.value.toFixed(1) : ex.answer.value} m`);
       await page.screenshot({ path: `${REVIEW}/vp-${vp.name}-${c.mode}${c.fin ? `-${c.fin}` : ""}-model.png` });
     }
   });

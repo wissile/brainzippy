@@ -4,7 +4,7 @@ import { INK } from "../../../characters/palette";
 import type { BoardProps } from "../../../game/boards";
 import type { ExerciseState } from "../../../engine/session";
 import { Buoy, LN, Ship, Tower } from "../art";
-import { DIAL_STEP, POSITIONS, REF_BEARING, REF_LETTER, SHIPS, boardOf, fmtBearing, mod360, modeOf, p, valueAt } from "../logic";
+import { DIAL_STEP, POSITIONS, POS_TEXT, REF_BEARING, REF_LETTER, REF_NAME, SHIPS, boardOf, fmtBearing, mod360, modeOf, p, valueAt } from "../logic";
 import { AngleMark, BeamRay, Lamp, type Mark, at, bearingToMath, ar } from "./geom";
 import { FinaleBoat, Keypad, Method, ModelSteps, Options, Stage, flags, useKeyboardFlag, useSubmit } from "./shared";
 
@@ -75,7 +75,7 @@ function LineDiagram({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
   const starts = parts.map((_, i) => parts.slice(0, i).reduce((s, x) => s + x, 0));
   const isX = (i: number) => (eq ? i < 2 : i === u);
   return (
-    <svg className="ln-diagram" viewBox="0 0 400 226" style={ar(400, 226)} role="img" aria-label="Angles along the straight harbour wall" data-testid="ln-diagram">
+    <svg className="ln-diagram" viewBox="0 0 400 226" style={ar(400, 226)} role="img" aria-label={`Angles along the straight harbour wall, from right to left: ${parts.map((v, i) => (isX(i) ? (reveal ? `x = ${v}°` : "x") : v === 90 ? "90° (a right angle)" : `${v}°`)).join(", ")}.`} data-testid="ln-diagram">
       <rect x="10" y={cy} width="380" height="18" rx="4" fill={LN.stormLight} stroke={INK} strokeWidth="4" />
       <path d={`M40 ${cy + 4} V${cy + 18} M100 ${cy + 4} V${cy + 18} M160 ${cy + 4} V${cy + 18} M240 ${cy + 4} V${cy + 18} M300 ${cy + 4} V${cy + 18} M360 ${cy + 4} V${cy + 18}`} stroke={INK} strokeWidth="2" opacity="0.4" />
       <text x="372" y={cy + 13.5} className="ln-svg-wall" textAnchor="end">harbour wall: a straight line</text>
@@ -97,7 +97,7 @@ function PointDiagram({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
   const cx = 200, cy = 116;
   const starts = parts.map((_, i) => r0 + parts.slice(0, i).reduce((s, x) => s + x, 0));
   return (
-    <svg className="ln-diagram" viewBox="0 0 400 232" style={ar(400, 232)} role="img" aria-label="Beams all the way round the lamp" data-testid="ln-diagram">
+    <svg className="ln-diagram" viewBox="0 0 400 232" style={ar(400, 232)} role="img" aria-label={`Beams all the way round the lamp. Going round, the angles between them are ${parts.map((v, i) => (i === u ? (reveal ? `x = ${v}°` : "x") : `${v}°`)).join(", ")}.`} data-testid="ln-diagram">
       <circle cx={cx} cy={cy} r="104" fill={LN.night} opacity="0.08" />
       {starts.map((s, i) => <BeamRay key={i} cx={cx} cy={cy} a={s} len={106} />)}
       {parts.map((v, i) => (
@@ -115,7 +115,7 @@ function KindDiagram({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
   const cx = 200, cy = 116;
   const [dx, dy] = at(cx, cy, 104, r0);
   return (
-    <svg className="ln-diagram" viewBox="0 0 400 232" style={ar(400, 232)} role="img" aria-label="The beam's sweep from the dashed line" data-testid="ln-diagram">
+    <svg className="ln-diagram" viewBox="0 0 400 232" style={ar(400, 232)} role="img" aria-label={`The beam sweeps round from the dashed line through the marked arc${a === 90 ? ", which has a small square in the corner" : a > 180 ? ", past the straight-on direction" : ""}${reveal ? `: ${a}°` : ""}.`} data-testid="ln-diagram">
       <path d={`M${cx} ${cy} L${dx} ${dy}`} stroke={INK} strokeWidth="4" strokeDasharray="10 8" strokeLinecap="round" />
       <BeamRay cx={cx} cy={cy} a={r0 + a} len={106} />
       <AngleMark cx={cx} cy={cy} a0={r0} a1={r0 + a} r={34} label={reveal ? `${a}°` : ""} kind={reveal ? "model" : "unknown"} />
@@ -133,7 +133,7 @@ function VertDiagram({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
   const x1 = opp ? r0 + 180 + a : r0 + 180;
   const value = opp ? a : 180 - a;
   return (
-    <svg className="ln-diagram" viewBox="0 0 400 232" style={ar(400, 232)} role="img" aria-label="Two straight beams crossing at the lamp" data-testid="ln-diagram">
+    <svg className="ln-diagram" viewBox="0 0 400 232" style={ar(400, 232)} role="img" aria-label={`Two straight beams cross at the lamp. One angle is ${a}°; x is the angle ${opp ? "opposite it, across the crossing" : "next to it, on the same straight beam"}${reveal ? ` (x = ${value}°)` : ""}.`} data-testid="ln-diagram">
       {[r0, r0 + 180, r0 + a, r0 + a + 180].map((s, i) => <BeamRay key={i} cx={cx} cy={cy} a={s} len={110} soft={false} />)}
       <AngleMark cx={cx} cy={cy} a0={r0} a1={r0 + a} r={34} label={`${a}°`} />
       <AngleMark cx={cx} cy={cy} a0={x0} a1={x1} r={opp ? 34 : 44} label={xLabel(value, reveal)} kind={unknownKind(reveal)} />
@@ -173,8 +173,11 @@ function TriDiagram({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
     return `M${mx - 7 * Math.cos(ang)} ${my - 7 * Math.sin(ang)} L${mx + 7 * Math.cos(ang)} ${my + 7 * Math.sin(ang)}`;
   };
   const [ex2, ey2] = sv([-0.45 * L, 0]);
+  const names = ["the lighthouse", "the buoy", fin ? "Bobbo's boat" : "the ship"];
+  const givens = [0, 1, 2].filter((i) => i !== u && shown(i) && !hide(i)).map((i) => `${angles[i]}° at ${names[i]}`);
+  const triLabel = `A triangle joining the lighthouse, a buoy and ${fin ? "Bobbo's boat" : "a ship"}.${iso ? " The two sides from the lighthouse are equal (marked with ticks)." : ""} ${givens.join(", ")}${fin ? `${givens.length ? "; " : ""}the line through the buoy carries on, making ${ext}° outside the triangle` : ""}. x is at ${names[u]}${reveal ? ` (x = ${angles[u]}°)` : ""}.`;
   return (
-    <svg className="ln-diagram" viewBox="0 0 400 226" style={ar(400, 226)} role="img" aria-label="A triangle joining the lighthouse, a buoy and a ship" data-testid="ln-diagram">
+    <svg className="ln-diagram" viewBox="0 0 400 226" style={ar(400, 226)} role="img" aria-label={triLabel} data-testid="ln-diagram">
       <path d={`M${bx} ${by} L${cx2} ${cy2} L${ax} ${ay} Z`} fill={LN.lampSoft} fillOpacity="0.35" stroke={INK} strokeWidth="4" strokeLinejoin="round" strokeDasharray="0" />
       {ext ? <path d={`M${bx} ${by} L${ex2} ${ey2}`} stroke={INK} strokeWidth="4" strokeDasharray="8 6" /> : null}
       {iso && <path d={`${tick(ax, ay, bx, by)} ${tick(ax, ay, cx2, cy2)}`} stroke={INK} strokeWidth="4" />}
@@ -203,7 +206,9 @@ function ParDiagram({ st, reveal, both }: { st: ExerciseState; reveal: boolean; 
   const chevron = (y: number) => `M318 ${y - 7} L328 ${y} L318 ${y + 7} M330 ${y - 7} L340 ${y} L330 ${y + 7}`;
   const [g0, g1] = sector(gp), [q0, q1] = sector(qp);
   return (
-    <svg className="ln-diagram" viewBox="0 0 400 236" style={ar(400, 236)} role="img" aria-label="Two parallel shipping lanes crossed by the beam" data-testid="ln-diagram">
+    <svg className="ln-diagram" viewBox="0 0 400 236" style={ar(400, 236)} role="img" aria-label={both
+      ? `Two parallel shipping lanes crossed by the beam. Angle a is at the top crossing, ${POS_TEXT[gp]}; angle b is at the bottom crossing, ${POS_TEXT[qp]}${reveal ? ` (a = ${given}°, b = ${x}°)` : ""}.`
+      : `Two parallel shipping lanes crossed by the beam. At the top crossing the angle ${POS_TEXT[gp]} is ${given}°. x is at the bottom crossing, ${POS_TEXT[qp]}${reveal ? ` (x = ${x}°)` : ""}.`} data-testid="ln-diagram">
       {[yU, yL].map((y) => (
         <g key={y}>
           <path d={`M12 ${y} H388`} stroke={LN.seaLight} strokeWidth="10" opacity="0.35" />
@@ -215,8 +220,9 @@ function ParDiagram({ st, reveal, both }: { st: ExerciseState; reveal: boolean; 
       <text x="14" y={yL - 10} className="ln-svg-small">lane B (parallel)</text>
       <path d={`M${t1x} ${t1y} L${t2x} ${t2y}`} stroke={INK} strokeWidth="6" strokeLinecap="round" />
       <path d={`M${t1x} ${t1y} L${t2x} ${t2y}`} stroke={LN.lamp} strokeWidth="3" strokeLinecap="round" />
-      <AngleMark cx={xU} cy={yU} a0={g0} a1={g1} r={24} label={`${given}°`} kind={both ? "model" : "given"} />
-      <AngleMark cx={xL} cy={yL} a0={q0} a1={q1} r={24} label={both ? `${x}°` : xLabel(x, reveal)} kind={both ? "model" : unknownKind(reveal)} />
+      {/* "which fact?" shows positions only (a and b); the values appear with the answer or the worked model */}
+      <AngleMark cx={xU} cy={yU} a0={g0} a1={g1} r={24} label={both ? (reveal ? `a = ${given}°` : "a") : `${given}°`} kind={both ? "model" : "given"} />
+      <AngleMark cx={xL} cy={yL} a0={q0} a1={q1} r={24} label={both ? (reveal ? `b = ${x}°` : "b") : xLabel(x, reveal)} kind={both ? "model" : unknownKind(reveal)} />
     </svg>
   );
 }
@@ -252,7 +258,7 @@ function BearingDiagram({ st, reveal }: { st: ExerciseState; reveal: boolean }) 
   const [rx, ry] = at(cx, cy, R - 2, refM);
   const [nx, ny] = at(cx, cy, R - 2, 90);
   return (
-    <svg className="ln-diagram" viewBox="0 0 400 236" style={ar(400, 236)} role="img" aria-label="A compass round the lighthouse with a ship" data-testid="ln-diagram">
+    <svg className="ln-diagram" viewBox="0 0 400 236" style={ar(400, 236)} role="img" aria-label={`A compass round the lighthouse, north at the top. A ship is ${d}° from due ${REF_NAME[ref]}, turned ${side === 1 ? "clockwise" : "anticlockwise"} (marked ${REF_LETTER[ref]} ${d}°)${reveal ? `: bearing ${fmtBearing(b)}` : ""}.`} data-testid="ln-diagram">
       <Compass cx={cx} cy={cy} R={R}>
         <path d={`M${cx} ${cy} L${nx} ${ny}`} stroke={LN.red} strokeWidth="3" />
         {rb !== 0 && <path d={`M${cx} ${cy} L${rx} ${ry}`} stroke={INK} strokeWidth="2.5" strokeDasharray="6 5" />}
@@ -261,7 +267,7 @@ function BearingDiagram({ st, reveal }: { st: ExerciseState; reveal: boolean }) 
         <path d={`M${cx} ${cy} L${sx} ${sy}`} stroke={INK} strokeWidth="4" strokeLinecap="round" />
         <g transform={`translate(${sx - 14} ${sy - 9}) scale(0.24)`}><Ship colour="#FF8FB1" /></g>
         <Lamp cx={cx} cy={cy} r={6} />
-        {reveal && <text x={cx} y={cy + R + 2} className="ln-svg-strong" textAnchor="middle" dominantBaseline="hanging">{`bearing ${fmtBearing(b)}`}</text>}
+        {reveal && <text x="14" y="24" className="ln-svg-strong" textAnchor="start">{`bearing ${fmtBearing(b)}`}</text>}
       </Compass>
     </svg>
   );
@@ -336,9 +342,14 @@ function DialBoard({ st, act, alongIndex, busy }: BoardProps) {
             if (e.key in map) {
               e.preventDefault();
               turn(map[e.key]!);
-            } else if (e.key === "Enter" && !locked) {
+            } else if ((e.key === "Home" || e.key === "End") && !locked) {
               e.preventDefault();
-              submit(vRef.current);
+              busy?.();
+              setV(e.key === "Home" ? 0 : 355);
+            } else if (e.key === "Enter" && f.canAct) {
+              // with the worked model on, Enter confirms the modelled bearing (as Shine does)
+              e.preventDefault();
+              submit(modelValue ?? vRef.current);
             }
           }}
         >
@@ -372,7 +383,7 @@ function DialBoard({ st, act, alongIndex, busy }: BoardProps) {
       panel={<>
         <p className="ln-radio" data-testid="ln-radio"><span className="ln-radio-tag">Radio</span> From {shipName}, the lamp is on <b>{fmtBearing(b)}</b>.</p>
         <Method ex={ex} st={st} />
-        <div className={`ln-readout ${modelValue !== null && f.canAct ? "is-model" : ""}`} aria-live="polite">Beam <b data-testid="ln-beam">{fmtBearing(v)}</b></div>
+        <div className={`ln-readout ${modelValue !== null && f.canAct ? "is-model" : ""}`}>Beam <b data-testid="ln-beam">{fmtBearing(v)}</b></div>
         {modelValue === null && (
           <div className="ln-turns" role="group" aria-label="Turn the beam" data-ln-idle="true">
             {TURNS.map((t) => (

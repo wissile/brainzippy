@@ -82,21 +82,22 @@
 .ln-diagram.ln-grid { background: #fff; }
 .ln-dial, .ln-gridwrap { display: block; width: fit-content; height: fit-content; max-width: 100%; max-height: 100%; border-radius: 16px; outline-offset: 2px; }
 .ln-dial .ln-diagram { cursor: grab; }
+.ln-stage .ln-dial:focus-visible, .ln-stage .ln-gridwrap:focus-visible { outline: 4px solid #ffd43b; outline-offset: -5px; }
 .ln-dial.is-locked .ln-diagram, .ln-gridwrap.is-locked .ln-diagram { cursor: default; }
 .ln-gridwrap .ln-diagram { cursor: crosshair; }
 
 /* svg text */
 .ln-svg-small { font: 800 13px var(--font-body); fill: #33496b; }
-.ln-svg-wall { font: 800 12px var(--font-body); fill: #fff; }
-.ln-svg-tiny { font: 700 10px var(--font-body); fill: #33496b; }
-.ln-svg-strong { font: 900 13px var(--font-body); fill: var(--ink); }
+.ln-svg-wall { font: 800 13px var(--font-body); fill: #fff; }
+.ln-svg-tiny { font: 800 13px var(--font-body); fill: #33496b; }
+.ln-svg-strong { font: 900 14px var(--font-body); fill: var(--ink); }
 .ln-svg-place { font: 800 13.5px var(--font-body); fill: #3b2f1a; paint-order: stroke; stroke: #f4ebd3; stroke-width: 4px; }
-.ln-svg-warn { font: 900 11px var(--font-body); fill: #8a1f26; letter-spacing: 0.04em; text-transform: uppercase; }
+.ln-svg-warn { font: 900 12.5px var(--font-body); fill: #8a1f26; letter-spacing: 0.04em; text-transform: uppercase; }
 .ln-svg-compass { font: 900 15px var(--font-body); fill: var(--ink); }
 .ln-svg-compass.is-north { fill: #b3262d; }
 .ln-svg-axis { font: 900 14px var(--font-body); fill: var(--ink); font-style: italic; }
-.ln-svg-tick { font: 700 10px var(--font-body); fill: #33496b; }
-.ln-svg-eq { font: 900 12px var(--font-body); fill: #1c4e8a; paint-order: stroke; stroke: #fff; stroke-width: 4px; }
+.ln-svg-tick { font: 700 13px var(--font-body); fill: #33496b; }
+.ln-svg-eq { font: 900 13.5px var(--font-body); fill: #1c4e8a; paint-order: stroke; stroke: #fff; stroke-width: 4px; }
 
 /* angle marks */
 .ln-ang-arc { stroke: var(--ink); stroke-width: 3; }
@@ -246,6 +247,7 @@
   .ln-model-title { font-size: 0.72rem; margin-bottom: 1px; }
   .ln-model li { font-size: 13.5px; line-height: 1.2; }
   .ln-model ol { gap: 1px; }
+  .ln-panel:has(.ln-model) .ln-method { display: none; } /* the worked model repeats the fact */
 }
 
 /* ---------- story ---------- */

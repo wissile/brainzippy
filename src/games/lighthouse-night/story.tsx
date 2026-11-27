@@ -25,7 +25,7 @@ export const lnIntro: StoryBeat[] = [
     scene: () => storm(<Actor x={70} y={88} w={24}><Hoot state="thinking" size="100%" /></Actor>),
   },
   {
-    line: "ln.story.intro3",
+    line: "ln.story.intro3b",
     camera: "close",
     scene: () => room(<>
       <Actor x={30} y={88} w={26}><Hoot state="encouraging" size="100%" /></Actor>

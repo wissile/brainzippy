@@ -30,7 +30,7 @@ export function LadderBoard({ st, act, alongIndex, busy }: BoardProps) {
         {a.kind === "choice" ? (
           <Options st={st} act={act} busy={busy} options={a.options} label="Statement" />
         ) : (
-          <Keypad st={st} act={act} busy={busy} unit="m" dec maxLen={4} label="Length keypad" />
+          <Keypad st={st} act={act} busy={busy} unit="m" dec maxLen={4} label="Length keypad" fixed={mode === "round" ? 1 : undefined} />
         )}
         <ModelSteps ex={ex} st={st} alongIndex={alongIndex} />
       </>}
@@ -50,13 +50,14 @@ function TowerTriangle({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
   const s = Math.min(150 / up, 220 / out);
   const tx = 300, gy = 204;
   const bx = tx - out * s, ty = gy - up * s;
-  const lab = (which: number, v: number) => (ask === which ? (reveal ? `${fmtNum(value)} m` : "?") : `${fmtNum(v)} m`);
+  const shown = mode === "round" ? value.toFixed(1) : fmtNum(value);
+  const lab = (which: number, v: number) => (ask === which ? (reveal ? `${shown} m` : "?") : `${fmtNum(v)} m`);
   const isAsk = (which: number) => (ask === which ? (reveal ? "is-model" : "is-ask") : "");
   const ang = (Math.atan2(gy - ty, tx - bx) * 180) / Math.PI;
   const len = Math.hypot(tx - bx, gy - ty);
   const rungs = ctx === "ladder" ? Math.max(3, Math.floor(len / 18)) : 0;
   return (
-    <svg className="ln-diagram" viewBox="0 0 400 236" style={ar(400, 236)} role="img" aria-label={`A right-angled triangle against the lighthouse: the ${ctx === "line" ? "line of sight" : ctx}`} data-testid="ln-diagram">
+    <svg className="ln-diagram" viewBox="0 0 400 236" style={ar(400, 236)} role="img" aria-label={`A right-angled triangle against the lighthouse, right angle at the foot of the tower. Upright side ${ask === 1 ? "unknown" : `${fmtNum(up)} m`}, ground side ${ask === 2 ? "unknown" : `${fmtNum(out)} m`}, sloping side (the ${ctx === "line" ? "line of sight" : ctx === "stay" ? "storm wire" : ctx}) ${ask === 0 ? "unknown" : `${fmtNum(c)} m`}.`} data-testid="ln-diagram">
       {/* ground / sea and the tower */}
       <rect x="0" y={gy} width="400" height="32" fill={ctx === "line" || ctx === "rope" ? LN.sea : LN.rock} />
       <path d={`M0 ${gy} H400`} stroke={INK} strokeWidth="4" />

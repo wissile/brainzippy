@@ -146,8 +146,10 @@ export function ModelSteps({ ex, st, alongIndex, title = "How the keeper works i
  * Every typical wrong answer can be typed (the first-miss hint diagnoses it). First miss: the entry clears;
  * second miss: the modelled answer is filled in and only Done stays, to confirm.
  */
-export function Keypad({ st, act, busy, unit, dec = false, neg = false, pad3 = false, maxLen = 4, label }: Pick<BoardProps, "st" | "act" | "busy"> & {
+export function Keypad({ st, act, busy, unit, dec = false, neg = false, pad3 = false, maxLen = 4, label, fixed }: Pick<BoardProps, "st" | "act" | "busy"> & {
   unit?: string; dec?: boolean; neg?: boolean; pad3?: boolean; maxLen?: number; label: string;
+  /** Decimal places shown for the modelled answer (12 → "12.0" when an answer is asked to 1 d.p.). */
+  fixed?: number;
 }) {
   const f = flags(st);
   const submit = useSubmit({ st, act, busy });
@@ -159,8 +161,9 @@ export function Keypad({ st, act, busy, unit, dec = false, neg = false, pad3 = f
 
   useEffect(() => {
     if (st.phase !== "answering" || st.attempts === 0) return;
-    setEntry(modelValue !== null ? String(modelValue).replace("-", "−") : "");
-    if (kb.current) window.setTimeout(() => (document.querySelector('[data-testid="key"], [data-testid="done"]') as HTMLElement | null)?.focus({ preventScroll: true }), 40);
+    setEntry(modelValue !== null ? (fixed !== undefined ? modelValue.toFixed(fixed) : String(modelValue)).replace("-", "−") : "");
+    // keyboard users keep typing digits anywhere; focus Done so Enter submits (a focused digit key would type itself)
+    if (kb.current) window.setTimeout(() => (document.querySelector('[data-testid="done"]') as HTMLElement | null)?.focus({ preventScroll: true }), 40);
   }, [st.phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const press = (k: string) => {
@@ -194,7 +197,11 @@ export function Keypad({ st, act, busy, unit, dec = false, neg = false, pad3 = f
       else if (e.key === "." || e.key === ",") press(".");
       else if ((e.key === "-" || e.key === "−") && neg) press("neg");
       else if (e.key === "Backspace") press("back");
-      else if (e.key === "Enter" && tgt?.tagName !== "BUTTON") done();
+      else if (e.key === "Enter" && (tgt?.tagName !== "BUTTON" || tgt.dataset.testid === "key")) {
+        // Enter on a focused digit key means "I'm done typing", not "press this key again"
+        e.preventDefault();
+        done();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

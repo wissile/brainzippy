@@ -2,7 +2,7 @@ import type { AnswerOption, Exercise, ExerciseGenerator } from "../../engine/typ
 import type { Rng } from "../../engine/rng";
 import {
   ANGLE_KINDS, type AngleKind, DIAL_STEP, FINALES, type Finale, KIND_TEXT, LADDER_CTX, type LadderCtx, MODES, type Mode, NEAR_MISSES, PLACES, POSITIONS,
-  type Pos, REF_LETTER, REF_NAME, REL_TEXT, type Rel, SCALES, SHARE_CTX, SHIPS, TRIPLES, backBearing, bearingFrom, encodePoint, fmtBearing, fmtLine,
+  type Pos, POS_TEXT, REF_LETTER, REF_NAME, REL_TEXT, article, type Rel, SCALES, SHARE_CTX, SHIPS, TRIPLES, backBearing, bearingFrom, encodePoint, fmtBearing, fmtLine,
   fmtN, fmtNum, fmtPt, gridRange, hypOf, legOf, lineAnswer, pairedPos, pointAnswer, ratioN, relAnswer, round1, sayLine, shareOf, valueAt,
 } from "./logic";
 
@@ -19,9 +19,9 @@ import {
  *   Lv  new ideas                                                   finale
  *   0   beam: angles on a line (tutorial) · around a point · types  two equal angles on a line
  *   1   vertically opposite · triangle · chart: cm → km              exterior angle of a triangle
- *   2   parallel lanes (F, Z, C) · ladder: hypotenuse · km → cm      exterior angle of a triangle
- *   3   three-figure bearings · back bearings (dial) · plot (0–8)     back bearing (dial)
- *   4   a shorter side · gradient · y-intercept                      back bearing / chart + Pythagoras
+ *   2   parallel lanes (F, Z, C) · plot (0–8) · km → cm              exterior angle of a triangle
+ *   3   three-figure bearings · back bearings (dial) · ladder: hyp    back bearing (dial)
+ *   4   a shorter side · gradient (whole, positive) · y-intercept                      back bearing / chart + Pythagoras
  *   5   sharing in a ratio · "which angle fact?" · 1 d.p. lengths     back bearing / chart + Pythagoras
  *   6   y = mx + c · negative and fractional gradients · 4 quadrants  + course line through two points
  *   7   scale as 1 : n · the converse · isosceles triangles          any
@@ -74,8 +74,8 @@ export type Slot =
 export const IDEAS: readonly (readonly string[])[] = [
   ["line", "point", "kind"],
   ["vert", "tri", "real"],
-  ["par", "hyp", "map"],
-  ["bread", "bback", "plot"],
+  ["par", "plot", "map"],
+  ["bread", "bback", "hyp"],
   ["leg", "grad", "icpt"],
   ["share", "reason", "round"],
   ["eqn", "neg", "q4"],
@@ -116,12 +116,12 @@ export const LEVELS: readonly LevelSpec[] = [
     slots: [{ mode: "vert" }, { mode: "tri", iso: false }, { mode: "real", half: false, scales: K2 }, { mode: "line", n: 3 }, { mode: "vert" }, { mode: "tri", iso: false }, { mode: "point", n: 4 }, { mode: "home", f: ["ftri"] }],
   },
   {
-    label: "Parallel shipping lanes; Ladder & Tower opens (hypotenuse); km to cm",
-    slots: [{ mode: "par", rels: ["corr", "alt"] }, { mode: "hyp" }, { mode: "map", scales: K2 }, { mode: "par", rels: ["coint", "alt"] }, { mode: "tri", iso: false }, { mode: "hyp" }, { mode: "real", half: true, scales: K2 }, { mode: "home", f: ["ftri"] }],
+    label: "Parallel shipping lanes; Ship Paths opens (plot a point); km to cm",
+    slots: [{ mode: "par", rels: ["corr", "alt"] }, { mode: "plot", q4: false }, { mode: "map", scales: K2 }, { mode: "par", rels: ["coint", "alt"] }, { mode: "tri", iso: false }, { mode: "plot", q4: false }, { mode: "real", half: true, scales: K2 }, { mode: "home", f: ["ftri"] }],
   },
   {
-    label: "Three-figure bearings and back bearings; Ship Paths opens (plot a point)",
-    slots: [{ mode: "bread" }, { mode: "bback" }, { mode: "plot", q4: false }, { mode: "hyp" }, { mode: "par", rels: ["corr", "alt", "coint"] }, { mode: "map", scales: K2 }, { mode: "bread" }, { mode: "home", f: ["fback"] }],
+    label: "Three-figure bearings and back bearings; Ladder & Tower opens (hypotenuse)",
+    slots: [{ mode: "bread" }, { mode: "bback" }, { mode: "hyp" }, { mode: "hyp" }, { mode: "par", rels: ["corr", "alt", "coint"] }, { mode: "map", scales: K2 }, { mode: "bread" }, { mode: "home", f: ["fback"] }],
   },
   {
     label: "A shorter side; gradient and y-intercept",
@@ -275,7 +275,7 @@ function triItem(level: number, rng: Rng, iso: boolean, id: string, seed: number
     answer: num(angles[t.u]!),
     params: { m: m("tri"), A: t.A, B: t.B, C: t.C, u: t.u, iso: iso ? 1 : 0, ig: t.ig, lv: level },
     prompt: iso
-      ? { line: "ln.prompt.iso", text: "The beam, the buoy and the ship make an isosceles triangle: two sides are equal. Find x." }
+      ? { line: "ln.prompt.iso", text: "The lighthouse, the buoy and the ship make an isosceles triangle: two sides are equal. Find x." }
       : { line: "ln.prompt.tri", text: "The lighthouse, the buoy and the ship make a triangle. Find the angle x." },
     a11yDescription: `A triangle joins the lighthouse, a buoy and a ship. ${known.join(" and ")}; x is at ${names[t.u]}.${iso ? " The two sides from the lighthouse are equal (marked with ticks), so the angles at the buoy and the ship are equal." : ""} Type x on the keypad, then press Done.`,
   };
@@ -301,21 +301,20 @@ function parItem(level: number, rng: Rng, rels: readonly Rel[], id: string, seed
     answer: num(relAnswer(g.rel, g.given)),
     params: { m: m("par"), th: g.th, fl: g.fl, gp: POSITIONS.indexOf(g.gp), qp: POSITIONS.indexOf(g.qp), rel: ["corr", "alt", "coint"].indexOf(g.rel), lv: level },
     prompt: { line: "ln.prompt.par", text: "The two shipping lanes are parallel. The beam crosses both. Find the angle x." },
-    a11yDescription: `Two parallel shipping lanes (marked with arrows) are crossed by the beam. At the top crossing one angle is ${g.given} degrees. x is at the bottom crossing (${g.rel === "corr" ? "in the same position" : g.rel === "alt" ? "on the other side of the beam, between the lanes" : "on the same side of the beam, between the lanes"}). Type x on the keypad, then press Done.`,
+    a11yDescription: `Two parallel shipping lanes (marked with arrows) are crossed by the beam. At the top crossing the angle ${POS_TEXT[g.gp]} is ${g.given} degrees. x is at the bottom crossing, ${POS_TEXT[g.qp]}. Type x on the keypad, then press Done.`,
   };
 }
 
 function reasonItem(level: number, rng: Rng, id: string, seed: number): Item {
   const g = parGeometry(rng, ["corr", "alt", "coint"]);
-  const other = relAnswer(g.rel, g.given);
   return {
     ...base(seed, SKILL.angles, "beam"),
     id,
     objective: "Name the angle fact that links two angles on parallel lines",
     answer: { kind: "choice", correct: g.rel, options: (["corr", "alt", "coint", "vert"] as const).map((r) => opt(r, REL_TEXT[r])) },
     params: { m: m("reason"), th: g.th, fl: g.fl, gp: POSITIONS.indexOf(g.gp), qp: POSITIONS.indexOf(g.qp), rel: ["corr", "alt", "coint"].indexOf(g.rel), lv: level },
-    prompt: { line: "ln.prompt.reason", text: `Hoot marked ${g.given}° and ${other}°. Which angle fact links them?` },
-    a11yDescription: `Two parallel shipping lanes crossed by the beam. A ${g.given} degree angle at the top crossing and a ${other} degree angle at the bottom crossing, ${g.rel === "corr" ? "in the same position" : g.rel === "alt" ? "on opposite sides of the beam, between the lanes" : "on the same side of the beam, between the lanes"}. Choose the angle fact that links them.`,
+    prompt: { line: "ln.prompt.reason", text: "Hoot marked angle a and angle b. Which angle fact links them?" },
+    a11yDescription: `Two parallel shipping lanes crossed by the beam. Angle a is at the top crossing, ${POS_TEXT[g.gp]}; angle b is at the bottom crossing, ${POS_TEXT[g.qp]}. Choose the angle fact that links them.`,
   };
 }
 
@@ -360,10 +359,11 @@ function bbackItem(level: number, rng: Rng, id: string, seed: number): Item {
 // ------------------------------------------------------------------------------------------------ ladder: Pythagoras
 const CTX_SIDE: Record<LadderCtx, { thing: string; up: string; out: string }> = {
   ladder: { thing: "ladder", up: "up the tower", out: "from the foot of the tower" },
-  rope: { thing: "rope", up: "up, at the gallery rail", out: "along the rocks to the jetty ring" },
+  rope: { thing: "rope", up: "up to the gallery rail", out: "along the rocks to the jetty ring" },
   stay: { thing: "storm wire", up: "up the radio mast", out: "from the mast to its ground peg" },
-  line: { thing: "line of sight", up: "up, at the lamp", out: "out to the rowing boat" },
+  line: { thing: "line of sight", up: "up to the lamp", out: "out to the rowing boat" },
 };
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 function scaleTriple(rng: Rng, maxC: number) {
   const t = rng.pick(TRIPLES.filter((x) => x[2] <= maxC));
   return rng.chance(0.5) ? { up: t[0], out: t[1], c: t[2] } : { up: t[1], out: t[0], c: t[2] };
@@ -398,8 +398,8 @@ function legItem(level: number, rng: Rng, id: string, seed: number): Item {
     answer: dec(askUp ? t.up : t.out),
     params: { m: m("leg"), up: t.up, out: t.out, c: t.c, ask: askUp ? 1 : 2, ctx, lv: level },
     prompt: askUp
-      ? { line: "ln.prompt.leg", text: `A ${t.c} m ${c.thing} reaches ${t.out} m ${c.out}. How far ${c.up.split(",")[0]} does it go?` }
-      : { line: "ln.prompt.leg", text: `A ${t.c} m ${c.thing} goes ${t.up} m ${c.up}. How far is it ${c.out}?` },
+      ? { line: "ln.prompt.leg", text: `${cap(article(t.c))} ${t.c} m ${c.thing} reaches ${t.out} m ${c.out}. How high up does it reach?` }
+      : { line: "ln.prompt.leg", text: `${cap(article(t.c))} ${t.c} m ${c.thing} goes ${t.up} m ${c.up}. How far is it ${c.out}?` },
     a11yDescription: `A right-angled triangle against the lighthouse. The sloping side (the ${c.thing}, opposite the right angle) is ${t.c} metres; the ${askUp ? `ground side is ${t.out}` : `upright side is ${t.up}`} metres. Type the ${askUp ? "upright" : "ground"} side in metres, then press Done.`,
   };
 }
@@ -434,7 +434,7 @@ function roundItem(level: number, rng: Rng, id: string, seed: number): Item {
     params: { m: m("round"), up: s.ask === 1 ? 0 : s.up, out: s.out, c: s.ask === 0 ? 0 : s.c, ask: s.ask === 0 ? 0 : 1, ctx, rnd: 1, lv: level },
     prompt: s.ask === 0
       ? { line: "ln.prompt.round", text: `The ${c.thing} goes ${s.up} m ${c.up} and ${s.out} m ${c.out}. How long is it, to 1 decimal place?` }
-      : { line: "ln.prompt.round", text: `A ${s.c} m ${c.thing} reaches ${s.out} m ${c.out}. How far ${c.up.split(",")[0]} does it go, to 1 decimal place?` },
+      : { line: "ln.prompt.round", text: `${cap(article(s.c))} ${s.c} m ${c.thing} reaches ${s.out} m ${c.out}. How high up does it reach, to 1 decimal place?` },
     a11yDescription: `A right-angled triangle against the lighthouse. ${s.ask === 0 ? `The upright side is ${s.up} metres and the ground side ${s.out} metres; find the sloping side` : `The sloping side is ${s.c} metres and the ground side ${s.out} metres; find the upright side`}, rounded to 1 decimal place. Type it with the decimal point key, then press Done.`,
   };
 }
@@ -551,7 +551,7 @@ function plotItem(level: number, rng: Rng, q4: boolean, id: string, seed: number
   };
 }
 
-const POS_M = [1, 2, 3, 0.5] as const;
+const POS_M = [1, 2, 3] as const; // ½ gradients arrive with the negative ones at L6
 const ALL_M = [1, 2, 3, 0.5, -1, -2, -3, -0.5] as const;
 /** A line y = mx + c that crosses the visible grid, and two lattice points on it a whole run apart. */
 export function lineSpec(rng: Rng, neg: boolean): { m: number; c: number; x1: number; y1: number; x2: number; y2: number; q4: number } {
@@ -607,7 +607,7 @@ function icptItem(level: number, rng: Rng, neg: boolean, id: string, seed: numbe
 /** Course-line options: the right line and lines from typical mix-ups (swapped m and c, sign, rise/run flipped). */
 export function lineOptions(mm: number, c: number): AnswerOption[] {
   const cand: [string, number, number][] = [["ok", mm, c]];
-  if (c !== 0 && c !== mm && ALL_M.includes(c as (typeof ALL_M)[number])) cand.push(["swap", c, mm]);
+  if (c !== 0 && c !== mm && Number.isInteger(mm) && ALL_M.includes(c as (typeof ALL_M)[number])) cand.push(["swap", c, mm]);
   cand.push(["sign", -mm, c]);
   if (Math.abs(mm) !== 1) cand.push(["inv", 1 / mm, c]);
   cand.push(["signc", mm, -c]);

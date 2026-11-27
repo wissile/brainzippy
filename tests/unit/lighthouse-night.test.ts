@@ -14,7 +14,7 @@ import { diagnose, explainFor, hintFor, methodFor, modelSteps, praiseFor } from 
 import {
   GAME_OF, POSITIONS, REF_BEARING, backBearing, backMistakes, bearingFrom, breadMistakes, decodePoint, encodePoint, finaleOf, fmtLine, fmtNum, gradMistakes,
   gridRange, hypMistakes, hypOf, icptMistakes, kindOf, legMistakes, lineMistakes, mapMistakes, modeOf, parMistakes, plotMistakes, pointMistakes, realMistakes,
-  relAnswer, round1, shareMistakes, triMistakes, valueAt, vertMistakes, type Mode,
+  article, relAnswer, round1, shareMistakes, triMistakes, valueAt, vertMistakes, type Mode,
 } from "../../src/games/lighthouse-night/logic";
 import { lnBetween, lnIntro, lnOutro } from "../../src/games/lighthouse-night/story";
 import voice from "../../src/games/lighthouse-night/voice.json";
@@ -86,12 +86,19 @@ describe("level table: inner games, variety and new ideas", () => {
       for (const i of used) expect(seen.has(i), `L${lv}: ${i} introduced`).toBe(true);
     });
   });
-  it("inner games unlock across levels: beam → chart → ladder → grid", () => {
+  it("inner games unlock across levels: beam → chart → grid → ladder (Pythagoras, grade 8 / Y9, from level 3)", () => {
     const first = (g: string) => LEVELS.findIndex((l) => l.slots.some((s) => GAME_OF[s.mode] === g));
     expect(first("beam")).toBe(0);
     expect(first("chart")).toBe(1);
-    expect(first("ladder")).toBe(2);
-    expect(first("grid")).toBe(3);
+    expect(first("grid")).toBe(2);
+    expect(first("ladder")).toBe(3);
+  });
+  it("½ gradients come with the negative ones (level 6 on); angle types only at level 0", () => {
+    for (const ex of ALL.filter((e) => ["grad", "icpt", "eqn"].includes(modeOf(e)))) {
+      if (ex.difficulty <= 6) expect(Number.isInteger(P(ex, "mm")) && P(ex, "mm") > 0, ex.id).toBe(true);
+    }
+    expect(LEVELS.findIndex((l) => l.slots.some((s) => s.mode === "kind"))).toBe(0);
+    expect(LEVELS.slice(1).some((l) => l.slots.some((s) => s.mode === "kind"))).toBe(false);
   });
 });
 
@@ -314,6 +321,38 @@ describe("maths: every answer recomputed from the picture's numbers", () => {
       expect(new Set(a.options.map((o) => o.text)).size, ex.id).toBe(a.options.length);
       expect(a.options.filter((o) => o.id === a.correct)).toHaveLength(1);
     }
+  });
+});
+
+describe("wording (content review)", () => {
+  it("'which angle fact?' never shows the values (positions only)", () => {
+    for (const ex of ofMode("reason")) {
+      expect(ex.prompt!.text, ex.id).not.toMatch(/\d/);
+      expect(ex.a11yDescription, ex.id).not.toMatch(/\d/);
+    }
+  });
+  it("articles: an 8 m / an 11 m / an 18 m, a 12 m", () => {
+    expect(article(8)).toBe("an");
+    expect(article(11)).toBe("an");
+    expect(article(18)).toBe("an");
+    expect(article(12)).toBe("a");
+    expect(article(1)).toBe("a");
+    for (const ex of [...ofMode("leg"), ...ofMode("round")]) expect(ex.prompt!.text, ex.id).not.toMatch(/\bA (8|11|18)\b/);
+  });
+  it("1 d.p. answers that are whole numbers are written with .0 in the model", () => {
+    for (const ex of ofMode("round")) {
+      const v = num(ex);
+      expect(modelSteps(ex).at(-1), ex.id).toContain(`${v.toFixed(1)} m`);
+    }
+  });
+  it("US terms sit beside the UK ones: slope, y = mx + b, same-side interior, vertical angles", () => {
+    const grad = ofMode("grad")[0]!, eqn = ofMode("eqn")[0]!, par = ofMode("par")[0]!, vert = ofMode("vert")[0]!;
+    expect(methodFor(grad)).toMatch(/slope/);
+    expect(methodFor(eqn)).toMatch(/y = mx \+ b/);
+    expect(methodFor(par)).toMatch(/same-side interior/);
+    expect(methodFor(vert)).toMatch(/vertical/);
+    expect(lines[explainFor(grad)]!.text).toMatch(/slope/);
+    expect(lines[explainFor(vert)]!.text).toMatch(/vertical angles/);
   });
 });
 

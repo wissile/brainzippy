@@ -17,13 +17,16 @@ type Ex = Pick<Exercise, "params" | "answer">;
 const RELS: readonly Rel[] = ["corr", "alt", "coint"];
 const relOf = (ex: Ex): Rel => RELS[p(ex, "rel")] ?? "corr";
 
+/** Lines reworded with the US terms (slope, y = mx + b, vertical angles) use new ids, so the clips are re-rendered. */
+const EXPLAIN_LINE: Partial<Record<Mode, string>> = { grad: "ln.help.slope", eqn: "ln.help.eqnb", vert: "ln.help.vertical" };
+
 /** Explanation line id for the item (round start). */
 export function explainFor(ex: Pick<Exercise, "params">): string {
   const mode = modeOf(ex);
   if (mode === "home") return `ln.help.${finaleOf(ex)}`;
   if (mode === "tri" && p(ex, "iso")) return "ln.help.iso";
   if (mode === "round") return "ln.help.round";
-  return `ln.help.${mode}`;
+  return EXPLAIN_LINE[mode] ?? `ln.help.${mode}`;
 }
 
 /** Line parts / given values of an item, decoded from params. */
@@ -137,10 +140,10 @@ export function methodFor(ex: Ex): string {
     case "line": return "Angles on a straight line add up to 180°.";
     case "point": return "Angles around a point add up to 360°.";
     case "kind": return "Acute < 90° · right = 90° · obtuse 90°–180° · reflex 180°–360°.";
-    case "vert": return "Opposite angles are equal; neighbours on a straight line add up to 180°.";
+    case "vert": return "Vertically opposite (vertical) angles are equal; neighbours on a straight line add up to 180°.";
     case "tri": return p(ex, "iso") ? "Triangle: 180° in total. Isosceles: the two base angles are equal." : "Angles in a triangle add up to 180°.";
     case "par":
-    case "reason": return "Corresponding (F) equal · alternate (Z) equal · co-interior (C) add up to 180°.";
+    case "reason": return "Corresponding (F) equal · alternate (Z) equal · co-interior or same-side interior (C) add up to 180°.";
     case "bread":
     case "bback": return "Bearings: from north, clockwise, three figures. Back bearing: 180° round.";
     case "hyp":
@@ -152,11 +155,11 @@ export function methodFor(ex: Ex): string {
     case "share": return "Add the ratio numbers to find the parts; share the total; multiply.";
     case "ratio": return "1 km = 1 000 m = 100 000 cm.";
     case "plot": return "(x, y): across first, then up. Negatives go left or down.";
-    case "grad": return "Gradient = rise ÷ run (going left to right). Downhill is negative.";
+    case "grad": return "Gradient (slope) = rise ÷ run, going left to right. Downhill is negative.";
     case "icpt": return "The y-intercept is where the line crosses the y-axis (x = 0).";
-    case "eqn": return "y = mx + c: m is the gradient, c is the y-intercept.";
+    case "eqn": return "y = mx + c: m is the gradient (slope), c is the y-intercept (in the US: y = mx + b).";
     case "meet": return "The crossing point satisfies both equations.";
-    case "para": return "Parallel lines have the same gradient m.";
+    case "para": return "Parallel lines have the same gradient (slope) m.";
     case "home": {
       const f = finaleOf(ex);
       return f === "fline" ? "Straight line: 180°. Two equal angles: halve what's left."
@@ -194,7 +197,7 @@ export function modelSteps(ex: Ex): string[] {
     case "vert": {
       const a = p(ex, "a");
       return p(ex, "opp")
-        ? [`x is opposite the ${deg(a)} angle, across the crossing.`, `Vertically opposite angles are equal: x = ${deg(a)}`]
+        ? [`x is opposite the ${deg(a)} angle, across the crossing.`, `Vertically opposite (vertical) angles are equal: x = ${deg(a)}`]
         : [`x and ${deg(a)} sit side by side on one straight beam.`, `x = 180° − ${deg(a)} = ${deg(180 - a)}`];
     }
     case "tri": {
@@ -213,7 +216,7 @@ export function modelSteps(ex: Ex): string[] {
       const rel = relOf(ex), g = parGiven(ex);
       const why = rel === "corr" ? "Same position at the other crossing: corresponding angles (an F shape)."
         : rel === "alt" ? "Other side of the beam, between the lanes: alternate angles (a Z shape)."
-          : "Same side of the beam, between the lanes: co-interior angles (a C shape).";
+          : "Same side of the beam, between the lanes: co-interior (same-side interior) angles (a C shape).";
       if (mode === "reason") return [why, `${REL_TEXT[rel]}.`];
       return ["The two lanes are parallel.", why, rel === "coint" ? `They add up to 180°: x = 180° − ${deg(g)} = ${deg(180 - g)}` : `They are equal: x = ${deg(g)}`];
     }
@@ -248,12 +251,12 @@ export function modelSteps(ex: Ex): string[] {
         const up = p(ex, "up"), out = p(ex, "out");
         const s = up * up + out * out;
         const h = hypOf(up, out);
-        return [`c² = ${up}² + ${out}² = ${s}`, `c = √${s} m exactly = ${h.toFixed(3)}… m`, `To 1 d.p. (look at the second decimal digit): ${fmtNum(round1(h))} m`];
+        return [`c² = ${up}² + ${out}² = ${s}`, `c = √${s} m (exact) ≈ ${h.toFixed(3)}… m`, `To 1 d.p. (look at the second decimal digit): ${round1(h).toFixed(1)} m`];
       }
       const c = p(ex, "c"), out = p(ex, "out");
       const d = c * c - out * out;
       const l = legOf(c, out);
-      return [`side² = ${c}² − ${out}² = ${d}`, `side = √${d} m exactly = ${l.toFixed(3)}… m`, `To 1 d.p. (look at the second decimal digit): ${fmtNum(round1(l))} m`];
+      return [`side² = ${c}² − ${out}² = ${d}`, `side = √${d} m (exact) ≈ ${l.toFixed(3)}… m`, `To 1 d.p. (look at the second decimal digit): ${round1(l).toFixed(1)} m`];
     }
     case "conv": {
       const s1 = p(ex, "s1"), s2 = p(ex, "s2"), s3 = p(ex, "s3");
@@ -285,7 +288,7 @@ export function modelSteps(ex: Ex): string[] {
     }
     case "grad": {
       const x1 = p(ex, "x1"), y1 = p(ex, "y1"), x2 = p(ex, "x2"), y2 = p(ex, "y2");
-      return [`From A to B, run = ${fmtNum(x2)} − ${paren(x1)} = ${x2 - x1} across.`, `Rise = ${fmtNum(y2)} − ${paren(y1)} = ${fmtNum(y2 - y1)}${y2 < y1 ? " (downhill, so negative)" : ""}.`, `Gradient = rise ÷ run = ${fmtNum(y2 - y1)} ÷ ${x2 - x1} = ${fmtNum((y2 - y1) / (x2 - x1))}`];
+      return [`From A to B, run = ${fmtNum(x2)} − ${paren(x1)} = ${x2 - x1} across.`, `Rise = ${fmtNum(y2)} − ${paren(y1)} = ${fmtNum(y2 - y1)}${y2 < y1 ? " (downhill, so negative)" : ""}.`, `Gradient (slope) = rise ÷ run = ${fmtNum(y2 - y1)} ÷ ${x2 - x1} = ${fmtNum((y2 - y1) / (x2 - x1))}`];
     }
     case "icpt": {
       const c = p(ex, "c");

@@ -69,6 +69,8 @@ function uniq<W extends string>(right: number, xs: Mistake<W>[]): Mistake<W>[] {
 }
 /** Angle and length mistakes are only typical (and typable on the keypad) when positive. */
 const positive = <W extends string>(xs: Mistake<W>[]) => xs.filter((x) => x.value > 0);
+/** "a 12 m ladder" / "an 8 m ladder" / "an 11 m ladder". */
+export const article = (n: number) => (/^8/.test(String(n)) || /^(11|18)(\D|$)/.test(String(n)) ? "an" : "a");
 export const round1 = (x: number) => Math.round(x * 10) / 10;
 export const round2 = (x: number) => Math.round(x * 100) / 100;
 export const mod360 = (x: number) => ((x % 360) + 360) % 360;
@@ -118,10 +120,10 @@ export const KIND_TEXT: Record<AngleKind, string> = {
 
 /** Two straight beams cross at the lamp: opposite angles are equal; neighbours add to 180°. */
 export const vertAnswer = (a: number, askOpp: boolean) => (askOpp ? a : 180 - a);
-export type VertWhy = "opp180" | "adjEqual" | "vert360";
+export type VertWhy = "opp180" | "adjEqual" | "vert360" | "oppEqual";
 export function vertMistakes(a: number, askOpp: boolean): Mistake<VertWhy>[] {
   return positive(uniq(vertAnswer(a, askOpp), askOpp
-    ? [{ value: 180 - a, why: "opp180" }, { value: 360 - a, why: "vert360" }]
+    ? [{ value: 180 - a, why: "opp180" }, { value: 360 - a, why: "oppEqual" }]
     : [{ value: a, why: "adjEqual" }, { value: 360 - a, why: "vert360" }]));
 }
 
@@ -163,11 +165,19 @@ export function parMistakes(rel: Rel, given: number): Mistake<ParWhy>[] {
     ? [{ value: given, why: "cointEqual" }, { value: 360 - given, why: "par360" }]
     : [{ value: 180 - given, why: "par180" }, { value: 360 - given, why: "par360" }]));
 }
+/** UK names with the US names in brackets (CCSS: same-side interior, vertical angles). */
 export const REL_TEXT: Record<Rel | "vert", string> = {
   corr: "Corresponding angles are equal",
   alt: "Alternate angles are equal",
-  coint: "Co-interior angles add up to 180°",
-  vert: "Vertically opposite angles are equal",
+  coint: "Co-interior (same-side interior) angles add up to 180°",
+  vert: "Vertically opposite (vertical) angles are equal",
+};
+/** Where an angle sits at a crossing, in words (screen readers; never names the angle fact). */
+export const POS_TEXT: Record<Pos, string> = {
+  TR: "above the lane, right of the beam",
+  TL: "above the lane, left of the beam",
+  BL: "below the lane, left of the beam",
+  BR: "below the lane, right of the beam",
 };
 
 // ------------------------------------------------------------------------------------------------ beam: bearings
@@ -247,12 +257,12 @@ export const PLACES = ["Hoot's Lighthouse", "Gull Rock", "Kelp Point", "Seal Isl
 export const SCALES = [2, 3, 5] as const;
 export const realOf = (cm: number, k: number) => cm * k;
 export const mapOf = (km: number, k: number) => km / k;
-export type ScaleWhy = "divided" | "multiplied" | "added" | "noScale";
+export type ScaleWhy = "divided" | "multiplied" | "addsub" | "noScale";
 export function realMistakes(cm: number, k: number): Mistake<ScaleWhy>[] {
-  return positive(uniq(realOf(cm, k), [{ value: cm / k, why: "divided" }, { value: cm + k, why: "added" }, { value: cm, why: "noScale" }]));
+  return positive(uniq(realOf(cm, k), [{ value: cm / k, why: "divided" }, { value: cm + k, why: "addsub" }, { value: cm, why: "noScale" }]));
 }
 export function mapMistakes(km: number, k: number): Mistake<ScaleWhy>[] {
-  return positive(uniq(mapOf(km, k), [{ value: km * k, why: "multiplied" }, { value: km, why: "noScale" }, { value: km - k, why: "added" }]));
+  return positive(uniq(mapOf(km, k), [{ value: km * k, why: "multiplied" }, { value: km, why: "noScale" }, { value: km - k, why: "addsub" }]));
 }
 /** 1 cm : k km written as 1 : n (same units): n = k × 100 000 (1 km = 1000 m = 100 000 cm). */
 export const ratioN = (k: number) => k * 100_000;

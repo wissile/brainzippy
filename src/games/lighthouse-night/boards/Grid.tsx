@@ -5,7 +5,7 @@ import { INK } from "../../../characters/palette";
 import type { BoardProps } from "../../../game/boards";
 import type { ExerciseState } from "../../../engine/session";
 import { Buoy, LN } from "../art";
-import { SHIPS, boardOf, decodePoint, encodePoint, fmtLine, fmtNum, fmtPt, gridRange, meetOf, modeOf, p } from "../logic";
+import { SHIPS, boardOf, decodePoint, encodePoint, fmtLine, fmtNum, fmtPt, gridRange, meetOf, modeOf, p, sayLine } from "../logic";
 import { FinaleBoat, Keypad, Method, ModelSteps, Options, Stage, flags, useKeyboardFlag, useSubmit } from "./shared";
 
 /**
@@ -107,10 +107,10 @@ function PathLine({ fr, m, c, cls = "", label }: { fr: Frame; m: number; c: numb
   );
 }
 
-const Dot = ({ fr, x, y, label, cls = "" }: { fr: Frame; x: number; y: number; label?: string; cls?: string }) => (
+const Dot = ({ fr, x, y, label, cls = "", dx = 8, dy = -8, anchor = "start" }: { fr: Frame; x: number; y: number; label?: string; cls?: string; dx?: number; dy?: number; anchor?: "start" | "middle" | "end" }) => (
   <g className={`ln-dot ${cls}`}>
     <circle cx={fr.X(x)} cy={fr.Y(y)} r="6" fill={LN.red} stroke={INK} strokeWidth="2.5" />
-    {label && <text x={fr.X(x) + 8} y={fr.Y(y) - 8} className="ln-svg-strong">{label}</text>}
+    {label && <text x={fr.X(x) + dx} y={fr.Y(y) + dy} className="ln-svg-strong" textAnchor={anchor}>{label}</text>}
   </g>
 );
 
@@ -122,8 +122,20 @@ function GridPicture({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
   const fr = frame(q4);
   const mm = p(ex, "mm"), c = p(ex, "c");
   const x1 = p(ex, "x1"), y1 = p(ex, "y1"), x2 = p(ex, "x2"), y2 = p(ex, "y2");
+  const ship = SHIPS[p(ex, "ship")] ?? "ship";
+  const range = `x and y from ${fmtNum(fr.lo)} to ${fmtNum(fr.hi)}`;
+  const gridLabel =
+    mode === "meet"
+      ? `Harbour grid, ${range}. Two straight paths: the ${SHIPS[p(ex, "s1")]} on ${sayLine(p(ex, "m1"), p(ex, "c1"))} and the ${SHIPS[p(ex, "s2")]} on ${sayLine(p(ex, "m2"), p(ex, "c2"))}.`
+      : mode === "para"
+        ? `Harbour grid, ${range}, with the Gull's straight path, ${sayLine(mm, c)}.`
+        : fin
+          ? `Harbour grid, ${range}. Bobbo's boat is at ${fmtPt(x1, y1)} and the harbour mouth at ${fmtPt(x2, y2)}.`
+          : mode === "icpt"
+            ? `Harbour grid, ${range}. The ${ship}'s straight path passes through ${fmtPt(x1, y1)} and ${fmtPt(x2, y2)}.`
+            : `Harbour grid, ${range}. The ${ship}'s straight path passes through A ${fmtPt(x1, y1)} and B ${fmtPt(x2, y2)}.`;
   return (
-    <svg className="ln-diagram ln-grid" viewBox={`0 0 ${SIZE} ${SIZE}`} style={ar(SIZE, SIZE)} role="img" aria-label="Harbour grid with ships' straight paths" data-testid="ln-diagram">
+    <svg className="ln-diagram ln-grid" viewBox={`0 0 ${SIZE} ${SIZE}`} style={ar(SIZE, SIZE)} role="img" aria-label={gridLabel} data-testid="ln-diagram">
       <defs><clipPath id="ln-grid-clip"><rect x={fr.X(fr.lo)} y={fr.Y(fr.hi)} width={fr.X(fr.hi) - fr.X(fr.lo)} height={fr.Y(fr.lo) - fr.Y(fr.hi)} /></clipPath></defs>
       <Axes fr={fr} />
       {(mode === "grad" || mode === "icpt" || mode === "eqn") && (<>
@@ -131,10 +143,16 @@ function GridPicture({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
         {mode === "grad" && reveal && (
           <path d={`M${fr.X(x1)} ${fr.Y(y1)} H${fr.X(x2)} V${fr.Y(y2)}`} className="ln-runrise" />
         )}
-        {mode === "grad" && reveal && <text x={(fr.X(x1) + fr.X(x2)) / 2} y={fr.Y(y1) + (y2 > y1 ? 14 : -6)} className="ln-svg-strong" textAnchor="middle">{`run ${x2 - x1}`}</text>}
-        {mode === "grad" && reveal && <text x={fr.X(x2) + 6} y={(fr.Y(y1) + fr.Y(y2)) / 2} className="ln-svg-strong" dominantBaseline="central">{`rise ${fmtNum(y2 - y1)}`}</text>}
-        {mode !== "icpt" && <Dot fr={fr} x={x1} y={y1} label="A" />}
-        {mode !== "icpt" && <Dot fr={fr} x={x2} y={y2} label="B" />}
+        {/* the step triangle A → corner → B: run on the horizontal side, rise outside the vertical side (inside
+            when B is near the right edge); A sits to the left of its point and B beyond the end of the rise */}
+        {mode === "grad" && reveal && <text x={(fr.X(x1) + fr.X(x2)) / 2} y={fr.Y(y1) + (y2 > y1 ? 18 : -9)} className="ln-svg-strong" textAnchor="middle">{`run ${x2 - x1}`}</text>}
+        {mode === "grad" && reveal && (
+          <text x={fr.X(x2) + (fr.X(x2) + 66 > SIZE ? -8 : 8)} y={(fr.Y(y1) + fr.Y(y2)) / 2} className="ln-svg-strong" dominantBaseline="central" textAnchor={fr.X(x2) + 66 > SIZE ? "end" : "start"}>{`rise ${fmtNum(y2 - y1)}`}</text>
+        )}
+        {mode === "grad" && <Dot fr={fr} x={x1} y={y1} label="A" dx={-10} dy={5} anchor="end" />}
+        {mode === "grad" && <Dot fr={fr} x={x2} y={y2} label="B" dx={0} dy={y2 > y1 ? -12 : 22} anchor="middle" />}
+        {mode === "eqn" && <Dot fr={fr} x={x1} y={y1} label="A" />}
+        {mode === "eqn" && <Dot fr={fr} x={x2} y={y2} label="B" />}
         {mode === "icpt" && reveal && <Dot fr={fr} x={0} y={c} label={`(0, ${fmtNum(c)})`} cls="is-model" />}
       </>)}
       {mode === "meet" && (<>

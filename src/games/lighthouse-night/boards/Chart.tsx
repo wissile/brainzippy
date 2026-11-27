@@ -47,9 +47,9 @@ export function ChartBoard({ st, act, alongIndex, busy }: BoardProps) {
 
 const U = 36; // one chart centimetre in the picture (the scale bar uses the same length)
 
-function ChartPaper({ k, children, h = 260 }: { k: number; children: React.ReactNode; h?: number }) {
+function ChartPaper({ k, children, h = 260, say = "" }: { k: number; children: React.ReactNode; h?: number; say?: string }) {
   return (
-    <svg className="ln-diagram ln-chart" viewBox={`0 0 400 ${h}`} style={ar(400, h)} role="img" aria-label={`Hoot's fictional sea chart, scale 1 centimetre to ${k} kilometres, not for navigation`} data-testid="ln-diagram">
+    <svg className="ln-diagram ln-chart" viewBox={`0 0 400 ${h}`} style={ar(400, h)} role="img" aria-label={`Hoot's fictional sea chart, not for navigation. Scale: 1 centimetre to ${k} kilometres.${say ? ` ${say}` : ""}`} data-testid="ln-diagram">
       <rect x="2" y="2" width="396" height={h - 4} rx="10" fill="#DCEFF2" stroke={INK} strokeWidth="4" />
       {/* fictional coastline */}
       <path d="M2 2 H150 Q130 30 96 34 Q60 40 40 70 Q24 92 2 96 Z" fill={LN.paper} stroke="#8C7A50" strokeWidth="2.5" />
@@ -86,8 +86,9 @@ function ChartRoute({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
   const ticks = Array.from({ length: Math.floor(cm) + 1 }, (_, i) => i);
   const nx = -Math.sin(t), ny = -Math.cos(t); // normal (svg), pointing "up" from the route
   const label = mode === "map" ? (reveal ? `${fmtNum(cm)} cm` : "? cm") : mode === "ratio" ? "" : `${fmtNum(cm)} cm`;
+  const say = mode === "real" ? `The route from ${PLACES[from]} to ${PLACES[to]} is ${fmtNum(cm)} cm on the chart.` : mode === "map" ? `${PLACES[from]} and ${PLACES[to]} are ${fmtNum(p(ex, "km"))} km apart${reveal ? `: ${fmtNum(cm)} cm on the chart` : ""}.` : "";
   return (
-    <ChartPaper k={k}>
+    <ChartPaper k={k} say={say}>
       {mode !== "ratio" && (<>
         <path d={`M${x0} ${y0} L${x1} ${y1}`} stroke="#C06A1E" strokeWidth="5" strokeDasharray="12 7" strokeLinecap="round" />
         {ticks.map((i) => {
@@ -114,7 +115,7 @@ function ChartHome({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
   const hx = 110, hy = 206;
   const bx = hx + east * u, by = hy - north * u;
   return (
-    <ChartPaper k={k} h={276}>
+    <ChartPaper k={k} h={276} say={`Bobbo's boat is ${east} cm east and ${north} cm north of the harbour mouth.`}>
       <path d={`M${hx} ${hy} H${bx}`} stroke={INK} strokeWidth="3" strokeDasharray="8 6" />
       <path d={`M${bx} ${hy} V${by}`} stroke={INK} strokeWidth="3" strokeDasharray="8 6" />
       <path d={`M${bx - 12} ${hy} V${hy - 12} H${bx}`} stroke={INK} strokeWidth="2.5" fill="none" />
