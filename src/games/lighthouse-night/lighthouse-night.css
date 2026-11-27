@@ -86,10 +86,10 @@
 .ln-gridwrap .ln-diagram { cursor: crosshair; }
 
 /* svg text */
-.ln-svg-small { font: 800 12px var(--font-body); fill: #33496b; }
+.ln-svg-small { font: 800 13px var(--font-body); fill: #33496b; }
 .ln-svg-tiny { font: 700 10px var(--font-body); fill: #33496b; }
 .ln-svg-strong { font: 900 13px var(--font-body); fill: var(--ink); }
-.ln-svg-place { font: 800 12.5px var(--font-body); fill: #3b2f1a; paint-order: stroke; stroke: #f4ebd3; stroke-width: 4px; }
+.ln-svg-place { font: 800 13.5px var(--font-body); fill: #3b2f1a; paint-order: stroke; stroke: #f4ebd3; stroke-width: 4px; }
 .ln-svg-warn { font: 900 11px var(--font-body); fill: #8a1f26; letter-spacing: 0.04em; text-transform: uppercase; }
 .ln-svg-compass { font: 900 15px var(--font-body); fill: var(--ink); }
 .ln-svg-compass.is-north { fill: #b3262d; }
@@ -99,15 +99,15 @@
 
 /* angle marks */
 .ln-ang-arc { stroke: var(--ink); stroke-width: 3; }
-.ln-ang-label { font: 900 15px var(--font-body); fill: var(--ink); paint-order: stroke; stroke: rgba(255, 255, 255, 0.92); stroke-width: 5px; }
+.ln-ang-label { font: 900 16px var(--font-body); fill: var(--ink); paint-order: stroke; stroke: rgba(255, 255, 255, 0.92); stroke-width: 5px; }
 .ln-ang.is-unknown .ln-ang-fill { fill: #ffd43b; opacity: 0.55; }
 .ln-ang.is-unknown .ln-ang-arc { stroke: #b07a00; stroke-width: 3.5; }
 .ln-ang.is-unknown .ln-ang-label { fill: #8a4b00; font-size: 17px; font-style: italic; }
 .ln-ang.is-model .ln-ang-fill { fill: #ffd43b; opacity: 0.8; }
 .ln-ang.is-model .ln-ang-label { fill: #6b3a00; }
 .ln-ang.is-plain .ln-ang-arc { stroke: #8a8496; stroke-width: 2; }
-.ln-side { font: 900 15px var(--font-body); fill: var(--ink); paint-order: stroke; stroke: rgba(255, 255, 255, 0.92); stroke-width: 5px; }
-.ln-side.is-ask { fill: #8a4b00; font-size: 17px; }
+.ln-side { font: 900 17px var(--font-body); fill: var(--ink); paint-order: stroke; stroke: rgba(255, 255, 255, 0.92); stroke-width: 5px; }
+.ln-side.is-ask { fill: #8a4b00; font-size: 19px; }
 .ln-side.is-model { fill: #6b3a00; }
 .ln-path-line { stroke: #1c6fa8; stroke-width: 4; stroke-linecap: round; }
 .ln-path.is-second .ln-path-line { stroke: #c06a1e; stroke-dasharray: 10 6; }

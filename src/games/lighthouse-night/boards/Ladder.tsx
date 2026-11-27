@@ -46,7 +46,7 @@ function TowerTriangle({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
   const out = p(ex, "out");
   const c = mode === "round" && ask === 0 ? Math.hypot(p(ex, "up"), out) : p(ex, "c");
   const up = mode === "round" && ask === 1 ? legOf(c, out) : p(ex, "up");
-  const value = ex.answer.kind === "number" ? ex.answer.value : 0;
+  const value = ex.answer.kind === "number" || ex.answer.kind === "numeric" ? ex.answer.value : 0;
   const s = Math.min(150 / up, 220 / out);
   const tx = 300, gy = 204;
   const bx = tx - out * s, ty = gy - up * s;

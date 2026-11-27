@@ -32,6 +32,7 @@ export function GridBoard(props: BoardProps) {
       extra={{ board: b }}
       scene={<><GridPicture st={st} reveal={reveal} />{fin && <FinaleBoat st={st} />}</>}
       panel={<>
+        <PathCard ex={ex} />
         <Method ex={ex} st={st} />
         {a.kind === "choice" ? (
           <Options st={st} act={props.act} busy={props.busy} options={a.options} label={mode === "meet" ? "Crossing point" : mode === "para" ? "Ship" : "Equation"} />
@@ -42,6 +43,15 @@ export function GridBoard(props: BoardProps) {
       </>}
     />
   );
+}
+/** The equations or points the question is about, on the board (not only in the prompt). */
+function PathCard({ ex }: { ex: BoardProps["st"]["exercise"] }) {
+  const mode = modeOf(ex);
+  if (mode === "meet")
+    return <p className="ln-radio" data-testid="ln-card"><span className="ln-radio-tag">Paths</span> {SHIPS[p(ex, "s1")]}: <b>{fmtLine(p(ex, "m1"), p(ex, "c1"))}</b> · {SHIPS[p(ex, "s2")]}: <b>{fmtLine(p(ex, "m2"), p(ex, "c2"))}</b></p>;
+  if (mode === "para") return <p className="ln-radio" data-testid="ln-card"><span className="ln-radio-tag">Gull</span> <b>{fmtLine(p(ex, "mm"), p(ex, "c"))}</b></p>;
+  if (mode === "home") return <p className="ln-radio" data-testid="ln-card"><span className="ln-radio-tag">Course</span> Bobbo <b>{fmtPt(p(ex, "x1"), p(ex, "y1"))}</b> → harbour <b>{fmtPt(p(ex, "x2"), p(ex, "y2"))}</b></p>;
+  return null;
 }
 const SUB: Partial<Record<string, string>> = { grad: "Gradient", icpt: "y-intercept", eqn: "y = mx + c", meet: "Crossing paths", para: "Parallel paths" };
 

@@ -425,6 +425,8 @@ for (const vp of VIEWPORTS) {
       await answering(page);
       await page.waitForTimeout(600);
       expect.soft(await unreachableControls(page), `${tag} model`).toEqual([]);
+      // the picture shows the modelled value too (lengths on the tower triangle)
+      if (gameOf(ex) === "ladder" && c.mode !== "conv" && (ex.answer.kind === "number" || ex.answer.kind === "numeric")) await expect.soft(page.locator(".ln-side.is-model")).toContainText(`${ex.answer.value} m`);
       await page.screenshot({ path: `${REVIEW}/vp-${vp.name}-${c.mode}${c.fin ? `-${c.fin}` : ""}-model.png` });
     }
   });

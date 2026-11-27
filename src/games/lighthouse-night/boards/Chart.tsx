@@ -131,7 +131,7 @@ function ChartHome({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
       <circle cx={bx} cy={by} r="8" fill={LN.red} stroke={INK} strokeWidth="3" />
       <text x={(hx + bx) / 2 + 10} y={hy + 19} className="ln-side" textAnchor="middle">{east} cm east</text>
       <text x={bx + 8} y={(hy + by) / 2} className="ln-side" textAnchor="start" dominantBaseline="central">{north} cm north</text>
-      <text x={(hx + bx) / 2 - 12} y={(hy + by) / 2 - 10} className={`ln-side ${reveal ? "is-model" : "is-ask"}`} textAnchor="end">{reveal ? `${c} cm = ${c * k} km` : "? km"}</text>
+      <text x={(hx + bx) / 2 + 10} y={(hy + by) / 2 + 6} className={`ln-side ${reveal ? "is-model" : "is-ask"}`} textAnchor="start">{reveal ? `${c} cm = ${c * k} km` : "? km"}</text>
     </ChartPaper>
   );
 }
@@ -144,6 +144,7 @@ function BarModel({ st, reveal }: { st: ExerciseState; reveal: boolean }) {
   const box = Math.min(46, 240 / Math.max(a, b));
   const row = (n: number, y: number, name: string, mine: boolean) => (
     <g>
+      {mine && !reveal && <text x={146 + n * box} y={y + box / 2} className="ln-side is-ask" dominantBaseline="central">?</text>}
       <text x="12" y={y + box / 2} className="ln-svg-place" dominantBaseline="central">{name}</text>
       {Array.from({ length: n }, (_, i) => (
         <g key={i}>
