@@ -54,6 +54,7 @@ export const EXERCISE_PREFIX: Record<string, string> = {
   "flight-plan": "fp",
   bakery: "bk",
   "bubble-bath": "gb",
+  "lighthouse-night": "ln",
 };
 
 /**

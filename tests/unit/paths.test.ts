@@ -49,9 +49,9 @@ describe("path data in the packs", () => {
   });
   it("coverage today (informational): which ages each path still needs", () => {
     const gaps = Object.fromEntries(paths.map((p) => [p.id, pathAgeGaps(p)]));
-    // math has worlds for 3–13 (Bubble Bath at 3, Bakery at 10; Lighthouse Night closes 14 once merged); English covers 3–14:
+    // math covers 3–14 since D-044 (Bubble Bath 3–4 … Lighthouse Night 12–14) and is live; English covers 3–14:
     // 3–5 (Rhyme Lanterns), 6–8 (Paper Boat Post), 9–11 (Wordroot Grove) and 12–14 (The Lantern Press).
-    expect(gaps.math).toEqual([14]);
+    expect(gaps.math).toEqual([]);
     expect(gaps.english).toEqual([]);
   });
   it("trail order is by age, and a world never comes before a world that teaches its prerequisite", () => {

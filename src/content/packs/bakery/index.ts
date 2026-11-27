@@ -5,9 +5,9 @@ import type { ContentPack } from "../../types";
  * Sleepy Trail (7–9) and Balance Island (11–13). World doc: docs/worlds/bakery.md. Spec roots: docs/curriculum/maths.md
  * §3 (Puff's Array Garden, Gloop's Room Builder, Bar-Model Bakery), merged into one world with five inner games.
  *
- * Adds five skills under EXISTING maths topics (no new topic): multiplication and missing-factor division under
- * `math.division` (sharing and division), area and perimeter under `math.shape`, fraction of an amount under
- * `math.frac`, bar-model problem solving under `math.algebra` (pre-algebra modelling). Reuses `math.frac.equivalent`
+ * Adds five skills: multiplication and missing-factor division under
+ * `math.division` (sharing and division), area and perimeter under `math.geom`, fraction of an amount under
+ * `math.frac`, bar-model problem solving under `math.solve` (topics declared in packs/library-math, D-044). Reuses `math.frac.equivalent`
  * and `math.frac.compare` (taught first by Sleepy Trail). Every prerequisite is a skill some world teaches.
  */
 const pack: ContentPack = {
