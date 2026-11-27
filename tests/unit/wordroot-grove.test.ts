@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { applyResult, initialProgression, isRoundComplete, markPlayed, selectNextExercise, startDifficultyFor } from "../../src/engine/progression";
 import { buildRound, generateBand } from "../../src/engine/round";
 import { exerciseReducer, initExercise } from "../../src/engine/session";
 import { lintExercise, validateAnswer } from "../../src/engine/validation";
@@ -125,6 +126,25 @@ describe("wordroot grove: structure", () => {
     expect(isReview(2, 3)).toBe(false);
     expect(isReview(3, 3)).toBe(true);
     expect(isReview(9, 1)).toBe(true);
+  });
+
+  it("a fast player meets both of a level's inner games before stepping up (each mode is its own R5 variety key)", () => {
+    // all first tries: two items per band (R2), so the second must be the level's other mode, not a review of another
+    // kind. Regression: owner/apostrophe (L8) and wordfor/rootcontext (L5) share interaction + answer kind.
+    const cfg = wordrootGrove.progression;
+    for (let lv = 0; lv < WG_MAX_LEVEL; lv++) for (const s of SEEDS.slice(0, 20)) {
+      const round = buildRound(wordrootGrove, { level: lv, seed: s });
+      let st = initialProgression(cfg, startDifficultyFor(lv, cfg));
+      const modes = new Set<string>();
+      while (!isRoundComplete(st, cfg)) {
+        const ex = selectNextExercise(round, st, cfg)!;
+        if (ex.difficulty === lv + 1 && !/-r\d-/.test(ex.id)) modes.add(modeOf(ex));
+        st = applyResult(markPlayed(st, ex.id), { exerciseId: ex.id, skillId: ex.skillId, difficulty: ex.difficulty, attempts: 1, firstTry: true, hintsShown: 0 }, cfg);
+      }
+      expect(modes.size, `level ${lv} seed ${s}: ${[...modes].join(", ")}`).toBe(2);
+    }
+    expect(new Set(ITEMS.map((e) => e.variety)).size).toBe(15);
+    expect(ITEMS.every((e) => e.variety === `wg-${e.params?.m ?? 0}`)).toBe(true);
   });
 });
 
